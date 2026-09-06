@@ -5206,13 +5206,13 @@ docker rm -f "\${GITHUB_REPO}-portal-staging" 2>/dev/null || true
 HOST_IP=\$(hostname -I 2>/dev/null | awk '{print \$1}' || echo "192.168.1.4")
 
 echo ""
-echo -e "\${C_GREEN}\${C_BOLD}+-----------------------------------------------------------------+${C_RESET}"
-echo -e "\${C_GREEN}\${C_BOLD}|   ATUALIZAÇÃO DE \${GITHUB_REPO} CONCLUÍDA COM SUCESSO!           |${C_RESET}"
-echo -e "\${C_GREEN}\${C_BOLD}+-----------------------------------------------------------------+${C_RESET}"
-echo -e "\${C_GREEN}\${C_BOLD}|${C_RESET}  Versão Ativa       ->  \${C_CYAN}\${ACTIVE_COMMIT_SHORT} - \${ACTIVE_COMMIT_MSG}\${C_RESET}"
-echo -e "\${C_GREEN}\${C_BOLD}|${C_RESET}  Ambiente de Testes ->  \${C_CYAN}http://\${HOST_IP}:\${PORT_STAGING}\${C_RESET}"
-echo -e "\${C_GREEN}\${C_BOLD}|${C_RESET}  Produção Oficial   ->  \${C_CYAN}http://\${HOST_IP}:\${PORT_PROD}\${C_RESET}"
-echo -e "\${C_GREEN}\${C_BOLD}+-----------------------------------------------------------------+${C_RESET}"
+echo -e "\${C_GREEN}\${C_BOLD}+-----------------------------------------------------------------+\${C_RESET}"
+echo -e "\${C_GREEN}\${C_BOLD}|   ATUALIZAÇÃO DE \${GITHUB_REPO} CONCLUÍDA COM SUCESSO!           |\${C_RESET}"
+echo -e "\${C_GREEN}\${C_BOLD}+-----------------------------------------------------------------+\${C_RESET}"
+echo -e "\${C_GREEN}\${C_BOLD}|\${C_RESET}  Versão Ativa       ->  \${C_CYAN}\${ACTIVE_COMMIT_SHORT} - \${ACTIVE_COMMIT_MSG}\${C_RESET}"
+echo -e "\${C_GREEN}\${C_BOLD}|\${C_RESET}  Ambiente de Testes ->  \${C_CYAN}http://\${HOST_IP}:\${PORT_STAGING}\${C_RESET}"
+echo -e "\${C_GREEN}\${C_BOLD}|\${C_RESET}  Produção Oficial   ->  \${C_CYAN}http://\${HOST_IP}:\${PORT_PROD}\${C_RESET}"
+echo -e "\${C_GREEN}\${C_BOLD}+-----------------------------------------------------------------+\${C_RESET}"
 echo ""
 `.trim();
 
