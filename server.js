@@ -7687,107 +7687,146 @@ END $$;
 });
 
 app.delete("/api/projects/:id", requireAuth, async (req, res) => {
-  const { id } = req.params;
-  const { confirm_name, delete_github, delete_local_files } = req.body;
+  try {
+    const { id } = req.params;
+    const { confirm_name, delete_github, delete_local_files } = req.body;
 
-  // Proteção opcional de projeto
-  if (project.isLocked) {
-    return res.status(400).json({ ok: false, error: "Este projeto está protegido contra eliminação." });
-  }
+    let projects = getProjects();
+    const project = projects.find((p) => p.id === id);
+    if (!project) return res.status(404).json({ ok: false, error: "Projeto não encontrado." });
 
-  let projects = getProjects();
-  const project = projects.find((p) => p.id === id);
-  if (!project) return res.status(404).json({ ok: false, error: "Projeto não encontrado." });
+    // Proteção opcional de projeto
+    if (project.isLocked) {
+      return res.status(400).json({ ok: false, error: "Este projeto está protegido contra eliminação." });
+    }
 
-  if (!confirm_name || confirm_name.trim() !== project.name.trim()) {
-    return res.status(400).json({
+    if (!confirm_name || confirm_name.trim().toLowerCase() !== project.name.trim().toLowerCase()) {
+      return res.status(400).json({
+        ok: false,
+        error: `Confirmação inválida. Digite exatamente "${project.name}" para poder eliminar.`,
+      });
+    }
+
+    const settings = getSettings();
+    const logs = [];
+    logs.push(`A iniciar remoção da stack do projeto "${project.name}" (${project.id})...`);
+
+    // 1. Eliminar repositório privado no GitHub (se solicitado ou por omissão)
+    if (delete_github !== false && settings.github_token) {
+      try {
+        const repoOwner = project.repoOwner || "DavidFFerreira";
+        const repoName = project.repoName || project.id;
+        logs.push(`A eliminar repositório no GitHub: https://github.com/${repoOwner}/${repoName}...`);
+
+        const ghResp = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `token ${settings.github_token}`,
+            "User-Agent": "DeployCenter-Platform/3.0",
+            Accept: "application/vnd.github.v3+json",
+          },
+        });
+
+        if (ghResp.ok || ghResp.status === 204) {
+          logs.push(`✓ Repositório no GitHub (@${repoOwner}/${repoName}) eliminado com sucesso.`);
+        } else if (ghResp.status === 404) {
+          logs.push(`ℹ️ Repositório GitHub não encontrado ou já foi eliminado.`);
+        } else {
+          const errJson = await ghResp.json().catch(() => ({}));
+          logs.push(`⚠️ Aviso GitHub: ${errJson.message || `Erro HTTP ${ghResp.status}`}`);
+        }
+      } catch (ghErr) {
+        logs.push(`⚠️ Aviso ao contactar GitHub: ${ghErr.message}`);
+      }
+    }
+
+    // 2. Parar e remover contentores Docker e volumes da stack
+    try {
+      const prefix = project.containerPrefix || `${project.id}-`;
+      if (project.appDir && fs.existsSync(project.appDir)) {
+        const downCommands = [
+          `docker compose down -v --remove-orphans`,
+          `docker-compose down -v --remove-orphans`,
+        ];
+        for (const cmd of downCommands) {
+          try {
+            await execAsync(cmd, { cwd: project.appDir, timeout: 45000 });
+            logs.push(`✓ Contentores e volumes Docker removidos via "${cmd}".`);
+            break;
+          } catch (e) {}
+        }
+      }
+
+      // Fallback abrangente: matar e remover contentores residuais
+      try {
+        await execAsync(`docker ps -a --filter "name=${prefix}" --format "{{.ID}}" | xargs -r docker rm -f`, { timeout: 30000 });
+        await execAsync(`docker ps -a --filter "name=^${project.id}-" --format "{{.ID}}" | xargs -r docker rm -f`, { timeout: 30000 });
+        logs.push(`✓ Contentores Docker residuais com prefixo "${prefix}" parados e removidos.`);
+      } catch (e) {}
+
+      // Limpar volumes residuais
+      try {
+        await execAsync(`docker volume ls -q --filter "name=${prefix}" | xargs -r docker volume rm -f`, { timeout: 20000 });
+        await execAsync(`docker volume ls -q --filter "name=^${project.id}_" | xargs -r docker volume rm -f`, { timeout: 20000 });
+        logs.push(`✓ Volumes Docker residuais associados à stack limpos.`);
+      } catch (e) {}
+
+    } catch (dockerErr) {
+      logs.push(`⚠️ Aviso ao remover contentores Docker: ${dockerErr.message}`);
+    }
+
+    // 3. Remover diretório e ficheiros locais no servidor (se solicitado ou por omissão)
+    if (delete_local_files !== false && project.appDir && fs.existsSync(project.appDir)) {
+      try {
+        // Garantir que não apaga o root nem o Disco1 inteiro
+        const normalizedPath = path.resolve(project.appDir);
+        if (
+          normalizedPath !== "/" &&
+          normalizedPath !== "/mnt" &&
+          normalizedPath !== "/mnt/Disco1" &&
+          normalizedPath !== "/mnt/Disco1/apps" &&
+          normalizedPath !== "/mnt/opt/stacks"
+        ) {
+          fs.rmSync(normalizedPath, { recursive: true, force: true });
+          logs.push(`✓ Pasta e ficheiros locais no servidor (${normalizedPath}) eliminados.`);
+        }
+      } catch (fsErr) {
+        logs.push(`⚠️ Aviso ao remover ficheiros no servidor: ${fsErr.message}`);
+      }
+    }
+
+    // 4. Remover do estado global se existir
+    try {
+      const globalState = getGlobalState();
+      if (globalState.projects && globalState.projects[id]) {
+        delete globalState.projects[id];
+        saveGlobalState(globalState);
+        logs.push(`✓ Histórico de versões e deploys limpo do estado.`);
+      }
+    } catch (e) {}
+
+    // 5. Remover da lista de projetos do Deployment Center
+    projects = projects.filter((p) => p.id !== id);
+    if (projects.length === 0) {
+      projects = DEFAULT_PROJECTS;
+    }
+    saveProjects(projects);
+    logs.push(`✓ Projeto removido do registo do Deployment Center.`);
+
+    res.json({
+      ok: true,
+      deletedId: id,
+      fallbackProjectId: projects[0].id,
+      logs,
+      message: `Projeto "${project.name}" e respetivos recursos eliminados com sucesso.`,
+    });
+  } catch (err) {
+    console.error(`Erro ao eliminar projeto:`, err);
+    res.status(500).json({
       ok: false,
-      error: `Confirmação inválida. Digite exatamente "${project.name}" para poder eliminar.`,
+      error: `Erro interno ao eliminar projeto: ${err.message}`,
     });
   }
-
-  const settings = getSettings();
-  const logs = [];
-  logs.push(`A iniciar remoção da stack do projeto "${project.name}" (${project.id})...`);
-
-  // 1. Eliminar repositório privado no GitHub (se solicitado ou por omissão)
-  if (delete_github !== false && settings.github_token) {
-    try {
-      const repoOwner = project.repoOwner || "DavidFFerreira";
-      const repoName = project.repoName || project.id;
-      logs.push(`A eliminar repositório no GitHub: https://github.com/${repoOwner}/${repoName}...`);
-
-      const ghResp = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `token ${settings.github_token}`,
-          "User-Agent": "DeployCenter-Platform/3.0",
-          Accept: "application/vnd.github.v3+json",
-        },
-      });
-
-      if (ghResp.ok || ghResp.status === 204) {
-        logs.push(`✓ Repositório no GitHub (@${repoOwner}/${repoName}) eliminado com sucesso.`);
-      } else if (ghResp.status === 404) {
-        logs.push(`ℹ️ Repositório GitHub não encontrado ou já foi eliminado.`);
-      } else {
-        const errJson = await ghResp.json().catch(() => ({}));
-        logs.push(`⚠️ Aviso GitHub: ${errJson.message || `Erro HTTP ${ghResp.status}`}`);
-      }
-    } catch (ghErr) {
-      logs.push(`⚠️ Aviso ao contactar GitHub: ${ghErr.message}`);
-    }
-  }
-
-  // 2. Parar e remover contentores Docker e volumes da stack
-  try {
-    if (fs.existsSync(project.appDir)) {
-      const downCommands = [`docker compose down -v`, `docker-compose down -v`];
-      for (const cmd of downCommands) {
-        try {
-          await execAsync(cmd, { cwd: project.appDir, timeout: 60000 });
-          logs.push(`✓ Contentores e volumes Docker removidos via "${cmd}".`);
-          break;
-        } catch (e) {}
-      }
-    } else {
-      const prefix = project.containerPrefix || `${project.id}-`;
-      await execAsync(`docker ps -a --filter "name=^${prefix}" --format "{{.ID}}" | xargs -r docker rm -f`, { timeout: 30000 });
-      logs.push(`✓ Contentores Docker com prefixo "${prefix}" parados e removidos.`);
-    }
-  } catch (dockerErr) {
-    logs.push(`⚠️ Aviso ao remover contentores Docker: ${dockerErr.message}`);
-  }
-
-  // 3. Remover diretório e ficheiros locais no servidor (se solicitado ou por omissão)
-  if (delete_local_files !== false && project.appDir && fs.existsSync(project.appDir)) {
-    try {
-      // Garantir que não apaga o root nem o Disco1 inteiro
-      const normalizedPath = path.resolve(project.appDir);
-      if (normalizedPath !== "/" && normalizedPath !== "/mnt" && normalizedPath !== "/mnt/Disco1" && normalizedPath !== "/mnt/opt/stacks") {
-        fs.rmSync(normalizedPath, { recursive: true, force: true });
-        logs.push(`✓ Pasta e ficheiros locais no servidor (${normalizedPath}) eliminados.`);
-      }
-    } catch (fsErr) {
-      logs.push(`⚠️ Aviso ao remover ficheiros no servidor: ${fsErr.message}`);
-    }
-  }
-
-  // 4. Remover da lista de projetos do Deployment Center
-  projects = projects.filter((p) => p.id !== id);
-  if (projects.length === 0) {
-    projects = DEFAULT_PROJECTS;
-  }
-  saveProjects(projects);
-  logs.push(`✓ Projeto removido do registo do Deployment Center.`);
-
-  res.json({
-    ok: true,
-    deletedId: id,
-    fallbackProjectId: projects[0].id,
-    logs,
-    message: `Projeto "${project.name}" e respetivos recursos eliminados com sucesso.`,
-  });
 });
 
 // Arrancar Servidor

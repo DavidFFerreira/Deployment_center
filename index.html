@@ -4039,7 +4039,7 @@
     function handleDeleteProjectInputMatch(val) {
       if (!targetProjectToDelete) return;
       const submitBtn = document.getElementById('del-proj-submit-btn');
-      const isMatch = val.trim() === targetProjectToDelete.name.trim();
+      const isMatch = val.trim().toLowerCase() === targetProjectToDelete.name.trim().toLowerCase();
 
       submitBtn.disabled = !isMatch;
       if (isMatch) {
@@ -4064,7 +4064,9 @@
       if (!targetProjectToDelete) return;
       const submitBtn = document.getElementById('del-proj-submit-btn');
       submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
       submitBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> A remover stack...`;
+      if (window.lucide) lucide.createIcons();
 
       const deleteGithub = document.getElementById('del-proj-gh-cb') ? document.getElementById('del-proj-gh-cb').checked : true;
       const deleteFiles = document.getElementById('del-proj-files-cb') ? document.getElementById('del-proj-files-cb').checked : true;
@@ -4079,14 +4081,21 @@
             delete_local_files: deleteFiles,
           }),
         });
-        const data = await res.json();
+
+        let data;
+        try {
+          data = await res.json();
+        } catch (parseErr) {
+          const rawText = await res.text().catch(() => '');
+          data = { ok: false, error: rawText || `Erro HTTP ${res.status}` };
+        }
 
         if (data.ok) {
           const removedName = targetProjectToDelete.name;
           closeModal('delete-project-modal');
           await loadProjects();
           if (currentProjectId === targetProjectToDelete.id) {
-            switchProject(data.fallbackProjectId || 'app-portal');
+            switchProject(data.fallbackProjectId || 'suavit-portal');
           } else {
             renderSettingsProjectsList();
           }
@@ -4113,6 +4122,7 @@
         });
       } finally {
         submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         submitBtn.innerHTML = `<i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar Definitivamente`;
         if (window.lucide) lucide.createIcons();
       }
