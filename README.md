@@ -96,7 +96,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 <p align="center">
   <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/01_login.png" target="_blank" rel="noopener noreferrer">
-    <img src="docs/images/01_login.png?raw=true" alt="Ecrã de Login Seguro" width="90%" />
+    <img src="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/01_login.png?raw=true" alt="Ecrã de Login Seguro" width="90%" />
   </a>
 </p>
 
@@ -111,7 +111,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 <p align="center">
   <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/02_dashboard_versions.png" target="_blank" rel="noopener noreferrer">
-    <img src="docs/images/02_dashboard_versions.png?raw=true" alt="Painel de Versões e Deploys" width="90%" />
+    <img src="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/02_dashboard_versions.png?raw=true" alt="Painel de Versões e Deploys" width="90%" />
   </a>
 </p>
 
@@ -131,7 +131,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 <p align="center">
   <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/03_containers_orchestrator.png" target="_blank" rel="noopener noreferrer">
-    <img src="docs/images/03_containers_orchestrator.png?raw=true" alt="Orquestrador de Contentores Docker" width="90%" />
+    <img src="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/03_containers_orchestrator.png?raw=true" alt="Orquestrador de Contentores Docker" width="90%" />
   </a>
 </p>
 
@@ -149,7 +149,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 <p align="center">
   <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/04_terminal_shell.png" target="_blank" rel="noopener noreferrer">
-    <img src="docs/images/04_terminal_shell.png?raw=true" alt="Terminal Shell Integrado" width="90%" />
+    <img src="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/04_terminal_shell.png?raw=true" alt="Terminal Shell Integrado" width="90%" />
   </a>
 </p>
 
@@ -169,7 +169,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 <p align="center">
   <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/05_storage_manager.png" target="_blank" rel="noopener noreferrer">
-    <img src="docs/images/05_storage_manager.png?raw=true" alt="Gestor de Storage Supabase" width="90%" />
+    <img src="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/05_storage_manager.png?raw=true" alt="Gestor de Storage Supabase" width="90%" />
   </a>
 </p>
 
@@ -190,7 +190,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 <p align="center">
   <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/06_database_manager.png" target="_blank" rel="noopener noreferrer">
-    <img src="docs/images/06_database_manager.png?raw=true" alt="Gestor de Base de Dados PostgreSQL" width="90%" />
+    <img src="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/06_database_manager.png?raw=true" alt="Gestor de Base de Dados PostgreSQL" width="90%" />
   </a>
 </p>
 
@@ -215,7 +215,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 <p align="center">
   <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/07_history_audit.png" target="_blank" rel="noopener noreferrer">
-    <img src="docs/images/07_history_audit.png?raw=true" alt="Histórico e Auditoria de Ações" width="90%" />
+    <img src="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/07_history_audit.png?raw=true" alt="Histórico e Auditoria de Ações" width="90%" />
   </a>
 </p>
 
@@ -229,7 +229,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 <p align="center">
   <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/08_project_wizard.png" target="_blank" rel="noopener noreferrer">
-    <img src="docs/images/08_project_wizard.png?raw=true" alt="Wizard de Criação de Projetos" width="90%" />
+    <img src="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/08_project_wizard.png?raw=true" alt="Wizard de Criação de Projetos" width="90%" />
   </a>
 </p>
 
@@ -245,7 +245,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 <p align="center">
   <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/09_ai_skills_manager.png" target="_blank" rel="noopener noreferrer">
-    <img src="docs/images/09_ai_skills_manager.png?raw=true" alt="Gestor de Skills de IA" width="90%" />
+    <img src="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/09_ai_skills_manager.png?raw=true" alt="Gestor de Skills de IA" width="90%" />
   </a>
 </p>
 
@@ -260,7 +260,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 <p align="center">
   <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/10_agent_rules_editor.png" target="_blank" rel="noopener noreferrer">
-    <img src="docs/images/10_agent_rules_editor.png?raw=true" alt="Editor de Regras de IA" width="90%" />
+    <img src="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/10_agent_rules_editor.png?raw=true" alt="Editor de Regras de IA" width="90%" />
   </a>
 </p>
 
@@ -280,7 +280,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 <p align="center">
   <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/11_settings_credentials.png" target="_blank" rel="noopener noreferrer">
-    <img src="docs/images/11_settings_credentials.png?raw=true" alt="Definições e Vault de Credenciais" width="90%" />
+    <img src="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/11_settings_credentials.png?raw=true" alt="Definições e Vault de Credenciais" width="90%" />
   </a>
 </p>
 
