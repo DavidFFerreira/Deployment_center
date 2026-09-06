@@ -1528,11 +1528,375 @@ app.post("/api/v1/webhooks/test", (req, res) => {
   });
 });
 
+// ==============================================================================
+// GERADORES CANÓNICOS: ARQUITETURA, GUIA SUPABASE & PROMPTS DE IA
+// ==============================================================================
+
+function generateArchitectureContent(project, settings = {}) {
+  const name = project.name || project.id;
+  const cleanSlug = project.id || project.slug;
+  const hostIp = settings.server_host_ip || "192.168.1.4";
+  const portProd = project.production?.port || (project.portPrefix ? parseInt(`${project.portPrefix}100`, 10) : 58100);
+  const portStaging = project.staging?.port || (project.portPrefix ? parseInt(`${project.portPrefix}101`, 10) : 58101);
+  const portKongProd = project.kongPortProd || project.kongPort || (project.portPrefix ? parseInt(`${project.portPrefix}000`, 10) : 58000);
+  const portKongStaging = project.kongPortStaging || (project.portPrefix ? parseInt(`${project.portPrefix}002`, 10) : 58002);
+  const portStudioProd = project.studioPortProd || project.studioPort || (project.portPrefix ? parseInt(`${project.portPrefix}323`, 10) : 58323);
+  const portStudioStaging = project.studioPortStaging || (project.portPrefix ? parseInt(`${project.portPrefix}324`, 10) : 58324);
+  const portPostgresProd = project.postgresPortProd || project.postgresPort || (project.portPrefix ? parseInt(`${project.portPrefix}432`, 10) : 58432);
+  const portPostgresStaging = project.postgresPortStaging || (project.portPrefix ? parseInt(`${project.portPrefix}433`, 10) : 58433);
+  const dbPassword = settings.supabase_master_key || "deploy_secret_db_pass_2026";
+  const anonKey = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzg4MTkyNTU2LCJleHAiOjIxMDM1NTI1NTZ9.EHchSdQ898QHiuVncgL2UpV5sScvp0qTcYeZTTwiq9E`;
+  const serviceKey = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3ODgxOTI1NTYsImV4cCI6MjEwMzU1MjU1Nn0.1LjNW3Rn5ekVZOVq4UfQw5aRfLmpwq0VlZKfkOv0EAg`;
+  const authorName = settings.author_name || "David Alexandre Ferreira";
+  const authorWebsite = settings.author_website || "https://davidferreira.pt";
+
+  return `# 🏛️ Arquitetura e Guia da Stack — ${name}
+
+> Este ficheiro foi gerado automaticamente pelo **Deployment Center v3.0**.  
+> Serve como **Contexto de Arquitetura para Assistentes de IA (Cursor, Lovable, Claude, Antigravity, Copilot, ChatGPT)** para entenderem a infraestrutura dual-stack isolada (Produção vs Testes) e como desenvolver e integrar com os serviços deste projeto.
+
+---
+
+## 🌐 0. Portas Oficiais Atribuídas ao Projeto (Host Linux)
+| Ambiente | Aplicação / Portal Web | Kong API Gateway | PostgreSQL Database | Supabase Studio |
+| :--- | :--- | :--- | :--- | :--- |
+| **Produção Oficial** | **\`:${portProd}\`** (\`http://${hostIp}:${portProd}\`) | **\`:${portKongProd}\`** (\`http://${hostIp}:${portKongProd}\`) | **\`:${portPostgresProd}\`** (\`${hostIp}:${portPostgresProd}\`) | **\`:${portStudioProd}\`** (\`http://${hostIp}:${portStudioProd}\`) |
+| **Testes (Staging)** | **\`:${portStaging}\`** (\`http://${hostIp}:${portStaging}\`) | **\`:${portKongStaging}\`** (\`http://${hostIp}:${portKongStaging}\`) | **\`:${portPostgresStaging}\`** (\`${hostIp}:${portPostgresStaging}\`) | **\`:${portStudioStaging}\`** (\`http://${hostIp}:${portStudioStaging}\`) |
+
+---
+
+## 📦 1. Topologia de Contentores Docker (Linux Multi-Stack Isolada)
+
+A stack deste projeto corre de forma 100% isolada no servidor Linux, utilizando contentores Docker dedicados e separados para **Produção Oficial** e **Ambiente de Testes (Staging)**:
+
+### A. Ambiente de Produção Oficial
+| Serviço / Contentor | Imagem | Porta Exposta (Host) | Porta Interna | Função & Responsabilidade |
+| :--- | :--- | :--- | :--- | :--- |
+| **\`${cleanSlug}-portal-prod\`** | \`node:22-bookworm-slim\` | **\`:${portProd}\`** | \`3000\` | **Ambiente de Produção Oficial** da aplicação web. |
+| **\`${cleanSlug}-postgres-prod\`** | \`postgres:15\` | **\`:${portPostgresProd}\`** | \`5432\` | Base de dados PostgreSQL de Produção (dados reais de clientes). |
+| **\`${cleanSlug}-kong-prod\`** | \`kong:2.8.1\` | **\`:${portKongProd}\`** | \`8000\` | **Gateway Unificado de Produção** (\`/rest/v1\`, \`/auth/v1\`, \`/storage/v1\`). |
+| **\`${cleanSlug}-studio-prod\`** | \`supabase/studio:2026.08.31-sha-2c76bb3\` | **\`:${portStudioProd}\`** | \`3000\` | Dashboard web Supabase Studio de Produção. |
+| **\`${cleanSlug}-auth-prod\`** | \`supabase/gotrue:v2.158.0\` | *Interna* | \`9999\` | Microserviço GoTrue Auth de Produção. |
+| **\`${cleanSlug}-postgrest-prod\`** | \`postgrest/postgrest:v12.2.0\` | *Interna* | \`3000\` | PostgREST API Engine de Produção. |
+| **\`${cleanSlug}-storage-prod\`** | \`supabase/storage-api:v1.11.1\` | *Interna* | \`5000\` | Storage API de ficheiros de Produção. |
+
+### B. Ambiente de Testes (Staging)
+| Serviço / Contentor | Imagem | Porta Exposta (Host) | Porta Interna | Função & Responsabilidade |
+| :--- | :--- | :--- | :--- | :--- |
+| **\`${cleanSlug}-portal-staging\`** | \`node:22-bookworm-slim\` | **\`:${portStaging}\`** | \`3000\` | **Ambiente de Testes / Staging** para validação prévia. |
+| **\`${cleanSlug}-postgres-staging\`** | \`postgres:15\` | **\`:${portPostgresStaging}\`** | \`5432\` | Base de dados PostgreSQL de Testes (dados de teste isolados). |
+| **\`${cleanSlug}-kong-staging\`** | \`kong:2.8.1\` | **\`:${portKongStaging}\`** | \`8000\` | **Gateway Unificado de Testes** (\`/rest/v1\`, \`/auth/v1\`, \`/storage/v1\`). |
+| **\`${cleanSlug}-studio-staging\`** | \`supabase/studio:2026.08.31-sha-2c76bb3\` | **\`:${portStudioStaging}\`** | \`3000\` | Dashboard web Supabase Studio de Testes. |
+| **\`${cleanSlug}-auth-staging\`** | \`supabase/gotrue:v2.158.0\` | *Interna* | \`9999\` | Microserviço GoTrue Auth de Testes. |
+| **\`${cleanSlug}-postgrest-staging\`** | \`postgrest/postgrest:v12.2.0\` | *Interna* | \`3000\` | PostgREST API Engine de Testes. |
+| **\`${cleanSlug}-storage-staging\`** | \`supabase/storage-api:v1.11.1\` | *Interna* | \`5000\` | Storage API de ficheiros de Testes. |
+
+---
+
+## 🔑 2. Variáveis de Ambiente para a IA & Frontend
+
+\`\`\`env
+# Produção (.env.production / .env)
+PORT=${portProd}
+VITE_PORT=${portProd}
+APP_PORT=${portProd}
+VITE_SUPABASE_URL=http://${hostIp}:${portKongProd}
+VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
+SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
+DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresProd}/postgres
+
+# Testes (.env.staging)
+PORT=${portStaging}
+VITE_PORT=${portStaging}
+APP_PORT=${portStaging}
+VITE_SUPABASE_URL=http://${hostIp}:${portKongStaging}
+VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
+SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
+DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresStaging}/postgres
+\`\`\`
+
+---
+
+## 🎨 3. Diretivas Obrigatórias de Frontend, Design, UX/UI & Legal
+
+### A. Dark / Light Mode (Tema Claro / Escuro)
+- Todas as páginas, modais e componentes devem estar preparados para alternar fluidamente entre modo escuro e claro com Tailwind CSS (\`dark:\`).
+- O seletor de tema deve estar posicionado no topo (Header) e persistir a escolha no \`localStorage\`.
+- **Atenção ao contraste**: Dropdowns (\`<select>\`), opções (\`<option>\`) e menus devem usar \`color-scheme: dark\` ou classes explícitas para garantir legibilidade impecável tanto em tema escuro como claro.
+
+### B. Internacionalização Multi-Idioma (i18n)
+- Todas as páginas devem estar preparadas para múltiplos idiomas com suporte a 4 línguas:
+  - 🇵🇹 **\`pt-PT\`** (Português de Portugal — Padrão)
+  - 🇬🇧 **\`en\`** (Inglês)
+  - 🇫🇷 **\`fr\`** (Francês)
+  - 🇪🇸 **\`es\`** (Espanhol)
+- O seletor de idioma deve estar no Header com persistência no \`localStorage\`.
+
+### C. Rodapé Oficial, Direitos de Autor e Legislação Portuguesa
+- Toda a página ou aplicação gerada deve incluir obrigatoriamente no rodapé (footer):
+  - Copyright dinâmico: \`© ${new Date().getFullYear()} ${authorName} — Todos os direitos reservados.\` com link no nome do autor para **\`${authorWebsite}\`**.
+  - Indicador versionado de compilação: \`Build: #<git-commit-hash>\` com link para o repositório.
+  - Links de conformidade com a legislação portuguesa: **Termos de Utilização**, **Política de Privacidade** e **Gestão de Cookies** (em conformidade com o RGPD).
+
+### D. Boas Práticas de Base de Dados & Supabase
+- As tabelas da aplicação devem ser criadas no schema \`public\` com RLS ativo (\`ENABLE ROW LEVEL SECURITY\`).
+- Conceder sempre permissões às roles de acesso:
+  \`GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, service_role, authenticated, anon;\`
+- As chamadas de API do frontend devem usar o cliente canónico \`src/integrations/supabase/client.ts\`.
+
+### E. Qualidade de Código & Lovable
+- Executar sempre a verificação de compilação (\`npm run build\` / \`npx tsc --noEmit\`) antes de finalizar tarefas para prevenir quebras no Lovable ou no Vite.
+`;
+}
+
+function generateSupabaseGuideContent(project, settings = {}) {
+  const name = project.name || project.id;
+  const cleanSlug = project.id || project.slug;
+  const hostIp = settings.server_host_ip || "192.168.1.4";
+  const portProd = project.production?.port || (project.portPrefix ? parseInt(`${project.portPrefix}100`, 10) : 58100);
+  const portStaging = project.staging?.port || (project.portPrefix ? parseInt(`${project.portPrefix}101`, 10) : 58101);
+  const portKongProd = project.kongPortProd || project.kongPort || (project.portPrefix ? parseInt(`${project.portPrefix}000`, 10) : 58000);
+  const portKongStaging = project.kongPortStaging || (project.portPrefix ? parseInt(`${project.portPrefix}002`, 10) : 58002);
+  const portStudioProd = project.studioPortProd || project.studioPort || (project.portPrefix ? parseInt(`${project.portPrefix}323`, 10) : 58323);
+  const portStudioStaging = project.studioPortStaging || (project.portPrefix ? parseInt(`${project.portPrefix}324`, 10) : 58324);
+  const portPostgresProd = project.postgresPortProd || project.postgresPort || (project.portPrefix ? parseInt(`${project.portPrefix}432`, 10) : 58432);
+  const portPostgresStaging = project.postgresPortStaging || (project.portPrefix ? parseInt(`${project.portPrefix}433`, 10) : 58433);
+  const dbPassword = settings.supabase_master_key || "deploy_secret_db_pass_2026";
+  const anonKey = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzg4MTkyNTU2LCJleHAiOjIxMDM1NTI1NTZ9.EHchSdQ898QHiuVncgL2UpV5sScvp0qTcYeZTTwiq9E`;
+  const serviceKey = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3ODgxOTI1NTYsImV4cCI6MjEwMzU1MjU1Nn0.1LjNW3Rn5ekVZOVq4UfQw5aRfLmpwq0VlZKfkOv0EAg`;
+
+  return `# 🚀 Guia de Integração Supabase, Storage Buckets & Credenciais — ${name}
+
+> **LEITURA OBRIGATÓRIA PARA ASSISTENTES DE IA (Cursor, Antigravity, Lovable, Claude)**  
+> Este guia contém todas as credenciais reais e métodos oficiais para interagir com as bases de dados PostgreSQL, GoTrue Auth e Storage Buckets isolados da stack **${cleanSlug}**.
+
+---
+
+## 🔑 1. Credenciais & Endpoints da Stack
+
+### A. Produção Oficial
+| Parâmetro | Valor / Endpoint | Descrição & Utilização |
+| :--- | :--- | :--- |
+| **Aplicação Web / Portal** | \`http://${hostIp}:${portProd}\` | URL oficial da aplicação em Produção (Porta ${portProd}) |
+| **Gateway Kong Produção** | \`http://${hostIp}:${portKongProd}\` | Endpoint Unificado para API, Auth e Storage de Produção |
+| **Vite Supabase URL (Prod)** | \`http://${hostIp}:${portKongProd}\` | Variável \`VITE_SUPABASE_URL\` em Produção |
+| **PostgreSQL Produção** | \`postgres://postgres:${dbPassword}@${hostIp}:${portPostgresProd}/postgres\` | Ligação direta à base de dados de Produção |
+| **Studio Produção** | \`http://${hostIp}:${portStudioProd}\` | Dashboard visual web de Produção |
+
+### B. Ambiente de Testes (Staging)
+| Parâmetro | Valor / Endpoint | Descrição & Utilização |
+| :--- | :--- | :--- |
+| **Aplicação Web / Portal** | \`http://${hostIp}:${portStaging}\` | URL oficial da aplicação em Testes (Porta ${portStaging}) |
+| **Gateway Kong Testes** | \`http://${hostIp}:${portKongStaging}\` | Endpoint Unificado para API, Auth e Storage de Testes |
+| **Vite Supabase URL (Staging)** | \`http://${hostIp}:${portKongStaging}\` | Variável \`VITE_SUPABASE_URL\` em Testes |
+| **PostgreSQL Testes** | \`postgres://postgres:${dbPassword}@${hostIp}:${portPostgresStaging}/postgres\` | Ligação direta à base de dados de Testes |
+| **Studio Testes** | \`http://${hostIp}:${portStudioStaging}\` | Dashboard visual web de Testes |
+
+### C. Chaves Globais
+| Chave | Valor | Utilização |
+| :--- | :--- | :--- |
+| **Chave Anónima (\`anon_key\`)** | \`${anonKey}\` | Chave pública para autenticação e consultas com RLS |
+| **Chave de Serviço (\`service_role\`)** | \`${serviceKey}\` | Chave de administração para migrações ou backend restrito |
+
+---
+
+## 📄 2. Variáveis de Ambiente (\`.env\` / \`.env.production\` / \`.env.staging\`)
+
+\`\`\`env
+# .env / .env.production
+PORT=${portProd}
+VITE_PORT=${portProd}
+APP_PORT=${portProd}
+VITE_SUPABASE_URL=http://${hostIp}:${portKongProd}
+VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
+SUPABASE_URL=http://${hostIp}:${portKongProd}
+SUPABASE_ANON_KEY=${anonKey}
+SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
+DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresProd}/postgres
+
+# .env.staging
+PORT=${portStaging}
+VITE_PORT=${portStaging}
+APP_PORT=${portStaging}
+VITE_SUPABASE_URL=http://${hostIp}:${portKongStaging}
+VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
+SUPABASE_URL=http://${hostIp}:${portKongStaging}
+SUPABASE_ANON_KEY=${anonKey}
+SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
+DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresStaging}/postgres
+\`\`\`
+
+---
+
+## 🗄️ 3. Cliente Supabase Canónico (\`src/integrations/supabase/client.ts\`)
+
+\`\`\`typescript
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'http://${hostIp}:${portKongProd}';
+const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '${anonKey}';
+
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+});
+\`\`\`
+
+---
+
+## 🪣 4. Guia de Gestão de Storage Buckets (Documentos, Fotos, PDFs)
+
+### A. Criar Buckets via SQL no PostgreSQL
+\`\`\`sql
+-- Criar bucket 'documentos' ou 'ficheiros' no schema storage
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES ('documentos', 'documentos', true, 52428800, ARRAY['image/jpeg', 'image/png', 'application/pdf', 'application/msword'])
+ON CONFLICT (id) DO NOTHING;
+
+-- RLS: Permitir leitura pública dos ficheiros
+CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'documentos');
+
+-- RLS: Permitir upload a utilizadores autenticados ou anon
+CREATE POLICY "Allow Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'documentos');
+\`\`\`
+
+### B. Upload de Ficheiro no Frontend (React / TypeScript)
+\`\`\`typescript
+import { supabase } from '@/integrations/supabase/client';
+
+export async function uploadDocument(bucket: string, filePath: string, file: File) {
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(filePath, file, { upsert: true });
+
+  if (error) throw error;
+  return data;
+}
+\`\`\`
+
+### C. Obter URL Público do Ficheiro
+\`\`\`typescript
+import { supabase } from '@/integrations/supabase/client';
+
+export function getPublicUrl(bucket: string, filePath: string) {
+  const { data } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(filePath);
+  return data.publicUrl;
+}
+\`\`\`
+
+---
+
+## ⚡ 5. Comandos Úteis para Gestão dos Contentores Docker
+
+Se a IA precisar de inspecionar ou interagir com os contentores da stack via terminal:
+\`\`\`bash
+# Executar query ou verificar tabelas no PostgreSQL da stack
+docker exec -i ${cleanSlug}-postgres-prod psql -U postgres -d postgres -c "\\dt"
+
+# Ver logs em tempo real do GoTrue Auth ou Storage API
+docker logs --tail 50 ${cleanSlug}-auth-prod
+docker logs --tail 50 ${cleanSlug}-storage-prod
+\`\`\`
+`;
+}
+
+function generateStartPromptContent(project, settings = {}, filesListStr = '') {
+  const name = project.name || project.id;
+  const cleanSlug = project.id || project.slug;
+  const portProd = project.production?.port || (project.portPrefix ? parseInt(`${project.portPrefix}100`, 10) : 58100);
+  const portStaging = project.staging?.port || (project.portPrefix ? parseInt(`${project.portPrefix}101`, 10) : 58101);
+  const portKongProd = project.kongPortProd || project.kongPort || (project.portPrefix ? parseInt(`${project.portPrefix}000`, 10) : 58000);
+  const portKongStaging = project.kongPortStaging || (project.portPrefix ? parseInt(`${project.portPrefix}002`, 10) : 58002);
+  const portPostgresProd = project.postgresPortProd || project.postgresPort || (project.portPrefix ? parseInt(`${project.portPrefix}432`, 10) : 58432);
+  const portPostgresStaging = project.postgresPortStaging || (project.portPrefix ? parseInt(`${project.portPrefix}433`, 10) : 58433);
+  const portStudioProd = project.studioPortProd || project.studioPort || (project.portPrefix ? parseInt(`${project.portPrefix}323`, 10) : 58323);
+  const portStudioStaging = project.studioPortStaging || (project.portPrefix ? parseInt(`${project.portPrefix}324`, 10) : 58324);
+
+  const extraFiles = filesListStr ? ` e ${filesListStr}` : '';
+
+  return `Por favor lê obrigatoriamente os ficheiros canónicos do projeto: ARCHITECTURE.md, SUPABASE_INTEGRATION_GUIDE.md${extraFiles}.
+A porta principal da aplicação em Produção Oficial é ${portProd} (e em Testes/Staging é ${portStaging}).
+O Gateway Kong de Supabase está ativo na porta ${portKongProd} (Staging: ${portKongStaging}), o PostgreSQL na porta ${portPostgresProd} (Staging: ${portPostgresStaging}) e o Supabase Studio na porta ${portStudioProd} (Staging: ${portStudioStaging}).
+Todas as tabelas e esquemas foram provisionados no PostgreSQL dos contentores Docker (${cleanSlug}-postgres-staging e ${cleanSlug}-postgres-prod).
+Segue estritamente a zero-mock-policy: toda a persistência tem de ser real no Supabase através de src/integrations/supabase/client.ts e os uploads nos Storage Buckets.
+Garante Dark/Light mode com seletor no Header, internacionalização (pt-PT padrão) e conformidade de rodapé.
+Vamos começar a implementar o primeiro módulo do plano.`;
+}
+
 // APIS: PROJETOS
 // ==============================================================================
 
 app.get("/api/projects", requireAuth, (req, res) => {
   res.json({ ok: true, projects: getProjects() });
+});
+
+app.get("/api/projects/:id/documentation", requireAuth, async (req, res) => {
+  const { id } = req.params;
+  const project = findProject(id);
+  if (!project) {
+    return res.status(404).json({ ok: false, error: "Projeto não encontrado" });
+  }
+
+  const settings = getSettings();
+  const targetAppDir = project.appDir || `/mnt/Disco1/apps/${project.id}`;
+
+  const archPath = path.join(targetAppDir, "ARCHITECTURE.md");
+  const supabaseGuidePath = path.join(targetAppDir, "SUPABASE_INTEGRATION_GUIDE.md");
+  const promptPath = path.join(targetAppDir, "PROMPT_ARRANQUE_IA.md");
+  const startTxtPath = path.join(targetAppDir, "START_AI_PROMPT.txt");
+
+  let architecture = "";
+  let supabaseGuide = "";
+  let aiPrompt = "";
+
+  if (fs.existsSync(archPath)) {
+    try { architecture = fs.readFileSync(archPath, "utf-8"); } catch (e) {}
+  }
+  if (!architecture) {
+    architecture = generateArchitectureContent(project, settings);
+    try { await writeFileWithSudo(archPath, architecture); } catch (e) {}
+  }
+
+  if (fs.existsSync(supabaseGuidePath)) {
+    try { supabaseGuide = fs.readFileSync(supabaseGuidePath, "utf-8"); } catch (e) {}
+  }
+  if (!supabaseGuide) {
+    supabaseGuide = generateSupabaseGuideContent(project, settings);
+    try { await writeFileWithSudo(supabaseGuidePath, supabaseGuide); } catch (e) {}
+  }
+
+  if (fs.existsSync(promptPath)) {
+    try { aiPrompt = fs.readFileSync(promptPath, "utf-8"); } catch (e) {}
+  } else if (fs.existsSync(startTxtPath)) {
+    try { aiPrompt = fs.readFileSync(startTxtPath, "utf-8"); } catch (e) {}
+  }
+  if (!aiPrompt) {
+    aiPrompt = generateStartPromptContent(project, settings);
+    try { await writeFileWithSudo(promptPath, aiPrompt); } catch (e) {}
+  }
+
+  res.json({
+    ok: true,
+    projectId: project.id,
+    projectName: project.name,
+    ports: {
+      prod: project.production?.port || (project.portPrefix ? parseInt(`${project.portPrefix}100`, 10) : 58100),
+      staging: project.staging?.port || (project.portPrefix ? parseInt(`${project.portPrefix}101`, 10) : 58101),
+      kongProd: project.kongPortProd || project.kongPort || (project.portPrefix ? parseInt(`${project.portPrefix}000`, 10) : 58000),
+      kongStaging: project.kongPortStaging || (project.portPrefix ? parseInt(`${project.portPrefix}002`, 10) : 58002),
+      postgresProd: project.postgresPortProd || project.postgresPort || (project.portPrefix ? parseInt(`${project.portPrefix}432`, 10) : 58432),
+      postgresStaging: project.postgresPortStaging || (project.portPrefix ? parseInt(`${project.portPrefix}433`, 10) : 58433),
+      studioProd: project.studioPortProd || project.studioPort || (project.portPrefix ? parseInt(`${project.portPrefix}323`, 10) : 58323),
+      studioStaging: project.studioPortStaging || (project.portPrefix ? parseInt(`${project.portPrefix}324`, 10) : 58324),
+    },
+    architecture,
+    supabaseGuide,
+    aiPrompt
+  });
 });
 
 app.post("/api/projects/autodiscover", requireAuth, (req, res) => {
@@ -4909,220 +5273,42 @@ GRANT ALL ON TABLE storage.migrations TO postgres, service_role, supabase_storag
     await writeFileWithSudo(initSqlFile, initSqlContent);
 
     // 3.1 Gerar ARCHITECTURE.md e Contexto para Assistentes de IA
-    const aiContextContent = `# 🏛️ Arquitetura e Guia da Stack — ${name}
+    const aiContextContent = generateArchitectureContent({
+      name,
+      id: cleanSlug,
+      portPrefix,
+      production: { port: portProd },
+      staging: { port: portStaging },
+      kongPortProd,
+      kongPortStaging,
+      studioPortProd,
+      studioPortStaging,
+      postgresPortProd,
+      postgresPortStaging
+    }, settings);
 
-> Este ficheiro foi gerado automaticamente pelo **Deployment Center v3.0**.  
-> Serve como **Contexto de Arquitetura para Assistentes de IA (Cursor, Lovable, Claude, Antigravity, Copilot, ChatGPT)** para entenderem a infraestrutura dual-stack isolada (Produção vs Testes) e como desenvolver e integrar com os serviços deste projeto.
-
----
-
-## 📦 1. Topologia de Contentores Docker (Linux Multi-Stack Isolada)
-
-A stack deste projeto corre de forma 100% isolada no servidor Linux, utilizando contentores Docker dedicados e separados para **Produção Oficial** e **Ambiente de Testes (Staging)**:
-
-### A. Ambiente de Produção Oficial
-| Serviço / Contentor | Imagem | Porta Exposta (Host) | Porta Interna | Função & Responsabilidade |
-| :--- | :--- | :--- | :--- | :--- |
-| **\`${cleanSlug}-portal-prod\`** | \`node:22-bookworm-slim\` | **\`:${portProd}\`** | \`3000\` | **Ambiente de Produção Oficial** da aplicação web. |
-| **\`${cleanSlug}-postgres-prod\`** | \`postgres:15\` | **\`:${portPostgresProd}\`** | \`5432\` | Base de dados PostgreSQL de Produção (dados reais de clientes). |
-| **\`${cleanSlug}-kong-prod\`** | \`kong:2.8.1\` | **\`:${portKongProd}\`** | \`8000\` | **Gateway Unificado de Produção** (\`/rest/v1\`, \`/auth/v1\`, \`/storage/v1\`). |
-| **\`${cleanSlug}-studio-prod\`** | \`supabase/studio:2026.08.31-sha-2c76bb3\` | **\`:${portStudioProd}\`** | \`3000\` | Dashboard web Supabase Studio de Produção. |
-| **\`${cleanSlug}-auth-prod\`** | \`supabase/gotrue:v2.158.0\` | *Interna* | \`9999\` | Microserviço GoTrue Auth de Produção. |
-| **\`${cleanSlug}-postgrest-prod\`** | \`postgrest/postgrest:v12.2.0\` | *Interna* | \`3000\` | PostgREST API Engine de Produção. |
-| **\`${cleanSlug}-storage-prod\`** | \`supabase/storage-api:v1.11.1\` | *Interna* | \`5000\` | Storage API de ficheiros de Produção. |
-
-### B. Ambiente de Testes (Staging)
-| Serviço / Contentor | Imagem | Porta Exposta (Host) | Porta Interna | Função & Responsabilidade |
-| :--- | :--- | :--- | :--- | :--- |
-| **\`${cleanSlug}-portal-staging\`** | \`node:22-bookworm-slim\` | **\`:${portStaging}\`** | \`3000\` | **Ambiente de Testes / Staging** para validação prévia. |
-| **\`${cleanSlug}-postgres-staging\`** | \`postgres:15\` | **\`:${portPostgresStaging}\`** | \`5432\` | Base de dados PostgreSQL de Testes (dados de teste isolados). |
-| **\`${cleanSlug}-kong-staging\`** | \`kong:2.8.1\` | **\`:${portKongStaging}\`** | \`8000\` | **Gateway Unificado de Testes** (\`/rest/v1\`, \`/auth/v1\`, \`/storage/v1\`). |
-| **\`${cleanSlug}-studio-staging\`** | \`supabase/studio:2026.08.31-sha-2c76bb3\` | **\`:${portStudioStaging}\`** | \`3000\` | Dashboard web Supabase Studio de Testes. |
-| **\`${cleanSlug}-auth-staging\`** | \`supabase/gotrue:v2.158.0\` | *Interna* | \`9999\` | Microserviço GoTrue Auth de Testes. |
-| **\`${cleanSlug}-postgrest-staging\`** | \`postgrest/postgrest:v12.2.0\` | *Interna* | \`3000\` | PostgREST API Engine de Testes. |
-| **\`${cleanSlug}-storage-staging\`** | \`supabase/storage-api:v1.11.1\` | *Interna* | \`5000\` | Storage API de ficheiros de Testes. |
-
----
-
-## 🔑 2. Variáveis de Ambiente para a IA & Frontend
-
-\`\`\`env
-# Produção (.env.production / .env)
-VITE_SUPABASE_URL=http://${hostIp}:${portKongProd}
-VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
-SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
-DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresProd}/postgres
-
-# Testes (.env.staging)
-VITE_SUPABASE_URL=http://${hostIp}:${portKongStaging}
-VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
-SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
-DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresStaging}/postgres
-\`\`\`
-
----
-
-## 🎨 3. Diretivas Obrigatórias de Frontend, Design, UX/UI & Legal
-
-### A. Dark / Light Mode (Tema Claro / Escuro)
-- Todas as páginas, modais e componentes devem estar preparados para alternar fluidamente entre modo escuro e claro com Tailwind CSS (\`dark:\`).
-- O seletor de tema deve estar posicionado no topo (Header) e persistir a escolha no \`localStorage\`.
-- **Atenção ao contraste**: Dropdowns (\`<select>\`), opções (\`<option>\`) e menus devem usar \`color-scheme: dark\` ou classes explícitas para garantir legibilidade impecável tanto em tema escuro como claro.
-
-### B. Internacionalização Multi-Idioma (i18n)
-- Todas as páginas devem estar preparadas para múltiplos idiomas com suporte a 4 línguas:
-  - 🇵🇹 **\`pt-PT\`** (Português de Portugal — Padrão)
-  - 🇬🇧 **\`en\`** (Inglês)
-  - 🇫🇷 **\`fr\`** (Francês)
-  - 🇪🇸 **\`es\`** (Espanhol)
-- O seletor de idioma deve estar no Header com persistência no \`localStorage\`.
-
-### C. Rodapé Oficial, Direitos de Autor e Legislação Portuguesa
-- Toda a página ou aplicação gerada deve incluir obrigatoriamente no rodapé (footer):
-  - Copyright dinâmico: \`© ${new Date().getFullYear()} ${settings.author_name || "David Alexandre Ferreira"} — Todos os direitos reservados.\` com link no nome do autor para **\`${settings.author_website || "https://davidferreira.pt"}\`**.
-  - Indicador versionado de compilação: \`Build: #<git-commit-hash>\` com link para o repositório.
-  - Links de conformidade com a legislação portuguesa: **Termos de Utilização**, **Política de Privacidade** e **Gestão de Cookies** (em conformidade com o RGPD).
-
-### D. Boas Práticas de Base de Dados & Supabase
-- As tabelas da aplicação devem ser criadas no schema \`public\` com RLS ativo (\`ENABLE ROW LEVEL SECURITY\`).
-- Conceder sempre permissões às roles de acesso:
-  \`GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, service_role, authenticated, anon;\`
-- As chamadas de API do frontend devem usar o cliente canónico \`src/integrations/supabase/client.ts\`.
-
-### E. Qualidade de Código & Lovable
-- Executar sempre a verificação de compilação (\`npm run build\` / \`npx tsc --noEmit\`) antes de finalizar tarefas para prevenir quebras no Lovable ou no Vite.
-`;
+    const archFilePath = path.join(targetAppDir, "ARCHITECTURE.md");
+    await writeFileWithSudo(archFilePath, aiContextContent);
+    emitLog(`✓ Guia de Arquitetura (ARCHITECTURE.md) gravado na raiz do projeto com portas dedicadas (Prod: :${portProd}, Staging: :${portStaging}, Kong: :${portKongProd}, Postgres: :${portPostgresProd}).`);
 
     // 3.2 Gerar Guia Canónico de Supabase, Storage Buckets & Credenciais (SUPABASE_INTEGRATION_GUIDE.md)
-    const supabaseGuideContent = `# 🚀 Guia de Integração Supabase, Storage Buckets & Credenciais — ${name}
+    const supabaseGuideContent = generateSupabaseGuideContent({
+      name,
+      id: cleanSlug,
+      portPrefix,
+      production: { port: portProd },
+      staging: { port: portStaging },
+      kongPortProd,
+      kongPortStaging,
+      studioPortProd,
+      studioPortStaging,
+      postgresPortProd,
+      postgresPortStaging
+    }, settings);
 
-> **LEITURA OBRIGATÓRIA PARA ASSISTENTES DE IA (Cursor, Antigravity, Lovable, Claude)**  
-> Este guia contém todas as credenciais reais e métodos oficiais para interagir com as bases de dados PostgreSQL, GoTrue Auth e Storage Buckets isolados da stack **${cleanSlug}**.
-
----
-
-## 🔑 1. Credenciais & Endpoints da Stack
-
-### A. Produção Oficial
-| Parâmetro | Valor / Endpoint | Descrição & Utilização |
-| :--- | :--- | :--- |
-| **Gateway Kong Produção** | \`http://${hostIp}:${portKongProd}\` | Endpoint Unificado para API, Auth e Storage de Produção |
-| **Vite Supabase URL (Prod)** | \`http://${hostIp}:${portKongProd}\` | Variável \`VITE_SUPABASE_URL\` em Produção |
-| **PostgreSQL Produção** | \`postgres://postgres:${dbPassword}@${hostIp}:${portPostgresProd}/postgres\` | Ligação direta à base de dados de Produção |
-| **Studio Produção** | \`http://${hostIp}:${portStudioProd}\` | Dashboard visual web de Produção |
-
-### B. Ambiente de Testes (Staging)
-| Parâmetro | Valor / Endpoint | Descrição & Utilização |
-| :--- | :--- | :--- |
-| **Gateway Kong Testes** | \`http://${hostIp}:${portKongStaging}\` | Endpoint Unificado para API, Auth e Storage de Testes |
-| **Vite Supabase URL (Staging)** | \`http://${hostIp}:${portKongStaging}\` | Variável \`VITE_SUPABASE_URL\` em Testes |
-| **PostgreSQL Testes** | \`postgres://postgres:${dbPassword}@${hostIp}:${portPostgresStaging}/postgres\` | Ligação direta à base de dados de Testes |
-| **Studio Testes** | \`http://${hostIp}:${portStudioStaging}\` | Dashboard visual web de Testes |
-
-### C. Chaves Globais
-| Chave | Valor | Utilização |
-| :--- | :--- | :--- |
-| **Chave Anónima (\`anon_key\`)** | \`${anonKey}\` | Chave pública para autenticação e consultas com RLS |
-| **Chave de Serviço (\`service_role\`)** | \`${serviceKey}\` | Chave de administração para migrações ou backend restrito |
-
----
-
-## 📄 2. Variáveis de Ambiente (\`.env\` / \`.env.production\` / \`.env.staging\`)
-
-\`\`\`env
-# .env / .env.production
-VITE_SUPABASE_URL=http://${hostIp}:${portKongProd}
-VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
-SUPABASE_URL=http://${hostIp}:${portKongProd}
-SUPABASE_ANON_KEY=${anonKey}
-SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
-DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresProd}/postgres
-
-# .env.staging
-VITE_SUPABASE_URL=http://${hostIp}:${portKongStaging}
-VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
-SUPABASE_URL=http://${hostIp}:${portKongStaging}
-SUPABASE_ANON_KEY=${anonKey}
-SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
-DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresStaging}/postgres
-\`\`\`
-
----
-
-## 🗄️ 3. Cliente Supabase Canónico (\`src/integrations/supabase/client.ts\`)
-
-\`\`\`typescript
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'http://${hostIp}:${portKongProd}';
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '${anonKey}';
-
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
-\`\`\`
-
----
-
-## 🪣 4. Guia de Gestão de Storage Buckets (Documentos, Fotos, PDFs)
-
-### A. Criar Buckets via SQL no PostgreSQL
-\`\`\`sql
--- Criar bucket 'documentos' ou 'ficheiros' no schema storage
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES ('documentos', 'documentos', true, 52428800, ARRAY['image/jpeg', 'image/png', 'application/pdf', 'application/msword'])
-ON CONFLICT (id) DO NOTHING;
-
--- RLS: Permitir leitura pública dos ficheiros
-CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'documentos');
-
--- RLS: Permitir upload a utilizadores autenticados ou anon
-CREATE POLICY "Allow Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'documentos');
-\`\`\`
-
-### B. Upload de Ficheiro no Frontend (React / TypeScript)
-\`\`\`typescript
-import { supabase } from '@/integrations/supabase/client';
-
-export async function uploadDocument(bucket: string, filePath: string, file: File) {
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .upload(filePath, file, { upsert: true });
-
-  if (error) throw error;
-  return data;
-}
-\`\`\`
-
-### C. Obter URL Público do Ficheiro
-\`\`\`typescript
-import { supabase } from '@/integrations/supabase/client';
-
-export function getPublicUrl(bucket: string, filePath: string) {
-  const { data } = supabase.storage
-    .from(bucket)
-    .getPublicUrl(filePath);
-  return data.publicUrl;
-}
-\`\`\`
-
----
-
-## ⚡ 5. Comandos Úteis para Gestão dos Contentores Docker
-
-Se a IA precisar de inspecionar ou interagir com os contentores da stack via terminal:
-\`\`\`bash
-# Executar query ou verificar tabelas no PostgreSQL da stack
-docker exec -i ${cleanSlug}-postgres psql -U postgres -d postgres -c "\\dt"
-
-# Ver logs em tempo real do GoTrue Auth ou Storage API
-docker logs --tail 50 ${cleanSlug}-auth
-docker logs --tail 50 ${cleanSlug}-storage
-\`\`\`
-`.trim();
+    const supabaseGuideFilePath = path.join(targetAppDir, "SUPABASE_INTEGRATION_GUIDE.md");
+    await writeFileWithSudo(supabaseGuideFilePath, supabaseGuideContent);
+    emitLog(`✓ Guia de Integração Supabase (SUPABASE_INTEGRATION_GUIDE.md) gravado na raiz do projeto com credenciais e endpoints.`);
 
     // 3.3 Gerar script dedicado de update no servidor (scripts/update.sh) com suporte a inicialização inteligente
     const tokenVal = settings.github_token || "";
@@ -5286,6 +5472,9 @@ echo ""
 
     // 3.4 Gerar .env, .env.production e .env.staging
     const envProdContent = `
+PORT=${portProd}
+VITE_PORT=${portProd}
+APP_PORT=${portProd}
 VITE_SUPABASE_URL=http://${hostIp}:${portKongProd}
 VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
 SUPABASE_URL=http://${hostIp}:${portKongProd}
@@ -5295,6 +5484,9 @@ DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresProd}/pos
 `.trim();
 
     const envStagingContent = `
+PORT=${portStaging}
+VITE_PORT=${portStaging}
+APP_PORT=${portStaging}
 VITE_SUPABASE_URL=http://${hostIp}:${portKongStaging}
 VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
 SUPABASE_URL=http://${hostIp}:${portKongStaging}
@@ -6400,12 +6592,11 @@ GRANT ALL ON TABLE storage.migrations TO postgres, service_role, supabase_storag
 
   // 5.6 Gerar e Emitir Prompt Mestre de Arranque para a IA
   try {
-    const filesListForPrompt = canonicalFilesList.map(f => f.replace(/^\s*-\s*/, '')).join(', ');
-    const startPromptText = `Por favor lê obrigatoriamente os ficheiros canónicos do projeto: ARCHITECTURE.md, SUPABASE_INTEGRATION_GUIDE.md e ${filesListForPrompt}.
-Todas as tabelas e esquemas foram provisionados no PostgreSQL do contentor Docker (${cleanSlug}-postgres-staging e ${cleanSlug}-postgres-prod).
-Segue estritamente a zero-mock-policy: toda a persistência tem de ser real no Supabase através de src/integrations/supabase/client.ts e os uploads nos Storage Buckets.
-Garante Dark/Light mode com seletor no Header, internacionalização (pt-PT padrão) e conformidade de rodapé.
-Vamos começar a implementar o primeiro módulo do plano.`;
+    const filesListForPrompt = canonicalFilesList
+      .filter(f => !f.includes('ARCHITECTURE.md') && !f.includes('SUPABASE_INTEGRATION_GUIDE.md'))
+      .map(f => f.replace(/^\s*-\s*/, ''))
+      .join(', ');
+    const startPromptText = generateStartPromptContent(newProjectRecord, settings, filesListForPrompt);
 
     await writeFileWithSudo(path.join(targetAppDir, "PROMPT_ARRANQUE_IA.md"), `# 🤖 Prompt Mestre de Arranque para a IA\n\n\`\`\`text\n${startPromptText}\n\`\`\`\n`);
     await writeFileWithSudo(path.join(targetAppDir, "START_AI_PROMPT.txt"), startPromptText);

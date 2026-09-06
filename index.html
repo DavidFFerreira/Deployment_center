@@ -446,6 +446,10 @@
         <button id="tab-btn-history" onclick="switchTab('history')" class="tab-btn shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-slate-200/80 dark:hover:bg-slate-900">
           <i data-lucide="history" class="w-4 h-4"></i> <span data-i18n="tab_history">Histórico & Auditoria</span>
         </button>
+        <!-- Tab: Arquitetura & Guias IA -->
+        <button id="tab-btn-docs" onclick="switchTab('docs')" class="tab-btn shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-slate-200/80 dark:hover:bg-slate-900">
+          <i data-lucide="book-open" class="w-4 h-4 text-purple-500"></i> <span>Arquitetura & Guias IA</span>
+        </button>
       </div>
 
       <!-- =================================================================== -->
@@ -734,6 +738,83 @@
         </div>
         <div class="space-y-2.5 max-h-[500px] overflow-y-auto pr-1" id="history-list">
           <div class="text-center py-12 text-slate-500 text-sm">Sem registos no histórico.</div>
+        </div>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- TAB CONTENT: ARQUITETURA & GUIAS IA                                 -->
+      <!-- =================================================================== -->
+      <div id="tab-content-docs" class="p-4 md:p-6 space-y-6 hidden">
+        <div class="flex items-center justify-between flex-wrap gap-3">
+          <div class="space-y-1">
+            <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+              <i data-lucide="book-open" class="w-5 h-5 text-purple-500"></i>
+              <span>Arquitetura, Portas & Guias Canónicos da IA</span>
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              Guias oficiais da stack gerados com as portas e credenciais dedicadas deste projeto.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="copyDocPrompt()" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-purple-500/20 transition">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>Copiar Prompt Mestre IA</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Resumo de Portas Dedicadas -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Portal Produção</div>
+            <div class="text-base font-extrabold text-emerald-500 font-mono mt-0.5" id="doc-port-prod">-</div>
+            <div class="text-[10px] text-slate-500 truncate" id="doc-url-prod">-</div>
+          </div>
+          <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Portal Staging</div>
+            <div class="text-base font-extrabold text-blue-500 font-mono mt-0.5" id="doc-port-staging">-</div>
+            <div class="text-[10px] text-slate-500 truncate" id="doc-url-staging">-</div>
+          </div>
+          <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Kong Gateway</div>
+            <div class="text-base font-extrabold text-indigo-500 font-mono mt-0.5" id="doc-port-kong">-</div>
+            <div class="text-[10px] text-slate-500 truncate" id="doc-url-kong">-</div>
+          </div>
+          <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PostgreSQL</div>
+            <div class="text-base font-extrabold text-sky-500 font-mono mt-0.5" id="doc-port-postgres">-</div>
+            <div class="text-[10px] text-slate-500 truncate" id="doc-url-postgres">-</div>
+          </div>
+        </div>
+
+        <!-- Seletor de Ficheiro & Ações -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+            <div class="flex items-center gap-2">
+              <button id="doc-tab-btn-arch" onclick="switchDocSubTab('arch')" class="doc-sub-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white transition">
+                ARCHITECTURE.md
+              </button>
+              <button id="doc-tab-btn-supabase" onclick="switchDocSubTab('supabase')" class="doc-sub-btn px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition">
+                SUPABASE_INTEGRATION_GUIDE.md
+              </button>
+              <button id="doc-tab-btn-prompt" onclick="switchDocSubTab('prompt')" class="doc-sub-btn px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition">
+                PROMPT_ARRANQUE_IA.md
+              </button>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="copyCurrentDoc()" class="px-2.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 transition">
+                <i data-lucide="copy" class="w-3.5 h-3.5 text-indigo-500"></i> Copiar
+              </button>
+              <button onclick="downloadCurrentDoc()" class="px-2.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 transition">
+                <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-500"></i> Descarregar
+              </button>
+            </div>
+          </div>
+
+          <!-- Área de Conteúdo do Documento -->
+          <div class="relative">
+            <pre id="doc-content-viewer" class="p-4 rounded-2xl bg-slate-950 text-slate-200 font-mono text-xs overflow-x-auto max-h-[550px] leading-relaxed whitespace-pre-wrap selection:bg-purple-600 selection:text-white border border-slate-800"></pre>
+          </div>
         </div>
       </div>
 
@@ -3115,7 +3196,7 @@
         activeBtn.classList.remove('text-slate-600', 'dark:text-slate-400');
       }
 
-      ['versions', 'containers', 'terminal', 'storage', 'database', 'history'].forEach((id) => {
+      ['versions', 'containers', 'terminal', 'storage', 'database', 'history', 'docs'].forEach((id) => {
         const content = document.getElementById(`tab-content-${id}`);
         if (content) content.classList.toggle('hidden', id !== tabId);
       });
@@ -3123,7 +3204,119 @@
       if (tabId === 'containers') fetchContainers();
       if (tabId === 'storage') loadStorageBuckets();
       if (tabId === 'database') { fetchDbStats(); fetchDbBackups(); fetchDbTables(); }
+      if (tabId === 'docs') loadProjectDocs();
       if (window.lucide) lucide.createIcons();
+    }
+
+    let currentProjectDocsData = null;
+    let currentDocSubTab = 'arch';
+
+    async function loadProjectDocs() {
+      if (!currentProject) return;
+      const viewer = document.getElementById('doc-content-viewer');
+      if (viewer) viewer.textContent = 'A carregar ficheiros canónicos e arquitetura da stack...';
+
+      try {
+        const res = await fetch(`/api/projects/${currentProject.id}/documentation`);
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'Erro ao carregar documentação');
+        currentProjectDocsData = data;
+
+        const pProd = data.ports?.prod || '-';
+        const pStaging = data.ports?.staging || '-';
+        const pKong = data.ports?.kongProd || '-';
+        const pPg = data.ports?.postgresProd || '-';
+        const host = window.location.hostname || '192.168.1.4';
+
+        const elProd = document.getElementById('doc-port-prod');
+        if (elProd) elProd.textContent = `:${pProd}`;
+        const elUrlProd = document.getElementById('doc-url-prod');
+        if (elUrlProd) elUrlProd.textContent = `http://${host}:${pProd}`;
+
+        const elStaging = document.getElementById('doc-port-staging');
+        if (elStaging) elStaging.textContent = `:${pStaging}`;
+        const elUrlStaging = document.getElementById('doc-url-staging');
+        if (elUrlStaging) elUrlStaging.textContent = `http://${host}:${pStaging}`;
+
+        const elKong = document.getElementById('doc-port-kong');
+        if (elKong) elKong.textContent = `:${pKong}`;
+        const elUrlKong = document.getElementById('doc-url-kong');
+        if (elUrlKong) elUrlKong.textContent = `http://${host}:${pKong}`;
+
+        const elPg = document.getElementById('doc-port-postgres');
+        if (elPg) elPg.textContent = `:${pPg}`;
+        const elUrlPg = document.getElementById('doc-url-postgres');
+        if (elUrlPg) elUrlPg.textContent = `${host}:${pPg}`;
+
+        renderCurrentDocContent();
+      } catch (err) {
+        if (viewer) viewer.textContent = `Erro ao carregar documentação: ${err.message}`;
+      }
+    }
+
+    function switchDocSubTab(subTab) {
+      currentDocSubTab = subTab;
+      document.querySelectorAll('.doc-sub-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('text-slate-600', 'dark:text-slate-400');
+      });
+      const activeBtn = document.getElementById(`doc-tab-btn-${subTab}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-indigo-600', 'text-white');
+        activeBtn.classList.remove('text-slate-600', 'dark:text-slate-400');
+      }
+      renderCurrentDocContent();
+    }
+
+    function renderCurrentDocContent() {
+      const viewer = document.getElementById('doc-content-viewer');
+      if (!viewer || !currentProjectDocsData) return;
+
+      if (currentDocSubTab === 'arch') {
+        viewer.textContent = currentProjectDocsData.architecture || 'ARCHITECTURE.md não encontrado.';
+      } else if (currentDocSubTab === 'supabase') {
+        viewer.textContent = currentProjectDocsData.supabaseGuide || 'SUPABASE_INTEGRATION_GUIDE.md não encontrado.';
+      } else if (currentDocSubTab === 'prompt') {
+        viewer.textContent = currentProjectDocsData.aiPrompt || 'PROMPT_ARRANQUE_IA.md não encontrado.';
+      }
+    }
+
+    function copyCurrentDoc() {
+      const viewer = document.getElementById('doc-content-viewer');
+      if (!viewer || !viewer.textContent) return;
+      navigator.clipboard.writeText(viewer.textContent).then(() => {
+        showAppNotification({
+          type: 'success',
+          title: 'Copiado para a Área de Transferência',
+          message: `Conteúdo copiado com sucesso.`,
+        });
+      });
+    }
+
+    function downloadCurrentDoc() {
+      const viewer = document.getElementById('doc-content-viewer');
+      if (!viewer || !viewer.textContent) return;
+      const fname = currentDocSubTab === 'arch' ? 'ARCHITECTURE.md' : currentDocSubTab === 'supabase' ? 'SUPABASE_INTEGRATION_GUIDE.md' : 'PROMPT_ARRANQUE_IA.md';
+      const blob = new Blob([viewer.textContent], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function copyDocPrompt() {
+      if (!currentProjectDocsData || !currentProjectDocsData.aiPrompt) return;
+      navigator.clipboard.writeText(currentProjectDocsData.aiPrompt).then(() => {
+        showAppNotification({
+          type: 'success',
+          title: 'Prompt Copiado',
+          message: 'Prompt mestre de arranque copiado para a área de transferência.',
+        });
+      });
     }
 
     // ===================================================================
@@ -4769,8 +4962,16 @@
                       ? wizardPlanArtifacts.map(a => a.filename).join(', ') 
                       : 'IMPLEMENTATION_PLAN.md';
 
+                    const pProd = payload.ports?.prod || `${payload.portPrefix}100`;
+                    const pStaging = payload.ports?.staging || `${payload.portPrefix}101`;
+                    const pKong = payload.ports?.kong || `${payload.portPrefix}000`;
+                    const pPostgres = payload.ports?.postgres || `${payload.portPrefix}432`;
+                    const pStudio = payload.ports?.studio || `${payload.portPrefix}323`;
+
                     const promptContent = `Por favor lê obrigatoriamente os ficheiros canónicos do projeto: ARCHITECTURE.md, SUPABASE_INTEGRATION_GUIDE.md e ${filesListStr}.
-Todas as tabelas e esquemas foram provisionados no PostgreSQL do contentor Docker (${payload.slug}-postgres).
+A porta principal da aplicação em Produção Oficial é ${pProd} (e em Testes/Staging é ${pStaging}).
+O Gateway Kong de Supabase está ativo na porta ${pKong}, o PostgreSQL na porta ${pPostgres} e o Supabase Studio na porta ${pStudio}.
+Todas as tabelas e esquemas foram provisionados no PostgreSQL dos contentores Docker (${payload.slug}-postgres-staging e ${payload.slug}-postgres-prod).
 Segue estritamente a zero-mock-policy: toda a persistência tem de ser real no Supabase através de src/integrations/supabase/client.ts e os uploads nos Storage Buckets.
 Garante Dark/Light mode com seletor no Header, internacionalização (pt-PT padrão) e conformidade de rodapé.
 Vamos começar a implementar o primeiro módulo do plano.`;
