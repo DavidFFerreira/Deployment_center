@@ -716,7 +716,12 @@
           </a>
         </div>
         <span class="text-slate-400 hidden sm:inline">·</span>
-        <span class="italic text-[10px] text-slate-500 dark:text-slate-500">Software Proprietário · Protegido pela Convenção de Berna & CDADC</span>
+        <button type="button" onclick="openTermsModal()" class="font-semibold text-slate-700 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-indigo-400 underline decoration-slate-300 dark:decoration-slate-700 underline-offset-2 transition cursor-pointer flex items-center gap-1">
+          <i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-500"></i>
+          Termos e Condições
+        </button>
+        <span class="text-slate-400 hidden sm:inline">·</span>
+        <span class="italic text-[10px] text-slate-500 dark:text-slate-500">Software Proprietário · Convenção de Berna & CDADC</span>
       </div>
     </div>
   </footer>
@@ -727,6 +732,109 @@
   <!-- ===================================================================== -->
   <!-- MODAL: DEPLOY & PUBLICAÇÃO COM DETALHES COMPLETOS, LOGS E STATUS      -->
   <!-- ===================================================================== -->
+  
+  <!-- ===================================================================== -->
+  <!-- MODAL: TERMOS E CONDIÇÕES DE UTILIZAÇÃO                               -->
+  <!-- ===================================================================== -->
+  <div id="terms-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full rounded-3xl glass-card border border-slate-200 dark:border-slate-800 p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
+      <!-- Cabeçalho -->
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-3">
+          <div class="p-3 rounded-2xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+            <i data-lucide="scale" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-lg text-slate-900 dark:text-white">Termos e Condições de Utilização</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Universal Deployment Center · David Ferreira</p>
+          </div>
+        </div>
+        <button onclick="closeModal('terms-modal')" class="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Conteúdo com Scroll -->
+      <div class="overflow-y-auto space-y-4 pr-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-h-[60vh]">
+        <div class="p-3.5 rounded-2xl bg-indigo-500/5 border border-indigo-500/20 text-indigo-700 dark:text-indigo-300">
+          <strong>Aviso Legal:</strong> O presente software, a sua arquitetura de micro-serviços, orquestrador de contentores Docker, scripts de instalação e interface web são propriedade intelectual exclusiva de <strong><a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="underline font-bold hover:text-indigo-400">David Ferreira</a></strong>.
+        </div>
+
+        <div class="space-y-1.5">
+          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
+            <span>1.</span> Titularidade e Direitos de Autor
+          </h4>
+          <p>
+            Todos os direitos patrimoniais, morais e de propriedade intelectual inerentes a esta plataforma pertencem exclusivamente a David Ferreira. A disponibilização do software não implica qualquer transmissão, cessão ou alienação dos referidos direitos de propriedade intelectual.
+          </p>
+        </div>
+
+        <div class="space-y-1.5">
+          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
+            <span>2.</span> Proibição Estrita de Partilha, Cópia e Comercialização
+          </h4>
+          <p>
+            É estritamente vedada a reprodução total ou parcial, cópia, distribuição, difusão pública, sublicenciamento, locação, partilha não autorizada ou venda deste software, do seu código-fonte ou dos seus scripts a terceiros sem prévia autorização escrita de David Ferreira.
+          </p>
+        </div>
+
+        <div class="space-y-1.5">
+          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
+            <span>3.</span> Enquadramento Jurídico Internacional
+          </h4>
+          <p>
+            Esta obra encontra-se integralmente protegida pelas seguintes convenções, tratados e diretivas internacionais:
+          </p>
+          <ul class="list-disc pl-5 space-y-1 text-slate-500 dark:text-slate-400">
+            <li><strong>Convenção de Berna</strong> (Artigos 2.º e 9.º): Proteção imediata e automática do autor em mais de 180 países.</li>
+            <li><strong>Tratado da OMPI/WIPO sobre Direito de Autor (WCT)</strong> (Artigo 4.º): Tutela internacional explícita de programas de computador.</li>
+            <li><strong>Acordo TRIPS / ADPIC da OMC</strong> (Artigo 10.º): Tutela comercial vinculativa de código e programas informáticos.</li>
+            <li><strong>Diretiva 2009/24/CE e Diretiva (UE) 2019/790</strong> do Parlamento Europeu sobre direitos de autor no mercado digital.</li>
+            <li><strong>Código do Direito de Autor e dos Direitos Conexos (CDADC - Portugal)</strong>: Tipificação como usurpação e contrafação de software (Artigos 195.º e 196.º).</li>
+          </ul>
+        </div>
+
+        <div class="space-y-1.5">
+          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
+            <span>4.</span> Responsabilidade e Credenciais
+          </h4>
+          <p>
+            O operador da plataforma é o único responsável pela custódia e segurança das chaves secretas (tokens GitHub PAT, passwords de base de dados e segredos de sessão JWT). O autor não se responsabiliza por má configuração do servidor, acessos indevidos por negligência na rede do operador ou perda de dados decorrente de intervenções manuais externas.
+          </p>
+        </div>
+
+        <div class="space-y-1.5">
+          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
+            <span>5.</span> Isenção de Garantias e Atualizações
+          </h4>
+          <p>
+            O software é disponibilizado "no estado em que se encontra" (<em>as is</em>) com o propósito de orquestração de servidores e contentores. O autor reserva-se o direito de introduzir melhorias, correções e atualizações em versões futuras.
+          </p>
+        </div>
+
+        <div class="space-y-1.5">
+          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
+            <span>6.</span> Contacto e Autorizações de Utilização
+          </h4>
+          <p>
+            Para pedidos de licenciamento comercial, projetos personalizados ou autorizações formais:
+            <br/>
+            <strong>Lead Developer:</strong> David Ferreira
+            <br/>
+            <strong>Perfil GitHub Oficial:</strong> <a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="text-indigo-500 hover:underline">https://github.com/DavidFFerreira</a>
+          </p>
+        </div>
+      </div>
+
+      <!-- Rodapé do Modal -->
+      <div class="border-t border-slate-200 dark:border-slate-800 pt-3 flex items-center justify-end">
+        <button onclick="closeModal('terms-modal')" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow-md shadow-indigo-500/20 cursor-pointer">
+          Compreendi e Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="deploy-action-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="max-w-xl w-full rounded-3xl glass-card border p-6 space-y-5 shadow-2xl animate-fade-in max-h-[92vh] flex flex-col" id="deploy-modal-card">
       
@@ -5517,6 +5625,15 @@ Fim do Relatório
       openDeployModal(prev.commit, env, false, true);
     }
 
+    
+    function openTermsModal() {
+      const el = document.getElementById('terms-modal');
+      if (el) {
+        el.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+  
     function closeModal(id) {
       const el = document.getElementById(id);
       if (el) el.classList.add('hidden');
