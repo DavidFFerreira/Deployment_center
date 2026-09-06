@@ -20,7 +20,7 @@ try {
 const app = express();
 const PORT = process.env.PORT || 50000;
 const ADMIN_PASSWORD = process.env.DEPLOYER_ADMIN_PASSWORD || "deploy_master_admin_2026!";
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GITHUB_PAT || "";
+let RUNTIME_GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GITHUB_PAT || "";
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const STATE_FILE = path.join(DATA_DIR, "deploy-state.json");
 const PROJECTS_FILE = path.join(DATA_DIR, "projects.json");
@@ -118,6 +118,15 @@ async function writeFileWithSudo(filePath, content) {
 // ==============================================================================
 const ENCRYPTION_KEY = crypto.createHash("sha256").update(ADMIN_PASSWORD + SESSION_SECRET).digest();
 
+const candidateEncryptionKeys = [
+  ENCRYPTION_KEY,
+  crypto.createHash("sha256").update("suavit_deploy_master_2026!" + SESSION_SECRET).digest(),
+  crypto.createHash("sha256").update("deploy_master_admin_2026!" + SESSION_SECRET).digest(),
+  crypto.createHash("sha256").update("suavit_deploy_master_2026!" + "deploy_center_session_secret_2026_xyz").digest(),
+  crypto.createHash("sha256").update("deploy_master_admin_2026!" + "deploy_center_session_secret_2026_xyz").digest(),
+  crypto.createHash("sha256").update("suavit_deploy_master_2026!" + "suavit_deploy_center_session_secret_2026_xyz").digest(),
+];
+
 function encryptSecret(plainText) {
   if (!plainText) return "";
   try {
@@ -135,37 +144,81 @@ function encryptSecret(plainText) {
 function decryptSecret(encryptedPayload) {
   if (!encryptedPayload) return "";
   if (!encryptedPayload.includes(":")) return encryptedPayload;
+  const parts = encryptedPayload.split(":");
+  if (parts.length < 3) return encryptedPayload;
+
+  const [ivHex, tagHex, encryptedText] = parts;
   try {
-    const [ivHex, tagHex, encryptedText] = encryptedPayload.split(":");
     const iv = Buffer.from(ivHex, "hex");
     const tag = Buffer.from(tagHex, "hex");
-    const decipher = crypto.createDecipheriv("aes-256-gcm", ENCRYPTION_KEY, iv);
-    decipher.setAuthTag(tag);
-    let decrypted = decipher.update(encryptedText, "hex", "utf8");
-    decrypted += decipher.final("utf8");
-    return decrypted;
-  } catch (e) {
-    return "";
-  }
+
+    for (const key of candidateEncryptionKeys) {
+      try {
+        const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
+        decipher.setAuthTag(tag);
+        let decrypted = decipher.update(encryptedText, "hex", "utf8");
+        decrypted += decipher.final("utf8");
+        if (decrypted) return decrypted;
+      } catch (err) {}
+    }
+  } catch (e) {}
+  return "";
+}
+
+function getActiveGithubToken() {
+  const s = getSettings();
+  if (s && s.github_token) return s.github_token.trim();
+  if (RUNTIME_GITHUB_TOKEN) return RUNTIME_GITHUB_TOKEN.trim();
+  return "";
 }
 
 function getSettings() {
   const defaults = {
-    github_token: GITHUB_TOKEN || "",
+    github_token: RUNTIME_GITHUB_TOKEN || "",
     server_host_ip: process.env.HOST_IP || "127.0.0.1",
-    server_apps_dir: "/mnt/opt/stacks",
+    server_apps_dir: "/opt/stacks",
     supabase_master_key: "deploy_supabase_master_secret_2026",
     author_website: "https://davidferreira.pt",
     author_name: "David Alexandre Ferreira",
   };
+
+  // Se o ficheiro principal não existir, inspecionar diretórios legados ou subpastas
+  let resolvedSettingsPath = SETTINGS_FILE;
+  if (!fs.existsSync(resolvedSettingsPath)) {
+    const candidatePaths = [
+      path.join(DATA_DIR, "deploy-center", "settings.json"),
+      path.join(DATA_DIR, "deploy-center", "deploy-center", "settings.json"),
+      "/opt/stacks/deployment-center/data/settings.json",
+      "/opt/deployment-center/data/settings.json",
+      "/mnt/Disco1/apps/deployment-center/data/settings.json",
+      "/mnt/Disco1/apps/suavit-portal/data/deploy-center/settings.json",
+    ];
+    for (const cp of candidatePaths) {
+      if (fs.existsSync(cp)) {
+        try {
+          if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+          fs.copyFileSync(cp, SETTINGS_FILE);
+          resolvedSettingsPath = SETTINGS_FILE;
+          break;
+        } catch (e) {}
+      }
+    }
+  }
+
   try {
-    if (fs.existsSync(SETTINGS_FILE)) {
-      const raw = JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf-8"));
+    if (fs.existsSync(resolvedSettingsPath)) {
+      const raw = JSON.parse(fs.readFileSync(resolvedSettingsPath, "utf-8"));
+      const decryptedToken = decryptSecret(raw.github_token_enc) || raw.github_token || defaults.github_token;
+      
+      if (decryptedToken && decryptedToken !== RUNTIME_GITHUB_TOKEN) {
+        RUNTIME_GITHUB_TOKEN = decryptedToken;
+      }
+
       return {
-        github_token: decryptSecret(raw.github_token_enc) || defaults.github_token,
-        server_host_ip: raw.server_host_ip || raw.host_ip || defaults.server_host_ip,
-        server_apps_dir: raw.server_apps_dir || raw.apps_dir || defaults.server_apps_dir,
-        supabase_master_key: decryptSecret(raw.supabase_master_key_enc) || defaults.supabase_master_key,
+        github_token: decryptedToken,
+        server_host_ip: raw.server_host_ip || raw.truenas_host_ip || raw.host_ip || defaults.server_host_ip,
+        server_apps_dir: raw.server_apps_dir || raw.truenas_apps_dir || raw.apps_dir || defaults.server_apps_dir,
+        supabase_master_key: decryptSecret(raw.supabase_master_key_enc) || raw.supabase_master_key || defaults.supabase_master_key,
         author_website: raw.author_website || defaults.author_website,
         author_name: raw.author_name || defaults.author_name,
       };
@@ -186,7 +239,7 @@ function saveSettings(newSettings) {
       updated_at: new Date().toISOString(),
     };
     fs.writeFileSync(SETTINGS_FILE, JSON.stringify(toSave, null, 2));
-    if (newSettings.github_token) GITHUB_TOKEN = newSettings.github_token;
+    if (newSettings.github_token) RUNTIME_GITHUB_TOKEN = newSettings.github_token;
   } catch (e) {}
 }
 
@@ -398,15 +451,26 @@ function getProjects() {
 
   if (list.length === 0) {
     // Tentar importar de dados legados se existirem
-    const legacyPath = "/opt/stacks/app-portal/data/deploy-center/projects.json";
-    try {
-      if (fs.existsSync(legacyPath)) {
-        const legacyData = JSON.parse(fs.readFileSync(legacyPath, "utf-8"));
-        if (Array.isArray(legacyData) && legacyData.length > 0) {
-          list = legacyData;
+    const candidateProjectPaths = [
+      path.join(DATA_DIR, "deploy-center", "projects.json"),
+      path.join(DATA_DIR, "deploy-center", "deploy-center", "projects.json"),
+      "/opt/stacks/deployment-center/data/projects.json",
+      "/opt/stacks/app-portal/data/deploy-center/projects.json",
+      "/mnt/Disco1/apps/deployment-center/data/projects.json",
+      "/mnt/Disco1/apps/suavit-portal/data/deploy-center/projects.json"
+    ];
+    for (const legacyPath of candidateProjectPaths) {
+      try {
+        if (fs.existsSync(legacyPath)) {
+          const legacyData = JSON.parse(fs.readFileSync(legacyPath, "utf-8"));
+          if (Array.isArray(legacyData) && legacyData.length > 0) {
+            list = legacyData;
+            saveProjects(list);
+            break;
+          }
         }
-      }
-    } catch (e) {}
+      } catch (e) {}
+    }
   }
 
   if (list.length === 0) {
@@ -543,16 +607,25 @@ function getLocalDeployUsers() {
   } catch (e) {}
 
   // Tentar importar de dados legados se existirem
-  const legacyUsersPath = "/opt/stacks/app-portal/data/deploy-center/deploy_users.json";
-  try {
-    if (fs.existsSync(legacyUsersPath)) {
-      const legacyData = JSON.parse(fs.readFileSync(legacyUsersPath, "utf-8"));
-      if (Array.isArray(legacyData) && legacyData.length > 0) {
-        saveLocalDeployUsers(legacyData);
-        return legacyData;
+  const candidateUserPaths = [
+    path.join(DATA_DIR, "deploy-center", "deploy_users.json"),
+    path.join(DATA_DIR, "deploy-center", "deploy-center", "deploy_users.json"),
+    "/opt/stacks/deployment-center/data/deploy_users.json",
+    "/opt/stacks/app-portal/data/deploy-center/deploy_users.json",
+    "/mnt/Disco1/apps/deployment-center/data/deploy_users.json",
+    "/mnt/Disco1/apps/suavit-portal/data/deploy-center/deploy_users.json"
+  ];
+  for (const legacyUsersPath of candidateUserPaths) {
+    try {
+      if (fs.existsSync(legacyUsersPath)) {
+        const legacyData = JSON.parse(fs.readFileSync(legacyUsersPath, "utf-8"));
+        if (Array.isArray(legacyData) && legacyData.length > 0) {
+          saveLocalDeployUsers(legacyData);
+          return legacyData;
+        }
       }
-    }
-  } catch (e) {}
+    } catch (e) {}
+  }
 
   const defaultUsers = [
     {
@@ -1153,7 +1226,8 @@ app.get("/api/commit-detail", requireAuth, async (req, res) => {
 
   try {
     const headers = { Accept: "application/vnd.github.v3+json", "User-Agent": "Deploy-Center-v3" };
-    if (GITHUB_TOKEN) headers["Authorization"] = `token ${GITHUB_TOKEN}`;
+    const activeToken = getActiveGithubToken();
+    if (activeToken) headers["Authorization"] = `token ${activeToken}`;
 
     const resp = await fetch(`https://api.github.com/repos/${project.repoOwner}/${project.repoName}/commits/${hash}`, { headers });
     if (resp.ok) {
@@ -1203,7 +1277,8 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
     const targetService = environment === "production" ? project.production.containerName : project.staging.containerName;
 
     if (fs.existsSync(targetDir)) {
-      const authRemote = GITHUB_TOKEN ? `https://${GITHUB_TOKEN}@github.com/${project.repoOwner}/${project.repoName}.git` : "origin";
+      const activeToken = getActiveGithubToken();
+    const authRemote = activeToken ? `https://${activeToken}@github.com/${project.repoOwner}/${project.repoName}.git` : "origin";
       const targetFolder = environment === "production" ? ".output_prod" : ".output_staging";
 
       // 1. Garantir que a pasta do projeto no servidor é um repositório git inicializado
@@ -1328,14 +1403,15 @@ app.post("/api/terminal/stream", requireAuth, (req, res) => {
 
   // 3. Injetar token GitHub se for comando de git pull / fetch sem credenciais
   if (processedCmd.includes("git pull") || processedCmd.includes("git fetch") || processedCmd.includes("git reset")) {
-    if (GITHUB_TOKEN && !processedCmd.includes(GITHUB_TOKEN)) {
-      processedCmd = `git remote set-url origin "https://${GITHUB_TOKEN}@github.com/${project.repoOwner}/${project.repoName}.git" && ${processedCmd}`;
+    const activeToken = getActiveGithubToken();
+    if (activeToken && !processedCmd.includes(activeToken)) {
+      processedCmd = `git remote set-url origin "https://${getActiveGithubToken()}@github.com/${project.repoOwner}/${project.repoName}.git" && ${processedCmd}`;
     }
   }
 
   // 4. Se for o script oficial update.sh, usar execução direta ou download seguro
   if (processedCmd.includes("update.sh") || processedCmd.includes("update.sh")) {
-    const tokenToUse = GITHUB_TOKEN || "";
+    const tokenToUse = getActiveGithubToken();
     const localScript = path.join(targetDir, "scripts", "update.sh");
     if (fs.existsSync(localScript)) {
       try { fs.chmodSync(localScript, 0o755); } catch (e) {}
@@ -1362,7 +1438,7 @@ app.post("/api/terminal/stream", requireAuth, (req, res) => {
         ...process.env,
         PATH: process.env.PATH + ":/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
         APP_DIR: targetDir,
-        GITHUB_TOKEN: GITHUB_TOKEN || "",
+        GITHUB_TOKEN: getActiveGithubToken(),
       },
     });
 
@@ -1420,8 +1496,9 @@ app.post("/api/terminal/exec", requireAuth, async (req, res) => {
   }
 
   if (processedCmd.includes("git pull") || processedCmd.includes("git fetch") || processedCmd.includes("git reset")) {
-    if (GITHUB_TOKEN && !processedCmd.includes(GITHUB_TOKEN)) {
-      processedCmd = `git remote set-url origin "https://${GITHUB_TOKEN}@github.com/${project.repoOwner}/${project.repoName}.git" && ${processedCmd}`;
+    const activeToken = getActiveGithubToken();
+    if (activeToken && !processedCmd.includes(activeToken)) {
+      processedCmd = `git remote set-url origin "https://${getActiveGithubToken()}@github.com/${project.repoOwner}/${project.repoName}.git" && ${processedCmd}`;
     }
   }
 
@@ -1435,7 +1512,7 @@ app.post("/api/terminal/exec", requireAuth, async (req, res) => {
         ...process.env,
         PATH: process.env.PATH + ":/usr/local/bin:/usr/bin:/bin",
         APP_DIR: targetDir,
-        GITHUB_TOKEN: GITHUB_TOKEN || "",
+        GITHUB_TOKEN: getActiveGithubToken(),
       }
     });
 
@@ -1463,7 +1540,7 @@ app.post("/api/terminal/exec", requireAuth, async (req, res) => {
 
 // Endpoint dedicado para disparar o Update Oficial do servidor
 app.post("/api/terminal/run-server-update", requireAuth, async (req, res) => {
-  const token = req.body.token || GITHUB_TOKEN || "";
+  const token = req.body.token || getActiveGithubToken();
   const start = Date.now();
   const localScript = "/opt/stacks/app-portal/scripts/update.sh";
   
@@ -3252,7 +3329,7 @@ app.get("/api/projects/check-github-repo", requireAuth, async (req, res) => {
 
   // 2. Verificar se já existe na conta GitHub com o token
   const settings = getSettings();
-  const token = settings.github_token || GITHUB_TOKEN;
+  const token = settings.github_token || getActiveGithubToken();
 
   if (!token) {
     return res.json({
