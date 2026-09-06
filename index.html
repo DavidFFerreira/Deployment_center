@@ -1783,20 +1783,36 @@
               </div>
             </div>
 
-            <!-- Card do ZIP Selecionado / Carregado -->
-            <div id="wz-zip-selected-card" class="hidden p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between">
-              <div class="flex items-center gap-2.5 min-w-0">
-                <div class="p-2 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0">
-                  <i data-lucide="file-check" class="w-4 h-4"></i>
+            <!-- Card do ZIP Selecionado / Em Upload / Carregado -->
+            <div id="wz-zip-selected-card" class="hidden p-3.5 rounded-2xl bg-purple-500/5 dark:bg-purple-950/20 border border-purple-500/30 space-y-2.5 transition-all shadow-sm">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div id="wz-zip-icon-container" class="p-2 rounded-xl bg-purple-500/20 text-purple-500 shrink-0">
+                    <i id="wz-zip-status-icon" data-lucide="upload-cloud" class="w-4 h-4"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="font-bold text-xs text-slate-900 dark:text-white truncate" id="wz-zip-filename">meu-projeto.zip</div>
+                    <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium" id="wz-zip-filesize">A preparar envio...</div>
+                  </div>
                 </div>
-                <div class="min-w-0">
-                  <div class="font-bold text-xs text-slate-900 dark:text-white truncate" id="wz-zip-filename">meu-projeto.zip</div>
-                  <div class="text-[10px] text-slate-500 dark:text-slate-400" id="wz-zip-filesize">0 MB · Pronto para descompactar na raiz</div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <span id="wz-zip-progress-pct" class="font-mono text-xs font-extrabold text-purple-600 dark:text-purple-400">0%</span>
+                  <button type="button" onclick="removeWizardZipFile(event)" class="p-1.5 rounded-lg hover:bg-rose-500/20 text-slate-400 hover:text-rose-500 transition cursor-pointer" title="Remover ficheiro ZIP">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
                 </div>
               </div>
-              <button type="button" onclick="removeWizardZipFile(event)" class="p-1.5 rounded-lg hover:bg-rose-500/20 text-rose-500 transition cursor-pointer" title="Remover ficheiro ZIP">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-              </button>
+
+              <!-- Barra de Progresso em Tempo Real -->
+              <div id="wz-zip-progress-container" class="space-y-1">
+                <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                  <div id="wz-zip-progress-bar" class="bg-gradient-to-r from-purple-600 to-indigo-500 h-2 rounded-full transition-all duration-150 ease-out" style="width: 0%"></div>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-slate-400">
+                  <span id="wz-zip-transferred-text">0 MB / 0 MB</span>
+                  <span id="wz-zip-status-badge" class="font-medium text-purple-500 animate-pulse">A enviar ficheiro...</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -3918,6 +3934,14 @@
     let wizardSourceZipBase64 = null;
     let wizardSourceZipName = null;
     let wizardSourceZipTempPath = null;
+    let wizardCurrentUploadXhr = null;
+
+    function formatBytes(bytes) {
+      if (!bytes || bytes === 0) return '0 B';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
 
     async function handleWizardZipUpload(files) {
       if (!files || files.length === 0) return;
@@ -3929,22 +3953,125 @@
       wizardSourceZipFile = file;
       wizardSourceZipName = file.name;
       
-      document.getElementById('wz-zip-filename').textContent = file.name;
-      document.getElementById('wz-zip-filesize').textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB · A validar...`;
-      document.getElementById('wz-zip-dropzone').classList.add('hidden');
-      document.getElementById('wz-zip-selected-card').classList.remove('hidden');
+      const card = document.getElementById('wz-zip-selected-card');
+      const dropzone = document.getElementById('wz-zip-dropzone');
+      const fnEl = document.getElementById('wz-zip-filename');
+      const fsEl = document.getElementById('wz-zip-filesize');
+      const pBar = document.getElementById('wz-zip-progress-bar');
+      const pPct = document.getElementById('wz-zip-progress-pct');
+      const pText = document.getElementById('wz-zip-transferred-text');
+      const pBadge = document.getElementById('wz-zip-status-badge');
+      const pIcon = document.getElementById('wz-zip-status-icon');
+      const iconContainer = document.getElementById('wz-zip-icon-container');
+
+      if (dropzone) dropzone.classList.add('hidden');
+      if (card) {
+        card.classList.remove('hidden');
+        card.className = "p-3.5 rounded-2xl bg-purple-500/5 dark:bg-purple-950/20 border border-purple-500/30 space-y-2.5 transition-all shadow-sm";
+      }
+      if (fnEl) fnEl.textContent = file.name;
+      if (fsEl) fsEl.textContent = `${formatBytes(file.size)} · A enviar para o servidor...`;
+      if (pBar) pBar.style.width = '0%';
+      if (pPct) pPct.textContent = '0%';
+      if (pText) pText.textContent = `0 MB / ${formatBytes(file.size)}`;
+      if (pBadge) {
+        pBadge.textContent = 'A enviar ficheiro...';
+        pBadge.className = 'font-medium text-purple-500 animate-pulse';
+      }
+      if (iconContainer) {
+        iconContainer.className = 'p-2 rounded-xl bg-purple-500/20 text-purple-500 shrink-0';
+      }
+      if (pIcon) {
+        pIcon.setAttribute('data-lucide', 'upload-cloud');
+      }
       if (window.lucide) lucide.createIcons();
 
       // Sugerir Nome e Slug se ainda estiverem vazios
       const nameInput = document.getElementById('wz-project-name');
-      if (!nameInput.value.trim()) {
+      if (nameInput && !nameInput.value.trim()) {
         const cleanBase = file.name.replace(/\.zip$/i, '').replace(/[-_]/g, ' ');
         const suggested = cleanBase.charAt(0).toUpperCase() + cleanBase.slice(1);
         nameInput.value = suggested;
         handleWizardNameInput(suggested);
       }
 
+      // Upload com XMLHttpRequest com tracking de progresso real em %
+      const xhr = new XMLHttpRequest();
+      wizardCurrentUploadXhr = xhr;
+      xhr.open('POST', '/api/projects/upload-wizard-zip-raw');
+      xhr.setRequestHeader('X-Filename', encodeURIComponent(file.name));
+      xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+
+      xhr.upload.onprogress = (evt) => {
+        if (evt.lengthComputable) {
+          const pct = Math.round((evt.loaded / evt.total) * 100);
+          if (pBar) pBar.style.width = `${pct}%`;
+          if (pPct) pPct.textContent = `${pct}%`;
+          if (pText) pText.textContent = `${formatBytes(evt.loaded)} / ${formatBytes(evt.total)}`;
+          if (pct === 100) {
+            if (pBadge) {
+              pBadge.textContent = 'A processar e a validar conteúdo do ZIP no servidor...';
+              pBadge.className = 'font-medium text-indigo-500 animate-pulse';
+            }
+          }
+        }
+      };
+
+      xhr.onload = () => {
+        wizardCurrentUploadXhr = null;
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.ok) {
+            wizardSourceZipTempPath = data.tempZipPath;
+            if (pBar) pBar.style.width = '100%';
+            if (pPct) pPct.textContent = '100%';
+            if (fsEl) fsEl.textContent = `${formatBytes(file.size)} (${data.filesCount || 0} ficheiros) · Pronto para descompactar na raiz`;
+            if (pText) pText.textContent = `${formatBytes(file.size)} / ${formatBytes(file.size)}`;
+            if (pBadge) {
+              pBadge.textContent = '✓ Upload concluído com sucesso!';
+              pBadge.className = 'font-bold text-emerald-600 dark:text-emerald-400';
+            }
+            if (card) {
+              card.className = "p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-2.5 transition-all shadow-sm";
+            }
+            if (iconContainer) {
+              iconContainer.className = 'p-2 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0';
+            }
+            if (pIcon) {
+              pIcon.setAttribute('data-lucide', 'file-check');
+            }
+            if (window.lucide) lucide.createIcons();
+          } else {
+            handleWizardZipUploadFallback(file);
+          }
+        } catch (e) {
+          handleWizardZipUploadFallback(file);
+        }
+      };
+
+      xhr.onerror = () => {
+        wizardCurrentUploadXhr = null;
+        handleWizardZipUploadFallback(file);
+      };
+
+      xhr.send(file);
+    }
+
+    function handleWizardZipUploadFallback(file) {
+      const fsEl = document.getElementById('wz-zip-filesize');
+      const pBadge = document.getElementById('wz-zip-status-badge');
+      const pBar = document.getElementById('wz-zip-progress-bar');
+      const pPct = document.getElementById('wz-zip-progress-pct');
+      if (pBadge) pBadge.textContent = 'A codificar ficheiro localmente...';
+
       const reader = new FileReader();
+      reader.onprogress = (evt) => {
+        if (evt.lengthComputable) {
+          const pct = Math.round((evt.loaded / evt.total) * 100);
+          if (pBar) pBar.style.width = `${pct}%`;
+          if (pPct) pPct.textContent = `${pct}%`;
+        }
+      };
       reader.onload = async (e) => {
         wizardSourceZipBase64 = e.target.result;
         try {
@@ -3956,12 +4083,18 @@
           const data = await res.json();
           if (data.ok) {
             wizardSourceZipTempPath = data.tempZipPath;
-            document.getElementById('wz-zip-filesize').textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB (${data.filesCount || 0} ficheiros) · Pronto para descompactar na raiz`;
+            if (pBar) pBar.style.width = '100%';
+            if (pPct) pPct.textContent = '100%';
+            if (fsEl) fsEl.textContent = `${formatBytes(file.size)} (${data.filesCount || 0} ficheiros) · Pronto para descompactar na raiz`;
+            if (pBadge) {
+              pBadge.textContent = '✓ Upload concluído com sucesso!';
+              pBadge.className = 'font-bold text-emerald-600 dark:text-emerald-400';
+            }
           } else {
-            document.getElementById('wz-zip-filesize').textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB · Pronto para envio no deploy`;
+            if (fsEl) fsEl.textContent = `${formatBytes(file.size)} · Pronto para envio no deploy`;
           }
         } catch (uploadErr) {
-          document.getElementById('wz-zip-filesize').textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB · Pronto para envio no deploy`;
+          if (fsEl) fsEl.textContent = `${formatBytes(file.size)} · Pronto para envio no deploy`;
         }
       };
       reader.readAsDataURL(file);
@@ -3969,6 +4102,10 @@
 
     function removeWizardZipFile(e) {
       if (e && e.stopPropagation) e.stopPropagation();
+      if (wizardCurrentUploadXhr) {
+        try { wizardCurrentUploadXhr.abort(); } catch (err) {}
+        wizardCurrentUploadXhr = null;
+      }
       wizardSourceZipFile = null;
       wizardSourceZipBase64 = null;
       wizardSourceZipName = null;
@@ -4289,33 +4426,67 @@
     }
 
     let wizardPlanArtifacts = [];
+    let wizardPlanUploadsInProgress = [];
+
+    function updatePlanUploadDom(id, pct, loaded, total) {
+      const bar = document.getElementById(`wz-upl-bar-${id}`);
+      const pctEl = document.getElementById(`wz-upl-pct-${id}`);
+      const txtEl = document.getElementById(`wz-upl-txt-${id}`);
+      if (bar) bar.style.width = `${pct}%`;
+      if (pctEl) pctEl.textContent = `${pct}%`;
+      if (txtEl) txtEl.textContent = `${formatBytes(loaded)} / ${formatBytes(total)}`;
+    }
 
     function handleWizardPlanFileUpload(files) {
       if (!files || files.length === 0) return;
       Array.from(files).forEach((file) => {
         const ext = file.name.split('.').pop().toLowerCase();
         const isZip = ext === 'zip';
+        const uploadId = 'upl-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+
+        const uploadObj = {
+          id: uploadId,
+          filename: file.name,
+          isZip,
+          totalBytes: file.size,
+          loadedBytes: 0,
+          percent: 0,
+          xhr: null
+        };
+
+        wizardPlanUploadsInProgress.push(uploadObj);
+        renderWizardPlanArtifacts();
 
         if (isZip) {
-          const reader = new FileReader();
-          reader.onload = async (e) => {
-            const zipBase64 = e.target.result;
+          const xhr = new XMLHttpRequest();
+          uploadObj.xhr = xhr;
+          xhr.open('POST', '/api/projects/upload-wizard-zip-raw');
+          xhr.setRequestHeader('X-Filename', encodeURIComponent(file.name));
+          xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+
+          xhr.upload.onprogress = (evt) => {
+            if (evt.lengthComputable) {
+              const pct = Math.round((evt.loaded / evt.total) * 100);
+              uploadObj.loadedBytes = evt.loaded;
+              uploadObj.percent = pct;
+              updatePlanUploadDom(uploadId, pct, evt.loaded, evt.total);
+            }
+          };
+
+          xhr.onload = () => {
             let tempZipPath = null;
             let filesCount = 0;
             try {
-              const res = await fetch('/api/projects/upload-wizard-zip', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ filename: file.name, zipBase64 })
-              });
-              const data = await res.json();
+              const data = JSON.parse(xhr.responseText);
               if (data.ok) {
                 tempZipPath = data.tempZipPath;
                 filesCount = data.filesCount || 0;
               }
             } catch (err) {
-              console.warn("Erro no upload prévio do ZIP de planeamento/host:", err);
+              console.warn("Erro ao analisar resposta do upload ZIP:", err);
             }
+
+            wizardPlanUploadsInProgress = wizardPlanUploadsInProgress.filter(u => u.id !== uploadId);
 
             const existingIdx = wizardPlanArtifacts.findIndex((a) => a.filename.toLowerCase() === file.name.toLowerCase());
             const artifactObj = {
@@ -4324,8 +4495,7 @@
               isZip: true,
               type: 'zip',
               tempZipPath,
-              zipBase64: tempZipPath ? null : zipBase64,
-              size: (file.size / (1024 * 1024) >= 1) ? (file.size / (1024 * 1024)).toFixed(2) + ' MB' : (file.size / 1024).toFixed(1) + ' KB',
+              size: formatBytes(file.size),
               filesCount
             };
 
@@ -4336,17 +4506,34 @@
             }
             renderWizardPlanArtifacts();
           };
-          reader.readAsDataURL(file);
+
+          xhr.onerror = () => {
+            console.warn("Falha no upload raw, a remover progresso...");
+            wizardPlanUploadsInProgress = wizardPlanUploadsInProgress.filter(u => u.id !== uploadId);
+            renderWizardPlanArtifacts();
+          };
+
+          xhr.send(file);
         } else {
+          // Ficheiro regular (ex: .sql, .md, .json, .txt)
           const reader = new FileReader();
+          reader.onprogress = (evt) => {
+            if (evt.lengthComputable) {
+              const pct = Math.round((evt.loaded / evt.total) * 100);
+              uploadObj.loadedBytes = evt.loaded;
+              uploadObj.percent = pct;
+              updatePlanUploadDom(uploadId, pct, evt.loaded, evt.total);
+            }
+          };
           reader.onload = (e) => {
+            wizardPlanUploadsInProgress = wizardPlanUploadsInProgress.filter(u => u.id !== uploadId);
             const content = e.target.result;
             const existingIdx = wizardPlanArtifacts.findIndex((a) => a.filename.toLowerCase() === file.name.toLowerCase());
             const artifactObj = {
               id: 'art-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
               filename: file.name,
               content,
-              size: (file.size / 1024).toFixed(1) + ' KB',
+              size: formatBytes(file.size),
               type: ext === 'sql' ? 'sql' : (ext === 'md' || ext === 'markdown' ? 'md' : 'other')
             };
 
@@ -4362,6 +4549,15 @@
       });
       const fileInp = document.getElementById('wz-plan-file-input');
       if (fileInp) fileInp.value = "";
+    }
+
+    function cancelWizardPlanUpload(uploadId) {
+      const upl = wizardPlanUploadsInProgress.find(u => u.id === uploadId);
+      if (upl && upl.xhr) {
+        try { upl.xhr.abort(); } catch (err) {}
+      }
+      wizardPlanUploadsInProgress = wizardPlanUploadsInProgress.filter(u => u.id !== uploadId);
+      renderWizardPlanArtifacts();
     }
 
     function addManualPlanFile() {
@@ -4381,7 +4577,7 @@
         id: 'art-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
         filename: rawName,
         content: rawContent,
-        size: (rawContent.length / 1024).toFixed(1) + ' KB',
+        size: formatBytes(rawContent.length),
         type: ext === 'sql' ? 'sql' : (ext === 'md' || ext === 'markdown' ? 'md' : 'other')
       };
 
@@ -4404,7 +4600,7 @@
       const container = document.getElementById('wz-plan-files-list');
       if (!container) return;
 
-      if (wizardPlanArtifacts.length === 0) {
+      if (wizardPlanArtifacts.length === 0 && wizardPlanUploadsInProgress.length === 0) {
         container.classList.add('hidden');
         container.innerHTML = '';
         return;
@@ -4413,9 +4609,38 @@
       container.classList.remove('hidden');
       container.innerHTML = `
         <div class="flex items-center justify-between px-1 text-[11px] font-bold text-slate-500">
-          <span>Ficheiros Canónicos Carregados (${wizardPlanArtifacts.length}):</span>
-          <button type="button" onclick="wizardPlanArtifacts=[]; renderWizardPlanArtifacts();" class="text-red-400 hover:underline text-[10px]">Limpar Todos</button>
+          <span>Ficheiros Canónicos (${wizardPlanArtifacts.length + wizardPlanUploadsInProgress.length}):</span>
+          ${wizardPlanArtifacts.length > 0 ? `<button type="button" onclick="wizardPlanArtifacts=[]; renderWizardPlanArtifacts();" class="text-red-400 hover:underline text-[10px]">Limpar Todos</button>` : ''}
         </div>
+
+        ${wizardPlanUploadsInProgress.map((upl) => `
+          <div class="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-left shadow-sm space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="p-1.5 rounded-lg bg-purple-500/20 text-purple-500 shrink-0">
+                  <i data-lucide="${upl.isZip ? 'folder-archive' : 'upload-cloud'}" class="w-4 h-4 animate-pulse"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <p class="font-bold text-xs text-slate-800 dark:text-slate-100 truncate max-w-[220px] font-mono">${escapeHtml(upl.filename)}</p>
+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded border bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30 animate-pulse">A carregar...</span>
+                  </div>
+                  <p id="wz-upl-txt-${upl.id}" class="text-[10px] text-slate-400">${formatBytes(upl.loadedBytes)} / ${formatBytes(upl.totalBytes)}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="wz-upl-pct-${upl.id}" class="font-mono text-xs font-extrabold text-purple-600 dark:text-purple-400">${upl.percent}%</span>
+                <button type="button" onclick="cancelWizardPlanUpload('${upl.id}')" class="p-1 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition" title="Cancelar upload">
+                  <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+              <div id="wz-upl-bar-${upl.id}" class="bg-gradient-to-r from-purple-600 to-indigo-500 h-1.5 rounded-full transition-all duration-100 ease-out" style="width: ${upl.percent}%"></div>
+            </div>
+          </div>
+        `).join('')}
+
         ${wizardPlanArtifacts.map((art) => {
           const isZip = art.type === 'zip';
           const isSql = art.type === 'sql';

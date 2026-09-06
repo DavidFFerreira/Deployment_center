@@ -4359,6 +4359,52 @@ app.post("/api/projects/upload-wizard-zip", requireAuth, async (req, res) => {
   }
 });
 
+// Endpoint para Upload Prévio do Ficheiro ZIP via Stream Binário (com Progresso Real %)
+app.post("/api/projects/upload-wizard-zip-raw", requireAuth, async (req, res) => {
+  try {
+    const rawFilename = decodeURIComponent(req.headers['x-filename'] || 'source.zip');
+    const tempZipPath = path.join(os.tmpdir(), `wz_source_${Date.now()}_${Math.random().toString(36).slice(2)}.zip`);
+    const fileStream = fs.createWriteStream(tempZipPath);
+    req.pipe(fileStream);
+
+    fileStream.on('finish', async () => {
+      let filesCount = 0;
+      try {
+        const { stdout } = await execAsync(`unzip -l "${tempZipPath}" 2>/dev/null || true`);
+        const lines = stdout.trim().split('\n');
+        const lastLine = lines[lines.length - 1];
+        const match = lastLine && lastLine.match(/(\d+)\s+files?/);
+        if (match) filesCount = parseInt(match[1], 10);
+      } catch (e) {}
+
+      let size = 0;
+      try {
+        size = fs.statSync(tempZipPath).size;
+      } catch (e) {}
+
+      const cleanBaseName = (rawFilename || "projeto").replace(/\.zip$/i, "").replace(/[-_]/g, " ");
+      const suggestedName = cleanBaseName.charAt(0).toUpperCase() + cleanBaseName.slice(1);
+      const suggestedSlug = (rawFilename || "projeto").replace(/\.zip$/i, "").toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/^-+|-+$/g, "");
+
+      res.json({
+        ok: true,
+        tempZipPath,
+        filename: rawFilename || 'source.zip',
+        filesCount,
+        size,
+        suggestedName,
+        suggestedSlug
+      });
+    });
+
+    fileStream.on('error', (err) => {
+      res.status(500).json({ ok: false, error: err.message });
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
   const {
     name,
