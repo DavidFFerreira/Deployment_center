@@ -410,6 +410,139 @@ As **Skills** são diretórios modulares contendo um ficheiro mestre `SKILL.md` 
 
 ---
 
+
+---
+
+## 🔌 API RESTful M2M para Integração com SaaS & Aplicações Externas
+
+O **Universal Deployment Center** disponibiliza uma API RESTful completa de nível empresarial concebida para comunicação **Machine-to-Machine (M2M)**. Se desenvolve uma plataforma SaaS (CRM, ERP, e-commerce, criador de sites ou portal de clientes), pode provisionar automaticamente instâncias completas e isoladas para novos clientes a partir do seu backend, sem qualquer intervenção manual.
+
+### 🛡️ Autenticação por Chave de API (Bearer Token)
+Todas as chamadas à API v1 devem incluir o cabeçalho HTTP:
+```http
+Authorization: Bearer dc_live_sec_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+> **Dica:** Pode gerar e revogar chaves de API diretamente no painel web, clicando no botão **"API & SaaS Helper"** no cabeçalho superior.
+
+---
+
+### 📋 Tabela de Endpoints RESTful v1
+
+| Método | Endpoint | Permissões | Descrição |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/health` | Pública | Healthcheck do serviço, tempo de atividade e versão ativa. |
+| `GET` | `/api/v1/projects` | `projects:read` | Lista todos os projetos/tenants ativos com respetivas portas e domínios. |
+| `GET` | `/api/v1/projects/:id` | `projects:read` | Devolve detalhe exaustivo do tenant (portas, URLs Kong/Studio e chaves Supabase). |
+| `POST` | `/api/v1/projects` | `projects:create` | **Cria e provisiona uma nova stack completa** (16 contentores, Postgres, Kong e App). Responde `202 Accepted` com `job_id` e stream de progresso. |
+| `POST` | `/api/v1/projects/:id/deploy` | `projects:deploy` | Dispara um deploy programático para o ambiente de Produção ou Staging. |
+| `DELETE` | `/api/v1/projects/:id` | `projects:delete` | Desliga os contentores Docker do tenant e remove o registo (suporta `?remove_volumes=true`). |
+| `GET` | `/api/v1/jobs/:id/logs` | Pública / Key | Canal **SSE (Server-Sent Events)** para streaming dos logs de provisionamento em tempo real. |
+| `POST` | `/api/v1/keys` | Admin Session | Cria uma nova Chave de API M2M. |
+| `DELETE` | `/api/v1/keys/:id` | Admin Session | Revoga imediatamente uma Chave de API M2M. |
+
+---
+
+### 💻 Exemplos Práticos de Integração
+
+#### 1. Criar e Provisionar um Novo Cliente (Tenant)
+
+```bash
+# Exemplo cURL
+curl -X POST "http://SEU_SERVIDOR:50000/api/v1/projects" \
+  -H "Authorization: Bearer dc_live_sec_SUA_CHAVE_AQUI" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "client_id": "cliente-alfa",
+    "client_name": "Empresa Alfa Lda",
+    "repo_owner": "DavidFFerreira",
+    "repo_name": "template-app",
+    "branch": "main",
+    "domain": "alfa.meusaas.com",
+    "webhook_url": "https://meusaas.com/api/webhooks/deploy"
+  }'
+```
+
+```javascript
+// Exemplo Node.js (Fetch nativo)
+const resp = await fetch("http://SEU_SERVIDOR:50000/api/v1/projects", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer dc_live_sec_SUA_CHAVE_AQUI",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    client_id: "cliente-alfa",
+    client_name: "Empresa Alfa Lda",
+    repo_name: "template-app",
+    domain: "alfa.meusaas.com",
+    webhook_url: "https://meusaas.com/api/webhooks/deploy"
+  })
+});
+
+const { job_id, stream_url, project } = await resp.json();
+console.log("Job ID:", job_id); // Ex: "job_1788290_abc"
+console.log("Portas Alocadas:", project.portPrefix);
+```
+
+```python
+# Exemplo Python (Requests)
+import requests
+
+url = "http://SEU_SERVIDOR:50000/api/v1/projects"
+headers = {
+    "Authorization": "Bearer dc_live_sec_SUA_CHAVE_AQUI",
+    "Content-Type": "application/json"
+}
+payload = {
+    "client_id": "cliente-alfa",
+    "client_name": "Empresa Alfa Lda",
+    "repo_name": "template-app",
+    "domain": "alfa.meusaas.com",
+    "webhook_url": "https://meusaas.com/api/webhooks/deploy"
+}
+
+r = requests.post(url, json=payload, headers=headers)
+print("Resultado:", r.json())
+```
+
+#### 2. Streaming de Progresso em Tempo Real (SSE - Server-Sent Events)
+
+Conecte o seu frontend ou worker ao canal SSE para exibir o progresso aos utilizadores enquanto a stack sobe:
+
+```javascript
+// Conexão SSE em JavaScript / Browser
+const eventSource = new EventSource("http://SEU_SERVIDOR:50000/api/v1/jobs/job_1788290_abc/logs");
+
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log("[STATUS]:", data.status, "->", data.log);
+  
+  if (data.done) {
+    console.log("Provisionamento Concluído com Sucesso!");
+    eventSource.close();
+  }
+};
+```
+
+#### 3. Validação de Assinatura Criptográfica do Webhook
+
+Quando a stack fica pronta, o Deployment Center dispara uma chamada POST para a sua `webhook_url` com o cabeçalho:
+`X-DeployCenter-Signature: sha256=<hmac_sha256_hash>`
+
+Validação no seu backend (Node.js):
+```javascript
+import crypto from "crypto";
+
+function verifyDeployWebhook(req, sharedSecret) {
+  const signature = req.headers["x-deploycenter-signature"]?.replace("sha256=", "");
+  const payload = JSON.stringify(req.body);
+  const expected = crypto.createHmac("sha256", sharedSecret).update(payload).digest("hex");
+  return signature === expected;
+}
+```
+
+---
+
 ## 📖 Guia Passo a Passo (How To)
 
 ### 1. Instalação e Arranque

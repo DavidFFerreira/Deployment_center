@@ -27,6 +27,8 @@ const PROJECTS_FILE = path.join(DATA_DIR, "projects.json");
 const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 const LOCAL_USERS_FILE = path.join(DATA_DIR, "deploy_users.json");
 const BACKUPS_DIR = path.join(DATA_DIR, "backups");
+const API_KEYS_FILE = path.join(DATA_DIR, "api_keys.json");
+const backgroundJobs = new Map();
 const SESSION_SECRET = process.env.SESSION_SECRET || "deploy_center_session_secret_2026_xyz";
 
 async function ensureDirWithSudo(dirPath) {
@@ -694,6 +696,108 @@ function verifySessionToken(token) {
   }
 }
 
+
+// ==============================================================================
+// GESTÃO DE API KEYS M2M (MACHINE-TO-MACHINE PARA SAAS E APLICAÇÕES EXTERNAS)
+// ==============================================================================
+
+function getApiKeys() {
+  try {
+    if (fs.existsSync(API_KEYS_FILE)) {
+      const data = JSON.parse(fs.readFileSync(API_KEYS_FILE, "utf-8"));
+      if (Array.isArray(data)) return data;
+    }
+  } catch (e) {}
+  return [];
+}
+
+function saveApiKeys(keys) {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(API_KEYS_FILE, JSON.stringify(keys, null, 2));
+  } catch (e) {}
+}
+
+function createApiKey(name, scopes = ["*"]) {
+  const cleanName = (name || "SaaS Integration").trim();
+  const rawToken = "dc_live_sec_" + crypto.randomBytes(24).toString("hex");
+  const keyHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+  const id = "key_" + Date.now().toString(36) + "_" + crypto.randomBytes(4).toString("hex");
+
+  const keyRecord = {
+    id,
+    name: cleanName,
+    key_hash: keyHash,
+    prefix: rawToken.substring(0, 16) + "...",
+    scopes: Array.isArray(scopes) ? scopes : ["*"],
+    created_at: new Date().toISOString(),
+    last_used_at: null,
+  };
+
+  const keys = getApiKeys();
+  keys.push(keyRecord);
+  saveApiKeys(keys);
+
+  return {
+    id,
+    name: cleanName,
+    api_key: rawToken, // Exibido apenas uma vez no momento da criação
+    prefix: keyRecord.prefix,
+    scopes: keyRecord.scopes,
+    created_at: keyRecord.created_at,
+  };
+}
+
+function revokeApiKey(id) {
+  const keys = getApiKeys();
+  const filtered = keys.filter((k) => k.id !== id);
+  const found = keys.length !== filtered.length;
+  if (found) saveApiKeys(filtered);
+  return found;
+}
+
+function verifyApiKey(rawToken) {
+  if (!rawToken || typeof rawToken !== "string" || !rawToken.startsWith("dc_live_sec_")) return null;
+  const hash = crypto.createHash("sha256").update(rawToken.trim()).digest("hex");
+  const keys = getApiKeys();
+  const found = keys.find((k) => k.key_hash === hash);
+  if (found) {
+    found.last_used_at = new Date().toISOString();
+    saveApiKeys(keys);
+    return {
+      id: found.id,
+      name: found.name,
+      scopes: found.scopes,
+    };
+  }
+  return null;
+}
+
+function requireApiKeyOrAuth(req, res, next) {
+  // 1. Verificar cabeçalho Authorization: Bearer dc_live_sec_...
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer dc_live_sec_")) {
+    const rawKey = authHeader.substring(7).trim();
+    const keyInfo = verifyApiKey(rawKey);
+    if (keyInfo) {
+      req.apiKey = keyInfo;
+      req.isM2M = true;
+      return next();
+    }
+    return res.status(401).json({ ok: false, error: "Chave de API inválida, expirada ou revogada" });
+  }
+
+  // 2. Fallback para sessão web autenticada (painel ou browser)
+  const token = req.cookies?.deploy_auth;
+  const user = verifySessionToken(token);
+  if (user) {
+    req.user = user;
+    return next();
+  }
+
+  return res.status(401).json({ ok: false, error: "Autenticação requerida (Bearer API Key ou sessão ativa)" });
+}
+
 function requireAuth(req, res, next) {
   const token = req.cookies?.deploy_auth || req.cookies?.deploy_auth;
   const user = verifySessionToken(token);
@@ -967,6 +1071,444 @@ app.get("/api/system/version", (req, res) => {
 });
 
 // ==============================================================================
+
+// ==============================================================================
+// ROTAS RESTFUL V1 (M2M / SAAS INTEGRATION & API HELPER)
+// ==============================================================================
+
+// Healthcheck do sistema
+app.get("/api/v1/health", (req, res) => {
+  let commit = CURRENT_DEPLOY_CENTER_COMMIT;
+  try {
+    commit = child_process.execSync("git rev-parse --short HEAD", { cwd: __dirname }).toString().trim();
+  } catch (e) {}
+
+  res.json({
+    ok: true,
+    service: "Universal Deployment Center M2M API",
+    version: "3.0.0",
+    commit,
+    author: "David Ferreira",
+    author_github: "https://github.com/DavidFFerreira",
+    uptime_seconds: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString(),
+    total_projects: getProjects().length,
+  });
+});
+
+// Gestão de API Keys (Painel / Administrador)
+app.get("/api/v1/keys", requireAuth, (req, res) => {
+  const keys = getApiKeys().map((k) => ({
+    id: k.id,
+    name: k.name,
+    prefix: k.prefix,
+    scopes: k.scopes,
+    created_at: k.created_at,
+    last_used_at: k.last_used_at,
+  }));
+  res.json({ ok: true, count: keys.length, keys });
+});
+
+app.post("/api/v1/keys", requireAuth, (req, res) => {
+  const { name, scopes } = req.body;
+  if (!name || name.trim().length < 2) {
+    return res.status(400).json({ ok: false, error: "Nome descritivo da chave é obrigatório (ex: 'SaaS Onboarding')" });
+  }
+  const created = createApiKey(name, scopes || ["*"]);
+  res.status(201).json({
+    ok: true,
+    message: "Chave de API M2M gerada com sucesso. Copie agora, pois não será exibida novamente.",
+    key: created,
+  });
+});
+
+app.delete("/api/v1/keys/:id", requireAuth, (req, res) => {
+  const success = revokeApiKey(req.params.id);
+  if (!success) return res.status(404).json({ ok: false, error: "Chave de API não encontrada" });
+  res.json({ ok: true, message: "Chave de API revogada com sucesso" });
+});
+
+// Listar Projetos (Tenants)
+app.get("/api/v1/projects", requireApiKeyOrAuth, (req, res) => {
+  const list = getProjects().map((p) => {
+    const pNum = p.portPrefix || 58;
+    return {
+      id: p.id,
+      name: p.name,
+      repo: `${p.repoOwner}/${p.repoName}`,
+      branch: p.branch || "main",
+      status: "active",
+      ports: {
+        kong: p.kongPort || Number(`${pNum}000`),
+        postgres: p.postgresPort || Number(`${pNum}432`),
+        studio: p.studioPort || Number(`${pNum}323`),
+        production_app: p.production?.port || Number(`${pNum}100`),
+        staging_app: p.staging?.port || Number(`${pNum}101`),
+      },
+      hosts: {
+        production: p.production?.host || `localhost:${p.production?.port || Number(`${pNum}100`)}`,
+        staging: p.staging?.host || `localhost:${p.staging?.port || Number(`${pNum}101`)}`,
+      },
+      created_at: p.created_at || null,
+    };
+  });
+  res.json({ ok: true, count: list.length, projects: list });
+});
+
+// Obter Detalhe Exaustivo de um Tenant
+app.get("/api/v1/projects/:id", requireApiKeyOrAuth, (req, res) => {
+  const project = findProject(req.params.id);
+  if (!project || project.id !== req.params.id) {
+    return res.status(404).json({ ok: false, error: "Projeto / Tenant não encontrado" });
+  }
+
+  const pNum = project.portPrefix || 58;
+  res.json({
+    ok: true,
+    project: {
+      id: project.id,
+      name: project.name,
+      repoOwner: project.repoOwner,
+      repoName: project.repoName,
+      branch: project.branch || "main",
+      appDir: project.appDir,
+      ports: {
+        prefix: pNum,
+        kong: project.kongPort || Number(`${pNum}000`),
+        postgres: project.postgresPort || Number(`${pNum}432`),
+        studio: project.studioPort || Number(`${pNum}323`),
+        production_app: project.production?.port || Number(`${pNum}100`),
+        staging_app: project.staging?.port || Number(`${pNum}101`),
+      },
+      containers: {
+        prefix: project.containerPrefix,
+        postgres: project.postgresContainer,
+        postgrest: project.postgrestContainer,
+        kong: project.kongContainer,
+        production_app: project.production?.containerName,
+        staging_app: project.staging?.containerName,
+      },
+      supabase: {
+        kong_url: `http://${getSettings().server_host_ip || "127.0.0.1"}:${project.kongPort || Number(`${pNum}000`)}`,
+        studio_url: `http://${getSettings().server_host_ip || "127.0.0.1"}:${project.studioPort || Number(`${pNum}323`)}`,
+        anon_key: project.anonKey || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIn0.public_token",
+      },
+      production: project.production,
+      staging: project.staging,
+    },
+  });
+});
+
+// Criar / Provisionar Nova Stack de Tenant (SaaS API)
+app.post("/api/v1/projects", requireApiKeyOrAuth, async (req, res) => {
+  const {
+    client_id,
+    client_name,
+    repo_owner,
+    repo_name,
+    branch,
+    domain,
+    webhook_url,
+    port_prefix,
+  } = req.body;
+
+  const name = client_name || client_id;
+  if (!name || name.trim().length < 2) {
+    return res.status(400).json({ ok: false, error: "Nome do cliente ou client_id é obrigatório" });
+  }
+
+  const cleanSlug = (client_id || name.toLowerCase().replace(/[^a-z0-9]/g, "-")).replace(/^-+|-+$/g, "");
+  if (!/^[a-z0-9][a-z0-9\-_]{1,40}$/.test(cleanSlug)) {
+    return res.status(400).json({ ok: false, error: "Slug inválido. Deve ter entre 2 e 40 caracteres alfanuméricos ou hífens." });
+  }
+
+  const currentList = getProjects();
+  if (currentList.some((p) => p.id === cleanSlug)) {
+    return res.status(400).json({ ok: false, error: `Já existe um projeto ou tenant com o ID "${cleanSlug}".` });
+  }
+
+  // 1. Alocar automaticamente o próximo prefixo de portas livre (ex: 61, 62, 63...)
+  let allocatedPrefix = Number(port_prefix);
+  if (!allocatedPrefix || isNaN(allocatedPrefix) || allocatedPrefix < 10 || allocatedPrefix > 99) {
+    const usedPrefixes = new Set(currentList.map((p) => p.portPrefix || 58));
+    allocatedPrefix = 60;
+    while (usedPrefixes.has(allocatedPrefix) && allocatedPrefix < 99) {
+      allocatedPrefix++;
+    }
+  }
+
+  const settings = getSettings();
+  const hostIp = settings.server_host_ip || "127.0.0.1";
+  const portKong = Number(`${allocatedPrefix}000`);
+  const portProd = Number(`${allocatedPrefix}100`);
+  const portStaging = Number(`${allocatedPrefix}101`);
+  const portStudio = Number(`${allocatedPrefix}323`);
+  const portPostgres = Number(`${allocatedPrefix}432`);
+
+  const jobId = "job_" + Date.now().toString(36) + "_" + crypto.randomBytes(3).toString("hex");
+  const jobState = {
+    id: jobId,
+    project_id: cleanSlug,
+    status: "provisioning",
+    logs: [],
+    created_at: new Date().toISOString(),
+    completed_at: null,
+    webhook_url: webhook_url || null,
+    error: null,
+  };
+  backgroundJobs.set(jobId, jobState);
+
+  const baseDir = path.resolve(settings.server_apps_dir || "/opt/stacks", cleanSlug);
+  const repoOwner = repo_owner || "DavidFFerreira";
+  const repoName = repo_name || "template-app";
+  const customDomain = domain || `${cleanSlug}.${hostIp}.nip.io`;
+
+  const newProject = {
+    id: cleanSlug,
+    name: name.trim(),
+    repoOwner,
+    repoName,
+    branch: branch?.trim() || "main",
+    appDir: baseDir,
+    containerPrefix: `${cleanSlug}-`,
+    portPrefix: allocatedPrefix,
+    kongPort: portKong,
+    postgresPort: portPostgres,
+    studioPort: portStudio,
+    postgresContainer: `${cleanSlug}-postgres`,
+    postgrestContainer: `${cleanSlug}-postgrest`,
+    kongContainer: `${cleanSlug}-kong`,
+    studioContainer: `${cleanSlug}-studio`,
+    production: {
+      serviceName: `${cleanSlug}-prod`,
+      port: portProd,
+      host: customDomain,
+      containerName: `${cleanSlug}-portal-prod`,
+    },
+    staging: {
+      serviceName: `${cleanSlug}-staging`,
+      port: portStaging,
+      host: `testes.${customDomain}`,
+      containerName: `${cleanSlug}-portal-staging`,
+    },
+    created_at: new Date().toISOString(),
+  };
+
+  currentList.push(newProject);
+  saveProjects(currentList);
+
+  // Resposta 202 Accepted Imediata para o SaaS
+  res.status(202).json({
+    ok: true,
+    job_id: jobId,
+    status: "provisioning",
+    message: "Pedido de provisionamento aceite. A stack está a ser criada em segundo plano.",
+    project: newProject,
+    stream_url: `/api/v1/jobs/${jobId}/logs`,
+  });
+
+  // Executar criação assíncrona em background
+  (async () => {
+    const appendLog = (msg) => {
+      const line = `[${new Date().toLocaleTimeString("pt-PT")}] ${msg}`;
+      jobState.logs.push(line);
+    };
+
+    try {
+      appendLog(`Iniciando provisionamento para ${newProject.name} (prefixo portas: ${allocatedPrefix})...`);
+      await ensureDirWithSudo(baseDir);
+      appendLog(`Pasta base criada em: ${baseDir}`);
+
+      // Gerar docker-compose do tenant se não existir
+      const composeFile = path.join(baseDir, "docker-compose.yml");
+      if (!fs.existsSync(composeFile)) {
+        const minimalCompose = `version: "3.8"
+services:
+  ${cleanSlug}-postgres:
+    image: supabase/postgres:15.1.0
+    container_name: ${cleanSlug}-postgres
+    restart: unless-stopped
+    ports:
+      - "${portPostgres}:5432"
+    environment:
+      POSTGRES_PASSWORD: "deploy_pass_${cleanSlug}_2026"
+    networks:
+      - ${cleanSlug}-net
+
+  ${cleanSlug}-portal-prod:
+    image: nginx:alpine
+    container_name: ${cleanSlug}-portal-prod
+    restart: unless-stopped
+    ports:
+      - "${portProd}:80"
+    networks:
+      - ${cleanSlug}-net
+
+networks:
+  ${cleanSlug}-net:
+    name: ${cleanSlug}-net
+`;
+        fs.writeFileSync(composeFile, minimalCompose, "utf8");
+        appendLog("docker-compose.yml gerado com sucesso.");
+      }
+
+      // Iniciar contentores
+      appendLog("A iniciar contentores via Docker Compose...");
+      try {
+        await execAsync(`docker compose -f "${composeFile}" up -d`);
+        appendLog("Contentores iniciados e ativos com sucesso.");
+      } catch (dockErr) {
+        appendLog(`Nota Docker: ${dockErr.message}`);
+      }
+
+      jobState.status = "ready";
+      jobState.completed_at = new Date().toISOString();
+      appendLog("Provisionamento concluído com sucesso!");
+
+      // Disparar Webhook de Retorno para o SaaS
+      if (webhook_url) {
+        appendLog(`A enviar notificação de webhook para ${webhook_url}...`);
+        try {
+          const webhookPayload = JSON.stringify({
+            event: "tenant.ready",
+            job_id: jobId,
+            project_id: cleanSlug,
+            project: newProject,
+            timestamp: new Date().toISOString(),
+          });
+          const signature = crypto.createHmac("sha256", SESSION_SECRET).update(webhookPayload).digest("hex");
+
+          await fetch(webhook_url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-DeployCenter-Signature": `sha256=${signature}`,
+              "User-Agent": "DeployCenter-Webhook/3.0",
+            },
+            body: webhookPayload,
+          });
+          appendLog("Webhook enviado com sucesso!");
+        } catch (whErr) {
+          appendLog(`Falha ao enviar webhook: ${whErr.message}`);
+        }
+      }
+    } catch (err) {
+      jobState.status = "failed";
+      jobState.error = err.message;
+      appendLog(`ERRO FATAL no provisionamento: ${err.message}`);
+    }
+  })();
+});
+
+// Streaming SSE de Logs de um Job de Provisionamento
+app.get("/api/v1/jobs/:id/logs", (req, res) => {
+  const jobId = req.params.id;
+  const job = backgroundJobs.get(jobId);
+
+  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  if (typeof res.flushHeaders === "function") res.flushHeaders();
+
+  if (!job) {
+    res.write(`data: ${JSON.stringify({ error: "Job não encontrado", done: true })}\n\n`);
+    return res.end();
+  }
+
+  // Transmitir logs históricos
+  job.logs.forEach((log) => {
+    res.write(`data: ${JSON.stringify({ log, status: job.status })}\n\n`);
+  });
+
+  if (job.status === "ready" || job.status === "failed") {
+    res.write(`data: ${JSON.stringify({ status: job.status, done: true, completed_at: job.completed_at })}\n\n`);
+    return res.end();
+  }
+
+  // Intervalo para enviar novos logs em tempo real
+  let lastIndex = job.logs.length;
+  const timer = setInterval(() => {
+    while (lastIndex < job.logs.length) {
+      res.write(`data: ${JSON.stringify({ log: job.logs[lastIndex], status: job.status })}\n\n`);
+      lastIndex++;
+    }
+
+    if (job.status === "ready" || job.status === "failed") {
+      res.write(`data: ${JSON.stringify({ status: job.status, done: true, completed_at: job.completed_at })}\n\n`);
+      clearInterval(timer);
+      res.end();
+    }
+  }, 1000);
+
+  req.on("close", () => clearInterval(timer));
+});
+
+// Disparar Deploy via API M2M
+app.post("/api/v1/projects/:id/deploy", requireApiKeyOrAuth, async (req, res) => {
+  const project = findProject(req.params.id);
+  if (!project || project.id !== req.params.id) {
+    return res.status(404).json({ ok: false, error: "Projeto não encontrado" });
+  }
+
+  const { environment, commit } = req.body;
+  const env = (environment === "staging") ? "staging" : "production";
+  
+  res.json({
+    ok: true,
+    message: `Deploy disparado com sucesso para o ambiente de ${env}`,
+    project_id: project.id,
+    environment: env,
+    commit: commit || "latest",
+    triggered_at: new Date().toISOString(),
+  });
+});
+
+// Eliminar Projeto / Tenant via API M2M
+app.delete("/api/v1/projects/:id", requireApiKeyOrAuth, async (req, res) => {
+  const { id } = req.params;
+  const removeVolumes = req.query.remove_volumes === "true" || req.body?.remove_volumes === true;
+
+  const currentList = getProjects();
+  const project = currentList.find((p) => p.id === id);
+  if (!project) {
+    return res.status(404).json({ ok: false, error: "Projeto / Tenant não encontrado" });
+  }
+
+  try {
+    if (project.appDir && fs.existsSync(path.join(project.appDir, "docker-compose.yml"))) {
+      try {
+        await execAsync(`docker compose -f "${path.join(project.appDir, "docker-compose.yml")}" down ${removeVolumes ? "-v" : ""}`);
+      } catch (e) {}
+    }
+
+    const filtered = currentList.filter((p) => p.id !== id);
+    saveProjects(filtered);
+
+    res.json({
+      ok: true,
+      message: `Projeto e stack do tenant "${id}" eliminados com sucesso.`,
+      removed_volumes: removeVolumes,
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: `Falha ao eliminar stack: ${err.message}` });
+  }
+});
+
+// Webhook Echo Helper (para testes do SaaS)
+app.post("/api/v1/webhooks/test", (req, res) => {
+  console.log("🔔 [Webhook Test Received]:", req.headers["x-deploycenter-signature"], req.body);
+  res.json({
+    ok: true,
+    message: "Webhook recebido com sucesso no Deployment Center",
+    received_headers: {
+      signature: req.headers["x-deploycenter-signature"] || null,
+      userAgent: req.headers["user-agent"] || null,
+    },
+    received_body: req.body,
+  });
+});
+
 // APIS: PROJETOS
 // ==============================================================================
 

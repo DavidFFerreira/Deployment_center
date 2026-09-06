@@ -178,6 +178,12 @@
         <i data-lucide="refresh-cw" id="refresh-icon" class="w-4 h-4"></i>
       </button>
 
+      <!-- Botão API Helper & SaaS Integration -->
+      <button onclick="openApiHelperModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600/10 to-purple-600/10 hover:from-indigo-600/20 hover:to-purple-600/20 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer" title="API RESTful M2M & Helper de Integração SaaS">
+        <i data-lucide="plug-zap" class="w-4 h-4 text-indigo-500"></i>
+        <span class="hidden lg:inline">API & SaaS Helper</span>
+      </button>
+
       <!-- Botão Definições Globais (Projetos & Gestores) -->
       <button onclick="openSettingsModal()" class="p-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 transition" title="Definições Globais">
         <i data-lucide="settings" class="w-4 h-4"></i>
@@ -736,6 +742,158 @@
   <!-- ===================================================================== -->
   <!-- MODAL: TERMOS E CONDIÇÕES DE UTILIZAÇÃO                               -->
   <!-- ===================================================================== -->
+  
+  <!-- ===================================================================== -->
+  <!-- MODAL: API RESTFUL M2M & HELPER DE INTEGRAÇÃO SAAS                   -->
+  <!-- ===================================================================== -->
+  <div id="api-helper-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="max-w-4xl w-full rounded-3xl glass-card border border-slate-200 dark:border-slate-800 p-6 space-y-5 shadow-2xl animate-fade-in max-h-[92vh] flex flex-col">
+      
+      <!-- Cabeçalho -->
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-3">
+          <div class="p-3 rounded-2xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+            <i data-lucide="plug-zap" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-extrabold text-lg text-slate-900 dark:text-white">API RESTful M2M & Helper SaaS</h3>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">v1.0 Ativa</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Integração Machine-to-Machine para automação de novos clientes, stacks e deploys</p>
+          </div>
+        </div>
+        <button onclick="closeModal('api-helper-modal')" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Navegação Interna do Modal (Tabs) -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-200 dark:border-slate-800 text-xs">
+        <button onclick="switchApiTab('keys')" id="api-tab-btn-keys" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+          <i data-lucide="key" class="w-3.5 h-3.5"></i> Chaves de API
+        </button>
+        <button onclick="switchApiTab('create')" id="api-tab-btn-create" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> 1. Criar Tenant
+        </button>
+        <button onclick="switchApiTab('status')" id="api-tab-btn-status" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <i data-lucide="activity" class="w-3.5 h-3.5"></i> 2. Consultar Estado
+        </button>
+        <button onclick="switchApiTab('deploy')" id="api-tab-btn-deploy" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <i data-lucide="rocket" class="w-3.5 h-3.5"></i> 3. Disparar Deploy
+        </button>
+        <button onclick="switchApiTab('delete')" id="api-tab-btn-delete" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 4. Eliminar Tenant
+        </button>
+        <button onclick="switchApiTab('stream')" id="api-tab-btn-stream" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <i data-lucide="radio" class="w-3.5 h-3.5"></i> 5. SSE & Webhooks
+        </button>
+      </div>
+
+      <!-- Conteúdo das Tabs com Scroll -->
+      <div class="overflow-y-auto pr-1 space-y-4 max-h-[62vh] flex-1">
+        
+        <!-- TAB: CHAVES DE API -->
+        <div id="api-tab-content-keys" class="space-y-4">
+          <!-- Card de Geração de Nova Chave -->
+          <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 space-y-3">
+            <h4 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+              <i data-lucide="shield-check" class="w-4 h-4 text-indigo-500"></i> Gerar Nova Chave de Acesso M2M
+            </h4>
+            <p class="text-xs text-slate-500">Crie uma chave com prefixo <code class="text-indigo-400 font-mono">dc_live_sec_...</code> para que o seu SaaS ou scripts externos possam comunicar com o Deployment Center via cabeçalho HTTP <code class="text-indigo-400 font-mono">Authorization: Bearer &lt;chave&gt;</code>.</p>
+            
+            <div class="flex flex-col sm:flex-row gap-2.5">
+              <input type="text" id="new-api-key-name" placeholder="Nome descritivo (ex: SaaS Onboarding Prod)" class="flex-1 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-xs font-semibold focus:outline-none focus:border-indigo-500">
+              <button onclick="generateNewApiKey()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 cursor-pointer">
+                <i data-lucide="key" class="w-4 h-4"></i> Criar Chave M2M
+              </button>
+            </div>
+
+            <!-- Alerta da Chave Criada -->
+            <div id="new-api-key-alert" class="hidden p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs space-y-2">
+              <div class="flex items-center gap-1.5 font-bold">
+                <i data-lucide="check-circle-2" class="w-4 h-4"></i> Chave gerada com sucesso! Guarde-a agora num local seguro:
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="text" id="new-api-key-display" readonly class="flex-1 px-3 py-1.5 rounded-lg bg-black/40 border border-emerald-500/30 font-mono text-xs text-emerald-400 select-all focus:outline-none">
+                <button onclick="copyToClipboard('new-api-key-display')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-1 cursor-pointer">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela de Chaves Ativas -->
+          <div class="space-y-2">
+            <h5 class="font-bold text-xs text-slate-700 dark:text-slate-300 uppercase tracking-wider">Chaves Ativas Registadas</h5>
+            <div id="api-keys-list-container" class="space-y-2">
+              <div class="p-4 rounded-xl text-center text-xs text-slate-500">A carregar chaves...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABS DE DOCUMENTAÇÃO DE ENDPOINTS (COM SELETOR CURL / JS / PYTHON) -->
+        <div id="api-tab-content-endpoints" class="hidden space-y-4">
+          
+          <!-- Seletor de Linguagem -->
+          <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center gap-2">
+              <span id="endpoint-badge" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-500">POST</span>
+              <span id="endpoint-path" class="font-mono text-xs font-bold text-slate-800 dark:text-slate-200">/api/v1/projects</span>
+            </div>
+            
+            <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] font-bold">
+              <button onclick="switchSnippetLang('curl')" id="lang-btn-curl" class="snippet-lang-btn px-2.5 py-1 rounded-lg bg-indigo-600 text-white transition">cURL</button>
+              <button onclick="switchSnippetLang('js')" id="lang-btn-js" class="snippet-lang-btn px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition">Node.js</button>
+              <button onclick="switchSnippetLang('python')" id="lang-btn-python" class="snippet-lang-btn px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition">Python</button>
+            </div>
+          </div>
+
+          <p id="endpoint-description" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed"></p>
+
+          <!-- Bloco de Código com Botão Copiar -->
+          <div class="relative rounded-2xl bg-slate-950 border border-slate-800 p-4 font-mono text-xs text-slate-200 overflow-x-auto shadow-inner">
+            <button onclick="copySnippetText()" class="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-sans font-bold flex items-center gap-1 transition shadow cursor-pointer">
+              <i data-lucide="copy" class="w-3 h-3 text-indigo-400"></i> <span id="copy-snippet-label">Copiar</span>
+            </button>
+            <pre><code id="endpoint-snippet-code"></code></pre>
+          </div>
+
+          <!-- Resposta Esperada -->
+          <div class="space-y-1.5">
+            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Exemplo de Resposta (JSON):</span>
+            <div class="rounded-2xl bg-slate-950/80 border border-slate-800 p-3.5 font-mono text-[11px] text-emerald-400 overflow-x-auto">
+              <pre><code id="endpoint-response-preview"></code></pre>
+            </div>
+          </div>
+
+          <!-- Botão Testar no Browser -->
+          <div class="pt-2 flex items-center gap-3">
+            <button onclick="testActiveEndpoint()" id="btn-test-endpoint" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-2 transition cursor-pointer border border-slate-700">
+              <i data-lucide="play" class="w-3.5 h-3.5 text-emerald-400"></i> Executar Teste em Tempo Real
+            </button>
+            <span id="test-endpoint-status" class="text-xs text-slate-500"></span>
+          </div>
+          
+          <div id="test-endpoint-output" class="hidden rounded-2xl bg-black border border-slate-800 p-3.5 font-mono text-[11px] text-sky-400 overflow-x-auto max-h-48">
+            <pre><code id="test-endpoint-output-code"></code></pre>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Rodapé do Modal -->
+      <div class="border-t border-slate-200 dark:border-slate-800 pt-3 flex items-center justify-between text-xs text-slate-500">
+        <span class="flex items-center gap-1.5">
+          <i data-lucide="shield" class="w-4 h-4 text-indigo-500"></i> Autenticação via Header: <code class="font-mono text-slate-700 dark:text-slate-300">Authorization: Bearer dc_live_sec_...</code>
+        </span>
+        <button onclick="closeModal('api-helper-modal')" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow-md shadow-indigo-500/20 cursor-pointer">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="terms-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="max-w-2xl w-full rounded-3xl glass-card border border-slate-200 dark:border-slate-800 p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
       <!-- Cabeçalho -->
@@ -6949,6 +7107,388 @@ Fim do Relatório
     function escapeHtml(str) {
       if (!str) return '';
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    
+    // ===================================================================
+    // API RESTFUL M2M & SAAS HELPER LOGIC
+    // ===================================================================
+    let activeApiTab = 'keys';
+    let activeSnippetLang = 'curl';
+    let activeApiKeyToken = '';
+
+    const API_DOCS = {
+      create: {
+        method: 'POST',
+        path: '/api/v1/projects',
+        badgeClass: 'bg-emerald-500/20 text-emerald-500',
+        desc: 'Cria e provisiona de forma 100% automatizada uma nova stack para um cliente (tenant). Aloca automaticamente portas livres no servidor (ex: 61000 a 61432), configura os 16 contentores Supabase + App, cria a pasta de dados e notifica o seu SaaS via Webhook assim que estiver pronto.',
+        snippets: {
+          curl: (host, key) => `curl -X POST "${host}/api/v1/projects" \\
+  -H "Authorization: Bearer ${key || 'dc_live_sec_SUA_CHAVE_AQUI'}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "client_id": "empresa-alfa",
+    "client_name": "Empresa Alfa Lda",
+    "repo_owner": "DavidFFerreira",
+    "repo_name": "template-app",
+    "branch": "main",
+    "domain": "alfa.meusaas.com",
+    "webhook_url": "https://meusaas.com/api/webhooks/tenant-ready"
+  }'`,
+          js: (host, key) => `// Exemplo Node.js (fetch nativo)
+const response = await fetch("${host}/api/v1/projects", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer ${key || 'dc_live_sec_SUA_CHAVE_AQUI'}",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    client_id: "empresa-alfa",
+    client_name: "Empresa Alfa Lda",
+    repo_name: "template-app",
+    domain: "alfa.meusaas.com",
+    webhook_url: "https://meusaas.com/api/webhooks/tenant-ready"
+  })
+});
+
+const data = await response.json();
+console.log("Job de Provisionamento Aceite:", data.job_id);
+console.log("URL de Streaming:", data.stream_url);`,
+          python: (host, key) => `# Exemplo Python (requests)
+import requests
+
+url = "${host}/api/v1/projects"
+headers = {
+    "Authorization": "Bearer ${key || 'dc_live_sec_SUA_CHAVE_AQUI'}",
+    "Content-Type": "application/json"
+}
+payload = {
+    "client_id": "empresa-alfa",
+    "client_name": "Empresa Alfa Lda",
+    "repo_name": "template-app",
+    "domain": "alfa.meusaas.com",
+    "webhook_url": "https://meusaas.com/api/webhooks/tenant-ready"
+}
+
+response = requests.post(url, json=payload, headers=headers)
+print("Resposta:", response.json())`
+        },
+        response: `{
+  "ok": true,
+  "job_id": "job_1788290_abc",
+  "status": "provisioning",
+  "message": "Pedido de provisionamento aceite. A stack está a ser criada em segundo plano.",
+  "project": {
+    "id": "empresa-alfa",
+    "name": "Empresa Alfa Lda",
+    "portPrefix": 61,
+    "production": { "port": 61100, "host": "alfa.meusaas.com" },
+    "staging": { "port": 61101, "host": "testes.alfa.meusaas.com" }
+  },
+  "stream_url": "/api/v1/jobs/job_1788290_abc/logs"
+}`
+      },
+      status: {
+        method: 'GET',
+        path: '/api/v1/projects/:id',
+        badgeClass: 'bg-blue-500/20 text-blue-500',
+        desc: 'Devolve os detalhes completos de um projeto/tenant: portas ativas (Kong, Postgres, Studio, App), nomes dos contentores Docker, URLs de acesso e chaves públicas anon do Supabase.',
+        snippets: {
+          curl: (host, key) => `curl -X GET "${host}/api/v1/projects/empresa-alfa" \\
+  -H "Authorization: Bearer ${key || 'dc_live_sec_SUA_CHAVE_AQUI'}"`,
+          js: (host, key) => `const response = await fetch("${host}/api/v1/projects/empresa-alfa", {
+  headers: {
+    "Authorization": "Bearer ${key || 'dc_live_sec_SUA_CHAVE_AQUI'}"
+  }
+});
+const { project } = await response.json();
+console.log("Kong Gateway:", project.supabase.kong_url);
+console.log("Supabase Studio:", project.supabase.studio_url);
+console.log("Porta Postgres:", project.ports.postgres);`,
+          python: (host, key) => `import requests
+
+url = "${host}/api/v1/projects/empresa-alfa"
+headers = { "Authorization": "Bearer ${key || 'dc_live_sec_SUA_CHAVE_AQUI'}" }
+
+res = requests.get(url, headers=headers)
+print(res.json())`
+        },
+        response: `{
+  "ok": true,
+  "project": {
+    "id": "empresa-alfa",
+    "name": "Empresa Alfa Lda",
+    "ports": { "kong": 61000, "postgres": 61432, "studio": 61323, "production_app": 61100 },
+    "supabase": {
+      "kong_url": "http://192.168.1.4:61000",
+      "studio_url": "http://192.168.1.4:61323",
+      "anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    }
+  }
+}`
+      },
+      deploy: {
+        method: 'POST',
+        path: '/api/v1/projects/:id/deploy',
+        badgeClass: 'bg-purple-500/20 text-purple-500',
+        desc: 'Dispara uma atualização ou publicação imediata de nova versão no ambiente selecionado (production ou staging).',
+        snippets: {
+          curl: (host, key) => `curl -X POST "${host}/api/v1/projects/empresa-alfa/deploy" \\
+  -H "Authorization: Bearer ${key || 'dc_live_sec_SUA_CHAVE_AQUI'}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "environment": "production",
+    "commit": "latest"
+  }'`,
+          js: (host, key) => `const response = await fetch("${host}/api/v1/projects/empresa-alfa/deploy", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer ${key || 'dc_live_sec_SUA_CHAVE_AQUI'}",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ environment: "production" })
+});
+console.log(await response.json());`,
+          python: (host, key) => `import requests
+
+url = "${host}/api/v1/projects/empresa-alfa/deploy"
+headers = { "Authorization": "Bearer ${key || 'dc_live_sec_SUA_CHAVE_AQUI'}" }
+res = requests.post(url, json={"environment": "production"}, headers=headers)
+print(res.json())`
+        },
+        response: `{
+  "ok": true,
+  "message": "Deploy disparado com sucesso para o ambiente de production",
+  "project_id": "empresa-alfa",
+  "environment": "production",
+  "commit": "latest",
+  "triggered_at": "2026-09-06T13:45:00.000Z"
+}`
+      },
+      delete: {
+        method: 'DELETE',
+        path: '/api/v1/projects/:id',
+        badgeClass: 'bg-red-500/20 text-red-500',
+        desc: 'Para os contentores Docker do tenant, liberta as portas associadas e remove o registo do projeto. Opcionalmente remove os volumes e dados do disco através do parâmetro ?remove_volumes=true.',
+        snippets: {
+          curl: (host, key) => `curl -X DELETE "${host}/api/v1/projects/empresa-alfa?remove_volumes=true" \\
+  -H "Authorization: Bearer ${key || 'dc_live_sec_SUA_CHAVE_AQUI'}"`,
+          js: (host, key) => `const res = await fetch("${host}/api/v1/projects/empresa-alfa?remove_volumes=true", {
+  method: "DELETE",
+  headers: { "Authorization": "Bearer ${key || 'dc_live_sec_SUA_CHAVE_AQUI'}" }
+});
+console.log(await res.json());`,
+          python: (host, key) => `import requests
+
+url = "${host}/api/v1/projects/empresa-alfa"
+headers = { "Authorization": "Bearer ${key || 'dc_live_sec_SUA_CHAVE_AQUI'}" }
+res = requests.delete(url, params={"remove_volumes": "true"}, headers=headers)
+print(res.json())`
+        },
+        response: `{
+  "ok": true,
+  "message": "Projeto e stack do tenant \"empresa-alfa\" eliminados com sucesso.",
+  "removed_volumes": true
+}`
+      },
+      stream: {
+        method: 'GET',
+        path: '/api/v1/jobs/:id/logs',
+        badgeClass: 'bg-amber-500/20 text-amber-500',
+        desc: 'Canal SSE (Server-Sent Events) para transmitir em tempo real o progresso e os logs de provisionamento de uma stack. Ideal para mostrar uma barra de progresso no painel do seu SaaS enquanto os 16 contentores sobem.',
+        snippets: {
+          curl: (host, key) => `curl -N "${host}/api/v1/jobs/job_1788290_abc/logs"`,
+          js: (host, key) => `// No browser ou Node.js (EventSource)
+const es = new EventSource("${host}/api/v1/jobs/job_1788290_abc/logs");
+
+es.onmessage = (e) => {
+  const data = JSON.parse(e.data);
+  console.log("LOG:", data.log);
+  if (data.done) {
+    console.log("Finalizado! Estado:", data.status);
+    es.close();
+  }
+};`,
+          python: (host, key) => `# Exemplo Python SSE
+import requests
+
+url = "${host}/api/v1/jobs/job_1788290_abc/logs"
+with requests.get(url, stream=True) as resp:
+    for line in resp.iter_lines():
+        if line:
+            print("SSE Event:", line.decode("utf-8"))`
+        },
+        response: `data: {"log":"[13:45:10] Iniciando provisionamento para Empresa Alfa...","status":"provisioning"}
+data: {"log":"[13:45:15] Contentores iniciados e ativos com sucesso.","status":"provisioning"}
+data: {"status":"ready","done":true,"completed_at":"2026-09-06T13:45:30.000Z"}`
+      }
+    };
+
+    function openApiHelperModal() {
+      const el = document.getElementById('api-helper-modal');
+      if (el) {
+        el.classList.remove('hidden');
+        switchApiTab('keys');
+        loadApiKeys();
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+
+    function switchApiTab(tab) {
+      activeApiTab = tab;
+      
+      // Update Tab button classes
+      document.querySelectorAll('.api-tab-btn').forEach(btn => {
+        btn.className = 'api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 cursor-pointer';
+      });
+      const activeBtn = document.getElementById(`api-tab-btn-${tab}`);
+      if (activeBtn) {
+        activeBtn.className = 'api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 bg-indigo-600 text-white shadow-md shadow-indigo-600/20 cursor-pointer';
+      }
+
+      if (tab === 'keys') {
+        document.getElementById('api-tab-content-keys').classList.remove('hidden');
+        document.getElementById('api-tab-content-endpoints').classList.add('hidden');
+      } else {
+        document.getElementById('api-tab-content-keys').classList.add('hidden');
+        document.getElementById('api-tab-content-endpoints').classList.remove('hidden');
+        renderEndpointDoc(tab);
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderEndpointDoc(endpointKey) {
+      const doc = API_DOCS[endpointKey];
+      if (!doc) return;
+
+      const host = window.location.origin;
+      document.getElementById('endpoint-badge').textContent = doc.method;
+      document.getElementById('endpoint-badge').className = `px-2.5 py-1 rounded-lg text-xs font-mono font-bold ${doc.badgeClass}`;
+      document.getElementById('endpoint-path').textContent = doc.path;
+      document.getElementById('endpoint-description').textContent = doc.desc;
+      document.getElementById('endpoint-response-preview').textContent = doc.response;
+
+      const snippetFn = doc.snippets[activeSnippetLang] || doc.snippets['curl'];
+      document.getElementById('endpoint-snippet-code').textContent = snippetFn(host, activeApiKeyToken);
+
+      document.getElementById('test-endpoint-output').classList.add('hidden');
+      document.getElementById('test-endpoint-status').textContent = '';
+    }
+
+    function switchSnippetLang(lang) {
+      activeSnippetLang = lang;
+      document.querySelectorAll('.snippet-lang-btn').forEach(btn => {
+        btn.className = 'snippet-lang-btn px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition cursor-pointer';
+      });
+      const activeLangBtn = document.getElementById(`lang-btn-${lang}`);
+      if (activeLangBtn) {
+        activeLangBtn.className = 'snippet-lang-btn px-2.5 py-1 rounded-lg bg-indigo-600 text-white transition cursor-pointer';
+      }
+      if (activeApiTab !== 'keys') {
+        renderEndpointDoc(activeApiTab);
+      }
+    }
+
+    function copySnippetText() {
+      const code = document.getElementById('endpoint-snippet-code').textContent;
+      navigator.clipboard.writeText(code);
+      const label = document.getElementById('copy-snippet-label');
+      label.textContent = 'Copiado!';
+      setTimeout(() => label.textContent = 'Copiar', 2000);
+    }
+
+    async function loadApiKeys() {
+      const container = document.getElementById('api-keys-list-container');
+      try {
+        const resp = await fetch('/api/v1/keys');
+        const data = await resp.json();
+        if (data.ok && data.keys && data.keys.length > 0) {
+          container.innerHTML = data.keys.map(k => `
+            <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 shadow-sm">
+              <div class="space-y-0.5 min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-xs text-slate-800 dark:text-slate-200">${escapeHtml(k.name)}</span>
+                  <code class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-950 text-indigo-400 border border-slate-200 dark:border-slate-800">${k.prefix}</code>
+                </div>
+                <div class="text-[10px] text-slate-500">Criada em: ${new Date(k.created_at).toLocaleString('pt-PT')} ${k.last_used_at ? `· Último uso: ${new Date(k.last_used_at).toLocaleString('pt-PT')}` : '· Nunca utilizada'}</div>
+              </div>
+              <button onclick="deleteApiKey('${k.id}')" class="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-500 transition cursor-pointer" title="Revogar Chave">
+                <i data-lucide="trash" class="w-4 h-4"></i>
+              </button>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = '<div class="p-4 rounded-xl text-center text-xs text-slate-500 border border-dashed border-slate-300 dark:border-slate-800">Nenhuma chave de API gerada. Crie a primeira acima para conectar o seu SaaS.</div>';
+        }
+      } catch (e) {
+        container.innerHTML = `<div class="text-xs text-red-400 p-2">Erro ao carregar chaves: ${e.message}</div>`;
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function generateNewApiKey() {
+      const nameInput = document.getElementById('new-api-key-name');
+      const name = nameInput.value.trim() || 'SaaS Integration';
+      try {
+        const resp = await fetch('/api/v1/keys', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        const data = await resp.json();
+        if (data.ok && data.key) {
+          activeApiKeyToken = data.key.api_key;
+          document.getElementById('new-api-key-alert').classList.remove('hidden');
+          document.getElementById('new-api-key-display').value = data.key.api_key;
+          nameInput.value = '';
+          loadApiKeys();
+          showAppNotification({ type: 'success', title: 'Chave Gerada', message: 'Copie e guarde a chave de API agora.' });
+        } else {
+          alert(data.error || 'Erro ao gerar chave');
+        }
+      } catch (e) {
+        alert('Erro: ' + e.message);
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function deleteApiKey(id) {
+      if (!confirm('Tem a certeza que deseja revogar esta chave de API? Qualquer SaaS conectado deixará de conseguir autenticar-se.')) return;
+      try {
+        const resp = await fetch(`/api/v1/keys/${id}`, { method: 'DELETE' });
+        const data = await resp.json();
+        if (data.ok) {
+          loadApiKeys();
+          showAppNotification({ type: 'success', title: 'Chave Revogada', message: 'A chave de API foi invalidada com sucesso.' });
+        }
+      } catch (e) {
+        alert('Erro: ' + e.message);
+      }
+    }
+
+    async function testActiveEndpoint() {
+      const statusEl = document.getElementById('test-endpoint-status');
+      const outputEl = document.getElementById('test-endpoint-output');
+      const codeEl = document.getElementById('test-endpoint-output-code');
+      statusEl.textContent = 'A executar teste...';
+      outputEl.classList.remove('hidden');
+
+      try {
+        let endpointUrl = '/api/v1/projects';
+        if (activeApiTab === 'status') {
+          const currentProj = globalStatus?.project?.id || 'portal-web';
+          endpointUrl = `/api/v1/projects/${currentProj}`;
+        }
+
+        const resp = await fetch(endpointUrl);
+        const data = await resp.json();
+        statusEl.textContent = `HTTP ${resp.status} ${resp.statusText}`;
+        codeEl.textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        statusEl.textContent = 'Erro';
+        codeEl.textContent = 'Erro ao executar teste: ' + e.message;
+      }
     }
 
     // Inicialização
