@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import zlib from "zlib";
+import os from "os";
 import { fileURLToPath } from "url";
 import child_process, { exec, spawn } from "child_process";
 import { promisify } from "util";
