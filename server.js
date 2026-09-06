@@ -235,36 +235,61 @@ const DEFAULT_PROJECTS = [
   },
 ];
 
-function autoDiscoverProjects(baseList = []) {
-  const projects = [...baseList];
-  const appsDirs = ["/mnt/Disco1/apps", "/opt/stacks"];
-  try {
-    if (fs.existsSync("/mnt")) {
-      const zfsEntries = fs.readdirSync("/mnt", { withFileTypes: true });
-      for (const entry of zfsEntries) {
-        if (entry.isDirectory()) {
-          const candidate = path.join("/mnt", entry.name, "apps");
-          if (fs.existsSync(candidate) && !appsDirs.includes(candidate)) {
-            appsDirs.push(candidate);
-          }
-        }
-      }
-    }
-  } catch (e) {}
+function isDeployCenterProject(projectPath, dirName) {
+  if (!projectPath || !fs.existsSync(projectPath)) return false;
+  if (dirName === "suavit-portal") return true;
 
-  for (const baseAppsDir of appsDirs) {
-    if (!fs.existsSync(baseAppsDir)) continue;
+  // 1. Ficheiros característicos gerados obrigatoriamente pelo Deployment Center
+  const hasKongConfig =
+    fs.existsSync(path.join(projectPath, "kong.yml")) ||
+    fs.existsSync(path.join(projectPath, "kong_prod.yml")) ||
+    fs.existsSync(path.join(projectPath, "kong_staging.yml"));
+
+  const hasMarker = fs.existsSync(path.join(projectPath, ".deployment-center"));
+
+  // 2. Estrutura docker-compose específica do Deployment Center (dual stack / portal / postgres)
+  let hasComposeStructure = false;
+  const composePath = fs.existsSync(path.join(projectPath, "docker-compose.yml"))
+    ? path.join(projectPath, "docker-compose.yml")
+    : (fs.existsSync(path.join(projectPath, "compose.yaml")) ? path.join(projectPath, "compose.yaml") : null);
+
+  if (composePath) {
     try {
-      const subdirs = fs.readdirSync(baseAppsDir, { withFileTypes: true });
+      const content = fs.readFileSync(composePath, "utf-8");
+      if (
+        (content.includes("-prod") || content.includes("-staging") || content.includes("PORT_PROD") || content.includes("PORT_STAGING")) &&
+        (content.includes("kong") || content.includes("postgres") || content.includes("supabase"))
+      ) {
+        hasComposeStructure = true;
+      }
+    } catch (e) {}
+  }
+
+  return hasKongConfig || hasMarker || hasComposeStructure;
+}
+
+function autoDiscoverProjects(baseList = []) {
+  const settings = getSettings();
+  const baseAppsDir = settings.truenas_apps_dir || "/mnt/Disco1/apps";
+  const searchDirs = [baseAppsDir, "/opt/stacks"];
+
+  // Filtrar rigorosamente a lista base para manter apenas projetos válidos do Deployment Center
+  let projects = baseList.filter((p) => {
+    if (p.id === "suavit-portal") return true;
+    return isDeployCenterProject(p.appDir, p.id);
+  });
+
+  for (const appsDir of searchDirs) {
+    if (!fs.existsSync(appsDir)) continue;
+    try {
+      const subdirs = fs.readdirSync(appsDir, { withFileTypes: true });
       for (const sub of subdirs) {
         if (!sub.isDirectory()) continue;
         const dirName = sub.name;
         if (dirName === "deployment-center" || dirName === "deploy-center" || dirName.startsWith(".")) continue;
 
-        const projectPath = path.join(baseAppsDir, dirName);
-        const composePath = fs.existsSync(path.join(projectPath, "docker-compose.yml"))
-          ? path.join(projectPath, "docker-compose.yml")
-          : (fs.existsSync(path.join(projectPath, "compose.yaml")) ? path.join(projectPath, "compose.yaml") : null);
+        const projectPath = path.join(appsDir, dirName);
+        if (!isDeployCenterProject(projectPath, dirName)) continue;
 
         let existing = projects.find((p) => p.id === dirName || p.appDir === projectPath);
         if (existing) {
@@ -295,6 +320,10 @@ function autoDiscoverProjects(baseList = []) {
             }
           }
         } catch (e) {}
+
+        const composePath = fs.existsSync(path.join(projectPath, "docker-compose.yml"))
+          ? path.join(projectPath, "docker-compose.yml")
+          : (fs.existsSync(path.join(projectPath, "compose.yaml")) ? path.join(projectPath, "compose.yaml") : null);
 
         let prodPort = 58100;
         let stagingPort = 58101;
