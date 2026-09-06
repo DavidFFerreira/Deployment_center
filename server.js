@@ -4250,6 +4250,102 @@ app.post("/api/projects/:id/repair-stack", requireAuth, async (req, res) => {
   }
 });
 
+
+// ==============================================================================
+// FUNÇÃO UNIVERSAL: EXTRAIR ZIP DE CÓDIGO-FONTE NA RAIZ COM UNWRAP INTELIGENTE
+// ==============================================================================
+async function extractSourceZipToProjectRoot(zipFilePath, targetAppDir, emitLog = console.log) {
+  const isJunk = (name) => name === '__MACOSX' || name === '.DS_Store' || name === 'Thumbs.db' || name.startsWith('._');
+  const tempExtractDir = path.join(os.tmpdir(), `wz_extract_${Date.now()}_${Math.random().toString(36).slice(2)}`);
+  
+  await ensureDirWithSudo(tempExtractDir);
+  await ensureDirWithSudo(targetAppDir);
+
+  emitLog(`> A descompactar arquivo ZIP temporariamente...`);
+  await execAsync(`unzip -q -o "${zipFilePath}" -d "${tempExtractDir}"`, { timeout: 60000 });
+
+  // REGRA DE UNWRAP:
+  // "se no zip tiver apenas uma pasta apenas com outras pastas dentro do zip,
+  // deve colocar essas pastas dentro desta unica pasta , na root do projeto"
+  let sourceFolder = tempExtractDir;
+  while (true) {
+    const entries = fs.readdirSync(sourceFolder).filter(name => !isJunk(name));
+    if (entries.length === 1) {
+      const singleCandidate = path.join(sourceFolder, entries[0]);
+      if (fs.statSync(singleCandidate).isDirectory()) {
+        emitLog(`ℹ️ Detetada pasta única no ZIP ("${entries[0]}"). A descompactar o seu conteúdo diretamente na raiz do projeto...`);
+        sourceFolder = singleCandidate;
+        continue;
+      }
+    }
+    break;
+  }
+
+  const itemsToCopy = fs.readdirSync(sourceFolder).filter(name => !isJunk(name));
+  emitLog(`> A mover ${itemsToCopy.length} item(ns) para a raiz do projeto (${targetAppDir})...`);
+
+  for (const item of itemsToCopy) {
+    const src = path.join(sourceFolder, item);
+    const dest = path.join(targetAppDir, item);
+    try {
+      fs.cpSync(src, dest, { recursive: true, force: true });
+    } catch (cpErr) {
+      await execAsync(`sudo cp -rf "${src}" "${targetAppDir}/" 2>/dev/null || cp -rf "${src}" "${targetAppDir}/" 2>/dev/null || true`);
+    }
+  }
+
+  // Ajustar permissões de utilizador no Linux
+  try {
+    await execAsync(`sudo chown -R $(id -u):$(id -g) "${targetAppDir}" 2>/dev/null || true`);
+    await execAsync(`sudo chmod -R u+rwX "${targetAppDir}" 2>/dev/null || true`);
+  } catch (permErr) {}
+
+  // Limpar diretório temporário de extração
+  try {
+    fs.rmSync(tempExtractDir, { recursive: true, force: true });
+  } catch (rmErr) {}
+
+  emitLog(`✓ Conteúdo do ZIP descompactado com sucesso na raiz do projeto!`);
+  return { ok: true, itemsCount: itemsToCopy.length, items: itemsToCopy };
+}
+
+// Endpoint para Upload Prévio do Ficheiro ZIP no Wizard
+app.post("/api/projects/upload-wizard-zip", requireAuth, async (req, res) => {
+  try {
+    const { filename, zipBase64 } = req.body;
+    if (!zipBase64) return res.status(400).json({ ok: false, error: "Nenhum ficheiro ZIP recebido" });
+    
+    const tempZipPath = path.join(os.tmpdir(), `wz_source_${Date.now()}_${Math.random().toString(36).slice(2)}.zip`);
+    const zipBuffer = Buffer.from(zipBase64.replace(/^data:application\/(zip|x-zip-compressed|octet-stream);base64,/, ""), "base64");
+    fs.writeFileSync(tempZipPath, zipBuffer);
+    
+    let filesCount = 0;
+    try {
+      const { stdout } = await execAsync(`unzip -l "${tempZipPath}" 2>/dev/null || true`);
+      const lines = stdout.trim().split('\n');
+      const lastLine = lines[lines.length - 1];
+      const match = lastLine && lastLine.match(/(\d+)\s+files?/);
+      if (match) filesCount = parseInt(match[1], 10);
+    } catch (e) {}
+
+    const cleanBaseName = (filename || "projeto").replace(/\.zip$/i, "").replace(/[-_]/g, " ");
+    const suggestedName = cleanBaseName.charAt(0).toUpperCase() + cleanBaseName.slice(1);
+    const suggestedSlug = (filename || "projeto").replace(/\.zip$/i, "").toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/^-+|-+$/g, "");
+    
+    res.json({
+      ok: true,
+      tempZipPath,
+      filename: filename || 'source.zip',
+      filesCount,
+      size: zipBuffer.length,
+      suggestedName,
+      suggestedSlug
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
   const {
     name,
@@ -4258,6 +4354,9 @@ app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
     ports, // { prod, staging, kong, postgres, studio }
     baseDir,
     createGithubRepo,
+    sourceZipTempPath,
+    sourceZipBase64,
+    sourceZipName,
   } = req.body;
 
   // Configurar cabeçalhos SSE para transmissão de logs em tempo real
@@ -4488,21 +4587,54 @@ app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
       await ensureDirWithSudo(d);
     }
 
-    // 3.0 Copiar código base da aplicação (frontend, rotas, componentes, package.json, configs)
-    try {
-      const baseSourceDir = path.resolve(__dirname, "..");
-      if (fs.existsSync(baseSourceDir)) {
-        await execAsync(`sudo rsync -av --exclude='node_modules' --exclude='.output*' --exclude='dist' --exclude='.git' --exclude='data' --exclude='logs' --exclude='.env.local' --exclude='deploy-center' --exclude='backups' "${baseSourceDir}/" "${targetAppDir}/" 2>/dev/null || rsync -av --exclude='node_modules' --exclude='.output*' --exclude='dist' --exclude='.git' --exclude='data' --exclude='logs' --exclude='.env.local' --exclude='deploy-center' --exclude='backups' "${baseSourceDir}/" "${targetAppDir}/" 2>/dev/null || true`, { timeout: 30000 });
+    // 3.0 Extração do Ficheiro ZIP de Código-Fonte ou Template Base
+    let hasCustomZip = Boolean(sourceZipTempPath || sourceZipBase64);
+    if (hasCustomZip) {
+      let zipToExtract = sourceZipTempPath;
+      let tempCreated = false;
+      if (!zipToExtract && sourceZipBase64) {
+        zipToExtract = path.join(os.tmpdir(), `wz_source_${Date.now()}_${cleanSlug}.zip`);
+        const zipBuf = Buffer.from(sourceZipBase64.replace(/^data:application\/(zip|x-zip-compressed|octet-stream);base64,/, ""), "base64");
+        fs.writeFileSync(zipToExtract, zipBuf);
+        tempCreated = true;
       }
-    } catch (copyErr) {
-      emitLog(`ℹ️ Nota de inicialização de template: ${copyErr.message}`);
+
+      if (zipToExtract && fs.existsSync(zipToExtract)) {
+        emitLog(`[3.0/5] A descompactar código-fonte do ZIP anexado (${sourceZipName || 'código.zip'})...`);
+        try {
+          const extractResult = await extractSourceZipToProjectRoot(zipToExtract, targetAppDir, emitLog);
+          emitLog(`✓ ${extractResult.itemsCount} ficheiros e pastas do ZIP colocados com sucesso na raiz do projeto!`);
+        } catch (unzipErr) {
+          emitLog(`⚠️ Erro ao descompactar ZIP: ${unzipErr.message}`);
+        }
+        if (tempCreated) {
+          try { fs.unlinkSync(zipToExtract); } catch (e) {}
+        }
+      }
+    } else {
+      // Caso não tenha ZIP anexado, copiar template base padrão da plataforma
+      try {
+        const baseSourceDir = path.resolve(__dirname, "..");
+        if (fs.existsSync(baseSourceDir)) {
+          await execAsync(`sudo rsync -av --exclude='node_modules' --exclude='.output*' --exclude='dist' --exclude='.git' --exclude='data' --exclude='logs' --exclude='.env.local' --exclude='deploy-center' --exclude='backups' "${baseSourceDir}/" "${targetAppDir}/" 2>/dev/null || rsync -av --exclude='node_modules' --exclude='.output*' --exclude='dist' --exclude='.git' --exclude='data' --exclude='logs' --exclude='.env.local' --exclude='deploy-center' --exclude='backups' "${baseSourceDir}/" "${targetAppDir}/" 2>/dev/null || true`, { timeout: 30000 });
+        }
+      } catch (copyErr) {
+        emitLog(`ℹ️ Nota de inicialização de template: ${copyErr.message}`);
+      }
     }
 
-    // Se o projeto base tiver build compilado, copiar para os outputs iniciais
-    const baseOutput = path.join(path.resolve(__dirname, ".."), ".output");
-    if (fs.existsSync(baseOutput)) {
-      await execAsync(`sudo cp -a "${baseOutput}/." "${targetAppDir}/.output_prod/" 2>/dev/null || cp -a "${baseOutput}/." "${targetAppDir}/.output_prod/" 2>/dev/null || true`);
-      await execAsync(`sudo cp -a "${baseOutput}/." "${targetAppDir}/.output_staging/" 2>/dev/null || cp -a "${baseOutput}/." "${targetAppDir}/.output_staging/" 2>/dev/null || true`);
+    // Se o projeto tiver build compilado (.output ou dist), copiar para os outputs iniciais
+    const candidateOutputs = [
+      path.join(targetAppDir, ".output"),
+      path.join(targetAppDir, "dist"),
+      path.join(path.resolve(__dirname, ".."), ".output")
+    ];
+    for (const outPath of candidateOutputs) {
+      if (fs.existsSync(outPath)) {
+        await execAsync(`sudo cp -a "${outPath}/." "${targetAppDir}/.output_prod/" 2>/dev/null || cp -a "${outPath}/." "${targetAppDir}/.output_prod/" 2>/dev/null || true`);
+        await execAsync(`sudo cp -a "${outPath}/." "${targetAppDir}/.output_staging/" 2>/dev/null || cp -a "${outPath}/." "${targetAppDir}/.output_staging/" 2>/dev/null || true`);
+        break;
+      }
     }
 
     directoryCreated = true;

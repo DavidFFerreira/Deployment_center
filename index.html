@@ -1757,6 +1757,49 @@
             <input type="text" id="wz-project-name" placeholder="ex: Clínica Saúde, Portal Imobiliário" oninput="handleWizardNameInput(this.value)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs font-semibold focus:outline-none focus:border-purple-500">
           </div>
 
+          <!-- Anexar Ficheiro ZIP com Código-Fonte (Opcional) -->
+          <div class="p-3.5 rounded-2xl bg-purple-500/5 border border-purple-500/20 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <i data-lucide="file-archive" class="w-4 h-4 text-purple-500"></i>
+                <span data-i18n="wz_zip_label">Código-Fonte Inicial (Ficheiro .ZIP)</span>
+                <span class="text-[10px] font-normal text-slate-400">(Opcional)</span>
+              </label>
+              <button type="button" onclick="document.getElementById('wz-zip-file-input').click()" class="px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-bold flex items-center gap-1 transition shadow-sm cursor-pointer">
+                <i data-lucide="upload" class="w-3 h-3"></i> <span data-i18n="wz_zip_choose_btn">Escolher Ficheiro ZIP</span>
+              </button>
+              <input type="file" id="wz-zip-file-input" accept=".zip,application/zip" class="hidden" onchange="handleWizardZipUpload(this.files)">
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400" data-i18n="wz_zip_desc">
+              Se anexar um ficheiro ZIP, o conteúdo será descompactado na raiz do projeto. Se o ZIP contiver apenas uma pasta principal, o sistema coloca automaticamente as pastas e ficheiros internos diretamente na raiz.
+            </p>
+
+            <!-- Dropzone -->
+            <div id="wz-zip-dropzone" ondragover="event.preventDefault(); this.classList.add('border-purple-500', 'bg-purple-500/10')" ondragleave="this.classList.remove('border-purple-500', 'bg-purple-500/10')" ondrop="event.preventDefault(); this.classList.remove('border-purple-500', 'bg-purple-500/10'); handleWizardZipUpload(event.dataTransfer.files)" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-purple-500 rounded-xl p-3 text-center transition cursor-pointer" onclick="document.getElementById('wz-zip-file-input').click()">
+              <div class="space-y-1">
+                <i data-lucide="folder-archive" class="w-5 h-5 text-purple-400 mx-auto"></i>
+                <p class="text-[11px] font-medium text-slate-600 dark:text-slate-300" id="wz-zip-dropzone-text" data-i18n="wz_zip_drop_text">Arrastar ficheiro .ZIP aqui ou clicar para procurar</p>
+                <p class="text-[10px] text-slate-400" data-i18n="wz_zip_support">Suporta ficheiros .zip até 250 MB</p>
+              </div>
+            </div>
+
+            <!-- Card do ZIP Selecionado / Carregado -->
+            <div id="wz-zip-selected-card" class="hidden p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="p-2 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0">
+                  <i data-lucide="file-check" class="w-4 h-4"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="font-bold text-xs text-slate-900 dark:text-white truncate" id="wz-zip-filename">meu-projeto.zip</div>
+                  <div class="text-[10px] text-slate-500 dark:text-slate-400" id="wz-zip-filesize">0 MB · Pronto para descompactar na raiz</div>
+                </div>
+              </div>
+              <button type="button" onclick="removeWizardZipFile(event)" class="p-1.5 rounded-lg hover:bg-rose-500/20 text-rose-500 transition cursor-pointer" title="Remover ficheiro ZIP">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
           <div class="space-y-1.5">
             <label class="font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
               <span>Slug / Identificador Técnico *</span>
@@ -2033,6 +2076,7 @@
               <div><span class="text-slate-400">Porta Testes:</span> <strong id="wz-sum-staging" class="font-mono text-blue-500">-</strong></div>
               <div><span class="text-slate-400">Kong API:</span> <strong id="wz-sum-kong" class="font-mono text-indigo-500">-</strong></div>
               <div><span class="text-slate-400">Postgres:</span> <strong id="wz-sum-postgres" class="font-mono text-sky-500">-</strong></div>
+              <div class="col-span-2"><span class="text-slate-400">Código-Fonte:</span> <strong id="wz-sum-zip" class="font-mono text-xs text-purple-600 dark:text-purple-400 truncate block">Template Base Padrão</strong></div>
               <div class="col-span-2"><span class="text-slate-400">Caminho no Servidor:</span> <strong id="wz-sum-path" class="font-mono text-xs text-slate-800 dark:text-slate-200 truncate block">-</strong></div>
             </div>
           </div>
@@ -2706,6 +2750,11 @@
     // ===================================================================
     const I18N = {
       'pt-PT': {
+        wz_zip_label: "Código-Fonte Inicial (Ficheiro .ZIP)",
+        wz_zip_desc: "Se anexar um ficheiro ZIP, o conteúdo será descompactado na raiz do projeto. Se o ZIP contiver apenas uma pasta principal, o sistema coloca automaticamente as pastas e ficheiros internos diretamente na raiz.",
+        wz_zip_choose_btn: "Escolher Ficheiro ZIP",
+        wz_zip_drop_text: "Arrastar ficheiro .ZIP aqui ou clicar para procurar",
+        wz_zip_support: "Suporta ficheiros .zip até 250 MB",
         api_helper: "API & SaaS Helper",
         copy_project_id: "Copiar ID",
         project_id_copied: "ID Copiado!",
@@ -2768,6 +2817,11 @@
         cancel: "Cancelar"
       },
       'en': {
+        wz_zip_label: "Initial Source Code (.ZIP File)",
+        wz_zip_desc: "If a ZIP file is attached, its contents will be extracted to the project root. If the ZIP contains only a single top folder, all internal folders and files will be placed directly in the root.",
+        wz_zip_choose_btn: "Choose ZIP File",
+        wz_zip_drop_text: "Drag .ZIP file here or click to browse",
+        wz_zip_support: "Supports .zip files up to 250 MB",
         api_helper: "API & SaaS Helper",
         copy_project_id: "Copy ID",
         project_id_copied: "ID Copied!",
@@ -2830,6 +2884,11 @@
         cancel: "Cancel"
       },
       'fr': {
+        wz_zip_label: "Code Source Initial (Fichier .ZIP)",
+        wz_zip_desc: "Si un fichier ZIP est joint, son contenu sera décompressé à la racine du projet. Si le ZIP ne contient qu'un seul dossier principal, les fichiers et sous-dossiers internes seront placés directement à la racine.",
+        wz_zip_choose_btn: "Choisir un Fichier ZIP",
+        wz_zip_drop_text: "Glisser le fichier .ZIP ici ou cliquer pour parcourir",
+        wz_zip_support: "Prend en charge les fichiers .zip jusqu'à 250 Mo",
         api_helper: "API & Assistant SaaS",
         copy_project_id: "Copier l'ID",
         project_id_copied: "ID Copié !",
@@ -2892,6 +2951,11 @@
         cancel: "Annuler"
       },
       'es': {
+        wz_zip_label: "Código Fuente Inicial (Archivo .ZIP)",
+        wz_zip_desc: "Si adjunta un archivo ZIP, el contenido se descomprimirá en la raíz del proyecto. Si el ZIP contiene solo una carpeta principal, las carpetas y archivos internos se colocarán directamente en la raíz.",
+        wz_zip_choose_btn: "Elegir Archivo ZIP",
+        wz_zip_drop_text: "Arrastre el archivo .ZIP aquí o haga clic para buscar",
+        wz_zip_support: "Admite archivos .zip de hasta 250 MB",
         api_helper: "API y Asistente SaaS",
         copy_project_id: "Copiar ID",
         project_id_copied: "¡ID Copiado!",
@@ -3850,6 +3914,73 @@
     // ===================================================================
     let wizardCurrentStep = 1;
     let wizardPrefixValid = false;
+    let wizardSourceZipFile = null;
+    let wizardSourceZipBase64 = null;
+    let wizardSourceZipName = null;
+    let wizardSourceZipTempPath = null;
+
+    async function handleWizardZipUpload(files) {
+      if (!files || files.length === 0) return;
+      const file = files[0];
+      if (!file.name.toLowerCase().endsWith('.zip')) {
+        alert('Por favor selecione um ficheiro .zip válido.');
+        return;
+      }
+      wizardSourceZipFile = file;
+      wizardSourceZipName = file.name;
+      
+      document.getElementById('wz-zip-filename').textContent = file.name;
+      document.getElementById('wz-zip-filesize').textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB · A validar...`;
+      document.getElementById('wz-zip-dropzone').classList.add('hidden');
+      document.getElementById('wz-zip-selected-card').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+
+      // Sugerir Nome e Slug se ainda estiverem vazios
+      const nameInput = document.getElementById('wz-project-name');
+      if (!nameInput.value.trim()) {
+        const cleanBase = file.name.replace(/\.zip$/i, '').replace(/[-_]/g, ' ');
+        const suggested = cleanBase.charAt(0).toUpperCase() + cleanBase.slice(1);
+        nameInput.value = suggested;
+        handleWizardNameInput(suggested);
+      }
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        wizardSourceZipBase64 = e.target.result;
+        try {
+          const res = await fetch('/api/projects/upload-wizard-zip', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename: file.name, zipBase64: wizardSourceZipBase64 })
+          });
+          const data = await res.json();
+          if (data.ok) {
+            wizardSourceZipTempPath = data.tempZipPath;
+            document.getElementById('wz-zip-filesize').textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB (${data.filesCount || 0} ficheiros) · Pronto para descompactar na raiz`;
+          } else {
+            document.getElementById('wz-zip-filesize').textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB · Pronto para envio no deploy`;
+          }
+        } catch (uploadErr) {
+          document.getElementById('wz-zip-filesize').textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB · Pronto para envio no deploy`;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeWizardZipFile(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      wizardSourceZipFile = null;
+      wizardSourceZipBase64 = null;
+      wizardSourceZipName = null;
+      wizardSourceZipTempPath = null;
+      const input = document.getElementById('wz-zip-file-input');
+      if (input) input.value = '';
+      const card = document.getElementById('wz-zip-selected-card');
+      if (card) card.classList.add('hidden');
+      const dropzone = document.getElementById('wz-zip-dropzone');
+      if (dropzone) dropzone.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
 
     function openProjectWizard() {
       closeModal('settings-modal');
@@ -3865,6 +3996,7 @@
       document.getElementById('wz-prefix-status').innerHTML = 'Introduza 2 dígitos para verificar a disponibilidade.';
       document.getElementById('wz-progress-container').classList.add('hidden');
       document.getElementById('wz-console-logs').innerHTML = '';
+      removeWizardZipFile();
 
       loadWizardSkills();
       updateWizardStepUI();
@@ -4033,6 +4165,12 @@
         document.getElementById('wz-sum-kong').textContent = `${prefix}${document.getElementById('wz-suffix-kong').value}`;
         document.getElementById('wz-sum-postgres').textContent = `${prefix}${document.getElementById('wz-suffix-postgres').value}`;
         document.getElementById('wz-sum-path').textContent = targetPath;
+        const zipSumEl = document.getElementById('wz-sum-zip');
+        if (zipSumEl) {
+          zipSumEl.textContent = wizardSourceZipName 
+            ? `${wizardSourceZipName} (Extração na raiz com unwrap de pasta única)` 
+            : 'Template Base Padrão';
+        }
       }
     }
 
@@ -4294,6 +4432,9 @@
         baseDir: document.getElementById('wz-target-path').value.trim(),
         createGithubRepo: document.getElementById('wz-create-github-repo').checked,
         skills: selectedSkills,
+        sourceZipTempPath: wizardSourceZipTempPath,
+        sourceZipBase64: wizardSourceZipTempPath ? null : wizardSourceZipBase64,
+        sourceZipName: wizardSourceZipName,
         planningArtifacts: wizardPlanArtifacts.map((a) => ({
           filename: a.filename,
           content: a.content,
