@@ -4479,6 +4479,20 @@ app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
   const portPostgresProd = parseInt(ports?.postgresProd || ports?.postgres || `${portPrefix}432`, 10);
   const portPostgresStaging = parseInt(ports?.postgresStaging || `${portPrefix}433`, 10);
 
+  // Aliases compatíveis para templates de regras, registo de projeto e fallbacks
+  const portKong = portKongProd;
+  const portPostgres = portPostgresProd;
+  const portStudio = portStudioProd;
+  const kongPortProd = portKongProd;
+  const kongPortStaging = portKongStaging;
+  const studioPortProd = portStudioProd;
+  const studioPortStaging = portStudioStaging;
+  const postgresPortProd = portPostgresProd;
+  const postgresPortStaging = portPostgresStaging;
+  const kongPort = portKongProd;
+  const studioPort = portStudioProd;
+  const postgresPort = portPostgresProd;
+
   const allAssignedPorts = [
     portProd,
     portStaging,
@@ -4627,6 +4641,10 @@ app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
       emitLog(`⚠️ Aviso GitHub: ${ghErr.message}`);
     }
   }
+
+  // Ficheiros canónicos e DDL acumulados durante o provisionamento
+  const canonicalFilesList = [];
+  const sqlFilesToExecute = [];
 
   // 3. Criação de Pastas, Permissões e Cópia do Código Base no servidor
   try {
@@ -5502,8 +5520,8 @@ server.listen(PORT, HOST, () => {
       rawArtifacts = [req.body.planningArtifact];
     }
 
-    const canonicalFilesList = [];
-    const sqlFilesToExecute = [];
+    canonicalFilesList.length = 0;
+    sqlFilesToExecute.length = 0;
 
     // Ficheiros base de contexto obrigatórios
     canonicalFilesList.push(`   - \`ARCHITECTURE.md\` (Topologia de contentores, portas e variáveis)`);
@@ -5574,6 +5592,9 @@ server.listen(PORT, HOST, () => {
         .replace(/\{portKong\}/g, String(portKong))
         .replace(/\{portPostgres\}/g, String(portPostgres))
         .replace(/\{portStudio\}/g, String(portStudio))
+        .replace(/\{kongPort\}/g, String(portKong))
+        .replace(/\{postgresPort\}/g, String(portPostgres))
+        .replace(/\{studioPort\}/g, String(portStudio))
         .replace(/\{hostIp\}/g, hostIp)
         .replace(/\{authorWebsite\}/g, settings.author_website || "https://davidferreira.pt")
         .replace(/\{authorName\}/g, settings.author_name || "David Alexandre Ferreira")
@@ -5582,12 +5603,13 @@ server.listen(PORT, HOST, () => {
 
     for (const key of Object.keys(ruleTemplates)) {
       const r = ruleTemplates[key];
+      const filename = r.filename || (r.id ? `${r.id}.md` : `${key}.md`);
       const resolvedContent = replaceVars(r.template);
-      await writeFileWithSudo(path.join(rulesDir, r.filename), resolvedContent);
+      await writeFileWithSudo(path.join(rulesDir, filename), resolvedContent);
       filesToPush.push({
-        path: `.agents/rules/${r.filename}`,
+        path: `.agents/rules/${filename}`,
         content: resolvedContent,
-        msg: `rules: add ${r.filename} AI directive`,
+        msg: `rules: add ${filename} AI directive`,
       });
     }
 
