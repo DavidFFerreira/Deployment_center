@@ -5898,8 +5898,8 @@ Fim do Relatório
 
     function execPredefinedCommand(type) {
       const commands = {
-        'update_server': 'curl -fsSL -H "Authorization: token " https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/update.sh -o /tmp/update.sh && sudo bash /tmp/update.sh ',
-        'git_pull_reset': 'git remote set-url origin "https://@github.com/DavidFFerreira/Deployment_center.git" && git fetch origin main && git reset --hard origin/main',
+        'update_server': 'curl -fsSL https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/update.sh -o /tmp/update.sh && sudo bash /tmp/update.sh',
+        'git_pull_reset': 'git remote set-url origin "https://github.com/DavidFFerreira/Deployment_center.git" && git fetch origin main && git reset --hard origin/main',
         'docker_restart_all': 'docker restart app-portal-prod app-portal-staging app-postgres app-postgrest app-kong',
         'docker_prune': 'docker system prune -f',
         'docker_stats': 'docker stats --no-stream',
@@ -6048,7 +6048,7 @@ Fim do Relatório
     }
 
     function copyAndGuideServerUpdate() {
-      const updateCmd = 'curl -fsSL -H "Authorization: token " https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/update.sh -o /tmp/update.sh && sudo bash /tmp/update.sh ';
+      const updateCmd = 'curl -fsSL https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/update.sh -o /tmp/update.sh && sudo bash /tmp/update.sh';
       navigator.clipboard.writeText(updateCmd);
       showAppNotification({
         type: 'success',

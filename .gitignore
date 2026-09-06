@@ -5,3 +5,8 @@ data/
 .DS_Store
 cookies.txt
 
+
+*.zip
+*.tar.gz
+*.sql
+*.bak
