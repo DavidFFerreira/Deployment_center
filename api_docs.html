@@ -4,11 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>API RESTful M2M & SaaS Developer Portal - Deployment Center</title>
+    <!-- Anti-Flicker Script para Tema -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('deploy_theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      }
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: {} }
+    };
+  </script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     .glass-card {
-      background: rgba(15, 23, 42, 0.75);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
@@ -17,15 +35,17 @@
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-200">
 
   <!-- ===================================================================== -->
-  <!-- CABEÇALHO DO PORTAL DA API                                            -->
+  <!-- CABEÇALHO DO PORTAL DA API (COM IDIOMA & TEMA)                        -->
   <!-- ===================================================================== -->
-  <header class="border-b border-slate-800/80 bg-slate-900/60 sticky top-0 z-40 backdrop-blur-md">
+  <header class="border-b border-slate-200 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/60 sticky top-0 z-40 backdrop-blur-md transition-colors duration-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Lado Esquerdo: Voltar e Título -->
       <div class="flex items-center gap-3">
-        <a href="/" class="p-2 rounded-xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-600/20 transition" title="Voltar ao Painel Principal">
+        <a href="/" class="p-2 rounded-xl bg-slate-100 dark:bg-indigo-600/10 border border-slate-300 dark:border-indigo-500/20 text-slate-700 dark:text-indigo-400 hover:bg-slate-200 dark:hover:bg-indigo-600/20 transition" title="Voltar ao Painel Principal">
           <i data-lucide="arrow-left" class="w-5 h-5"></i>
         </a>
         <div class="flex items-center gap-2.5">
@@ -33,23 +53,42 @@
             <i data-lucide="plug-zap" class="w-4 h-4"></i>
           </div>
           <div>
-            <h1 class="text-sm font-bold text-white flex items-center gap-2">
-              API RESTful M2M Portal
-              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">v1.0</span>
+            <h1 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span>API RESTful M2M Portal</span>
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30">v1.0</span>
             </h1>
-            <p class="text-[11px] text-slate-400">Guia de Integração para SaaS & Provisionamento Automático</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block" data-i18n="portal_subtitle">Guia de Integração para SaaS & Provisionamento Automático</p>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        <a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 hover:border-indigo-500 text-xs font-bold text-slate-300 transition">
+      <!-- Lado Direito: Idioma, Tema, GitHub, Botão Painel -->
+      <div class="flex items-center gap-2.5 sm:gap-3">
+        
+        <!-- Seletor de Idioma -->
+        <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs">
+          <i data-lucide="globe" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
+          <select id="lang-selector" onchange="setLanguage(this.value)" class="bg-transparent font-bold text-slate-900 dark:text-slate-100 focus:outline-none cursor-pointer">
+            <option value="pt-PT" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇵🇹 PT</option>
+            <option value="en" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇬🇧 EN</option>
+            <option value="fr" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇫🇷 FR</option>
+            <option value="es" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇪🇸 ES</option>
+          </select>
+        </div>
+
+        <!-- Alternador de Tema -->
+        <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-indigo-500 transition cursor-pointer" title="Alternar Tema Claro / Escuro">
+          <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+        </button>
+
+        <a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-200/70 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:border-indigo-500 text-xs font-bold text-slate-700 dark:text-slate-300 transition">
           <i data-lucide="github" class="w-3.5 h-3.5"></i>
           <span>David Ferreira</span>
         </a>
+
         <a href="/" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-md shadow-indigo-600/20">
           <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
-          <span>Painel Principal</span>
+          <span data-i18n="btn_dashboard">Painel Principal</span>
         </a>
       </div>
     </div>
@@ -61,17 +100,17 @@
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
     <!-- BANNER HERO -->
-    <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 shadow-2xl relative overflow-hidden">
+    <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-indigo-950/40 dark:to-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl relative overflow-hidden transition-colors duration-200">
       <div class="relative z-10 space-y-3 max-w-3xl">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-bold">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold">
           <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-          Machine-to-Machine (M2M) Provisioning Engine
+          <span data-i18n="hero_badge">Machine-to-Machine (M2M) Provisioning Engine</span>
         </div>
-        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
+        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white" data-i18n="hero_title">
           Integre o seu SaaS com o Universal Deployment Center
         </h2>
-        <p class="text-sm text-slate-300 leading-relaxed">
-          Esta API permite que qualquer aplicação externa (CRM, ERP, sistema de registo de clientes ou plataforma SaaS) crie, consulte, atualize, faça deploy e elimine stacks completas de contentores (PostgreSQL, Supabase Auth, Storage, Kong e Frontend) de forma 100% automatizada e programática.
+        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed" data-i18n="hero_desc">
+          Esta API permite que qualquer aplicação externa crie, consulte, atualize, faça deploy e elimine stacks completas de contentores (PostgreSQL, Supabase Auth, Storage, Kong e Frontend) de forma 100% automatizada e programática.
         </p>
       </div>
     </div>
@@ -80,65 +119,65 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       
       <!-- CARD: CHAVES DE API -->
-      <div class="p-5 rounded-2xl glass-card border border-slate-800 space-y-4">
+      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="font-bold text-sm text-white flex items-center gap-2">
-            <i data-lucide="key" class="w-4 h-4 text-indigo-400"></i>
-            Chave de Autenticação (Bearer)
+          <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="key" class="w-4 h-4 text-indigo-500"></i>
+            <span data-i18n="card_auth_title">Chave de Autenticação (Bearer)</span>
           </h3>
-          <span class="text-[10px] font-mono text-emerald-400 font-bold">SHA-256</span>
+          <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">SHA-256</span>
         </div>
-        <p class="text-xs text-slate-400">
+        <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="card_auth_desc">
           Insira uma chave ativa ou crie uma nova abaixo para testar os endpoints:
         </p>
         <div class="space-y-2">
-          <input type="text" id="api-key-input" placeholder="dc_live_sec_..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-indigo-300 focus:outline-none focus:border-indigo-500">
-          <button onclick="saveTempApiKey()" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition">
+          <input type="text" id="api-key-input" placeholder="dc_live_sec_..." class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-xs font-mono text-indigo-600 dark:text-indigo-300 focus:outline-none focus:border-indigo-500">
+          <button onclick="saveTempApiKey()" class="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition cursor-pointer" data-i18n="btn_save_key">
             Guardar Chave na Sessão
           </button>
         </div>
       </div>
 
       <!-- CARD: PROJETO ATIVO / ID SELETOR -->
-      <div class="p-5 rounded-2xl glass-card border border-slate-800 space-y-4">
+      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="font-bold text-sm text-white flex items-center gap-2">
-            <i data-lucide="folder-git2" class="w-4 h-4 text-purple-400"></i>
-            Projetos Registados no Servidor
+          <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="folder-git2" class="w-4 h-4 text-purple-500"></i>
+            <span data-i18n="card_projects_title">Projetos Registados no Servidor</span>
           </h3>
-          <button onclick="fetchProjectsList()" class="text-xs text-indigo-400 hover:underline flex items-center gap-1">
-            <i data-lucide="refresh-cw" class="w-3 h-3"></i> Recarregar
+          <button onclick="fetchProjectsList()" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer">
+            <i data-lucide="refresh-cw" class="w-3 h-3"></i> <span data-i18n="btn_reload">Recarregar</span>
           </button>
         </div>
-        <p class="text-xs text-slate-400">
-          Selecione um projeto para carregar automaticamente o respetivo <strong class="text-purple-300">ID / slug</strong> nos exemplos:
+        <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="card_projects_desc">
+          Selecione um projeto para carregar automaticamente o respetivo ID nos exemplos:
         </p>
-        <select id="project-id-select" onchange="onSelectedProjectChange(this.value)" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-white focus:outline-none focus:border-purple-500 cursor-pointer">
+        <select id="project-id-select" onchange="onSelectedProjectChange(this.value)" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 cursor-pointer">
           <option value="" disabled selected>A carregar projetos...</option>
         </select>
-        <div class="text-[11px] font-mono text-purple-400 flex items-center justify-between">
-          <span>ID Ativo: <strong id="active-selected-id" class="font-bold">-</strong></span>
-          <button onclick="copyActiveId()" class="hover:text-white flex items-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i> Copiar</button>
+        <div class="text-[11px] font-mono text-purple-600 dark:text-purple-400 flex items-center justify-between">
+          <span><span data-i18n="active_id_label">ID Ativo:</span> <strong id="active-selected-id" class="font-bold">-</strong></span>
+          <button onclick="copyActiveId()" class="hover:underline flex items-center gap-1 cursor-pointer"><i data-lucide="copy" class="w-3 h-3"></i> <span data-i18n="btn_copy">Copiar</span></button>
         </div>
       </div>
 
       <!-- CARD: BASE URL -->
-      <div class="p-5 rounded-2xl glass-card border border-slate-800 space-y-4">
+      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="font-bold text-sm text-white flex items-center gap-2">
-            <i data-lucide="globe" class="w-4 h-4 text-emerald-400"></i>
-            URL Base do Servidor
+          <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="globe" class="w-4 h-4 text-emerald-500"></i>
+            <span data-i18n="card_baseurl_title">URL Base do Servidor</span>
           </h3>
-          <span class="text-[10px] font-mono text-slate-400">HTTP / HTTPS</span>
+          <span class="text-[10px] font-mono text-slate-500">HTTP / HTTPS</span>
         </div>
-        <p class="text-xs text-slate-400">
+        <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="card_baseurl_desc">
           Endpoint raiz detetado automaticamente a partir do browser:
         </p>
-        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-emerald-400 truncate" id="base-url-display">
+        <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-xs font-mono text-emerald-600 dark:text-emerald-400 truncate" id="base-url-display">
           http://localhost:50000
         </div>
-        <p class="text-[10px] text-slate-500">
-          Todas as rotas da API começam com o prefixo <code class="text-indigo-400 font-bold">/api/v1</code>.
+        <p class="text-[10px] text-slate-500" data-i18n="card_baseurl_footer">
+          Todas as rotas da API começam com o prefixo /api/v1.
         </p>
       </div>
 
@@ -146,88 +185,88 @@
 
     <!-- NAVEGAÇÃO DOS ENDPOINTS (ABAS) -->
     <div class="space-y-6">
-      <div class="flex items-center gap-2 overflow-x-auto border-b border-slate-800 pb-2">
-        <button onclick="switchDocTab('projects_list')" id="tab-btn-projects_list" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white flex items-center gap-1.5 transition whitespace-nowrap">
+      <div class="flex items-center gap-2 overflow-x-auto border-b border-slate-200 dark:border-slate-800 pb-2">
+        <button onclick="switchDocTab('projects_list')" id="tab-btn-projects_list" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
           <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono text-[10px]">GET</span>
-          <span>1. Listar Projetos & Obter IDs</span>
+          <span data-i18n="tab_1">1. Listar Projetos & Obter IDs</span>
         </button>
-        <button onclick="switchDocTab('create_tenant')" id="tab-btn-create_tenant" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap">
+        <button onclick="switchDocTab('create_tenant')" id="tab-btn-create_tenant" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
           <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px]">POST</span>
-          <span>2. Criar Novo Cliente (Tenant)</span>
+          <span data-i18n="tab_2">2. Criar Novo Cliente (Tenant)</span>
         </button>
-        <button onclick="switchDocTab('project_status')" id="tab-btn-project_status" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap">
+        <button onclick="switchDocTab('project_status')" id="tab-btn-project_status" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
           <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono text-[10px]">GET</span>
-          <span>3. Detalhes & Portas do Projeto</span>
+          <span data-i18n="tab_3">3. Detalhes & Portas do Projeto</span>
         </button>
-        <button onclick="switchDocTab('deploy_tenant')" id="tab-btn-deploy_tenant" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap">
+        <button onclick="switchDocTab('deploy_tenant')" id="tab-btn-deploy_tenant" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
           <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px]">POST</span>
-          <span>4. Executar Deploy</span>
+          <span data-i18n="tab_4">4. Executar Deploy</span>
         </button>
-        <button onclick="switchDocTab('delete_tenant')" id="tab-btn-delete_tenant" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap">
+        <button onclick="switchDocTab('delete_tenant')" id="tab-btn-delete_tenant" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
           <span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono text-[10px]">DEL</span>
-          <span>5. Eliminar Stack</span>
+          <span data-i18n="tab_5">5. Eliminar Stack</span>
         </button>
-        <button onclick="switchDocTab('sse_webhooks')" id="tab-btn-sse_webhooks" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap">
+        <button onclick="switchDocTab('sse_webhooks')" id="tab-btn-sse_webhooks" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
           <span class="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono text-[10px]">HOOK</span>
-          <span>6. SSE Logs & Webhooks</span>
+          <span data-i18n="tab_6">6. SSE Logs & Webhooks</span>
         </button>
       </div>
 
       <!-- PAINEL DE CONTEÚDO DA DOCUMENTAÇÃO -->
-      <div class="p-6 sm:p-8 rounded-3xl glass-card border border-slate-800 space-y-6">
+      <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6 transition-colors duration-200">
 
         <!-- CABEÇALHO DO ENDPOINT ATIVO -->
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-5">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
           <div>
             <div class="flex items-center gap-2">
-              <span id="active-method-badge" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">GET</span>
-              <code id="active-endpoint-path" class="text-sm sm:text-base font-bold text-white font-mono">/api/v1/projects</code>
+              <span id="active-method-badge" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-blue-500/20 text-blue-500 border border-blue-500/30">GET</span>
+              <code id="active-endpoint-path" class="text-sm sm:text-base font-bold text-slate-900 dark:text-white font-mono">/api/v1/projects</code>
             </div>
-            <p id="active-endpoint-desc" class="text-xs text-slate-400 mt-1">
+            <p id="active-endpoint-desc" class="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Lista todos os projetos e tenants configurados no Deployment Center, devolvendo respetivos IDs, nomes e portas.
             </p>
           </div>
 
           <div class="flex items-center gap-2">
             <!-- Seletor de Linguagem para Exemplos -->
-            <div class="flex items-center p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs">
-              <button onclick="setSnippetLang('curl')" id="lang-btn-curl" class="px-2.5 py-1 rounded-lg font-bold bg-indigo-600 text-white">cURL</button>
-              <button onclick="setSnippetLang('node')" id="lang-btn-node" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white">Node.js</button>
-              <button onclick="setSnippetLang('python')" id="lang-btn-python" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white">Python</button>
+            <div class="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-xs">
+              <button onclick="setSnippetLang('curl')" id="lang-btn-curl" class="px-2.5 py-1 rounded-lg font-bold bg-indigo-600 text-white cursor-pointer">cURL</button>
+              <button onclick="setSnippetLang('node')" id="lang-btn-node" class="px-2.5 py-1 rounded-lg font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer">Node.js</button>
+              <button onclick="setSnippetLang('python')" id="lang-btn-python" class="px-2.5 py-1 rounded-lg font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer">Python</button>
             </div>
             <!-- Botão Testar em Direto -->
             <button onclick="executeLiveTest()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-emerald-600/20 cursor-pointer">
               <i data-lucide="play" class="w-3.5 h-3.5"></i>
-              <span>Executar Teste em Tempo Real</span>
+              <span data-i18n="btn_run_test">Executar Teste em Tempo Real</span>
             </button>
           </div>
         </div>
 
         <!-- CÓDIGO DE EXEMPLO -->
         <div class="space-y-2">
-          <div class="flex items-center justify-between text-xs text-slate-400">
-            <span class="font-bold flex items-center gap-1.5 text-slate-300">
-              <i data-lucide="code" class="w-4 h-4 text-indigo-400"></i>
-              Código de Exemplo (<span id="current-lang-display" class="uppercase">cURL</span>)
+          <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+            <span class="font-bold flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+              <i data-lucide="code" class="w-4 h-4 text-indigo-500"></i>
+              <span data-i18n="example_code_label">Código de Exemplo</span> (<span id="current-lang-display" class="uppercase font-mono">cURL</span>)
             </span>
-            <button onclick="copyCurrentSnippet()" class="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition">
+            <button onclick="copyCurrentSnippet()" class="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 transition cursor-pointer">
               <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span id="copy-snippet-text">Copiar Código</span>
+              <span id="copy-snippet-text" data-i18n="btn_copy_code">Copiar Código</span>
             </button>
           </div>
-          <pre class="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-indigo-300 overflow-x-auto"><code id="code-snippet-display">// Carregando exemplo...</code></pre>
+          <pre class="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-indigo-300 overflow-x-auto shadow-inner"><code id="code-snippet-display">// Carregando exemplo...</code></pre>
         </div>
 
         <!-- CONSOLA DE RESPOSTA EM TEMPO REAL -->
-        <div id="live-response-container" class="hidden space-y-2 border-t border-slate-800 pt-5">
+        <div id="live-response-container" class="hidden space-y-2 border-t border-slate-200 dark:border-slate-800 pt-5">
           <div class="flex items-center justify-between text-xs">
-            <span class="font-bold text-emerald-400 flex items-center gap-1.5">
-              <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
-              Resposta HTTP em Direto: <span id="live-status-code" class="font-mono text-white">...</span>
+            <span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+              <i data-lucide="terminal" class="w-4 h-4 text-emerald-500"></i>
+              <span data-i18n="live_response_label">Resposta HTTP em Direto:</span> <span id="live-status-code" class="font-mono font-bold text-slate-900 dark:text-white">...</span>
             </span>
             <span id="live-timing" class="text-slate-500 font-mono">0ms</span>
           </div>
-          <pre class="p-4 rounded-2xl bg-slate-950 border border-emerald-500/30 text-xs text-emerald-300 font-mono overflow-x-auto max-h-96"><code id="live-response-output"></code></pre>
+          <pre class="p-4 rounded-2xl bg-slate-950 border border-emerald-500/30 text-xs text-emerald-400 font-mono overflow-x-auto max-h-96 shadow-inner"><code id="live-response-output"></code></pre>
         </div>
 
       </div>
@@ -238,18 +277,18 @@
   <!-- ===================================================================== -->
   <!-- RODAPÉ LEGAL & AUTORIA                                                 -->
   <!-- ===================================================================== -->
-  <footer class="border-t border-slate-800/80 mt-12 py-8 bg-slate-950 text-center text-xs text-slate-500 space-y-2">
+  <footer class="border-t border-slate-200 dark:border-slate-800/80 mt-12 py-8 bg-white dark:bg-slate-950 text-center text-xs text-slate-500 space-y-2 transition-colors duration-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2">
       <div>
-        © 2026 <a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="font-bold text-slate-300 hover:text-indigo-400 underline underline-offset-2 transition">David Ferreira</a>. Todos os direitos reservados.
+        © 2026 <a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="font-bold text-slate-800 dark:text-slate-300 hover:text-indigo-500 underline underline-offset-2 transition">David Ferreira</a>. <span data-i18n="rights_reserved">Todos os direitos reservados.</span>
       </div>
-      <p class="text-[11px] text-slate-600 max-w-2xl mx-auto">
+      <p class="text-[11px] text-slate-500 dark:text-slate-600 max-w-2xl mx-auto" data-i18n="footer_legal">
         Universal Deployment Center é software proprietário protegido pela Convenção de Berna, Tratado WCT da OMPI e Leis Internacionais de Propriedade Intelectual. A cópia, venda ou redistribuição sem autorização prévia por escrito é estritamente proibida.
       </p>
     </div>
   </footer>
 
-  <!-- SCRIPT DE INTERAÇÃO -->
+  <!-- SCRIPT DE INTERAÇÃO COM i18n E DARK/LIGHT THEME -->
   <script>
     let activeDocTab = 'projects_list';
     let activeLang = 'curl';
@@ -258,6 +297,173 @@
 
     const baseUrl = window.location.origin;
     document.getElementById('base-url-display').textContent = baseUrl;
+
+    // DICIONÁRIO MULTILÍNGUE DO PORTAL DA API
+    const API_I18N = {
+      'pt-PT': {
+        portal_subtitle: "Guia de Integração para SaaS & Provisionamento Automático",
+        btn_dashboard: "Painel Principal",
+        hero_badge: "Machine-to-Machine (M2M) Provisioning Engine",
+        hero_title: "Integre o seu SaaS com o Universal Deployment Center",
+        hero_desc: "Esta API permite que qualquer aplicação externa crie, consulte, atualize, faça deploy e elimine stacks completas de contentores (PostgreSQL, Supabase Auth, Storage, Kong e Frontend) de forma 100% automatizada e programática.",
+        card_auth_title: "Chave de Autenticação (Bearer)",
+        card_auth_desc: "Insira uma chave ativa ou crie uma nova abaixo para testar os endpoints:",
+        btn_save_key: "Guardar Chave na Sessão",
+        card_projects_title: "Projetos Registados no Servidor",
+        btn_reload: "Recarregar",
+        card_projects_desc: "Selecione um projeto para carregar automaticamente o respetivo ID nos exemplos:",
+        active_id_label: "ID Ativo:",
+        btn_copy: "Copiar",
+        card_baseurl_title: "URL Base do Servidor",
+        card_baseurl_desc: "Endpoint raiz detetado automaticamente a partir do browser:",
+        card_baseurl_footer: "Todas as rotas da API começam com o prefixo /api/v1.",
+        tab_1: "1. Listar Projetos & Obter IDs",
+        tab_2: "2. Criar Novo Cliente (Tenant)",
+        tab_3: "3. Detalhes & Portas do Projeto",
+        tab_4: "4. Executar Deploy",
+        tab_5: "5. Eliminar Stack",
+        tab_6: "6. SSE Logs & Webhooks",
+        btn_run_test: "Executar Teste em Tempo Real",
+        example_code_label: "Código de Exemplo",
+        btn_copy_code: "Copiar Código",
+        live_response_label: "Resposta HTTP em Direto:",
+        rights_reserved: "Todos os direitos reservados.",
+        footer_legal: "Universal Deployment Center é software proprietário protegido pela Convenção de Berna, Tratado WCT da OMPI e Leis Internacionais de Propriedade Intelectual. A cópia, venda ou redistribuição sem autorização prévia por escrito é estritamente proibida."
+      },
+      'en': {
+        portal_subtitle: "Integration Guide for SaaS & Automated Provisioning",
+        btn_dashboard: "Main Dashboard",
+        hero_badge: "Machine-to-Machine (M2M) Provisioning Engine",
+        hero_title: "Integrate your SaaS with Universal Deployment Center",
+        hero_desc: "This API allows any external application to programmatically create, query, update, deploy and delete full container stacks (PostgreSQL, Supabase Auth, Storage, Kong and Frontend) with 100% automation.",
+        card_auth_title: "API Authentication Key (Bearer)",
+        card_auth_desc: "Enter an active key or create one in settings to test endpoints:",
+        btn_save_key: "Save Key in Session",
+        card_projects_title: "Registered Projects on Server",
+        btn_reload: "Reload",
+        card_projects_desc: "Select a project to automatically load its ID into code examples:",
+        active_id_label: "Active ID:",
+        btn_copy: "Copy",
+        card_baseurl_title: "Server Base URL",
+        card_baseurl_desc: "Root endpoint automatically detected from the browser:",
+        card_baseurl_footer: "All API routes start with the /api/v1 prefix.",
+        tab_1: "1. List Projects & Get IDs",
+        tab_2: "2. Create New Client (Tenant)",
+        tab_3: "3. Project Details & Ports",
+        tab_4: "4. Trigger Deployment",
+        tab_5: "5. Delete Stack",
+        tab_6: "6. SSE Logs & Webhooks",
+        btn_run_test: "Execute Live Test",
+        example_code_label: "Example Code",
+        btn_copy_code: "Copy Code",
+        live_response_label: "Live HTTP Response:",
+        rights_reserved: "All rights reserved.",
+        footer_legal: "Universal Deployment Center is proprietary software protected by the Berne Convention, WIPO Copyright Treaty and international intellectual property laws."
+      },
+      'fr': {
+        portal_subtitle: "Guide d'Intégration pour SaaS & Provisionnement Automatique",
+        btn_dashboard: "Tableau de Bord",
+        hero_badge: "Moteur de Provisionnement Machine-to-Machine (M2M)",
+        hero_title: "Intégrez votre SaaS avec le Universal Deployment Center",
+        hero_desc: "Cette API permet à toute application externe de créer, consulter, mettre à jour, déployer et supprimer des stacks complètes de conteneurs de façon 100% automatisée.",
+        card_auth_title: "Clé d'Authentification API (Bearer)",
+        card_auth_desc: "Entrez une clé active pour tester les endpoints :",
+        btn_save_key: "Enregistrer la Clé",
+        card_projects_title: "Projets Enregistrés sur le Serveur",
+        btn_reload: "Recharger",
+        card_projects_desc: "Sélectionnez un projet pour charger son ID dans les exemples :",
+        active_id_label: "ID Actif :",
+        btn_copy: "Copier",
+        card_baseurl_title: "URL de Base du Serveur",
+        card_baseurl_desc: "Endpoint racine détecté automatiquement :",
+        card_baseurl_footer: "Toutes les routes API commencent par /api/v1.",
+        tab_1: "1. Lister les Projets & IDs",
+        tab_2: "2. Créer un Nouveau Tenant",
+        tab_3: "3. Détails & Ports du Projet",
+        tab_4: "4. Déclencher un Déploiement",
+        tab_5: "5. Supprimer la Stack",
+        tab_6: "6. Logs SSE & Webhooks",
+        btn_run_test: "Exécuter le Test en Direct",
+        example_code_label: "Code d'Exemple",
+        btn_copy_code: "Copier le Code",
+        live_response_label: "Réponse HTTP en Direct :",
+        rights_reserved: "Tous droits réservés.",
+        footer_legal: "Universal Deployment Center est un logiciel propriétaire protégé par la Convention de Berne et le Traité de l'OMPI."
+      },
+      'es': {
+        portal_subtitle: "Guía de Integración para SaaS y Aprovisionamiento Automático",
+        btn_dashboard: "Panel Principal",
+        hero_badge: "Motor de Aprovisionamiento Machine-to-Machine (M2M)",
+        hero_title: "Integre su SaaS con el Universal Deployment Center",
+        hero_desc: "Esta API permite a cualquier aplicación externa crear, consultar, actualizar, desplegar y eliminar stacks completos de contenedores de forma 100% automatizada.",
+        card_auth_title: "Clave de Autenticación API (Bearer)",
+        card_auth_desc: "Introduzca una clave activa para probar los endpoints:",
+        btn_save_key: "Guardar Clave en la Sesión",
+        card_projects_title: "Proyectos Registrados en el Servidor",
+        btn_reload: "Recargar",
+        card_projects_desc: "Seleccione un proyecto para cargar su ID en los ejemplos:",
+        active_id_label: "ID Activo:",
+        btn_copy: "Copiar",
+        card_baseurl_title: "URL Base del Servidor",
+        card_baseurl_desc: "Endpoint raíz detectado automáticamente:",
+        card_baseurl_footer: "Todas las rutas de la API comienzan con /api/v1.",
+        tab_1: "1. Listar Proyectos y Obtener IDs",
+        tab_2: "2. Crear Nuevo Cliente (Tenant)",
+        tab_3: "3. Detalles y Puertos del Proyecto",
+        tab_4: "4. Ejecutar Despliegue",
+        tab_5: "5. Eliminar Stack",
+        tab_6: "6. Logs SSE y Webhooks",
+        btn_run_test: "Ejecutar Prueba en Tiempo Real",
+        example_code_label: "Código de Ejemplo",
+        btn_copy_code: "Copiar Código",
+        live_response_label: "Respuesta HTTP en Directo:",
+        rights_reserved: "Todos los derechos reservados.",
+        footer_legal: "Universal Deployment Center es software propietario protegido por el Convenio de Berna y la OMPI."
+      }
+    };
+
+    // GESTÃO DE TEMA CLARO / ESCURO
+    let currentTheme = localStorage.getItem('deploy_theme') || 'dark';
+    let currentLang = localStorage.getItem('deploy_lang') || 'pt-PT';
+
+    function applyTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem('deploy_theme', theme);
+      const html = document.documentElement;
+      const icon = document.getElementById('theme-icon');
+      if (theme === 'dark') {
+        html.classList.add('dark');
+        html.classList.remove('light');
+        if (icon) icon.setAttribute('data-lucide', 'moon');
+      } else {
+        html.classList.add('light');
+        html.classList.remove('dark');
+        if (icon) icon.setAttribute('data-lucide', 'sun');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function toggleTheme() {
+      applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    }
+
+    function setLanguage(lang) {
+      if (!API_I18N[lang]) lang = 'pt-PT';
+      currentLang = lang;
+      localStorage.setItem('deploy_lang', lang);
+      document.getElementById('lang-selector').value = lang;
+      applyTranslations();
+    }
+
+    function applyTranslations() {
+      const dict = API_I18N[currentLang] || API_I18N['pt-PT'];
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) {
+          el.textContent = dict[key];
+        }
+      });
+    }
 
     const endpointsConfig = {
       projects_list: {
@@ -302,7 +508,7 @@
   -H "Content-Type: application/json" \\
   -d '{"target": "production", "commit": "HEAD"}'`,
         node: () => `const resp = await fetch("${baseUrl}/api/v1/projects/${selectedProjectId}/deploy", {\n  method: "POST",\n  headers: {\n    "Authorization": "Bearer ${getApiKey()}",\n    "Content-Type": "application/json"\n  },\n  body: JSON.stringify({ target: "production" })\n});\nconsole.log(await resp.json());`,
-        python: () => `import requests\n\nr = requests.post("\${baseUrl}/api/v1/projects/${selectedProjectId}/deploy", json={\n    "target": "production"\n}, headers={"Authorization": "Bearer ${getApiKey()}"})\nprint(r.json())`
+        python: () => `import requests\n\nr = requests.post("${baseUrl}/api/v1/projects/${selectedProjectId}/deploy", json={\n    "target": "production"\n}, headers={"Authorization": "Bearer ${getApiKey()}"})\nprint(r.json())`
       },
       delete_tenant: {
         method: 'DELETE',
@@ -343,11 +549,11 @@
     function switchDocTab(tabKey) {
       activeDocTab = tabKey;
       document.querySelectorAll('[id^="tab-btn-"]').forEach(btn => {
-        btn.className = 'px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap';
+        btn.className = 'px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer';
       });
       const activeBtn = document.getElementById(`tab-btn-${tabKey}`);
       if (activeBtn) {
-        activeBtn.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white flex items-center gap-1.5 transition whitespace-nowrap';
+        activeBtn.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer';
       }
 
       const cfg = endpointsConfig[tabKey];
@@ -366,8 +572,8 @@
         const btn = document.getElementById(`lang-btn-${l}`);
         if (btn) {
           btn.className = l === lang 
-            ? 'px-2.5 py-1 rounded-lg font-bold bg-indigo-600 text-white' 
-            : 'px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white';
+            ? 'px-2.5 py-1 rounded-lg font-bold bg-indigo-600 text-white cursor-pointer' 
+            : 'px-2.5 py-1 rounded-lg font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer';
         }
       });
       document.getElementById('current-lang-display').textContent = lang;
@@ -472,6 +678,8 @@
     if (savedKey) {
       document.getElementById('api-key-input').value = savedKey;
     }
+    applyTheme(currentTheme);
+    setLanguage(currentLang);
     fetchProjectsList();
     switchDocTab('projects_list');
     lucide.createIcons();

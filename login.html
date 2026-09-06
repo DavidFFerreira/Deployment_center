@@ -3,66 +3,120 @@
 <head>
   <meta charset="UTF-8">
   <title>Universal Deployment Center - Autenticação</title>
+    <!-- Anti-Flicker Script para Tema -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('deploy_theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      }
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: {} }
+    };
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .glass-card {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 flex flex-col items-center justify-center min-h-screen p-4 font-sans selection:bg-indigo-500 selection:text-white">
-  <div class="max-w-md w-full p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-6">
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col items-center justify-center min-h-screen p-4 font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+
+  <!-- ===================================================================== -->
+  <!-- BARRA DE CONTROLES NO TOPO DIREITO: IDIOMA & TEMA                     -->
+  <!-- ===================================================================== -->
+  <div class="fixed top-4 right-4 z-30 flex items-center gap-2 bg-white/80 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-800 px-3 py-1.5 rounded-2xl shadow-lg glass-card text-xs">
+    <!-- Seletor de Idioma -->
+    <div class="flex items-center gap-1.5">
+      <i data-lucide="globe" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
+      <select id="lang-selector" onchange="setLanguage(this.value)" class="bg-transparent font-bold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer">
+        <option value="pt-PT" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇵🇹 PT</option>
+        <option value="en" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇬🇧 EN</option>
+        <option value="fr" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇫🇷 FR</option>
+        <option value="es" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇪🇸 ES</option>
+      </select>
+    </div>
+
+    <span class="text-slate-300 dark:text-slate-700">|</span>
+
+    <!-- Alternador de Tema (Light / Dark) -->
+    <button onclick="toggleTheme()" class="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-indigo-500 transition cursor-pointer" title="Alternar Tema Claro / Escuro">
+      <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+    </button>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- CARTÃO CENTRAL DE LOGIN                                               -->
+  <!-- ===================================================================== -->
+  <div class="max-w-md w-full p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6 transition-colors duration-200">
     <div class="text-center space-y-2">
-      <div class="inline-flex p-3 rounded-2xl bg-indigo-500/10 text-indigo-400 mb-2 border border-indigo-500/20 shadow-lg shadow-indigo-500/10">
+      <div class="inline-flex p-3 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 mb-2 border border-indigo-500/20 shadow-lg shadow-indigo-500/10">
         <i data-lucide="rocket" class="w-8 h-8"></i>
       </div>
-      <h1 class="text-2xl font-bold tracking-tight text-white flex items-center justify-center gap-2">
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center justify-center gap-2">
         Deployment Center
       </h1>
-      <p class="text-xs text-slate-400">Painel Universal de Infraestrutura, Deploys e Stacks</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="tagline">Painel Universal de Infraestrutura, Deploys e Stacks</p>
     </div>
 
     <!-- Mensagem de erro caso exista no URL -->
-    <div id="error-alert" class="hidden p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold text-center">
+    <div id="error-alert" class="hidden p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-semibold text-center" data-i18n="error_credentials">
       Credenciais incorretas. Por favor verifique o utilizador e a palavra-passe.
     </div>
 
     <form method="POST" action="/login" class="space-y-4">
       <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nome de Utilizador</label>
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5" data-i18n="username_label">Nome de Utilizador</label>
         <div class="relative">
-          <input type="text" name="username" required placeholder="admin" autofocus class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none text-sm text-white transition placeholder-slate-600">
+          <input type="text" name="username" required placeholder="admin" autofocus class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 focus:border-indigo-500 focus:outline-none text-sm text-slate-900 dark:text-white transition placeholder-slate-400 dark:placeholder-slate-600">
         </div>
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Palavra-passe</label>
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5" data-i18n="password_label">Palavra-passe</label>
         <div class="relative">
-          <input type="password" name="password" required placeholder="••••••••••••" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none text-sm text-white transition placeholder-slate-600">
+          <input type="password" name="password" required placeholder="••••••••••••" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 focus:border-indigo-500 focus:outline-none text-sm text-slate-900 dark:text-white transition placeholder-slate-400 dark:placeholder-slate-600">
         </div>
       </div>
 
-      <button type="submit" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
-        <i data-lucide="log-in" class="w-4 h-4"></i> Entrar no Deployment Center
+      <button type="submit" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 cursor-pointer">
+        <i data-lucide="log-in" class="w-4 h-4"></i> <span data-i18n="btn_login">Entrar no Deployment Center</span>
       </button>
     </form>
 
-    <div class="text-center text-[11px] text-slate-500 border-t border-slate-800/80 pt-4">
+    <div class="text-center text-[11px] text-slate-500 border-t border-slate-200 dark:border-slate-800/80 pt-4" data-i18n="restricted_access">
       Acesso Restrito aos Administradores de Infraestrutura
     </div>
   </div>
 
-  <!-- Rodapé com Direitos de Autor e Autor David Ferreira -->
+  <!-- ===================================================================== -->
+  <!-- RODAPÉ LEGAL & AUTORIA                                                 -->
+  <!-- ===================================================================== -->
   <footer class="mt-6 text-center text-xs text-slate-500 space-y-1">
     <div>
-      © 2026 <a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="font-bold text-slate-300 hover:text-indigo-400 underline underline-offset-2 transition">David Ferreira</a>. Todos os direitos reservados.
+      © 2026 <a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="font-bold text-slate-700 dark:text-slate-300 hover:text-indigo-500 underline underline-offset-2 transition">David Ferreira</a>. <span data-i18n="rights_reserved">Todos os direitos reservados.</span>
     </div>
-    <div class="flex items-center justify-center gap-3 text-[11px] text-slate-400">
-      <button type="button" onclick="openTermsModal()" class="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition cursor-pointer flex items-center gap-1">
+    <div class="flex items-center justify-center gap-3 text-[11px] text-slate-500 dark:text-slate-400">
+      <button type="button" onclick="openTermsModal()" class="text-indigo-600 dark:text-indigo-400 hover:underline transition cursor-pointer flex items-center gap-1">
         <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-        Termos e Condições
+        <span data-i18n="terms_link">Termos e Condições</span>
       </button>
       <span>·</span>
-      <a href="https://github.com/DavidFFerreira/Deployment_center" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300 underline underline-offset-2 transition">Repositório GitHub</a>
+      <a href="https://github.com/DavidFFerreira/Deployment_center" target="_blank" rel="noopener noreferrer" class="hover:text-slate-700 dark:hover:text-slate-300 underline transition" data-i18n="repo_link">Repositório GitHub</a>
     </div>
-    <div class="text-[10px] text-slate-600">
+    <div class="text-[10px] text-slate-400 dark:text-slate-600" data-i18n="legal_disclaimer">
       Software Proprietário · Proibida a redistribuição ou comercialização não autorizada (Convenção de Berna & CDADC).
     </div>
   </footer>
@@ -71,15 +125,15 @@
   <!-- MODAL: TERMOS E CONDIÇÕES DE UTILIZAÇÃO                               -->
   <!-- ===================================================================== -->
   <div id="terms-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="max-w-2xl w-full rounded-3xl glass-card border border-slate-200 dark:border-slate-800 p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
+    <div class="max-w-2xl w-full rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-5 shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
       <!-- Cabeçalho -->
       <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div class="flex items-center gap-3">
-          <div class="p-3 rounded-2xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+          <div class="p-3 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
             <i data-lucide="scale" class="w-6 h-6"></i>
           </div>
           <div>
-            <h3 class="font-extrabold text-lg text-slate-900 dark:text-white">Termos e Condições de Utilização</h3>
+            <h3 class="font-extrabold text-lg text-slate-900 dark:text-white" data-i18n="terms_modal_title">Termos e Condições de Utilização</h3>
             <p class="text-xs text-slate-500 dark:text-slate-400">Universal Deployment Center · David Ferreira</p>
           </div>
         </div>
@@ -89,104 +143,199 @@
       </div>
 
       <!-- Conteúdo com Scroll -->
-      <div class="overflow-y-auto space-y-4 pr-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-h-[60vh]">
-        <div class="p-3.5 rounded-2xl bg-indigo-500/5 border border-indigo-500/20 text-indigo-700 dark:text-indigo-300">
+      <div class="overflow-y-auto space-y-4 pr-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-h-[60vh]" id="terms-modal-content">
+        <div class="p-3.5 rounded-2xl bg-indigo-500/5 border border-indigo-500/20 text-indigo-700 dark:text-indigo-300" data-i18n="terms_legal_notice">
           <strong>Aviso Legal:</strong> O presente software, a sua arquitetura de micro-serviços, orquestrador de contentores Docker, scripts de instalação e interface web são propriedade intelectual exclusiva de <strong><a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="underline font-bold hover:text-indigo-400">David Ferreira</a></strong>.
         </div>
 
         <div class="space-y-1.5">
-          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
+          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5" data-i18n="terms_sec1_title">
             <span>1.</span> Titularidade e Direitos de Autor
           </h4>
-          <p>
-            Todos os direitos patrimoniais, morais e de propriedade intelectual inerentes a esta plataforma pertencem exclusivamente a David Ferreira. A disponibilização do software não implica qualquer transmissão, cessão ou alienação dos referidos direitos de propriedade intelectual.
+          <p data-i18n="terms_sec1_text">
+            Todo o código-fonte, templates de Docker Compose, scripts shell (install.sh, update.sh) e documentação são protegidos internacionalmente pela Convenção de Berna, pelo Tratado de Direito de Autor da OMPI (WCT) e pelas Diretivas Europeias de Proteção de Software.
           </p>
         </div>
 
         <div class="space-y-1.5">
-          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
-            <span>2.</span> Proibição Estrita de Partilha, Cópia e Comercialização
+          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5" data-i18n="terms_sec2_title">
+            <span>2.</span> Proibição de Partilha, Venda ou Redistribuição
           </h4>
-          <p>
-            É estritamente vedada a reprodução total ou parcial, cópia, distribuição, difusão pública, sublicenciamento, locação, partilha não autorizada ou venda deste software, do seu código-fonte ou dos seus scripts a terceiros sem prévia autorização escrita de David Ferreira.
+          <p data-i18n="terms_sec2_text">
+            É estritamente proibido partilhar, sublicenciar, comercializar, alugar, publicar em repositórios abertos ou redistribuir este repositório ou qualquer parte dele sem a autorização prévia, explícita e por escrito do criador David Ferreira.
           </p>
         </div>
 
         <div class="space-y-1.5">
-          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
-            <span>3.</span> Enquadramento Jurídico Internacional
+          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5" data-i18n="terms_sec3_title">
+            <span>3.</span> Consequências Legais e Judiciais
           </h4>
-          <p>
-            Esta obra encontra-se integralmente protegida pelas seguintes convenções, tratados e diretivas internacionais:
-          </p>
-          <ul class="list-disc pl-5 space-y-1 text-slate-500 dark:text-slate-400">
-            <li><strong>Convenção de Berna</strong> (Artigos 2.º e 9.º): Proteção imediata e automática do autor em mais de 180 países.</li>
-            <li><strong>Tratado da OMPI/WIPO sobre Direito de Autor (WCT)</strong> (Artigo 4.º): Tutela internacional explícita de programas de computador.</li>
-            <li><strong>Acordo TRIPS / ADPIC da OMC</strong> (Artigo 10.º): Tutela comercial vinculativa de código e programas informáticos.</li>
-            <li><strong>Diretiva 2009/24/CE e Diretiva (UE) 2019/790</strong> do Parlamento Europeu sobre direitos de autor no mercado digital.</li>
-            <li><strong>Código do Direito de Autor e dos Direitos Conexos (CDADC - Portugal)</strong>: Tipificação como usurpação e contrafação de software (Artigos 195.º e 196.º).</li>
-          </ul>
-        </div>
-
-        <div class="space-y-1.5">
-          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
-            <span>4.</span> Responsabilidade e Credenciais
-          </h4>
-          <p>
-            O operador da plataforma é o único responsável pela custódia e segurança das chaves secretas (tokens GitHub PAT, passwords de base de dados e segredos de sessão JWT). O autor não se responsabiliza por má configuração do servidor, acessos indevidos por negligência na rede do operador ou perda de dados decorrente de intervenções manuais externas.
-          </p>
-        </div>
-
-        <div class="space-y-1.5">
-          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
-            <span>5.</span> Isenção de Garantias e Atualizações
-          </h4>
-          <p>
-            O software é disponibilizado "no estado em que se encontra" (<em>as is</em>) com o propósito de orquestração de servidores e contentores. O autor reserva-se o direito de introduzir melhorias, correções e atualizações em versões futuras.
-          </p>
-        </div>
-
-        <div class="space-y-1.5">
-          <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
-            <span>6.</span> Contacto e Autorizações de Utilização
-          </h4>
-          <p>
-            Para pedidos de licenciamento comercial, projetos personalizados ou autorizações formais:
-            <br/>
-            <strong>Lead Developer:</strong> David Ferreira
-            <br/>
-            <strong>Perfil GitHub Oficial:</strong> <a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="text-indigo-500 hover:underline">https://github.com/DavidFFerreira</a>
+          <p data-i18n="terms_sec3_text">
+            Qualquer utilização não autorizada constitui infração grave e crime de usurpação de direitos de autor, sujeita a procedimento judicial civil e criminal com pedido de indemnização por perdas e danos nas jurisdições competentes.
           </p>
         </div>
       </div>
 
       <!-- Rodapé do Modal -->
-      <div class="border-t border-slate-200 dark:border-slate-800 pt-3 flex items-center justify-end">
-        <button onclick="closeModal('terms-modal')" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow-md shadow-indigo-500/20 cursor-pointer">
-          Compreendi e Fechar
+      <div class="border-t border-slate-200 dark:border-slate-800 pt-3 flex items-center justify-between">
+        <span class="text-[11px] text-slate-400">© 2026 David Ferreira</span>
+        <button onclick="closeModal('terms-modal')" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition cursor-pointer" data-i18n="btn_close">
+          Compreendi e Aceito
         </button>
       </div>
     </div>
   </div>
 
-
   <script>
-    if (window.location.search.includes("error=1")) {
-      document.getElementById("error-alert").classList.remove("hidden");
-    }
-    
-    function openTermsModal() {
-      const el = document.getElementById('terms-modal');
-      if (el) {
-        el.classList.remove('hidden');
-        if (window.lucide) lucide.createIcons();
+    // ===================================================================
+    // DICIONÁRIO MULTILÍNGUE (i18n)
+    // ===================================================================
+    const LOGIN_I18N = {
+      'pt-PT': {
+        tagline: "Painel Universal de Infraestrutura, Deploys e Stacks",
+        error_credentials: "Credenciais incorretas. Por favor verifique o utilizador e a palavra-passe.",
+        username_label: "Nome de Utilizador",
+        password_label: "Palavra-passe",
+        btn_login: "Entrar no Deployment Center",
+        restricted_access: "Acesso Restrito aos Administradores de Infraestrutura",
+        rights_reserved: "Todos os direitos reservados.",
+        terms_link: "Termos e Condições",
+        repo_link: "Repositório GitHub",
+        legal_disclaimer: "Software Proprietário · Proibida a redistribuição ou comercialização não autorizada (Convenção de Berna & CDADC).",
+        terms_modal_title: "Termos e Condições de Utilização",
+        terms_legal_notice: "Aviso Legal: O presente software, a sua arquitetura de micro-serviços, orquestrador de contentores Docker, scripts de instalação e interface web são propriedade intelectual exclusiva de David Ferreira.",
+        terms_sec1_title: "1. Titularidade e Direitos de Autor",
+        terms_sec1_text: "Todo o código-fonte, templates de Docker Compose, scripts shell (install.sh, update.sh) e documentação são protegidos internacionalmente pela Convenção de Berna, pelo Tratado de Direito de Autor da OMPI (WCT) e pelas Diretivas Europeias de Proteção de Software.",
+        terms_sec2_title: "2. Proibição de Partilha, Venda ou Redistribuição",
+        terms_sec2_text: "É estritamente proibido partilhar, sublicenciar, comercializar, alugar, publicar em repositórios abertos ou redistribuir este repositório ou qualquer parte dele sem a autorização prévia, explícita e por escrito do criador David Ferreira.",
+        terms_sec3_title: "3. Consequências Legais e Judiciais",
+        terms_sec3_text: "Qualquer utilização não autorizada constitui infração grave e crime de usurpação de direitos de autor, sujeita a procedimento judicial civil e criminal com pedido de indemnização por perdas e danos nas jurisdições competentes.",
+        btn_close: "Compreendi e Aceito"
+      },
+      'en': {
+        tagline: "Universal Infrastructure, Deployments & Stack Platform",
+        error_credentials: "Invalid credentials. Please verify username and password.",
+        username_label: "Username",
+        password_label: "Password",
+        btn_login: "Sign In to Deployment Center",
+        restricted_access: "Restricted Access to Infrastructure Administrators",
+        rights_reserved: "All rights reserved.",
+        terms_link: "Terms & Conditions",
+        repo_link: "GitHub Repository",
+        legal_disclaimer: "Proprietary Software · Unauthorized redistribution or resale strictly prohibited (Berne Convention & CDADC).",
+        terms_modal_title: "Terms and Conditions of Use",
+        terms_legal_notice: "Legal Notice: This software, microservice architecture, Docker orchestrator, scripts and web interface are exclusive intellectual property of David Ferreira.",
+        terms_sec1_title: "1. Ownership & Copyright",
+        terms_sec1_text: "All source code, Docker Compose templates, scripts (install.sh, update.sh) and documentation are protected internationally by the Berne Convention, WIPO Copyright Treaty and European Directives.",
+        terms_sec2_title: "2. Prohibition of Sharing, Resale or Redistribution",
+        terms_sec2_text: "Sharing, sublicensing, selling, renting or redistributing this repository or any derivative parts is strictly prohibited without prior written authorization from David Ferreira.",
+        terms_sec3_title: "3. Legal & Judicial Consequences",
+        terms_sec3_text: "Any unauthorized reproduction or distribution constitutes copyright infringement and criminal usurpation subject to prosecution and civil damages.",
+        btn_close: "I Understand & Accept"
+      },
+      'fr': {
+        tagline: "Plateforme Universelle d'Infrastructure, Déploiements & Stacks",
+        error_credentials: "Identifiants invalides. Veuillez vérifier le nom d'utilisateur et le mot de passe.",
+        username_label: "Nom d'utilisateur",
+        password_label: "Mot de passe",
+        btn_login: "Connexion au Deployment Center",
+        restricted_access: "Accès restreint aux administrateurs d'infrastructure",
+        rights_reserved: "Tous droits réservés.",
+        terms_link: "Conditions Générales",
+        repo_link: "Dépôt GitHub",
+        legal_disclaimer: "Logiciel propriétaire · Toute redistribution ou vente non autorisée est strictement interdite (Convention de Berne & CDADC).",
+        terms_modal_title: "Conditions Générales d'Utilisation",
+        terms_legal_notice: "Mentions légales : Ce logiciel, son architecture, ses orchestrateurs Docker et son interface web sont la propriété intellectuelle exclusive de David Ferreira.",
+        terms_sec1_title: "1. Propriété et Droits d'Auteur",
+        terms_sec1_text: "L'ensemble du code source, modèles Docker et scripts sont protégés internationalement par la Convention de Berne et le Traité de l'OMPI.",
+        terms_sec2_title: "2. Interdiction de Partage ou Revente",
+        terms_sec2_text: "Il est strictement interdit de partager, revendre ou redistribuer ce dépôt sans autorisation écrite préalable de David Ferreira.",
+        terms_sec3_title: "3. Conséquences Juridiques",
+        terms_sec3_text: "Toute utilisation non autorisée constitue une contrefaçon passible de poursuites judiciaires et d'indemnisations civiles.",
+        btn_close: "J'ai compris et j'accepte"
+      },
+      'es': {
+        tagline: "Panel Universal de Infraestructura, Despliegues y Stacks",
+        error_credentials: "Credenciales incorrectas. Por favor verifique el usuario y la contraseña.",
+        username_label: "Nombre de Usuario",
+        password_label: "Contraseña",
+        btn_login: "Iniciar Sesión en Deployment Center",
+        restricted_access: "Acceso Restringido a Administradores de Infraestructura",
+        rights_reserved: "Todos los derechos reservados.",
+        terms_link: "Términos y Condiciones",
+        repo_link: "Repositorio GitHub",
+        legal_disclaimer: "Software Propietario · Prohibida la redistribución o comercialización no autorizada (Convenio de Berna y CDADC).",
+        terms_modal_title: "Términos y Condiciones de Uso",
+        terms_legal_notice: "Aviso Legal: Este software, su arquitectura, orquestador Docker e interfaz web son propiedad intelectual exclusiva de David Ferreira.",
+        terms_sec1_title: "1. Titularidad y Derechos de Autor",
+        terms_sec1_text: "Todo el código fuente, plantillas Docker y scripts están protegidos internacionalmente por el Convenio de Berna y la OMPI.",
+        terms_sec2_title: "2. Prohibición de Compartir o Revender",
+        terms_sec2_text: "Está estrictamente prohibido compartir, vender o redistribuir este repositorio sin autorización previa por escrito de David Ferreira.",
+        terms_sec3_title: "3. Consecuencias Legales",
+        terms_sec3_text: "Cualquier uso no autorizado constituye un delito de usurpación de derechos de autor con responsabilidad civil y penal.",
+        btn_close: "He entendido y acepto"
       }
+    };
+
+    // Estado de Tema e Idioma com Persistência
+    let currentTheme = localStorage.getItem('deploy_theme') || 'dark';
+    let currentLang = localStorage.getItem('deploy_lang') || 'pt-PT';
+
+    function applyTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem('deploy_theme', theme);
+      const html = document.documentElement;
+      const icon = document.getElementById('theme-icon');
+      if (theme === 'dark') {
+        html.classList.add('dark');
+        html.classList.remove('light');
+        if (icon) icon.setAttribute('data-lucide', 'moon');
+      } else {
+        html.classList.add('light');
+        html.classList.remove('dark');
+        if (icon) icon.setAttribute('data-lucide', 'sun');
+      }
+      if (window.lucide) lucide.createIcons();
     }
+
+    function toggleTheme() {
+      applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    }
+
+    function setLanguage(lang) {
+      if (!LOGIN_I18N[lang]) lang = 'pt-PT';
+      currentLang = lang;
+      localStorage.setItem('deploy_lang', lang);
+      document.getElementById('lang-selector').value = lang;
+      applyTranslations();
+    }
+
+    function applyTranslations() {
+      const dict = LOGIN_I18N[currentLang] || LOGIN_I18N['pt-PT'];
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) {
+          el.textContent = dict[key];
+        }
+      });
+    }
+
+    function openTermsModal() {
+      document.getElementById('terms-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
     function closeModal(id) {
-      const el = document.getElementById(id);
-      if (el) el.classList.add('hidden');
+      document.getElementById(id).classList.add('hidden');
     }
-  
+
+    // Inicialização
+    if (window.location.search.includes('error=1')) {
+      document.getElementById('error-alert').classList.remove('hidden');
+    }
+
+    applyTheme(currentTheme);
+    setLanguage(currentLang);
     lucide.createIcons();
   </script>
 </body>

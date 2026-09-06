@@ -6,6 +6,20 @@
   <title>Deployment Center — Gestão Universal de Infraestrutura & Deploys</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='20' height='14' x='2' y='5' rx='2'/><line x1='2' x2='22' y1='10' y2='10'/></svg>">
   
+  <!-- Anti-Flicker Script -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('deploy_theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      }
+    })();
+  </script>
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -223,7 +237,7 @@
       <div class="flex items-center gap-2">
         <button onclick="openApiHelperModal()" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer" title="Abrir Helper e Exemplos da API M2M">
           <i data-lucide="plug-zap" class="w-3.5 h-3.5"></i>
-          <span>API & SaaS Helper</span>
+          <span data-i18n="api_helper">API & SaaS Helper</span>
         </button>
       </div>
     </div>
@@ -736,9 +750,7 @@
         <div class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-500">
           <i data-lucide="shield-check" class="w-4 h-4"></i>
         </div>
-        <span>
-          © 2026 <a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="font-bold text-slate-800 dark:text-slate-200 hover:text-indigo-500 dark:hover:text-indigo-400 underline decoration-indigo-500/30 underline-offset-2 transition">David Ferreira</a>. Todos os direitos reservados.
-        </span>
+        <span>© 2026 <a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="font-bold text-slate-800 dark:text-slate-200 hover:text-indigo-500 dark:hover:text-indigo-400 underline decoration-indigo-500/30 underline-offset-2 transition">David Ferreira</a>. <span data-i18n="all_rights_reserved">Todos os direitos reservados.</span></span>
       </div>
       <div class="flex items-center gap-3 text-[11px] flex-wrap justify-center sm:justify-end">
         <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-200 dark:bg-slate-800 font-mono">
@@ -750,11 +762,10 @@
         </div>
         <span class="text-slate-400 hidden sm:inline">·</span>
         <button type="button" onclick="openTermsModal()" class="font-semibold text-slate-700 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-indigo-400 underline decoration-slate-300 dark:decoration-slate-700 underline-offset-2 transition cursor-pointer flex items-center gap-1">
-          <i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-500"></i>
-          Termos e Condições
+          <i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-500"></i> <span data-i18n="terms_link">Termos e Condições</span>
         </button>
         <span class="text-slate-400 hidden sm:inline">·</span>
-        <span class="italic text-[10px] text-slate-500 dark:text-slate-500">Software Proprietário · Convenção de Berna & CDADC</span>
+        <span class="italic text-[10px] text-slate-500 dark:text-slate-500" data-i18n="legal_disclaimer">Software Proprietário · Convenção de Berna & CDADC</span>
       </div>
     </div>
   </footer>
@@ -784,16 +795,16 @@
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h3 class="font-extrabold text-lg text-slate-900 dark:text-white">API RESTful M2M & Helper SaaS</h3>
+              <h3 class="font-extrabold text-lg text-slate-900 dark:text-white" data-i18n="api_modal_title">API RESTful M2M & Helper SaaS</h3>
               <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">v1.0 Ativa</span>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Integração Machine-to-Machine para automação de novos clientes, stacks e deploys</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="api_modal_subtitle">Integração Machine-to-Machine para automação de novos clientes, stacks e deploys</p>
           </div>
         </div>
         <div class="flex items-center gap-2">
           <a href="/api/docs" target="_blank" class="px-3 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer" title="Abrir Documentação Completa e Site da API em Nova Aba">
             <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-            <span class="hidden sm:inline">Ver Site da API</span> <span>↗</span>
+            <span class="hidden sm:inline" data-i18n="api_site_link">Ver Site da API</span> <span>↗</span>
           </a>
           <button onclick="closeModal('api-helper-modal')" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 cursor-pointer">
             <i data-lucide="x" class="w-5 h-5"></i>
@@ -804,22 +815,22 @@
       <!-- Navegação Interna do Modal (Tabs) -->
       <div class="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-200 dark:border-slate-800 text-xs">
         <button onclick="switchApiTab('keys')" id="api-tab-btn-keys" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
-          <i data-lucide="key" class="w-3.5 h-3.5"></i> Chaves de API
+          <i data-lucide="key" class="w-3.5 h-3.5"></i> <span data-i18n="api_tab_keys">Chaves de API</span>
         </button>
         <button onclick="switchApiTab('create')" id="api-tab-btn-create" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
-          <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> 1. Criar Tenant
+          <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> <span data-i18n="api_tab_create">1. Criar Tenant</span>
         </button>
         <button onclick="switchApiTab('status')" id="api-tab-btn-status" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
-          <i data-lucide="activity" class="w-3.5 h-3.5"></i> 2. Consultar Estado
+          <i data-lucide="activity" class="w-3.5 h-3.5"></i> <span data-i18n="api_tab_status">2. Consultar Estado</span>
         </button>
         <button onclick="switchApiTab('deploy')" id="api-tab-btn-deploy" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
-          <i data-lucide="rocket" class="w-3.5 h-3.5"></i> 3. Disparar Deploy
+          <i data-lucide="rocket" class="w-3.5 h-3.5"></i> <span data-i18n="api_tab_deploy">3. Disparar Deploy</span>
         </button>
         <button onclick="switchApiTab('delete')" id="api-tab-btn-delete" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 4. Eliminar Tenant
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> <span data-i18n="api_tab_delete">4. Eliminar Tenant</span>
         </button>
         <button onclick="switchApiTab('stream')" id="api-tab-btn-stream" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
-          <i data-lucide="radio" class="w-3.5 h-3.5"></i> 5. SSE & Webhooks
+          <i data-lucide="radio" class="w-3.5 h-3.5"></i> <span data-i18n="api_tab_stream">5. SSE & Webhooks</span>
         </button>
       </div>
 
@@ -2695,6 +2706,23 @@
     // ===================================================================
     const I18N = {
       'pt-PT': {
+        api_helper: "API & SaaS Helper",
+        copy_project_id: "Copiar ID",
+        project_id_copied: "ID Copiado!",
+        api_site_link: "Ver Site da API",
+        api_modal_title: "API RESTful M2M & Helper SaaS",
+        api_modal_subtitle: "Integração Machine-to-Machine para automação de novos clientes, stacks e deploys",
+        api_tab_keys: "Chaves de API",
+        api_tab_create: "1. Criar Tenant",
+        api_tab_status: "2. Consultar Estado",
+        api_tab_deploy: "3. Disparar Deploy",
+        api_tab_delete: "4. Eliminar Tenant",
+        api_tab_stream: "5. SSE & Webhooks",
+        all_rights_reserved: "Todos os direitos reservados.",
+        terms_link: "Termos e Condições",
+        legal_disclaimer: "Software Proprietário · Convenção de Berna & CDADC",
+        theme_toggle: "Alternar Tema",
+        btn_close: "Fechar",
         active_project: "Projeto:",
         refresh: "Atualizar",
         logout: "Sair",
@@ -2740,6 +2768,23 @@
         cancel: "Cancelar"
       },
       'en': {
+        api_helper: "API & SaaS Helper",
+        copy_project_id: "Copy ID",
+        project_id_copied: "ID Copied!",
+        api_site_link: "View API Site",
+        api_modal_title: "RESTful M2M API & SaaS Helper",
+        api_modal_subtitle: "Machine-to-Machine integration for automating clients, stacks, and deployments",
+        api_tab_keys: "API Keys",
+        api_tab_create: "1. Create Tenant",
+        api_tab_status: "2. Check Status",
+        api_tab_deploy: "3. Trigger Deploy",
+        api_tab_delete: "4. Delete Tenant",
+        api_tab_stream: "5. SSE & Webhooks",
+        all_rights_reserved: "All rights reserved.",
+        terms_link: "Terms & Conditions",
+        legal_disclaimer: "Proprietary Software · Berne Convention & CDADC",
+        theme_toggle: "Toggle Theme",
+        btn_close: "Close",
         active_project: "Project:",
         refresh: "Refresh",
         logout: "Logout",
@@ -2785,6 +2830,23 @@
         cancel: "Cancel"
       },
       'fr': {
+        api_helper: "API & Assistant SaaS",
+        copy_project_id: "Copier l'ID",
+        project_id_copied: "ID Copié !",
+        api_site_link: "Voir le Site API",
+        api_modal_title: "API RESTful M2M & Assistant SaaS",
+        api_modal_subtitle: "Intégration Machine-to-Machine pour automatiser clients, stacks et déploiements",
+        api_tab_keys: "Clés d'API",
+        api_tab_create: "1. Créer Tenant",
+        api_tab_status: "2. État du Projet",
+        api_tab_deploy: "3. Lancer Déploiement",
+        api_tab_delete: "4. Supprimer Tenant",
+        api_tab_stream: "5. SSE & Webhooks",
+        all_rights_reserved: "Tous droits réservés.",
+        terms_link: "Conditions Générales",
+        legal_disclaimer: "Logiciel Propriétaire · Convention de Berne & CDADC",
+        theme_toggle: "Changer de Thème",
+        btn_close: "Fermer",
         active_project: "Projet:",
         refresh: "Actualiser",
         logout: "Déconnexion",
@@ -2830,6 +2892,23 @@
         cancel: "Annuler"
       },
       'es': {
+        api_helper: "API y Asistente SaaS",
+        copy_project_id: "Copiar ID",
+        project_id_copied: "¡ID Copiado!",
+        api_site_link: "Ver Sitio de API",
+        api_modal_title: "API RESTful M2M y Asistente SaaS",
+        api_modal_subtitle: "Integración Machine-to-Machine para automatizar clientes, stacks y despliegues",
+        api_tab_keys: "Claves de API",
+        api_tab_create: "1. Crear Tenant",
+        api_tab_status: "2. Consultar Estado",
+        api_tab_deploy: "3. Disparar Despliegue",
+        api_tab_delete: "4. Eliminar Tenant",
+        api_tab_stream: "5. SSE & Webhooks",
+        all_rights_reserved: "Todos los derechos reservados.",
+        terms_link: "Términos y Condiciones",
+        legal_disclaimer: "Software Propietario · Convenio de Berna y CDADC",
+        theme_toggle: "Cambiar Tema",
+        btn_close: "Cerrar",
         active_project: "Proyecto:",
         refresh: "Actualizar",
         logout: "Cerrar Sesión",
