@@ -4588,8 +4588,14 @@ app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
       await ensureDirWithSudo(d);
     }
 
-    // 3.0 Extração do Ficheiro ZIP de Código-Fonte ou Template Base
+    // 3.0 Extração de Ficheiros ZIP (Código-Fonte Inicial e/ou ZIP do Servidor Host) com Unwrap Inteligente
+    const hostZipArtifacts = (Array.isArray(req.body.planningArtifacts) ? req.body.planningArtifacts : []).filter(
+      (a) => a && (a.isZip || (a.filename && a.filename.toLowerCase().endsWith(".zip")) || a.tempZipPath || a.zipBase64)
+    );
     let hasCustomZip = Boolean(sourceZipTempPath || sourceZipBase64);
+    let hasAnyZip = hasCustomZip || hostZipArtifacts.length > 0;
+
+    // 3.0.1 ZIP do Passo 1 (Código-Fonte Inicial)
     if (hasCustomZip) {
       let zipToExtract = sourceZipTempPath;
       let tempCreated = false;
@@ -4612,8 +4618,37 @@ app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
           try { fs.unlinkSync(zipToExtract); } catch (e) {}
         }
       }
-    } else {
-      // Caso não tenha ZIP anexado, copiar template base padrão da plataforma
+    }
+
+    // 3.0.2 ZIPs do Passo 3 (Servidor Host / Planeamento & Arquitetura)
+    if (hostZipArtifacts.length > 0) {
+      for (const hz of hostZipArtifacts) {
+        let zipToExtract = hz.tempZipPath;
+        let tempCreated = false;
+        if (!zipToExtract && hz.zipBase64) {
+          zipToExtract = path.join(os.tmpdir(), `wz_host_${Date.now()}_${Math.random().toString(36).slice(2)}_${cleanSlug}.zip`);
+          const zipBuf = Buffer.from(hz.zipBase64.replace(/^data:application\/(zip|x-zip-compressed|octet-stream);base64,/, ""), "base64");
+          fs.writeFileSync(zipToExtract, zipBuf);
+          tempCreated = true;
+        }
+
+        if (zipToExtract && fs.existsSync(zipToExtract)) {
+          emitLog(`[3.0/5] A descompactar arquivo ZIP do Servidor Host (${hz.filename || 'host.zip'})...`);
+          try {
+            const extractResult = await extractSourceZipToProjectRoot(zipToExtract, targetAppDir, emitLog);
+            emitLog(`✓ ${extractResult.itemsCount} ficheiros e pastas do ZIP do Servidor Host colocados com sucesso na raiz do projeto com unwrap inteligente!`);
+          } catch (unzipErr) {
+            emitLog(`⚠️ Erro ao descompactar ZIP do Servidor Host: ${unzipErr.message}`);
+          }
+          if (tempCreated) {
+            try { fs.unlinkSync(zipToExtract); } catch (e) {}
+          }
+        }
+      }
+    }
+
+    if (!hasAnyZip) {
+      // Caso não tenha nenhum ZIP anexado (nem no passo 1 nem no servidor host), copiar template base padrão da plataforma
       try {
         const baseSourceDir = path.resolve(__dirname, "..");
         if (fs.existsSync(baseSourceDir)) {
@@ -5402,7 +5437,9 @@ server.listen(PORT, HOST, () => {
     // 3.4.0 Tratar Múltiplos Artifacts de Planeamento & DDL Canónico (IMPLEMENTATION_PLAN.md, DDL_CANONICAL.sql, etc.)
     let rawArtifacts = [];
     if (Array.isArray(req.body.planningArtifacts) && req.body.planningArtifacts.length > 0) {
-      rawArtifacts = req.body.planningArtifacts;
+      rawArtifacts = req.body.planningArtifacts.filter(
+        (a) => a && !a.isZip && !(a.filename && a.filename.toLowerCase().endsWith(".zip"))
+      );
     } else if (req.body.planningArtifact && req.body.planningArtifact.content) {
       rawArtifacts = [req.body.planningArtifact];
     }
@@ -5441,6 +5478,22 @@ server.listen(PORT, HOST, () => {
         emitLog(`✓ Ficheiro DDL Canónico (${cleanName}) gravado em supabase/migrations/ para auto-execução no PostgreSQL.`);
       } else {
         emitLog(`✓ Artifact de planeamento (${cleanName}) gravado e incluído no repositório GitHub.`);
+      }
+    }
+
+    // Detetar ficheiros SQL que possam ter sido extraídos de um arquivo ZIP para a raiz do projeto (ex: DDL_CANONICAL.sql ou schema.sql)
+    const candidateSqlFiles = ["DDL_CANONICAL.sql", "ddl_canonical.sql", "schema.sql", "init.sql"];
+    for (const sqlName of candidateSqlFiles) {
+      const p = path.join(targetAppDir, sqlName);
+      if (fs.existsSync(p) && !sqlFilesToExecute.some((s) => s.filename.toLowerCase() === sqlName.toLowerCase())) {
+        try {
+          const sqlContent = fs.readFileSync(p, "utf-8");
+          if (sqlContent.trim()) {
+            sqlFilesToExecute.push({ filename: sqlName, content: sqlContent });
+            canonicalFilesList.push(`   - \`${sqlName}\` (Extraído do ZIP)`);
+            emitLog(`✓ Ficheiro DDL Canónico encontrado no ZIP (${sqlName}) — registado para execução automática no PostgreSQL.`);
+          }
+        } catch (e) {}
       }
     }
 
