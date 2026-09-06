@@ -1598,8 +1598,11 @@
 
       <!-- Barra de Ações Rápidas (Quick Actions) -->
       <div class="flex items-center gap-2 flex-wrap bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
-        <button onclick="copyAndGuideServerUpdate()" id="global-update-btn" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-mono font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition">
-          <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-300"></i> Copiar Comando Update Servidor
+        <button onclick="updateDeploymentCenterDirect()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-mono font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/25 transition cursor-pointer" title="Executar git pull no Deployment Center e atualizar o painel imediatamente">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-amber-300"></i> Atualizar Deployment Center (Git Pull)
+        </button>
+        <button onclick="copyAndGuideServerUpdate()" id="global-update-btn" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono flex items-center gap-1.5 transition" title="Copiar comando completo do instalador">
+          <i data-lucide="copy" class="w-3.5 h-3.5 text-slate-400"></i> Copiar Script
         </button>
         <button onclick="executeGlobalTerminalCommand('docker ps --format \'table {{.Names}}\t{{.Status}}\t{{.Ports}}\'')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono flex items-center gap-1.5 transition">
           <i data-lucide="container" class="w-3.5 h-3.5 text-sky-400"></i> docker ps
@@ -6348,6 +6351,63 @@ Fim do Relatório
       } finally {
         if (sendBtn) sendBtn.disabled = false;
         screen.scrollTop = screen.scrollHeight;
+      }
+    }
+
+    
+    async function updateDeploymentCenterDirect() {
+      const screen = document.getElementById('global-terminal-screen');
+      const time = new Date().toLocaleTimeString();
+      const outputBlockId = `term-out-${Date.now()}`;
+
+      screen.innerHTML += `
+        <div class="text-indigo-400 mt-2 font-bold flex items-center gap-1.5">
+          <span>[${time}] sys@deploy-center:#</span> <span class="text-white font-bold">git pull origin main (Deployment Center Update)</span>
+        </div>
+        <pre id="${outputBlockId}" class="text-slate-300 font-mono text-xs whitespace-pre-wrap select-all leading-relaxed"></pre>
+      `;
+      screen.scrollTop = screen.scrollHeight;
+      if (window.lucide) lucide.createIcons();
+
+      const outEl = document.getElementById(outputBlockId);
+      outEl.textContent = 'A contactar repositório GitHub e a sincronizar código...\n';
+
+      try {
+        const res = await fetch('/api/terminal/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command: 'update-deploy-center', self_update: true }),
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          outEl.innerHTML += `<span class="text-red-400">Erro: ${escapeHtml(errText)}</span>\n`;
+          return;
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          outEl.textContent += chunk;
+          screen.scrollTop = screen.scrollHeight;
+        }
+
+        showAppNotification({
+          type: 'success',
+          title: 'Deployment Center Atualizado!',
+          message: 'Os ficheiros foram atualizados via Git. A recarregar o painel em 2 segundos...'
+        });
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+
+      } catch (e) {
+        outEl.innerHTML += `\n<span class="text-red-400">Falha ao atualizar: ${escapeHtml(e.message)}</span>\n`;
       }
     }
 

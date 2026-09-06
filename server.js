@@ -1932,16 +1932,26 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
 // ==============================================================================
 
 app.post("/api/terminal/stream", requireAuth, (req, res) => {
-  let { command, project_id } = req.body;
+  let { command, project_id, self_update } = req.body;
   if (!command || typeof command !== "string") {
     return res.status(400).send("Comando em falta");
   }
 
+  const isSelfUpdate = self_update === true || command.trim() === "update-deploy-center" || command.trim() === "update-dc";
   const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"));
-  const targetDir = project.appDir || "/opt/stacks/app-portal";
+  const targetDir = isSelfUpdate ? __dirname : (project.appDir || "/opt/stacks/app-portal");
 
   // 1. Remover sudo para evitar erro em ambiente container
   let processedCmd = command.replace(/\bsudo\s+/g, "");
+
+  // Se for atualização direta do próprio Deployment Center:
+  if (isSelfUpdate) {
+    const activeToken = getActiveGithubToken();
+    const repoAuthUrl = activeToken 
+      ? `https://${activeToken}@github.com/DavidFFerreira/Deployment_center.git`
+      : `https://github.com/DavidFFerreira/Deployment_center.git`;
+    processedCmd = `git remote set-url origin "${repoAuthUrl}" && git pull origin main`;
+  }
 
   // 2. Limpar ficheiros temporários bloqueados em /tmp
   if (processedCmd.includes("update.sh") || processedCmd.includes("update.sh")) {
