@@ -14,7 +14,7 @@ const execAsync = promisify(exec);
 
 const app = express();
 const PORT = process.env.PORT || 50000;
-const ADMIN_PASSWORD = process.env.DEPLOYER_ADMIN_PASSWORD || "suavit_deploy_master_2026!";
+const ADMIN_PASSWORD = process.env.DEPLOYER_ADMIN_PASSWORD || "deploy_master_admin_2026!";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GITHUB_PAT || "";
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const STATE_FILE = path.join(DATA_DIR, "deploy-state.json");
@@ -147,7 +147,7 @@ function decryptSecret(encryptedPayload) {
 function getSettings() {
   const defaults = {
     github_token: GITHUB_TOKEN || "",
-    truenas_host_ip: "192.168.1.4",
+    truenas_host_ip: process.env.HOST_IP || "127.0.0.1",
     truenas_apps_dir: "/mnt/Disco1/apps",
     supabase_master_key: "suavit_supabase_master_secret_2026",
     author_website: "https://davidferreira.pt",
@@ -617,7 +617,7 @@ function verifySessionToken(token) {
 }
 
 function requireAuth(req, res, next) {
-  const token = req.cookies?.suavit_deploy_auth;
+  const token = req.cookies?.deploy_auth || req.cookies?.suavit_deploy_auth;
   const user = verifySessionToken(token);
   if (user) {
     req.user = user;
@@ -839,7 +839,7 @@ app.post("/login", async (req, res) => {
       const validUser = parts[1] || username;
       await runSql(`UPDATE public.deploy_center_users SET last_login_at = now() WHERE lower(username) = '${cleanUser}';`);
       const token = createSessionToken(validUser);
-      res.cookie("suavit_deploy_auth", token, { httpOnly: true, secure: false, maxAge: 30 * 24 * 60 * 60 * 1000 });
+      res.cookie("deploy_auth", token, { httpOnly: true, secure: false, maxAge: 30 * 24 * 60 * 60 * 1000 });
       return res.redirect("/");
     }
   } catch (e) {}
@@ -850,7 +850,7 @@ app.post("/login", async (req, res) => {
     found.last_login_at = new Date().toISOString();
     saveLocalDeployUsers(localUsers);
     const token = createSessionToken(found.username);
-    res.cookie("suavit_deploy_auth", token, { httpOnly: true, secure: false, maxAge: 30 * 24 * 60 * 60 * 1000 });
+    res.cookie("deploy_auth", token, { httpOnly: true, secure: false, maxAge: 30 * 24 * 60 * 60 * 1000 });
     return res.redirect("/");
   }
 
@@ -858,8 +858,12 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/logout", (req, res) => {
-  res.clearCookie("suavit_deploy_auth");
+  res.clearCookie("deploy_auth"); res.clearCookie("suavit_deploy_auth");
   res.redirect("/");
+});
+
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "login.html"));
 });
 
 app.get("/", requireAuth, (req, res) => {
@@ -938,8 +942,8 @@ app.get("/api/status", requireAuth, async (req, res) => {
   try {
     const settings = getSettings();
     const token = settings?.github_token || process.env.GITHUB_TOKEN || "";
-    const hostIp = settings?.truenas_host_ip || "192.168.1.4";
-    const projectId = req.query.project_id || "suavit-portal";
+    const hostIp = settings?.truenas_host_ip || process.env.HOST_IP || "127.0.0.1";
+    const projectId = req.query.project_id || (getProjects()[0]?.id || "portal-web");
     const project = findProject(projectId);
     const state = await getProjectDeployState(project);
     let commits = [];
@@ -1045,7 +1049,7 @@ app.get("/api/status", requireAuth, async (req, res) => {
     });
   } catch (globalErr) {
     console.error("[Status Error]", globalErr);
-    const fallbackProject = findProject(req.query.project_id || "suavit-portal");
+    const fallbackProject = findProject(req.query.project_id || (getProjects()[0]?.id || "portal-web"));
     return res.json({
       project: fallbackProject,
       state: { production: null, staging: null, history: [] },
@@ -1060,7 +1064,7 @@ app.get("/api/status", requireAuth, async (req, res) => {
 // ==============================================================================
 app.get("/api/preview", requireAuth, async (req, res) => {
   const settings = getSettings();
-  const projectId = req.query.project_id || "suavit-portal";
+  const projectId = req.query.project_id || (getProjects()[0]?.id || "portal-web");
   const env = req.query.env === "production" || req.query.env === "prod" ? "production" : "staging";
   const project = findProject(projectId);
   const port = env === "production" ? (project.production?.port || 58100) : (project.staging?.port || 58101);
@@ -1123,7 +1127,7 @@ app.get("/api/preview", requireAuth, async (req, res) => {
 
 app.get("/api/commit-detail", requireAuth, async (req, res) => {
   const hash = req.query.hash;
-  const projectId = req.query.project_id || "suavit-portal";
+  const projectId = req.query.project_id || (getProjects()[0]?.id || "portal-web");
   const project = findProject(projectId);
   if (!hash) return res.status(400).json({ error: "Hash de commit em falta" });
 
@@ -1163,7 +1167,7 @@ app.get("/api/commit-detail", requireAuth, async (req, res) => {
 
 app.post("/api/deploy", requireAuth, async (req, res) => {
   const { project_id, environment, commit_hash, commit_message, commit_author, is_rollback } = req.body;
-  const project = findProject(project_id || "suavit-portal", environment);
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), environment);
   if (!environment || !commit_hash) return res.status(400).json({ error: "Parâmetros em falta" });
 
   const globalState = getGlobalState();
@@ -1288,7 +1292,7 @@ app.post("/api/terminal/stream", requireAuth, (req, res) => {
     return res.status(400).send("Comando em falta");
   }
 
-  const project = findProject(project_id || "suavit-portal");
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"));
   const targetDir = project.appDir || "/opt/stacks/suavit-portal";
 
   // 1. Remover sudo para evitar erro em ambiente container
@@ -1382,7 +1386,7 @@ app.post("/api/terminal/exec", requireAuth, async (req, res) => {
     return res.status(400).json({ ok: false, error: "Comando em falta" });
   }
 
-  const project = findProject(project_id || "suavit-portal");
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"));
   const targetDir = project.appDir || "/opt/stacks/suavit-portal";
   const start = Date.now();
 
@@ -1491,7 +1495,7 @@ app.post("/api/terminal/run-truenas-update", requireAuth, async (req, res) => {
 // ==============================================================================
 
 app.get("/api/containers", requireAuth, async (req, res) => {
-  const projectId = req.query.project_id || "suavit-portal";
+  const projectId = req.query.project_id || (getProjects()[0]?.id || "portal-web");
   const project = findProject(projectId);
 
   try {
@@ -1538,7 +1542,7 @@ app.post("/api/container/restart", requireAuth, async (req, res) => {
 });
 
 app.post("/api/containers/restart-all", requireAuth, async (req, res) => {
-  const projectId = req.body.project_id || "suavit-portal";
+  const projectId = req.body.project_id || (getProjects()[0]?.id || "portal-web");
   const project = findProject(projectId);
   try {
     const prefix = project.containerPrefix || `${project.id}-`;
@@ -1582,7 +1586,7 @@ app.get("/api/logs", requireAuth, async (req, res) => {
 // ==============================================================================
 
 app.get("/api/storage/buckets", requireAuth, async (req, res) => {
-  const projectId = req.query.project_id || "suavit-portal";
+  const projectId = req.query.project_id || (getProjects()[0]?.id || "portal-web");
   const env = req.query.env || "production";
   const project = findProject(projectId, env);
 
@@ -1620,7 +1624,7 @@ app.get("/api/storage/buckets", requireAuth, async (req, res) => {
 
 app.get("/api/storage/files", requireAuth, async (req, res) => {
   const { bucket_id, path: folderPath, project_id, env } = req.query;
-  const project = findProject(project_id || "suavit-portal", env || "production");
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), env || "production");
   if (!bucket_id) return res.status(400).json({ ok: false, error: "Bucket ID em falta" });
 
   const cleanBucket = bucket_id.replace(/'/g, "''");
@@ -1681,7 +1685,7 @@ app.get("/api/storage/files", requireAuth, async (req, res) => {
 app.post("/api/storage/upload", requireAuth, async (req, res) => {
   const { bucket_id, path: folderPath, files, project_id, env } = req.body;
   // files: Array<{ name: string, base64: string, mimeType: string }>
-  const project = findProject(project_id || "suavit-portal", env || "production");
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), env || "production");
   if (!bucket_id || !files || !Array.isArray(files)) {
     return res.status(400).json({ ok: false, error: "Dados de upload em falta" });
   }
@@ -1734,7 +1738,7 @@ app.post("/api/storage/upload", requireAuth, async (req, res) => {
 // Download de Ficheiro Individual
 app.get("/api/storage/download-file", requireAuth, async (req, res) => {
   const { bucket_id, name, project_id, env } = req.query;
-  const project = findProject(project_id || "suavit-portal", env || "production");
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), env || "production");
   if (!bucket_id || !name) return res.status(400).send("Parâmetros em falta");
 
   try {
@@ -1756,7 +1760,7 @@ app.get("/api/storage/download-file", requireAuth, async (req, res) => {
 // Exportação / Backup de Bucket ou Storage Completo em ZIP
 app.get("/api/storage/export-zip", requireAuth, async (req, res) => {
   const { bucket_id, path: folderPath, project_id, env } = req.query;
-  const project = findProject(project_id || "suavit-portal", env || "production");
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), env || "production");
   const isFullBackup = !bucket_id || bucket_id === "_all_" || bucket_id === "all";
 
   let sql = "";
@@ -1833,7 +1837,7 @@ app.get("/api/storage/export-zip", requireAuth, async (req, res) => {
 app.post("/api/storage/restore-zip", requireAuth, async (req, res) => {
   const { bucket_id, files, project_id, env } = req.body;
   // files: Array<{ name: string, base64: string, mimeType: string }>
-  const project = findProject(project_id || "suavit-portal", env || "production");
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), env || "production");
   if (!files || !Array.isArray(files) || files.length === 0) {
     return res.status(400).json({ ok: false, error: "Nenhum ficheiro fornecido para restauro" });
   }
@@ -1910,7 +1914,7 @@ app.post("/api/storage/restore-zip", requireAuth, async (req, res) => {
 
 app.post("/api/storage/create-folder", requireAuth, async (req, res) => {
   const { bucket_id, folder_name, parent_path, project_id, env } = req.body;
-  const project = findProject(project_id || "suavit-portal", env || "production");
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), env || "production");
   if (!bucket_id || !folder_name) return res.status(400).json({ ok: false, error: "Parâmetros em falta" });
 
   const cleanFolder = folder_name.replace(/[^a-zA-Z0-9_\-\.]/g, "_");
@@ -1928,7 +1932,7 @@ app.post("/api/storage/create-folder", requireAuth, async (req, res) => {
 
 app.delete("/api/storage/delete", requireAuth, async (req, res) => {
   const { bucket_id, name, project_id, env } = req.body;
-  const project = findProject(project_id || "suavit-portal", env || "production");
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), env || "production");
   if (!bucket_id || !name) return res.status(400).json({ ok: false, error: "Parâmetros em falta" });
 
   const cleanBucket = bucket_id.replace(/'/g, "''");
@@ -1942,7 +1946,7 @@ app.delete("/api/storage/delete", requireAuth, async (req, res) => {
 // Eliminar Pasta e todo o seu conteúdo recursivamente
 app.delete("/api/storage/delete-folder", requireAuth, async (req, res) => {
   const { bucket_id, folder_path, project_id, env } = req.body;
-  const project = findProject(project_id || "suavit-portal", env || "production");
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), env || "production");
   if (!bucket_id || !folder_path) return res.status(400).json({ ok: false, error: "Parâmetros em falta" });
 
   const cleanBucket = bucket_id.replace(/'/g, "''");
@@ -1960,7 +1964,7 @@ app.delete("/api/storage/delete-folder", requireAuth, async (req, res) => {
 // Eliminar Bucket inteiro (e todos os seus objetos)
 app.delete("/api/storage/delete-bucket", requireAuth, async (req, res) => {
   const { bucket_id, project_id, env } = req.body;
-  const project = findProject(project_id || "suavit-portal", env || "production");
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), env || "production");
   if (!bucket_id) return res.status(400).json({ ok: false, error: "Bucket ID em falta" });
 
   const cleanBucket = bucket_id.replace(/'/g, "''");
@@ -1977,7 +1981,7 @@ app.delete("/api/storage/delete-bucket", requireAuth, async (req, res) => {
 // ==============================================================================
 
 app.get("/api/db/stats", requireAuth, async (req, res) => {
-  const projectId = req.query.project_id || "suavit-portal";
+  const projectId = req.query.project_id || (getProjects()[0]?.id || "portal-web");
   const env = req.query.env || "production";
   const project = findProject(projectId, env);
 
@@ -2024,7 +2028,7 @@ app.get("/api/db/stats", requireAuth, async (req, res) => {
 app.post("/api/db/backup", requireAuth, async (req, res) => {
   const { project_id, schema_only, env } = req.body;
   const targetEnv = env || "production";
-  const project = findProject(project_id || "suavit-portal", targetEnv);
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), targetEnv);
   const containerName = project.postgresContainer || "suavit-postgres";
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   const filename = `${project.id}_${targetEnv}_backup_${schema_only ? "schema_" : "full_"}${timestamp}.sql`;
@@ -2083,7 +2087,7 @@ app.get("/api/db/backups/download/:filename", requireAuth, (req, res) => {
 app.post("/api/db/restore", requireAuth, async (req, res) => {
   const { project_id, filename, sql_content, env } = req.body;
   const targetEnv = env || "production";
-  const project = findProject(project_id || "suavit-portal", targetEnv);
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), targetEnv);
   const containerName = project.postgresContainer || "suavit-postgres";
   const targetPgrst = project.postgrestContainer || "suavit-postgrest";
 
@@ -2117,7 +2121,7 @@ app.post("/api/db/restore", requireAuth, async (req, res) => {
 });
 
 app.get("/api/db/tables", requireAuth, async (req, res) => {
-  const projectId = req.query.project_id || "suavit-portal";
+  const projectId = req.query.project_id || (getProjects()[0]?.id || "portal-web");
   const env = req.query.env || "production";
   const project = findProject(projectId, env);
 
@@ -2148,7 +2152,7 @@ app.get("/api/db/tables", requireAuth, async (req, res) => {
 
 app.post("/api/db/toggle-rls", requireAuth, async (req, res) => {
   const { schema_name, table_name, enable, project_id, env } = req.body;
-  const project = findProject(project_id || "suavit-portal", env || "production");
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), env || "production");
   if (!table_name) return res.status(400).json({ ok: false, error: "Nome da tabela em falta" });
 
   const schema = (schema_name || "public").replace(/[^a-zA-Z0-9_]/g, "");
@@ -2692,7 +2696,7 @@ app.post("/api/rules/reset", requireAuth, (req, res) => {
 
 app.post("/api/rules/sync-project", requireAuth, async (req, res) => {
   const { project_id } = req.body;
-  const project = findProject(project_id || "suavit-portal");
+  const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"));
   if (!project) return res.status(404).json({ ok: false, error: "Projeto não encontrado" });
 
   const templates = getRuleTemplates();
@@ -6572,8 +6576,9 @@ app.delete("/api/projects/:id", requireAuth, async (req, res) => {
   const { id } = req.params;
   const { confirm_name, delete_github, delete_local_files } = req.body;
 
-  if (id === "suavit-portal") {
-    return res.status(400).json({ ok: false, error: "O projeto principal (suavit-portal) não pode ser eliminado." });
+  // Proteção opcional de projeto
+  if (project.isLocked) {
+    return res.status(400).json({ ok: false, error: "Este projeto está protegido contra eliminação." });
   }
 
   let projects = getProjects();

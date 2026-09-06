@@ -6,17 +6,18 @@ services:
     container_name: universal-deploy-center
     restart: unless-stopped
     environment:
-      PORT: 50000
-      DEPLOYER_ADMIN_PASSWORD: ${DEPLOYER_ADMIN_PASSWORD:-suavit_deploy_master_2026!}
+      PORT: ${PORT:-50000}
+      DEPLOYER_ADMIN_PASSWORD: ${DEPLOYER_ADMIN_PASSWORD:-deploy_master_admin_2026!}
       GITHUB_TOKEN: ${GITHUB_PAT:-}
-      APP_DIR: /mnt/Disco1/apps/deployment-center
+      APP_DIR: ${APP_DIR:-/opt/deployment-center}
       DATA_DIR: /app/data
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /mnt:/mnt
+      - /opt:/opt
       - ./data:/app/data
     ports:
-      - "50000:50000"
+      - "${PORT:-50000}:50000"
     networks:
       - deploy-center-network
 

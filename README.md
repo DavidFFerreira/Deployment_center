@@ -1,47 +1,89 @@
 <div align="center">
 
 # 🚀 Universal Deployment Center
-### Painel Centralizado de Orquestração Docker, Dual-Stack (Produção & Staging), Supabase On-Premise, Base de Dados, Storage e Governança de Agentes de IA para TrueNAS Scale
+### Painel Centralizado de Orquestração Docker, Dual-Stack (Produção & Staging), Supabase On-Premise, Base de Dados, Storage e Governança de Agentes de IA para Linux & TrueNAS SCALE
 
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Docker Compose](https://img.shields.io/badge/docker_compose-v2.29+-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![Linux Compatible](https://img.shields.io/badge/Linux-Ubuntu%20%7C%20Debian%20%7C%20TrueNAS%20%7C%20RHEL-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://www.kernel.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%20%2F%2016-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Supabase Self-Hosted](https://img.shields.io/badge/Supabase-On--Premise-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Kong Gateway](https://img.shields.io/badge/Kong_Gateway-2.8.1-002F38?style=for-the-badge&logo=kong&logoColor=white)](https://konghq.com/)
-[![TrueNAS Scale](https://img.shields.io/badge/TrueNAS_SCALE-Certified-005B94?style=for-the-badge&logo=truenas&logoColor=white)](https://www.truenas.com/)
 [![License](https://img.shields.io/badge/license-Proprietary-red?style=for-the-badge)](LICENSE)
 
 <br/>
 
 <p align="center">
-  <b>O ecossistema definitivo para hospedar, orquestrar, manter e governar stacks completas de aplicações modernas com Supabase local e agentes de Inteligência Artificial no TrueNAS Scale.</b>
+  <b>O ecossistema definitivo para hospedar, orquestrar, manter e governar stacks completas de aplicações modernas com Supabase local e agentes de Inteligência Artificial em qualquer servidor Linux ou TrueNAS SCALE.</b>
 </p>
 
+[Instalação Rápida (install.sh)](#-instalação-rápida-em-qualquer-servidor-linux) •
 [Visão Geral](#-visão-geral) •
 [Funcionalidades](#-todas-as-funcionalidades-com-capturas-de-ecrã) •
 [Arquitetura de Contentores (16 por Stack)](#-arquitetura-de-contentores-que-contentores-cria-e-para-que-servem) •
 [Governança de IA (Skills & Regras)](#-governança-de-ia-como-funcionam-as-skills-e-as-regras) •
 [Guia Passo a Passo (How To)](#-guia-passo-a-passo-how-to) •
-[Mapeamento de Portas](#-esquema-de-portas-e-isolamento) •
-[Segurança & Vault](#-segurança--vault-de-credenciais)
+[Mapeamento de Portas](#-esquema-de-portas-e-isolamento)
 
 ---
 
 </div>
 
+## ⚡ Instalação Rápida em Qualquer Servidor Linux
+
+Pode instalar o **Universal Deployment Center** em qualquer distribuição Linux (Ubuntu, Debian, TrueNAS SCALE, CentOS, Rocky Linux, Fedora, Alpine) com apenas um comando:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/install.sh | sudo bash
+```
+
+### O que o `install.sh` faz automaticamente por si:
+1. **Deteta a Distribuição Linux & Gestor de Pacotes** (`apt`, `dnf`, `yum`, `pacman`, `apk`).
+2. **Verifica e Instala Dependências**: Garante a presença de `curl`, `git`, `ca-certificates` e `tar`.
+3. **Garante o Docker & Docker Compose**: Se o Docker ou o plugin Docker Compose v2 não estiverem instalados, descarrega e instala as versões oficiais automaticamente.
+4. **Configura o Ambiente e Diretórios**: Cria a estrutura em `/opt/deployment-center` (ou diretório customizado) e gera o ficheiro `.env` seguro.
+5. **Inicia o Contentor**: Constrói e inicializa a stack isolada com `docker compose up -d --build`.
+6. **Executa Healthcheck HTTP**: Testa a resposta do serviço na porta indicada e exibe um sumário com URL de acesso e credenciais de administrador.
+
+### Opções Avançadas do `install.sh`
+
+Pode personalizar parâmetros passando flags ao instalador:
+
+```bash
+# Exemplo 1: Instalação não interativa numa porta personalizada (ex: 51000)
+curl -fsSL https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/install.sh | sudo bash -s -- --port 51000 --password "MinhaSenhaForte2026!" -y
+
+# Exemplo 2: Clonar e executar localmente com diretório customizado
+git clone https://github.com/DavidFFerreira/Deployment_center.git /opt/deployment-center
+cd /opt/deployment-center
+sudo bash install.sh --port 50000 --dir /opt/deployment-center --yes
+```
+
+#### Tabela de Argumentos Disponíveis:
+| Parâmetro | Padrão | Descrição |
+|---|---|---|
+| `-p, --port <porta>` | `50000` | Porta HTTP em que o painel web ficará acessível |
+| `-d, --dir <caminho>` | `/opt/deployment-center` | Diretório no servidor onde os ficheiros residirão |
+| `--password <senha>` | Gerada / `deploy_master_admin_2026!` | Palavra-passe do utilizador inicial `admin` |
+| `--token <github_pat>` | Vazio | GitHub Personal Access Token para deploys e backups |
+| `-y, --yes` | `false` | Modo não interativo (aceita confirmações automaticamente) |
+| `-h, --help` | - | Mostra o menu de ajuda do instalador |
+
+---
+
 ## 🌐 Visão Geral
 
-O **Universal Deployment Center (v3.0)** é uma plataforma unificada de DevOps on-premise desenvolvida sob medida para servidores **TrueNAS Scale** e ambientes **Linux**. Ele transforma o seu servidor doméstico ou corporativo numa verdadeira infraestrutura *PaaS (Platform as a Service)* semelhante a um Supabase Cloud + Vercel privado e auto-hospedado.
+O **Universal Deployment Center (v3.0)** é uma plataforma unificada de DevOps on-premise desenvolvida para servidores **Linux** e sistemas de armazenamento como **TrueNAS SCALE**. Ele transforma qualquer servidor dedicado, VPS ou máquina local numa verdadeira infraestrutura *PaaS (Platform as a Service)* semelhante a um Supabase Cloud + Vercel auto-hospedado.
 
-Com um único clique ou comando, o Deployment Center gera ecossistemas isolados **Dual-Stack (Produção Oficial e Ambiente de Testes/Staging)**, equipados com persistência relacional PostgreSQL, API REST PostgREST automática, Autenticação GoTrue com JWT, Storage de ficheiros com suporte S3/MinIO, painel Supabase Studio e roteamento unificado Kong API Gateway.
+Com um clique no painel web ou através do script de instalação, o Deployment Center gera ecossistemas isolados **Dual-Stack (Produção Oficial e Ambiente de Testes/Staging)**, equipados com persistência relacional PostgreSQL, API REST PostgREST automática, Autenticação GoTrue com JWT, Storage de ficheiros com suporte S3/MinIO, painel Supabase Studio e roteamento unificado Kong API Gateway.
 
-Além disso, introduz uma camada inédita de **Governança de Agentes de IA**, permitindo injetar dinamicamente diretivas arquiteturais (`.agents/rules/`) e bibliotecas de conhecimento técnico especializado (`.agents/skills/`) diretamente nos repositórios GitHub, garantindo que programadores e IAs (Cursor, Lovable, Claude Code, Antigravity) cumpram normas rigorosas de código, segurança RLS, zero-mock e conformidade jurídica.
+Além disso, introduz uma camada de **Governança de Agentes de IA**, permitindo injetar dinamicamente diretivas arquiteturais (`.agents/rules/`) e bibliotecas de conhecimento técnico especializado (`.agents/skills/`) diretamente nos repositórios GitHub, garantindo que programadores e IAs (Cursor, Lovable, Claude Code, Antigravity) cumpram normas rigorosas de código, segurança RLS, zero-mock e conformidade jurídica.
 
 ---
 
 ## 📸 Todas as Funcionalidades (com Capturas de Ecrã)
 
-Todas as funcionalidades descritas abaixo foram capturadas diretamente da interface gráfica em execução do próprio Deployment Center.
+Todas as funcionalidades descritas abaixo foram capturadas diretamente da interface gráfica do próprio Deployment Center.
 
 ---
 
@@ -89,18 +131,18 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 ---
 
-### 4. 💻 Terminal Remoto Bash & Ferramentas de Manutenção TrueNAS
+### 4. 💻 Terminal Remoto Bash & Ferramentas de Manutenção
 <p align="center">
   <img src="docs/images/04_terminal_shell.png" alt="Terminal Shell Integrado" width="90%" />
 </p>
 
-* **Shell Bash Integrado**: Consola web no navegador que executa comandos diretamente no host TrueNAS Scale ou dentro do contentor do Deployment Center.
+* **Shell Bash Integrado**: Consola web no navegador que executa comandos diretamente no host Linux / TrueNAS ou dentro do contentor do Deployment Center.
 * **Streaming de Saída**: Visualização em tempo real de fluxos de saída padrão (*stdout*) e erros (*stderr*).
 * **Botões de Ação Rápida**:
-  * **Update TrueNAS**: Executa o script oficial `update_truenas.sh` para descarregar a versão mais recente do Deployment Center do GitHub e reconstruir a aplicação sem perdas de dados.
+  * **Atualizar Deployment Center**: Executa o script oficial `update.sh` para descarregar a versão mais recente do Deployment Center do GitHub e reconstruir a aplicação sem perdas de dados.
   * **Git Pull & Reset**: Força a sincronização do branch `main` com o token do repositório.
   * **Restart Stack**: Reinicia todos os contentores de forma segura.
-  * **Docker Prune**: Limpa imagens suspensas, contentores parados e volumes órfãos para poupar espaço em disco no TrueNAS.
+  * **Docker Prune**: Limpa imagens suspensas, contentores parados e volumes órfãos para poupar espaço em disco no servidor.
   * **Docker Stats**: Apresenta a tabela em tempo real com o consumo de CPU, RAM e I/O de rede de cada contentor.
 * **Histórico de Comandos & Cópia**: Navegação com teclas de seta (histórico bash) e botões para limpar consola ou copiar saídas para a área de transferência.
 
@@ -120,7 +162,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 * **Backup & Restauro em ZIP**:
   * **Backup ZIP**: Exporta o conteúdo completo de um bucket ou subpasta diretamente num ficheiro ZIP comprimido.
   * **Repor ZIP**: Descomprime e restaura um ficheiro ZIP diretamente no bucket mantendo a hierarquia original.
-* **Eliminação Segura**: Confirmação visual para prevenir exclusão acidental de ficheiros críticos de clientes ou anexos de faturação.
+* **Eliminação Segura**: Confirmação visual para prevenir exclusão acidental de ficheiros críticos.
 
 ---
 
@@ -164,8 +206,8 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 * **Processo Guiado em 4 Passos**:
   1. **Identificação**: Nome do projeto, slug único (apenas minúsculas e hífen) e opção de criar repositório privado no GitHub automaticamente com o token configurado.
-  2. **Portas (Gama 50XXX)**: Atribuição de um prefixo de 2 dígitos (de 10 a 99). O sistema verifica dinamicamente se as 8 portas resultantes já estão em uso por outros contentores no TrueNAS para garantir zero colisões.
-  3. **TrueNAS & Armazenamento**: Escolha da pasta de destino em `/mnt/*/apps/` e seleção de ficheiros DDL Canónicos (`.sql`) para executar na inicialização da base de dados.
+  2. **Portas (Gama 50XXX)**: Atribuição de um prefixo de 2 dígitos (de 10 a 99). O sistema verifica dinamicamente se as 8 portas resultantes já estão em uso por outros contentores no servidor para garantir zero colisões.
+  3. **Armazenamento no Host**: Escolha da pasta de destino no servidor (ex: `/opt/stacks/<slug>` ou `/mnt/*/apps/<slug>`) e seleção de ficheiros DDL Canónicos (`.sql`) para executar na inicialização da base de dados.
   4. **Criar Stack**: Provisionamento automático do ficheiro `docker-compose.yml` completo, ficheiros de configuração `kong.yml`, injeção de schemas do Supabase (`auth`, `storage`, roles), inicialização sequencial dos 16 contentores e criação de commit inicial.
 
 ---
@@ -175,7 +217,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
   <img src="docs/images/09_ai_skills_manager.png" alt="Gestor de Skills de IA" width="90%" />
 </p>
 
-* **Biblioteca Centralizada de Conhecimento**: Gestão de pastas de skills padronizadas (`.agents/skills/<skill-id>/SKILL.md`) que ensinam aos modelos de IA (Claude, GPT, Gemini) as convenções exatas da sua empresa.
+* **Biblioteca Centralizada de Conhecimento**: Gestão de pastas de skills padronizadas (`.agents/skills/<skill-id>/SKILL.md`) que ensinam aos modelos de IA (Claude, GPT, Gemini) as convenções exatas de engenharia.
 * **Editor Markdown Integrado**: Crie, edite e formate ficheiros `SKILL.md` com pré-visualização, descrição curta e ícone visual.
 * **Importação Direta do GitHub**: Permite colar o URL de qualquer ficheiro `SKILL.md` público ou de repositórios oficiais para importar uma nova competência em segundos.
 * **Restaurar Padrão**: Repõe a coleção com as 9 skills oficiais pré-configuradas pela equipa de engenharia.
@@ -195,7 +237,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
   * `{repoOwner}` e `{repoName}`: Repositório no GitHub.
   * `{portProd}` e `{portStaging}`: Portas web atribuídas.
   * `{authorWebsite}`, `{authorName}` e `{currentYear}`: Metadados para copyright e rodapés legais.
-* **Sincronização Direta com o Projeto Ativo**: O botão **Sincronizar com Projeto Ativo & GitHub** injeta todas as regras na pasta `.agents/rules/` do projeto no TrueNAS e efetua o commit e push para o repositório GitHub sem intervenção manual.
+* **Sincronização Direta com o Projeto Ativo**: O botão **Sincronizar com Projeto Ativo & GitHub** injeta todas as regras na pasta `.agents/rules/` do projeto no servidor e efetua o commit e push para o repositório GitHub sem intervenção manual.
 
 ---
 
@@ -204,10 +246,10 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
   <img src="docs/images/11_settings_credentials.png" alt="Definições e Vault de Credenciais" width="90%" />
 </p>
 
-* **Vault Seguro de Credenciais**: Armazena de forma encriptada o GitHub Personal Access Token (PAT), IP do host TrueNAS Scale e caminhos base de armazenamento.
+* **Vault Seguro de Credenciais**: Armazena de forma encriptada o GitHub Personal Access Token (PAT), IP do host servidor e caminhos base de armazenamento.
 * **Teste de Ligação em Tempo Real**: Valida a comunicação com a API do GitHub e testa as permissões de leitura/escrita no sistema de ficheiros com feedback visual imediato.
 * **Gestão de Utilizadores & RBAC**: Adição e edição de utilizadores com perfis de Administrador, Desenvolvedor e Auditor.
-* **Configuração de Metadados de Autoria**: Define o nome do autor e o website para injeção automática nas regras legais portuguesas.
+* **Configuração de Metadados de Autoria**: Define o nome do autor e o website para injeção automática nas regras legais.
 
 ---
 
@@ -217,31 +259,31 @@ Cada projeto gerado pelo Deployment Center através do seu Wizard utiliza uma ar
 
 ### Tabela Exaustiva dos 16 Contentores por Projeto
 
-Supondo um projeto com o slug `suavit` e o prefixo de porta `58`:
+Supondo um projeto com o slug `exemplo` e o prefixo de porta `52`:
 
 | # | Nome do Contentor | Ambiente | Imagem Docker Oficial | Porta Host (Exemplo) | Função & Para que Serve |
 |---|-------------------|----------|------------------------|----------------------|-------------------------|
-| **1** | `suavit-postgres-prod` | Produção | `supabase/postgres:15.1.0` | `58432:5432` | **Motor Relacional de Produção**: Base de dados PostgreSQL com extensões `uuid-ossp`, `pgcrypto`, schemas `auth`, `storage`, `public` e utilizadores Supabase configurados. |
-| **2** | `suavit-postgres-staging` | Testes | `supabase/postgres:15.1.0` | `58433:5432` | **Motor Relacional de Testes**: Réplica isolada do PostgreSQL para efetuar testes de migração DDL, inserção de dados e validações sem tocar nos dados dos clientes reais. |
-| **3** | `suavit-postgrest-prod` | Produção | `postgrest/postgrest:v11.2` | Interna (3000) | **Motor REST API de Produção**: Transforma automaticamente todo o esquema relacional do PostgreSQL de produção numa API RESTful rápida e segura respeitando as regras RLS. |
-| **4** | `suavit-postgrest-staging` | Testes | `postgrest/postgrest:v11.2` | Interna (3000) | **Motor REST API de Testes**: Fornece os endpoints REST para o ambiente de testes e validações de pré-produção. |
-| **5** | `suavit-auth-prod` | Produção | `supabase/gotrue:v2.132` | Interna (9999) | **Serviço GoTrue Auth Produção**: Emite tokens JWT, gere sessões de utilizadores, recuperação de palavras-passe e login por email/password ou OAuth. |
-| **6** | `suavit-auth-staging` | Testes | `supabase/gotrue:v2.132` | Interna (9999) | **Serviço GoTrue Auth Testes**: Servidor de autenticação independente para validar novos fluxos de registo e permissões em ambiente de testes. |
-| **7** | `suavit-storage-prod` | Produção | `supabase/storage-api:v0.43`| Interna (5000) | **API de Armazenamento de Produção**: Gere o upload, download, chunks e restrições de MIME types para ficheiros e buckets (faturas, comprovativos, avatares). |
-| **8** | `suavit-storage-staging` | Testes | `supabase/storage-api:v0.43`| Interna (5000) | **API de Armazenamento de Testes**: Permite testar uploads pesados e fluxos de ficheiros sem poluir o bucket de produção. |
-| **9** | `suavit-meta-prod` | Produção | `supabase/postgres-meta:v0.68`| Interna (8080) | **Introspeção de Esquema Produção**: API interna que inspeciona tabelas, colunas, chaves primárias e relacionamentos do banco de produção. |
-| **10**| `suavit-meta-staging` | Testes | `supabase/postgres-meta:v0.68`| Interna (8080) | **Introspeção de Esquema Testes**: Fornece metadados do esquema do banco de testes ao Supabase Studio de Staging. |
-| **11**| `suavit-kong-prod` | Produção | `kong:2.8.1-alpine` | `58000:8000` | **API Gateway Unificado de Produção**: Roteia chamadas externas do frontend para o serviço correto: `/auth/v1` ➔ GoTrue, `/rest/v1` ➔ PostgREST, `/storage/v1` ➔ Storage API. |
-| **12**| `suavit-kong-staging` | Testes | `kong:2.8.1-alpine` | `58002:8000` | **API Gateway Unificado de Testes**: Roteador API isolado para as rotas do ambiente de testes. |
-| **13**| `suavit-studio-prod` | Produção | `supabase/studio:latest` | `58323:3000` | **Dashboard Supabase Studio Produção**: Painel gráfico web para o administrador gerir tabelas, executar SQL no SQL Editor, gerir utilizadores e políticas RLS em produção. |
-| **14**| `suavit-studio-staging` | Testes | `supabase/studio:latest` | `58324:3000` | **Dashboard Supabase Studio Testes**: Painel gráfico web para inspecionar e manipular o banco de dados de testes. |
-| **15**| `suavit-portal-prod` | Produção | *Imagem do Projeto (React/Vite)* | `58100:80` | **Aplicação Web Oficial de Produção**: O frontend principal servido aos utilizadores e clientes finais. |
-| **16**| `suavit-portal-staging` | Testes | *Imagem do Projeto (React/Vite)* | `58101:80` | **Aplicação Web de Testes (Staging)**: A aplicação acessível para a equipa interna testar novas funcionalidades antes de promover a produção. |
+| **1** | `exemplo-postgres-prod` | Produção | `supabase/postgres:15.1.0` | `52432:5432` | **Motor Relacional de Produção**: Base de dados PostgreSQL com extensões `uuid-ossp`, `pgcrypto`, schemas `auth`, `storage`, `public` e utilizadores Supabase configurados. |
+| **2** | `exemplo-postgres-staging` | Testes | `supabase/postgres:15.1.0` | `52433:5432` | **Motor Relacional de Testes**: Réplica isolada do PostgreSQL para efetuar testes de migração DDL, inserção de dados e validações sem tocar nos dados dos utilizadores reais. |
+| **3** | `exemplo-postgrest-prod` | Produção | `postgrest/postgrest:v11.2` | Interna (3000) | **Motor REST API de Produção**: Transforma automaticamente todo o esquema relacional do PostgreSQL de produção numa API RESTful rápida e segura respeitando as regras RLS. |
+| **4** | `exemplo-postgrest-staging` | Testes | `postgrest/postgrest:v11.2` | Interna (3000) | **Motor REST API de Testes**: Fornece os endpoints REST para o ambiente de testes e validações de pré-produção. |
+| **5** | `exemplo-auth-prod` | Produção | `supabase/gotrue:v2.132` | Interna (9999) | **Serviço GoTrue Auth Produção**: Emite tokens JWT, gere sessões de utilizadores, recuperação de palavras-passe e login por email/password ou OAuth. |
+| **6** | `exemplo-auth-staging` | Testes | `supabase/gotrue:v2.132` | Interna (9999) | **Serviço GoTrue Auth Testes**: Servidor de autenticação independente para validar novos fluxos de registo e permissões em ambiente de testes. |
+| **7** | `exemplo-storage-prod` | Produção | `supabase/storage-api:v0.43`| Interna (5000) | **API de Armazenamento de Produção**: Gere o upload, download, chunks e restrições de MIME types para ficheiros e buckets (anexos, comprovativos, avatares). |
+| **8** | `exemplo-storage-staging` | Testes | `supabase/storage-api:v0.43`| Interna (5000) | **API de Armazenamento de Testes**: Permite testar uploads pesados e fluxos de ficheiros sem poluir o bucket de produção. |
+| **9** | `exemplo-meta-prod` | Produção | `supabase/postgres-meta:v0.68`| Interna (8080) | **Introspeção de Esquema Produção**: API interna que inspeciona tabelas, colunas, chaves primárias e relacionamentos do banco de produção. |
+| **10**| `exemplo-meta-staging` | Testes | `supabase/postgres-meta:v0.68`| Interna (8080) | **Introspeção de Esquema Testes**: Fornece metadados do esquema do banco de testes ao Supabase Studio de Staging. |
+| **11**| `exemplo-kong-prod` | Produção | `kong:2.8.1-alpine` | `52000:8000` | **API Gateway Unificado de Produção**: Roteia chamadas externas do frontend para o serviço correto: `/auth/v1` ➔ GoTrue, `/rest/v1` ➔ PostgREST, `/storage/v1` ➔ Storage API. |
+| **12**| `exemplo-kong-staging` | Testes | `kong:2.8.1-alpine` | `52002:8000` | **API Gateway Unificado de Testes**: Roteador API isolado para as rotas do ambiente de testes. |
+| **13**| `exemplo-studio-prod` | Produção | `supabase/studio:latest` | `52323:3000` | **Dashboard Supabase Studio Produção**: Painel gráfico web para o administrador gerir tabelas, executar SQL no SQL Editor, gerir utilizadores e políticas RLS em produção. |
+| **14**| `exemplo-studio-staging` | Testes | `supabase/studio:latest` | `52324:3000` | **Dashboard Supabase Studio Testes**: Painel gráfico web para inspecionar e manipular o banco de dados de testes. |
+| **15**| `exemplo-portal-prod` | Produção | *Imagem do Projeto (React/Vite)* | `52100:80` | **Aplicação Web Oficial de Produção**: O frontend principal servido aos utilizadores e clientes finais. |
+| **16**| `exemplo-portal-staging` | Testes | *Imagem do Projeto (React/Vite)* | `52101:80` | **Aplicação Web de Testes (Staging)**: A aplicação acessível para a equipa interna testar novas funcionalidades antes de promover a produção. |
 
 ### E o Contentor do Próprio Deployment Center?
 
 Adicionalmente, existe o contentor mestre da plataforma:
-* **`universal-deploy-center`**: Executa o servidor Node.js/Express na porta **`50000`**. Possui montagem direta do socket do Docker (`/var/run/docker.sock`), permitindo-lhe criar, inspecionar, reiniciar e orquestrar todos os outros contentores do servidor TrueNAS Scale.
+* **`universal-deploy-center`**: Executa o servidor Node.js/Express na porta configurada (padrão **`50000`** ou personalizada com `PORT`). Possui montagem direta do socket do Docker (`/var/run/docker.sock`), permitindo-lhe criar, inspecionar, reiniciar e orquestrar todos os outros contentores do servidor Linux.
 
 ---
 
@@ -251,7 +293,7 @@ No desenvolvimento contemporâneo, ferramentas assistidas por IA como **Cursor**
 * Utilizam dados falsos (*mocks*) em vez de persistirem no banco de dados.
 * Omitem cláusulas de segurança RLS no PostgreSQL.
 * Quebram rotas tipadas do TanStack Router através de `as any`.
-* Esquecem termos de privacidade, políticas de cookies e conformidade RGPD/CNPD para Portugal.
+* Esquecem termos de privacidade, políticas de cookies e conformidade RGPD/CNPD.
 
 O Deployment Center resolve este desafio através de um sistema de governança modular de dois níveis:
 
@@ -265,7 +307,7 @@ As **Regras** são ficheiros de texto ou markdown estruturados que definem **lei
   * `{authorWebsite}` e `{authorName}` ➔ Dados legais do criador
   * `{currentYear}` ➔ Ano corrente
 * **Regras Padrão Incluídas**:
-  1. `commit_message`: Força o padrão Conventional Commits (`feat:`, `fix:`, `refactor:`) e a inclusão do comando `curl` para TrueNAS.
+  1. `commit_message`: Força o padrão Conventional Commits (`feat:`, `fix:`, `refactor:`) e o comando de atualização.
   2. `tanstack_routes`: Obriga o uso de `createFileRoute` tipado, `<Outlet />` em ficheiros de layout e proíbe casting cego com `as any`.
   3. `prevencao_erros`: Checklist contra memory leaks, loops em useEffect e timeouts em conexões Supabase.
   4. `lovable_client`: Configura cliente Supabase com auto-reconnect resiliente.
@@ -273,8 +315,8 @@ As **Regras** são ficheiros de texto ou markdown estruturados que definem **lei
   6. `docker_pinning`: Proíbe tags `:latest` instáveis em contentores de produção.
   7. `zero_mock_policy`: Proíbe estritamente dados simulados ou listas estáticas; todas as tabelas devem ligar ao PostgreSQL.
   8. `master_plan_compliance`: Exige a leitura do plano arquitetural e respeito estrito ao DDL SQL.
-  9. `footer_legal_compliance`: Garante o rodapé padronizado com licença e links legais portugueses.
-  10. `theme_and_i18n`: Implementa modo Dark/Light e suporte a PT-PT, EN, FR e ES.
+  9. `footer_legal_compliance`: Garante o rodapé padronizado com licença e links legais.
+  10. `theme_and_i18n`: Implementa modo Dark/Light e suporte a múltiplos idiomas (PT-PT, EN, FR e ES).
 
 ### 2. As Skills dos Agentes (`.agents/skills/`)
 As **Skills** são diretórios modulares contendo um ficheiro mestre `SKILL.md` com YAML frontmatter, exemplos práticos de implementação e referências aprofundadas.
@@ -286,7 +328,7 @@ As **Skills** são diretórios modulares contendo um ficheiro mestre `SKILL.md` 
   * `supabase-storage-master`: Gestão de upload de ficheiros, MIME types e links assinados.
   * `sql-security-rls`: Escrita de políticas de Row Level Security seguras para PostgreSQL.
   * `responsive-wow-ui`: Padrões para criar interfaces visuais impactantes e modais diagnósticos.
-  * `legal-footer-compliance`: Conformidade com legislação de proteção de dados e privacidade em Portugal.
+  * `legal-footer-compliance`: Conformidade com legislação de proteção de dados e privacidade.
   * `theme-and-i18n-mastery`: Internacionalização e alternância de temas.
   * `zero-mock-policy`: Técnicas de persistência direta contra Supabase/PostgreSQL.
   * `master-plan-compliance`: Metodologia de respeito ao plano de implementação de software.
@@ -295,53 +337,37 @@ As **Skills** são diretórios modulares contendo um ficheiro mestre `SKILL.md` 
 
 ## 📖 Guia Passo a Passo (How To)
 
-### 1. Como Iniciar o Deployment Center no Servidor (TrueNAS Scale / Linux)
-
-#### Pré-requisitos
-* Host com Docker e Docker Compose instalados.
-* Acesso ao socket Docker local (`/var/run/docker.sock`).
-* Acesso de leitura/escrita ao pool de armazenamento (ex: `/mnt/Disco1/apps/`).
-
-#### Arranque com Docker Compose
-Clone o repositório e inicie o contentor:
+### 1. Instalação e Arranque
+Execute o script de instalação oficial:
 ```bash
-# 1. Clonar o repositório
-git clone https://github.com/DavidFFerreira/Deployment_center.git /mnt/Disco1/apps/deployment-center
-cd /mnt/Disco1/apps/deployment-center
-
-# 2. Iniciar a stack na porta 50000
-docker compose up -d --build
+curl -fsSL https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/install.sh | sudo bash
 ```
+Aceda imediatamente no seu navegador: `http://<IP_DO_SERVIDOR>:50000/`
 
-Aceda imediatamente no seu navegador:
-```
-http://<IP_DO_TRUENAS>:50000/
-```
-
-Credenciais padrão de administrador:
+Credenciais padrão:
 * **Username**: `admin`
-* **Password**: `suavit_deploy_master_2026!` *(ou o valor definido na variável DEPLOYER_ADMIN_PASSWORD)*
+* **Password**: `deploy_master_admin_2026!` *(ou a definida na flag `--password`)*
 
 ---
 
 ### 2. Como Atualizar o Deployment Center com 1 Comando
-Para atualizar o Deployment Center para a versão mais recente diretamente a partir do repositório GitHub, execute na consola do servidor ou no próprio **Terminal Integrado do painel**:
+Para atualizar o Deployment Center para a versão mais recente diretamente a partir do repositório GitHub, execute no servidor ou no **Terminal Integrado do painel**:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/update_truenas.sh | bash
+curl -fsSL https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/update.sh | bash
 ```
-O script sincroniza o branch `main` do GitHub e reconstrói o contentor sem perder as configurações do diretório `data/`.
+*(Nota: O script `update_truenas.sh` mantém-se totalmente funcional para compatibilidade histórica).*
 
 ---
 
 ### 3. Como Criar um Novo Projeto com o Wizard
-1. No cabeçalho, clique no ícone de definições ⚙️ ou abra o botão **Criar Novo Projeto (Wizard)**.
-2. Preencha o **Nome do Projeto** (ex: *Suavit Logística*) e verifique o **Slug** gerado (`suavit-logistica`).
+1. No cabeçalho, abra o botão **Criar Novo Projeto (Wizard)**.
+2. Preencha o **Nome do Projeto** (ex: *Portal de Logística*) e verifique o **Slug** gerado (`portal-logistica`).
 3. Marque a opção **Criar Repositório Privado no GitHub Automaticamente** se desejar que o Deployment Center crie o repositório na sua conta.
-4. Introduza um **Prefixo de 2 Dígitos** (ex: `57`). O sistema validará se nenhuma porta (`57100`, `57101`, `57000`, `57432`, `57323`) está ocupada.
+4. Introduza um **Prefixo de 2 Dígitos** (ex: `52`). O sistema validará se nenhuma porta (`52100`, `52101`, `52000`, `52432`, `52323`) está ocupada.
 5. Selecione as **Skills de IA** que pretende injetar no repositório.
 6. Carregue os seus ficheiros DDL Canónicos (`.sql`) se já tiver o esquema das tabelas definido.
 7. Clique em **Criar Projeto e Iniciar Stack**.
-8. O Deployment Center criará a pasta no TrueNAS, gerará o `docker-compose.yml` de 16 contentores, configurará o PostgreSQL, executará o DDL, injetará as regras de IA e iniciará os serviços.
+8. O Deployment Center criará a pasta no servidor, gerará o `docker-compose.yml` de 16 contentores, configurará o PostgreSQL, executará o DDL, injetará as regras de IA e iniciará os serviços.
 
 ---
 
@@ -380,27 +406,27 @@ O script sincroniza o branch `main` do GitHub e reconstrói o contentor sem perd
 
 ## 🔢 Esquema de Portas e Isolamento
 
-O Deployment Center utiliza a **Gama de Portas 50000 a 59999** para garantir que nenhuma aplicação entre em conflito com os serviços nativos do TrueNAS Scale (como as portas 80, 443, 8080 ou 5432).
+O Deployment Center utiliza a **Gama de Portas 50000 a 59999** para garantir que nenhuma aplicação entre em conflito com os serviços nativos do host Linux ou TrueNAS SCALE (como as portas 80, 443, 8080 ou 5432).
 
 ### Convenção do Prefixo de 2 Dígitos (`XX` de 10 a 99):
 
 ```
-Prefixo Base: XX (ex: 58)
+Prefixo Base: XX (ex: 52)
 
 Produção Oficial:
-├── 58100 ➔ Portal Web de Produção (Frontend)
-├── 58000 ➔ Kong API Gateway Produção (REST, Auth, Storage)
-├── 58323 ➔ Supabase Studio Dashboard Produção
-└── 58432 ➔ PostgreSQL Base de Dados Produção
+├── 52100 ➔ Portal Web de Produção (Frontend)
+├── 52000 ➔ Kong API Gateway Produção (REST, Auth, Storage)
+├── 52323 ➔ Supabase Studio Dashboard Produção
+└── 52432 ➔ PostgreSQL Base de Dados Produção
 
 Ambiente de Testes (Staging):
-├── 58101 ➔ Portal Web de Testes (Frontend)
-├── 58002 ➔ Kong API Gateway Testes
-├── 58324 ➔ Supabase Studio Dashboard Testes
-└── 58433 ➔ PostgreSQL Base de Dados Testes
+├── 52101 ➔ Portal Web de Testes (Frontend)
+├── 52002 ➔ Kong API Gateway Testes
+├── 52324 ➔ Supabase Studio Dashboard Testes
+└── 52433 ➔ PostgreSQL Base de Dados Testes
 ```
 
-O contentor do **Deployment Center** opera isoladamente na porta **`50000`**.
+O contentor do **Deployment Center** opera isoladamente na porta configurada (padrão **`50000`**).
 
 ---
 
@@ -426,7 +452,7 @@ O contentor do **Deployment Center** opera isoladamente na porta **`50000`**.
   * Supabase Postgres-Meta v0.68
   * Kong Gateway 2.8.1 Alpine
   * Supabase Studio Dashboard
-* **Sistemas Operativos Alvo**: TrueNAS Scale (Debian-based), Ubuntu Server 22.04/24.04 LTS, Debian 12
+* **Sistemas Operativos Alvo**: Ubuntu Server 20.04/22.04/24.04 LTS, Debian 11/12, TrueNAS SCALE, Rocky Linux, CentOS 8/9 Stream, Alpine Linux, Fedora
 
 ---
 
