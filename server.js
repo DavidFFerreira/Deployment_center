@@ -5326,7 +5326,7 @@ Thumbs.db
 
     const filesToPush = [
       { path: ".gitignore", content: gitignoreContent, msg: "ci: add robust .gitignore" },
-      { path: ".env.example", content: envContent, msg: "ci: add .env.example template with real container ports" },
+      { path: ".env.example", content: envProdContent, msg: "ci: add .env.example template with real container ports" },
       { path: "ARCHITECTURE.md", content: aiContextContent, msg: "docs: add architecture context guide for AI assistants" },
       { path: "SUPABASE_INTEGRATION_GUIDE.md", content: supabaseGuideContent, msg: "docs: add supabase and storage integration guide with credentials" },
       { path: "src/integrations/supabase/client.ts", content: supabaseClientCode, msg: "feat: add preconfigured supabase client" },
