@@ -12,10 +12,28 @@ import { promisify } from "util";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const execAsync = promisify(exec);
-let CURRENT_DEPLOY_CENTER_COMMIT = "3f8f99d";
-try {
-  CURRENT_DEPLOY_CENTER_COMMIT = child_process.execSync("git rev-parse --short HEAD", { cwd: __dirname }).toString().trim();
-} catch (e) {}
+let CURRENT_DEPLOY_CENTER_COMMIT = "554f795";
+function getDeployCenterCommit() {
+  try {
+    const c = child_process.execSync("git rev-parse --short HEAD", { cwd: __dirname, timeout: 2000 }).toString().trim();
+    if (c) {
+      CURRENT_DEPLOY_CENTER_COMMIT = c;
+      return c;
+    }
+  } catch (e) {}
+  try {
+    const hostDir = "/mnt/Disco1/apps/deployment-center";
+    if (fs.existsSync(path.join(hostDir, ".git"))) {
+      const c = child_process.execSync("git rev-parse --short HEAD", { cwd: hostDir, timeout: 2000 }).toString().trim();
+      if (c) {
+        CURRENT_DEPLOY_CENTER_COMMIT = c;
+        return c;
+      }
+    }
+  } catch (e) {}
+  return CURRENT_DEPLOY_CENTER_COMMIT;
+}
+getDeployCenterCommit();
 
 
 const app = express();
@@ -1063,10 +1081,7 @@ app.get(["/api", "/api/docs", "/api/helper"], requireAuth, (req, res) => {
 });
 
 app.get("/api/system/version", (req, res) => {
-  let commit = CURRENT_DEPLOY_CENTER_COMMIT;
-  try {
-    commit = child_process.execSync("git rev-parse --short HEAD", { cwd: __dirname }).toString().trim();
-  } catch (e) {}
+  const commit = getDeployCenterCommit();
   res.json({
     ok: true,
     version: "3.0.0",
@@ -1085,10 +1100,7 @@ app.get("/api/system/version", (req, res) => {
 
 // Healthcheck do sistema
 app.get("/api/v1/health", (req, res) => {
-  let commit = CURRENT_DEPLOY_CENTER_COMMIT;
-  try {
-    commit = child_process.execSync("git rev-parse --short HEAD", { cwd: __dirname }).toString().trim();
-  } catch (e) {}
+  const commit = getDeployCenterCommit();
 
   res.json({
     ok: true,
@@ -1688,7 +1700,7 @@ app.get("/api/status", requireAuth, async (req, res) => {
         production: prodHealth,
         staging: stagingHealth,
       },
-      deployCenterCommit: CURRENT_DEPLOY_CENTER_COMMIT,
+      deployCenterCommit: getDeployCenterCommit(),
     });
   } catch (globalErr) {
     console.error("[Status Error]", globalErr);
@@ -1698,7 +1710,7 @@ app.get("/api/status", requireAuth, async (req, res) => {
       state: { production: null, staging: null, history: [] },
       commits: [],
       health: { production: { online: false }, staging: { online: false } },
-      deployCenterCommit: CURRENT_DEPLOY_CENTER_COMMIT,
+      deployCenterCommit: getDeployCenterCommit(),
     });
   }
 });
