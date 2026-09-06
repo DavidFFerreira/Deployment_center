@@ -94,11 +94,11 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 ### 1. 🛡️ Autenticação Segura & Ecrã de Login
 
-<div align="center">
-
-![Ecrã de Login Seguro](./docs/images/01_login.png)
-
-</div>
+<p align="center">
+  <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/01_login.png" target="_blank" rel="noopener noreferrer">
+    <img src="docs/images/01_login.png?raw=true" alt="Ecrã de Login Seguro" width="90%" />
+  </a>
+</p>
 
 * **Segurança Criptográfica**: Autenticação com proteção HMAC SHA-256 e cookies `HttpOnly` com validade alargada.
 * **Múltiplos Níveis de Acesso**: Suporte a utilizadores locais em JSON com hash seguro (`pgcrypto`/`bcrypt`) e auditoria de último acesso.
@@ -109,11 +109,11 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 ### 2. 🚀 Gestão de Versões, Commits Git & Deploys Dual-Stack
 
-<div align="center">
-
-![Painel de Versões e Deploys](./docs/images/02_dashboard_versions.png)
-
-</div>
+<p align="center">
+  <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/02_dashboard_versions.png" target="_blank" rel="noopener noreferrer">
+    <img src="docs/images/02_dashboard_versions.png?raw=true" alt="Painel de Versões e Deploys" width="90%" />
+  </a>
+</p>
 
 * **Painel Dual-Stack em Tempo Real**: Monitorização lado a lado da **Versão Ativa de Produção** e da **Versão Ativa de Testes (Staging)** com indicação de porta, commit SHA, autor, data e mensagem.
 * **Histórico de Commits Sincronizado**: Integração nativa com a API do GitHub com cache inteligente para listar commits com SHAs curtos, mensagens e autor.
@@ -129,11 +129,11 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 ### 3. 🐳 Orquestrador de Contentores Docker (16 Contentores por Stack)
 
-<div align="center">
-
-![Orquestrador de Contentores Docker](./docs/images/03_containers_orchestrator.png)
-
-</div>
+<p align="center">
+  <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/03_containers_orchestrator.png" target="_blank" rel="noopener noreferrer">
+    <img src="docs/images/03_containers_orchestrator.png?raw=true" alt="Orquestrador de Contentores Docker" width="90%" />
+  </a>
+</p>
 
 * **Supervisão Holística dos Contentores**: Monitoriza todos os contentores em execução criados pelo projeto, agrupados por ambiente (Produção e Staging).
 * **Métricas de Recursos em Tempo Real**: Leitura do estado de saúde (*Healthy* / *Running* / *Exited*), mapeamento exato de portas no host e tempo de uptime.
@@ -147,11 +147,11 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 ### 4. 💻 Terminal Remoto Bash & Ferramentas de Manutenção
 
-<div align="center">
-
-![Terminal Shell Integrado](./docs/images/04_terminal_shell.png)
-
-</div>
+<p align="center">
+  <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/04_terminal_shell.png" target="_blank" rel="noopener noreferrer">
+    <img src="docs/images/04_terminal_shell.png?raw=true" alt="Terminal Shell Integrado" width="90%" />
+  </a>
+</p>
 
 * **Shell Bash Integrado**: Consola web no navegador que executa comandos diretamente no host Linux ou dentro do contentor do Deployment Center.
 * **Streaming de Saída**: Visualização em tempo real de fluxos de saída padrão (*stdout*) e erros (*stderr*).
@@ -167,11 +167,11 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 ### 5. 🗄️ Gestor de Armazenamento Supabase Storage (MinIO / S3)
 
-<div align="center">
-
-![Gestor de Storage Supabase](./docs/images/05_storage_manager.png)
-
-</div>
+<p align="center">
+  <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/05_storage_manager.png" target="_blank" rel="noopener noreferrer">
+    <img src="docs/images/05_storage_manager.png?raw=true" alt="Gestor de Storage Supabase" width="90%" />
+  </a>
+</p>
 
 * **Explorador Visual de Ficheiros**: Interface tipo gestor de ficheiros moderno para navegar por buckets, pastas e subdiretórios em árvore.
 * **Gestão de Buckets Públicos e Privados**:
@@ -188,11 +188,11 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 ### 6. 🐘 Gestor de Base de Dados PostgreSQL, RLS & Backups
 
-<div align="center">
-
-![Gestor de Base de Dados PostgreSQL](./docs/images/06_database_manager.png)
-
-</div>
+<p align="center">
+  <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/06_database_manager.png" target="_blank" rel="noopener noreferrer">
+    <img src="docs/images/06_database_manager.png?raw=true" alt="Gestor de Base de Dados PostgreSQL" width="90%" />
+  </a>
+</p>
 
 * **Métricas Principais da Base de Dados**:
   * Tamanho físico da base de dados PostgreSQL no disco.
@@ -213,11 +213,11 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 ### 7. 📜 Histórico de Deploys & Auditoria de Operações
 
-<div align="center">
-
-![Histórico e Auditoria de Ações](./docs/images/07_history_audit.png)
-
-</div>
+<p align="center">
+  <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/07_history_audit.png" target="_blank" rel="noopener noreferrer">
+    <img src="docs/images/07_history_audit.png?raw=true" alt="Histórico e Auditoria de Ações" width="90%" />
+  </a>
+</p>
 
 * **Trilha de Auditoria Imutável**: Registo cronológico de todas as operações efetuadas na plataforma (deploys para staging, deploys para produção, reinicialização de contentores, backups de bases de dados e alterações de RLS).
 * **Identificação do Operador**: Grava o nome e username do utilizador que desencadeou a ação.
@@ -227,11 +227,11 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 ### 8. 🪄 Wizard de Provisionamento Automático de Projetos (Stack Generator)
 
-<div align="center">
-
-![Wizard de Criação de Projetos](./docs/images/08_project_wizard.png)
-
-</div>
+<p align="center">
+  <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/08_project_wizard.png" target="_blank" rel="noopener noreferrer">
+    <img src="docs/images/08_project_wizard.png?raw=true" alt="Wizard de Criação de Projetos" width="90%" />
+  </a>
+</p>
 
 * **Processo Guiado em 4 Passos**:
   1. **Identificação**: Nome do projeto, slug único (apenas minúsculas e hífen) e opção de criar repositório privado no GitHub automaticamente com o token configurado.
@@ -243,11 +243,11 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 ### 9. 🧠 Gestor de Skills de Inteligência Artificial para Agentes
 
-<div align="center">
-
-![Gestor de Skills de IA](./docs/images/09_ai_skills_manager.png)
-
-</div>
+<p align="center">
+  <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/09_ai_skills_manager.png" target="_blank" rel="noopener noreferrer">
+    <img src="docs/images/09_ai_skills_manager.png?raw=true" alt="Gestor de Skills de IA" width="90%" />
+  </a>
+</p>
 
 * **Biblioteca Centralizada de Conhecimento**: Gestão de pastas de skills padronizadas (`.agents/skills/<skill-id>/SKILL.md`) que ensinam aos modelos de IA (Claude, GPT, Gemini) as convenções exatas de engenharia.
 * **Editor Markdown Integrado**: Crie, edite e formate ficheiros `SKILL.md` com pré-visualização, descrição curta e ícone visual.
@@ -258,11 +258,11 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 ### 10. 📐 Editor de Diretivas & Regras dos Agentes de IA
 
-<div align="center">
-
-![Editor de Regras de IA](./docs/images/10_agent_rules_editor.png)
-
-</div>
+<p align="center">
+  <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/10_agent_rules_editor.png" target="_blank" rel="noopener noreferrer">
+    <img src="docs/images/10_agent_rules_editor.png?raw=true" alt="Editor de Regras de IA" width="90%" />
+  </a>
+</p>
 
 * **Diretivas Arquiteturais Estritas**: Regras lidas nativamente por ferramentas de IA (Cursor Rules, Lovable Rules, Claude Code, Antigravity) para impedir más práticas antes de serem escritas em código.
 * **Variáveis Dinâmicas com Resolução Automática**:
@@ -278,11 +278,11 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
 
 ### 11. ⚙️ Definições Globais, Vault de Credenciais & Gestão de Utilizadores
 
-<div align="center">
-
-![Definições e Vault de Credenciais](./docs/images/11_settings_credentials.png)
-
-</div>
+<p align="center">
+  <a href="https://github.com/DavidFFerreira/Deployment_center/blob/main/docs/images/11_settings_credentials.png" target="_blank" rel="noopener noreferrer">
+    <img src="docs/images/11_settings_credentials.png?raw=true" alt="Definições e Vault de Credenciais" width="90%" />
+  </a>
+</p>
 
 * **Vault Seguro de Credenciais**: Armazena de forma encriptada o GitHub Personal Access Token (PAT), IP do host servidor e caminhos base de armazenamento.
 * **Gestão de Utilizadores Locais**: Criação, edição e revogação de acessos administrativos.
