@@ -1681,6 +1681,7 @@ app.get("/api/status", requireAuth, async (req, res) => {
         production: prodHealth,
         staging: stagingHealth,
       },
+      deployCenterCommit: CURRENT_DEPLOY_CENTER_COMMIT,
     });
   } catch (globalErr) {
     console.error("[Status Error]", globalErr);
@@ -1690,6 +1691,7 @@ app.get("/api/status", requireAuth, async (req, res) => {
       state: { production: null, staging: null, history: [] },
       commits: [],
       health: { production: { online: false }, staging: { online: false } },
+      deployCenterCommit: CURRENT_DEPLOY_CENTER_COMMIT,
     });
   }
 });

@@ -151,6 +151,13 @@
         </button>
       </div>
 
+      <!-- Badge de ID do Projeto com Copiar em 1 Clique -->
+      <button onclick="copyActiveProjectId(event)" id="header-project-id-btn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-700 dark:text-purple-300 text-xs font-mono font-bold transition group cursor-pointer" title="Clique para copiar o ID deste projeto (usado na API / SaaS)">
+        <i data-lucide="tag" class="w-3.5 h-3.5 text-purple-500"></i>
+        <span>ID: <strong id="header-project-id-display" class="font-black">...</strong></span>
+        <i data-lucide="copy" class="w-3 h-3 text-purple-400 group-hover:text-purple-600 transition" id="header-project-id-copy-icon"></i>
+      </button>
+
       <!-- Seletor de Idioma -->
       <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs">
         <i data-lucide="globe" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
@@ -200,6 +207,43 @@
   <!-- CORPO PRINCIPAL                                                       -->
   <!-- ===================================================================== -->
   <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 space-y-6">
+
+    <!-- ===================================================================== -->
+    <!-- BARRA DE INFORMAÇÕES DO PROJETO ATIVO & ID PARA API / SAAS            -->
+    <!-- ===================================================================== -->
+    <div class="p-4 sm:p-5 rounded-3xl glass-card border border-slate-200 dark:border-slate-800 shadow-lg flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
+          <i data-lucide="folder-git2" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <h1 class="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight" id="main-project-name">Carregando Projeto...</h1>
+            <button onclick="copyActiveProjectId(event)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-purple-500/15 hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 border border-purple-500/30 transition shadow-sm cursor-pointer group" title="Clique para copiar o ID deste projeto para a API / SaaS">
+              <i data-lucide="tag" class="w-3.5 h-3.5 text-purple-500"></i>
+              <span>ID: <strong id="main-project-id-badge" class="font-black">...</strong></span>
+              <i data-lucide="copy" class="w-3 h-3 text-purple-400 group-hover:text-purple-600 transition" id="main-project-id-copy-icon"></i>
+            </button>
+          </div>
+          <div class="flex items-center gap-2 mt-1 text-xs text-slate-500 dark:text-slate-400 font-mono">
+            <span id="main-project-repo" class="flex items-center gap-1"><i data-lucide="github" class="w-3 h-3"></i> Repositório: -</span>
+            <span>•</span>
+            <span id="main-project-branch">Branch: main</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <button onclick="copyActiveProjectId(event)" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-purple-600 hover:text-white dark:bg-slate-800 dark:hover:bg-purple-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:border-purple-600 text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+          <span>Copiar ID do Projeto</span>
+        </button>
+        <button onclick="openApiHelperModal()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-md shadow-indigo-600/20 cursor-pointer">
+          <i data-lucide="plug-zap" class="w-3.5 h-3.5"></i>
+          <span>API & SaaS Helper</span>
+        </button>
+      </div>
+    </div>
 
     <!-- ===================================================================== -->
     <!-- SECÇÃO DE AMBIENTES: TESTES (ESQ) | SETA PROMOVER | PRODUÇÃO (DIR)     -->
@@ -3590,9 +3634,13 @@
       container.innerHTML = projectsList.map((p) => `
         <div class="p-4 rounded-2xl bg-slate-100 dark:bg-slate-900 border ${p.id === currentProjectId ? 'border-purple-500 shadow-md shadow-purple-500/10' : 'border-slate-200 dark:border-slate-800'} space-y-2">
           <div class="flex items-center justify-between">
-            <h4 class="font-extrabold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
+            <h4 class="font-extrabold text-xs text-slate-900 dark:text-white flex items-center gap-1.5 flex-wrap">
               <span>${escapeHtml(p.name)}</span>
-              <span class="text-[10px] text-purple-400 font-mono">(${p.id})</span>
+              <button onclick="copyTextToClipboard('${p.id}', this)" class="px-2 py-0.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 font-mono text-[10px] font-bold inline-flex items-center gap-1 transition cursor-pointer" title="Copiar ID para API / SaaS">
+                <i data-lucide="tag" class="w-3 h-3 text-purple-500"></i>
+                <span>ID: ${p.id}</span>
+                <i data-lucide="copy" class="w-3 h-3"></i>
+              </button>
             </h4>
             ${p.id === currentProjectId ? '<span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[10px] font-bold">Ativo</span>' : ''}
           </div>
@@ -5142,10 +5190,11 @@ Vamos começar a implementar o primeiro módulo do plano.`;
           projectsList = data.projects;
           const select = document.getElementById('project-selector');
           if (select) {
-            select.innerHTML = projectsList.map((p) => `<option value="${p.id}" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100" ${p.id === currentProjectId ? 'selected' : ''}>${escapeHtml(p.name)}</option>`).join('');
+            select.innerHTML = projectsList.map((p) => `<option value="${p.id}" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100" ${p.id === currentProjectId ? 'selected' : ''}>${escapeHtml(p.name)} [ID: ${p.id}]</option>`).join('');
             select.value = currentProjectId;
           }
           activeProject = projectsList.find((p) => p.id === currentProjectId) || projectsList[0];
+          updateProjectMetadataUi();
         }
       } catch (e) {}
     }
@@ -5159,21 +5208,8 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       const select = document.getElementById('project-selector');
       if (select) select.value = projectId;
 
+      updateProjectMetadataUi();
       updateProjectServiceLinks();
-        if (data.deployCenterCommit) {
-          const cHash = data.deployCenterCommit;
-          const hHashEl = document.getElementById('header-commit-hash');
-          const fHashEl = document.getElementById('footer-commit-link');
-          const hBadgeEl = document.getElementById('header-commit-badge');
-          if (hHashEl) hHashEl.textContent = cHash;
-          if (fHashEl) {
-            fHashEl.textContent = cHash;
-            fHashEl.href = 'https://github.com/DavidFFerreira/Deployment_center/commit/' + cHash;
-          }
-          if (hBadgeEl) {
-            hBadgeEl.href = 'https://github.com/DavidFFerreira/Deployment_center/commit/' + cHash;
-          }
-        }
 
       await refreshData();
 
@@ -5186,6 +5222,82 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       if (visibleTab === 'containers') fetchContainers();
       if (visibleTab === 'storage') loadStorageBuckets();
       if (visibleTab === 'database') { fetchDbStats(); fetchDbBackups(); fetchDbTables(); }
+    }
+
+    
+    function updateProjectMetadataUi() {
+      const p = activeProject || globalStatus?.project || (projectsList && projectsList.find(x => x.id === currentProjectId)) || { id: currentProjectId || 'portal-web', name: 'Projeto' };
+      const pId = p.id || currentProjectId || 'portal-web';
+      const pName = p.name || pId;
+
+      const hBadge = document.getElementById('header-project-id-display');
+      if (hBadge) hBadge.textContent = pId;
+
+      const mName = document.getElementById('main-project-name');
+      if (mName) mName.textContent = pName;
+
+      const mBadge = document.getElementById('main-project-id-badge');
+      if (mBadge) mBadge.textContent = pId;
+
+      const mRepo = document.getElementById('main-project-repo');
+      if (mRepo) {
+        if (p.repoOwner && p.repoName) {
+          mRepo.innerHTML = `<i data-lucide="github" class="w-3 h-3 inline-block mr-1"></i>${escapeHtml(p.repoOwner)}/${escapeHtml(p.repoName)}`;
+        } else {
+          mRepo.innerHTML = `<i data-lucide="github" class="w-3 h-3 inline-block mr-1"></i>Sem repo associado`;
+        }
+      }
+
+      const mBranch = document.getElementById('main-project-branch');
+      if (mBranch) {
+        mBranch.textContent = `Branch: ${p.branch || 'main'}`;
+      }
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function copyActiveProjectId(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      const pId = activeProject?.id || currentProjectId || (globalStatus?.project?.id) || 'portal-web';
+      const targetBtn = e ? e.currentTarget : document.getElementById('header-project-id-btn');
+      await copyTextToClipboard(pId, targetBtn);
+    }
+
+    async function copyTextToClipboard(text, btnEl) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        showAppNotification({
+          type: 'success',
+          title: 'ID Copiado!',
+          message: `O ID <strong>${escapeHtml(text)}</strong> foi copiado para a área de transferência.`
+        });
+        if (btnEl) {
+          const origHtml = btnEl.innerHTML;
+          btnEl.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> <span class="text-emerald-500 font-bold">Copiado!</span>`;
+          if (window.lucide) lucide.createIcons();
+          setTimeout(() => {
+            btnEl.innerHTML = origHtml;
+            if (window.lucide) lucide.createIcons();
+          }, 2000);
+        }
+      } catch (err) {
+        showAppNotification({
+          type: 'error',
+          title: 'Falha ao Copiar',
+          message: 'Não foi possível copiar automaticamente: ' + err.message
+        });
+      }
     }
 
     function updateProjectServiceLinks() {
@@ -5235,6 +5347,24 @@ Vamos começar a implementar o primeiro módulo do plano.`;
         const res = await fetch(`/api/status?project_id=${currentProjectId}&_t=${Date.now()}`);
         const data = await res.json();
         globalStatus = data;
+        if (data.project) {
+          activeProject = data.project;
+          updateProjectMetadataUi();
+        }
+        if (data.deployCenterCommit) {
+          const cHash = data.deployCenterCommit;
+          const hHashEl = document.getElementById('header-commit-hash');
+          const fHashEl = document.getElementById('footer-commit-link');
+          const hBadgeEl = document.getElementById('header-commit-badge');
+          if (hHashEl) hHashEl.textContent = cHash;
+          if (fHashEl) {
+            fHashEl.textContent = cHash;
+            fHashEl.href = 'https://github.com/DavidFFerreira/Deployment_center/commit/' + cHash;
+          }
+          if (hBadgeEl) {
+            hBadgeEl.href = 'https://github.com/DavidFFerreira/Deployment_center/commit/' + cHash;
+          }
+        }
         renderStateCards(data);
         renderCommits(data.commits || []);
         renderHistory(data.state?.history || []);
