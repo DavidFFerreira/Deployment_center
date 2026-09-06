@@ -5460,6 +5460,12 @@ Vamos começar a implementar o primeiro módulo do plano.`;
         const data = await res.json();
         if (data.ok && data.projects) {
           projectsList = data.projects;
+          if (projectsList.length > 0) {
+            if (!currentProjectId || !projectsList.some((p) => p.id === currentProjectId)) {
+              currentProjectId = projectsList[0].id;
+              localStorage.setItem('deploy_project_id', currentProjectId);
+            }
+          }
           const select = document.getElementById('project-selector');
           if (select) {
             select.innerHTML = projectsList.map((p) => `<option value="${p.id}" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100" ${p.id === currentProjectId ? 'selected' : ''}>${escapeHtml(p.name)} [ID: ${p.id}]</option>`).join('');
@@ -5468,7 +5474,9 @@ Vamos começar a implementar o primeiro módulo do plano.`;
           activeProject = projectsList.find((p) => p.id === currentProjectId) || projectsList[0];
           updateProjectMetadataUi();
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error("Erro ao carregar projetos:", e);
+      }
     }
 
     async function switchProject(projectId) {
@@ -5501,6 +5509,13 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       const p = activeProject || globalStatus?.project || (projectsList && projectsList.find(x => x.id === currentProjectId)) || { id: currentProjectId || 'portal-web', name: 'Projeto' };
       const pId = p.id || currentProjectId || 'portal-web';
       const pName = p.name || pId;
+
+      const select = document.getElementById('project-selector');
+      if (select && pId && select.value !== pId) {
+        if (Array.from(select.options).some(opt => opt.value === pId)) {
+          select.value = pId;
+        }
+      }
 
       // Atualizado: ID exibido de forma limpa no badge do banner do projeto
 
@@ -5614,12 +5629,25 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       if (icon) icon.classList.add('animate-spin');
 
       try {
+        if (!projectsList || projectsList.length === 0) {
+          try { await loadProjects(); } catch (e) {}
+        }
         updateProjectServiceLinks();
         const res = await fetch(`/api/status?project_id=${currentProjectId}&_t=${Date.now()}`);
         const data = await res.json();
         globalStatus = data;
         if (data.project) {
           activeProject = data.project;
+          if (!currentProjectId && data.project.id) {
+            currentProjectId = data.project.id;
+            localStorage.setItem('deploy_project_id', currentProjectId);
+          }
+          const select = document.getElementById('project-selector');
+          if (select && currentProjectId && select.value !== currentProjectId) {
+            if (Array.from(select.options).some(opt => opt.value === currentProjectId)) {
+              select.value = currentProjectId;
+            }
+          }
           updateProjectMetadataUi();
         }
         if (data.deployCenterCommit) {
@@ -7952,8 +7980,15 @@ data: {"status":"ready","done":true,"completed_at":"2026-09-06T13:45:30.000Z"}`
     // Inicialização
     applyTheme(currentTheme);
     setLanguage(currentLang);
-    refreshData();
-    setInterval(refreshData, 30000);
+    (async () => {
+      try {
+        await loadProjects();
+      } catch (e) {
+        console.error('Erro inicial ao carregar projetos:', e);
+      }
+      await refreshData();
+      setInterval(refreshData, 30000);
+    })();
   </script>
 </body>
 </html>
