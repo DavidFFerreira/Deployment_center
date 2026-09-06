@@ -9,7 +9,8 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%20%2F%2016-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Supabase Self-Hosted](https://img.shields.io/badge/Supabase-On--Premise-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Kong Gateway](https://img.shields.io/badge/Kong_Gateway-2.8.1-002F38?style=for-the-badge&logo=kong&logoColor=white)](https://konghq.com/)
-[![License](https://img.shields.io/badge/license-Proprietary-red?style=for-the-badge)](LICENSE)
+[![Developer: David Ferreira](https://img.shields.io/badge/Developer-David%20Ferreira-4F46E5?style=for-the-badge&logo=github&logoColor=white)](https://github.com/DavidFFerreira)
+[![License: All Rights Reserved](https://img.shields.io/badge/License-All%20Rights%20Reserved%20(Proprietary)-red?style=for-the-badge&logo=shield)](LICENSE)
 
 <br/>
 
@@ -456,10 +457,39 @@ O contentor do **Deployment Center** opera isoladamente na porta configurada (pa
 
 ---
 
+## ⚖️ Direitos de Autor, Propriedade Intelectual & Aviso Legal Internacional
+
+Este repositório, o seu código-fonte, arquitetura de micro-serviços, scripts de automação (`install.sh`, `update.sh`) e interfaces gráficas foram concebidos, desenhados e implementados exclusivamente por **[David Ferreira](https://github.com/DavidFFerreira)**.
+
+> ### 🛑 AVISO LEGAL E PROIBIÇÃO DE PARTILHA / VENDA
+> **É expressamente proibido partilhar, copiar, ceder, distribuir, sublicenciar, comercializar ou vender este repositório ou qualquer fração do seu código-fonte sem autorização prévia, expressa e por escrito do desenvolvedor David Ferreira.**
+> Qualquer utilização ou apropriação não autorizada constitui violação de propriedade intelectual e crime de contrafação/usurpação de software, sujeito a processo judicial cível e penal internacional.
+
+### 🌐 Legislação e Tratados Internacionais Aplicáveis:
+
+O software aqui contido encontra-se integralmente protegido pelo quadro jurídico internacional de propriedade intelectual:
+
+1. **Convenção de Berna para a Proteção das Obras Literárias e Artísticas** (*Artigos 2.º e 9.º*):
+   * Concede proteção automática ao autor em mais de 180 países signatários desde o momento da criação da obra, sem necessidade de registo formal prévio, reservando ao autor o direito exclusivo de autorizar ou proibir a reprodução.
+2. **Tratado da Organização Mundial da Propriedade Intelectual sobre Direito de Autor (WIPO / OMPI Copyright Treaty - WCT)** (*Artigo 4.º*):
+   * Reconhece os programas de computador como obras intelectuais protegidas em todas as suas formas e linguagens de expressão.
+3. **Acordo sobre os Aspetos dos Direitos de Propriedade Intelectual Relacionados com o Comércio (TRIPS / OMC)** (*Artigo 10.º*):
+   * Obriga todos os estados membros da Organização Mundial do Comércio a tutelar programas de computador como criações intelectuais protegidas.
+4. **Diretiva 2009/24/CE do Parlamento Europeu e do Conselho** (e Diretiva UE 2019/790):
+   * Consagra a proteção jurídica de programas de computador em todo o espaço da União Europeia, conferindo direitos exclusivos de exploração económica e integridade ao seu autor.
+5. **Código do Direito de Autor e dos Direitos Conexos (CDADC - Portugal)** (*Decreto-Lei n.º 63/85 e Decreto-Lei n.º 252/94*):
+   * Pune exemplarmente a reprodução e distribuição ilegítima de programas informáticos (Artigo 195.º e Artigo 196.º), prevendo indemnizações por danos patrimoniais e morais.
+
+Para pedidos de licenciamento comercial, parcerias ou autorizações de utilização:
+* **Desenvolvedor Principal**: [David Ferreira](https://github.com/DavidFFerreira)
+* **Perfil GitHub Oficial**: [https://github.com/DavidFFerreira](https://github.com/DavidFFerreira)
+
+---
+
 <div align="center">
 
-### Desenvolvido com rigor por David Ferreira
-© 2026 David Ferreira. Todos os direitos reservados.
+### Desenvolvido com rigor por [David Ferreira](https://github.com/DavidFFerreira)
+© 2026 David Ferreira · Todos os direitos reservados.
 
 [Voltar ao Topo](#-universal-deployment-center)
 

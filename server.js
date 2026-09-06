@@ -11,6 +11,11 @@ import { promisify } from "util";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const execAsync = promisify(exec);
+let CURRENT_DEPLOY_CENTER_COMMIT = "3f8f99d";
+try {
+  CURRENT_DEPLOY_CENTER_COMMIT = child_process.execSync("git rev-parse --short HEAD", { cwd: __dirname }).toString().trim();
+} catch (e) {}
+
 
 const app = express();
 const PORT = process.env.PORT || 50000;
@@ -871,6 +876,21 @@ app.get("/", requireAuth, (req, res) => {
   res.setHeader("Pragma", "no-cache");
   res.setHeader("Expires", "0");
   res.sendFile(path.join(__dirname, "index.html"));
+});
+
+app.get("/api/system/version", (req, res) => {
+  let commit = CURRENT_DEPLOY_CENTER_COMMIT;
+  try {
+    commit = child_process.execSync("git rev-parse --short HEAD", { cwd: __dirname }).toString().trim();
+  } catch (e) {}
+  res.json({
+    ok: true,
+    version: "3.0.0",
+    commit,
+    developer: "David Ferreira",
+    github: "https://github.com/DavidFFerreira",
+    repo: "https://github.com/DavidFFerreira/Deployment_center"
+  });
 });
 
 // ==============================================================================
