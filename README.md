@@ -505,7 +505,41 @@ r = requests.post(url, json=payload, headers=headers)
 print("Resultado:", r.json())
 ```
 
-#### 2. Streaming de Progresso em Tempo Real (SSE - Server-Sent Events)
+#### 2. Como Listar e Obter os IDs de Todos os Projetos / Tenants
+
+Para obter a lista de todos os projetos criados e respetivos IDs (`id` / `slug`), chame o endpoint `GET /api/v1/projects`:
+
+```bash
+# Exemplo cURL (retorna todos os IDs)
+curl -X GET "http://SEU_SERVIDOR:50000/api/v1/projects" \
+  -H "Authorization: Bearer dc_live_sec_SUA_CHAVE_AQUI"
+```
+
+```javascript
+// Exemplo Node.js para extrair apenas a lista de IDs
+const resp = await fetch("http://SEU_SERVIDOR:50000/api/v1/projects", {
+  headers: { "Authorization": "Bearer dc_live_sec_SUA_CHAVE_AQUI" }
+});
+const { projects } = await resp.json();
+
+// Obter array com todos os IDs: ['cliente-alfa', 'cliente-beta', ...]
+const projectIds = projects.map(p => p.id);
+console.log("IDs dos Projetos Ativos:", projectIds);
+```
+
+```python
+# Exemplo Python
+import requests
+
+res = requests.get("http://SEU_SERVIDOR:50000/api/v1/projects", headers={
+    "Authorization": "Bearer dc_live_sec_SUA_CHAVE_AQUI"
+})
+projects = res.json().get("projects", [])
+project_ids = [p["id"] for p in projects]
+print("IDs dos Projetos:", project_ids)
+```
+
+#### 3. Streaming de Progresso em Tempo Real (SSE - Server-Sent Events)
 
 Conecte o seu frontend ou worker ao canal SSE para exibir o progresso aos utilizadores enquanto a stack sobe:
 
