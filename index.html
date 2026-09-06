@@ -139,7 +139,7 @@
     </div>
 
     <!-- Controles Rápidos: Projeto, Idioma, Tema, Definições, Logout -->
-    <div class="flex items-center gap-2 sm:gap-3">
+    <div class="flex items-center gap-2">
       <!-- Seletor de Projetos -->
       <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs">
         <i data-lucide="folder-git2" class="w-3.5 h-3.5 text-indigo-500"></i>
@@ -150,13 +150,6 @@
           <i data-lucide="scan-search" class="w-3.5 h-3.5"></i>
         </button>
       </div>
-
-      <!-- Badge de ID do Projeto com Copiar em 1 Clique -->
-      <button onclick="copyActiveProjectId(event)" id="header-project-id-btn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-700 dark:text-purple-300 text-xs font-mono font-bold transition group cursor-pointer" title="Clique para copiar o ID deste projeto (usado na API / SaaS)">
-        <i data-lucide="tag" class="w-3.5 h-3.5 text-purple-500"></i>
-        <span>ID: <strong id="header-project-id-display" class="font-black">...</strong></span>
-        <i data-lucide="copy" class="w-3 h-3 text-purple-400 group-hover:text-purple-600 transition" id="header-project-id-copy-icon"></i>
-      </button>
 
       <!-- Seletor de Idioma -->
       <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs">
@@ -174,28 +167,16 @@
         <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
       </button>
 
-      <!-- Botão Terminal Shell do Servidor (Geral) -->
-      <button onclick="openGlobalTerminalModal()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-emerald-400 hover:text-emerald-300 hover:border-emerald-500 text-xs font-mono font-bold flex items-center gap-1.5 shadow-sm transition" title="Abrir Terminal Shell do Servidor">
-        <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
-        <span class="hidden md:inline">Terminal Servidor</span>
+      <!-- Botão Terminal Shell do Servidor -->
+      <button onclick="openGlobalTerminalModal()" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-emerald-400 hover:text-emerald-300 hover:border-emerald-500 text-xs font-mono font-bold flex items-center gap-1.5 shadow-sm transition" title="Abrir Terminal Shell do Servidor">
+        <i data-lucide="terminal" class="w-3.5 h-3.5 text-emerald-400"></i>
+        <span class="hidden md:inline">Terminal</span>
       </button>
 
       <!-- Botão Atualizar Geral -->
       <button onclick="refreshData()" class="p-2 rounded-xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-indigo-500 transition" title="Sincronizar Tudo">
-        <i data-lucide="refresh-cw" id="refresh-icon" class="w-4 h-4"></i>
+        <i data-lucide="refresh-cw" id="refresh-icon" class="w-3.5 h-3.5"></i>
       </button>
-
-      <!-- Botão API Helper & SaaS Integration (Modal) -->
-      <button onclick="openApiHelperModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600/20 to-purple-600/20 hover:from-indigo-600/30 hover:to-purple-600/30 border border-indigo-500/40 text-indigo-600 dark:text-indigo-300 text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer" title="Abrir Modal Interativo da API & SaaS Helper">
-        <i data-lucide="plug-zap" class="w-4 h-4 text-indigo-500"></i>
-        <span>API Helper</span>
-      </button>
-
-      <!-- Link Direto ao Portal / Documentação da API -->
-      <a href="/api/docs" target="_blank" class="px-2.5 py-1.5 rounded-xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 hover:border-indigo-500 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center gap-1.5 transition" title="Abrir Documentação Completa e Site da API em Nova Aba">
-        <i data-lucide="external-link" class="w-3.5 h-3.5 text-indigo-500"></i>
-        <span class="hidden xl:inline">Site da API</span>
-      </a>
 
       <!-- Botão Definições Globais (Projetos & Gestores) -->
       <button onclick="openSettingsModal()" class="p-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 transition" title="Definições Globais">
@@ -203,7 +184,7 @@
       </button>
 
       <!-- Logout -->
-      <a href="/logout" class="px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 text-xs font-bold flex items-center gap-1.5 transition">
+      <a href="/logout" class="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 text-xs font-bold flex items-center gap-1.5 transition" title="Sair">
         <i data-lucide="log-out" class="w-3.5 h-3.5"></i> <span class="hidden md:inline" data-i18n="logout">Sair</span>
       </a>
     </div>
@@ -215,43 +196,35 @@
   <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 space-y-6">
 
     <!-- ===================================================================== -->
-    <!-- BARRA DE INFORMAÇÕES DO PROJETO ATIVO & ID PARA API / SAAS            -->
+    <!-- BARRA DO PROJETO ATIVO (LIMPA, ELEGANTE E COM ID COPIÁVEL)            -->
     <!-- ===================================================================== -->
-    <div class="p-4 sm:p-5 rounded-3xl glass-card border border-slate-200 dark:border-slate-800 shadow-lg flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3.5">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
-          <i data-lucide="folder-git2" class="w-5 h-5"></i>
+    <div class="p-3.5 sm:p-4 rounded-2xl glass-card border border-slate-200 dark:border-slate-800 shadow-md flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-sm">
+          <i data-lucide="folder-git2" class="w-4 h-4"></i>
         </div>
         <div>
-          <div class="flex items-center gap-2.5 flex-wrap">
-            <h1 class="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight" id="main-project-name">Carregando Projeto...</h1>
-            <button onclick="copyActiveProjectId(event)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-purple-500/15 hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 border border-purple-500/30 transition shadow-sm cursor-pointer group" title="Clique para copiar o ID deste projeto para a API / SaaS">
-              <i data-lucide="tag" class="w-3.5 h-3.5 text-purple-500"></i>
-              <span>ID: <strong id="main-project-id-badge" class="font-black">...</strong></span>
-              <i data-lucide="copy" class="w-3 h-3 text-purple-400 group-hover:text-purple-600 transition" id="main-project-id-copy-icon"></i>
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white" id="main-project-name">Carregando Projeto...</h1>
+            <button onclick="copyActiveProjectId(event)" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-mono font-semibold bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/20 transition cursor-pointer" title="Clique para copiar o ID do Projeto">
+              <i data-lucide="tag" class="w-3 h-3 text-purple-500"></i>
+              <span>ID: <strong id="main-project-id-badge" class="font-bold">...</strong></span>
+              <i data-lucide="copy" class="w-3 h-3 text-purple-400"></i>
             </button>
           </div>
-          <div class="flex items-center gap-2 mt-1 text-xs text-slate-500 dark:text-slate-400 font-mono">
-            <span id="main-project-repo" class="flex items-center gap-1"><i data-lucide="github" class="w-3 h-3"></i> Repositório: -</span>
+          <div class="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+            <span id="main-project-repo">Repo: -</span>
             <span>•</span>
             <span id="main-project-branch">Branch: main</span>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center gap-2.5 flex-wrap">
-        <button onclick="copyActiveProjectId(event)" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-purple-600 hover:text-white dark:bg-slate-800 dark:hover:bg-purple-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:border-purple-600 text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer">
-          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-          <span>Copiar ID do Projeto</span>
-        </button>
-        <button onclick="openApiHelperModal()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-md shadow-indigo-600/20 cursor-pointer">
+      <div class="flex items-center gap-2">
+        <button onclick="openApiHelperModal()" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer" title="Abrir Helper e Exemplos da API M2M">
           <i data-lucide="plug-zap" class="w-3.5 h-3.5"></i>
           <span>API & SaaS Helper</span>
         </button>
-        <a href="/api/docs" target="_blank" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer" title="Ver Documentação Completa e Site da API">
-          <i data-lucide="external-link" class="w-3.5 h-3.5 text-indigo-500"></i>
-          <span>Site da API</span>
-        </a>
       </div>
     </div>
 
@@ -5249,8 +5222,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       const pId = p.id || currentProjectId || 'portal-web';
       const pName = p.name || pId;
 
-      const hBadge = document.getElementById('header-project-id-display');
-      if (hBadge) hBadge.textContent = pId;
+      // Atualizado: ID exibido de forma limpa no badge do banner do projeto
 
       const mName = document.getElementById('main-project-name');
       if (mName) mName.textContent = pName;
