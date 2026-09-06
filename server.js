@@ -152,9 +152,9 @@ function decryptSecret(encryptedPayload) {
 function getSettings() {
   const defaults = {
     github_token: GITHUB_TOKEN || "",
-    truenas_host_ip: process.env.HOST_IP || "127.0.0.1",
-    truenas_apps_dir: "/mnt/Disco1/apps",
-    supabase_master_key: "suavit_supabase_master_secret_2026",
+    server_host_ip: process.env.HOST_IP || "127.0.0.1",
+    server_apps_dir: "/mnt/opt/stacks",
+    supabase_master_key: "deploy_supabase_master_secret_2026",
     author_website: "https://davidferreira.pt",
     author_name: "David Alexandre Ferreira",
   };
@@ -163,8 +163,8 @@ function getSettings() {
       const raw = JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf-8"));
       return {
         github_token: decryptSecret(raw.github_token_enc) || defaults.github_token,
-        truenas_host_ip: raw.truenas_host_ip || defaults.truenas_host_ip,
-        truenas_apps_dir: raw.truenas_apps_dir || defaults.truenas_apps_dir,
+        server_host_ip: raw.server_host_ip || raw.host_ip || defaults.server_host_ip,
+        server_apps_dir: raw.server_apps_dir || raw.apps_dir || defaults.server_apps_dir,
         supabase_master_key: decryptSecret(raw.supabase_master_key_enc) || defaults.supabase_master_key,
         author_website: raw.author_website || defaults.author_website,
         author_name: raw.author_name || defaults.author_name,
@@ -178,8 +178,8 @@ function saveSettings(newSettings) {
   try {
     const toSave = {
       github_token_enc: encryptSecret(newSettings.github_token || ""),
-      truenas_host_ip: newSettings.truenas_host_ip || "192.168.1.4",
-      truenas_apps_dir: newSettings.truenas_apps_dir || "/mnt/Disco1/apps",
+      server_host_ip: newSettings.server_host_ip || "192.168.1.4",
+      server_apps_dir: newSettings.server_apps_dir || "/mnt/opt/stacks",
       supabase_master_key_enc: encryptSecret(newSettings.supabase_master_key || ""),
       author_website: (newSettings.author_website && typeof newSettings.author_website === "string") ? newSettings.author_website.trim() : "https://davidferreira.pt",
       author_name: (newSettings.author_name && typeof newSettings.author_name === "string") ? newSettings.author_name.trim() : "David Alexandre Ferreira",
@@ -212,37 +212,37 @@ app.use(cookieParser());
 
 const DEFAULT_PROJECTS = [
   {
-    id: "suavit-portal",
-    name: "Suavit Portal",
+    id: "app-portal",
+    name: "App Portal",
     repoOwner: "DavidFFerreira",
-    repoName: "Suavit_portal",
+    repoName: "App_portal",
     branch: "main",
-    appDir: fs.existsSync("/mnt/Disco1/apps/suavit-portal") ? "/mnt/Disco1/apps/suavit-portal" : "/opt/stacks/suavit-portal",
-    containerPrefix: "suavit-",
-    postgresContainer: "suavit-postgres",
-    postgrestContainer: "suavit-postgrest",
-    kongContainer: "suavit-kong",
+    appDir: fs.existsSync("/opt/stacks/app-portal") ? "/opt/stacks/app-portal" : "/opt/stacks/app-portal",
+    containerPrefix: "app-",
+    postgresContainer: "app-postgres",
+    postgrestContainer: "app-postgrest",
+    kongContainer: "app-kong",
     studioPort: 58323,
     kongPort: 58000,
     postgresPort: 58432,
     production: {
-      serviceName: "suavit-portal-prod",
+      serviceName: "app-portal-prod",
       port: 58100,
-      host: "www.suavit.com",
-      containerName: "suavit-portal-prod",
+      host: "www.exemplo.com",
+      containerName: "app-portal-prod",
     },
     staging: {
-      serviceName: "suavit-portal-staging",
+      serviceName: "app-portal-staging",
       port: 58101,
-      host: "testes.suavit.com",
-      containerName: "suavit-portal-staging",
+      host: "testes.exemplo.com",
+      containerName: "app-portal-staging",
     },
   },
 ];
 
 function isDeployCenterProject(projectPath, dirName) {
   if (!projectPath || !fs.existsSync(projectPath)) return false;
-  if (dirName === "suavit-portal") return true;
+  if (dirName === "app-portal") return true;
 
   // 1. Ficheiros característicos gerados obrigatoriamente pelo Deployment Center
   const hasKongConfig =
@@ -275,12 +275,12 @@ function isDeployCenterProject(projectPath, dirName) {
 
 function autoDiscoverProjects(baseList = []) {
   const settings = getSettings();
-  const baseAppsDir = settings.truenas_apps_dir || "/mnt/Disco1/apps";
+  const baseAppsDir = settings.server_apps_dir || "/mnt/opt/stacks";
   const searchDirs = [baseAppsDir, "/opt/stacks"];
 
   // Filtrar rigorosamente a lista base para manter apenas projetos válidos do Deployment Center
   let projects = baseList.filter((p) => {
-    if (p.id === "suavit-portal") return true;
+    if (p.id === "app-portal") return true;
     return isDeployCenterProject(p.appDir, p.id);
   });
 
@@ -368,13 +368,13 @@ function autoDiscoverProjects(baseList = []) {
           production: {
             serviceName: `${cleanId}-portal-prod`,
             port: prodPort,
-            host: `${cleanId}.suavit.com`,
+            host: `${cleanId}.exemplo.com`,
             containerName: `${cleanId}-portal-prod`,
           },
           staging: {
             serviceName: `${cleanId}-portal-staging`,
             port: stagingPort,
-            host: `testes.${cleanId}.suavit.com`,
+            host: `testes.${cleanId}.exemplo.com`,
             containerName: `${cleanId}-portal-staging`,
           },
         };
@@ -398,7 +398,7 @@ function getProjects() {
 
   if (list.length === 0) {
     // Tentar importar de dados legados se existirem
-    const legacyPath = "/mnt/Disco1/apps/suavit-portal/data/deploy-center/projects.json";
+    const legacyPath = "/opt/stacks/app-portal/data/deploy-center/projects.json";
     try {
       if (fs.existsSync(legacyPath)) {
         const legacyData = JSON.parse(fs.readFileSync(legacyPath, "utf-8"));
@@ -430,8 +430,8 @@ function findProject(projectId, envType = "production") {
   if (!p && list.length > 0) p = list[0];
   if (!p) p = DEFAULT_PROJECTS[0];
 
-  const cleanId = p.id || "suavit-portal";
-  const pNum = p.portPrefix || (cleanId === "suavit-portal" ? 58 : 60);
+  const cleanId = p.id || "app-portal";
+  const pNum = p.portPrefix || (cleanId === "app-portal" ? 58 : 60);
   const prodPort = p.production?.port || Number(`${pNum}100`);
   const stagingPort = p.staging?.port || Number(`${pNum}101`);
   const prodContainer = p.production?.containerName || p.production?.container || `${cleanId}-portal-prod`;
@@ -543,7 +543,7 @@ function getLocalDeployUsers() {
   } catch (e) {}
 
   // Tentar importar de dados legados se existirem
-  const legacyUsersPath = "/mnt/Disco1/apps/suavit-portal/data/deploy-center/deploy_users.json";
+  const legacyUsersPath = "/opt/stacks/app-portal/data/deploy-center/deploy_users.json";
   try {
     if (fs.existsSync(legacyUsersPath)) {
       const legacyData = JSON.parse(fs.readFileSync(legacyUsersPath, "utf-8"));
@@ -567,7 +567,7 @@ function getLocalDeployUsers() {
       id: "antigravity-ai-id",
       username: "antigravity",
       name: "Antigravity AI Assistant",
-      password: "Suavit_AI_Deploy_2026!#",
+      password: "Deploy_AI_Assistant_2026!#",
       created_at: new Date().toISOString(),
       last_login_at: null,
     },
@@ -583,7 +583,7 @@ function saveLocalDeployUsers(users) {
   } catch (e) {}
 }
 
-async function runSql(sqlQuery, targetContainer = "suavit-postgres") {
+async function runSql(sqlQuery, targetContainer = "app-postgres") {
   try {
     const escaped = sqlQuery.replace(/"/g, '\\"');
     const { stdout, stderr } = await execAsync(
@@ -622,7 +622,7 @@ function verifySessionToken(token) {
 }
 
 function requireAuth(req, res, next) {
-  const token = req.cookies?.deploy_auth || req.cookies?.suavit_deploy_auth;
+  const token = req.cookies?.deploy_auth || req.cookies?.deploy_auth;
   const user = verifySessionToken(token);
   if (user) {
     req.user = user;
@@ -863,7 +863,7 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/logout", (req, res) => {
-  res.clearCookie("deploy_auth"); res.clearCookie("suavit_deploy_auth");
+  res.clearCookie("deploy_auth"); 
   res.redirect("/");
 });
 
@@ -962,7 +962,7 @@ app.get("/api/status", requireAuth, async (req, res) => {
   try {
     const settings = getSettings();
     const token = settings?.github_token || process.env.GITHUB_TOKEN || "";
-    const hostIp = settings?.truenas_host_ip || process.env.HOST_IP || "127.0.0.1";
+    const hostIp = settings?.server_host_ip || process.env.HOST_IP || "127.0.0.1";
     const projectId = req.query.project_id || (getProjects()[0]?.id || "portal-web");
     const project = findProject(projectId);
     const state = await getProjectDeployState(project);
@@ -1088,7 +1088,7 @@ app.get("/api/preview", requireAuth, async (req, res) => {
   const env = req.query.env === "production" || req.query.env === "prod" ? "production" : "staging";
   const project = findProject(projectId);
   const port = env === "production" ? (project.production?.port || 58100) : (project.staging?.port || 58101);
-  const hostIp = settings?.truenas_host_ip || "192.168.1.4";
+  const hostIp = settings?.server_host_ip || "192.168.1.4";
 
   try {
     const targetUrl = `http://${hostIp}:${port}/`;
@@ -1206,7 +1206,7 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
       const authRemote = GITHUB_TOKEN ? `https://${GITHUB_TOKEN}@github.com/${project.repoOwner}/${project.repoName}.git` : "origin";
       const targetFolder = environment === "production" ? ".output_prod" : ".output_staging";
 
-      // 1. Garantir que a pasta do projeto no TrueNAS é um repositório git inicializado
+      // 1. Garantir que a pasta do projeto no servidor é um repositório git inicializado
       if (!fs.existsSync(path.join(targetDir, ".git"))) {
         await execAsync(`cd "${targetDir}" && git init && git remote add origin "${authRemote}" 2>/dev/null || true`);
       }
@@ -1313,13 +1313,13 @@ app.post("/api/terminal/stream", requireAuth, (req, res) => {
   }
 
   const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"));
-  const targetDir = project.appDir || "/opt/stacks/suavit-portal";
+  const targetDir = project.appDir || "/opt/stacks/app-portal";
 
   // 1. Remover sudo para evitar erro em ambiente container
   let processedCmd = command.replace(/\bsudo\s+/g, "");
 
   // 2. Limpar ficheiros temporários bloqueados em /tmp
-  if (processedCmd.includes("update.sh") || processedCmd.includes("update_truenas.sh")) {
+  if (processedCmd.includes("update.sh") || processedCmd.includes("update.sh")) {
     try {
       if (fs.existsSync("/tmp/update.sh")) fs.unlinkSync("/tmp/update.sh");
       if (fs.existsSync("/tmp/update_run.sh")) fs.unlinkSync("/tmp/update_run.sh");
@@ -1333,16 +1333,16 @@ app.post("/api/terminal/stream", requireAuth, (req, res) => {
     }
   }
 
-  // 4. Se for o script oficial update_truenas.sh, usar execução direta ou download seguro
-  if (processedCmd.includes("update_truenas.sh") || processedCmd.includes("update.sh")) {
+  // 4. Se for o script oficial update.sh, usar execução direta ou download seguro
+  if (processedCmd.includes("update.sh") || processedCmd.includes("update.sh")) {
     const tokenToUse = GITHUB_TOKEN || "";
-    const localScript = path.join(targetDir, "scripts", "update_truenas.sh");
+    const localScript = path.join(targetDir, "scripts", "update.sh");
     if (fs.existsSync(localScript)) {
       try { fs.chmodSync(localScript, 0o755); } catch (e) {}
       processedCmd = `bash "${localScript}" "${tokenToUse}"`;
     } else {
       const tmpFile = `/tmp/update_run_${Date.now()}.sh`;
-      processedCmd = `curl -fsSL -H "Authorization: token ${tokenToUse}" https://raw.githubusercontent.com/DavidFFerreira/Suavit_portal/main/scripts/update_truenas.sh -o "${tmpFile}" && bash "${tmpFile}" "${tokenToUse}" && rm -f "${tmpFile}"`;
+      processedCmd = `curl -fsSL -H "Authorization: token ${tokenToUse}" https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/update.sh -o "${tmpFile}" && bash "${tmpFile}" "${tokenToUse}" && rm -f "${tmpFile}"`;
     }
   }
 
@@ -1407,12 +1407,12 @@ app.post("/api/terminal/exec", requireAuth, async (req, res) => {
   }
 
   const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"));
-  const targetDir = project.appDir || "/opt/stacks/suavit-portal";
+  const targetDir = project.appDir || "/opt/stacks/app-portal";
   const start = Date.now();
 
   let processedCmd = command.replace(/\bsudo\s+/g, "");
 
-  if (processedCmd.includes("update.sh") || processedCmd.includes("update_truenas.sh")) {
+  if (processedCmd.includes("update.sh") || processedCmd.includes("update.sh")) {
     try {
       if (fs.existsSync("/tmp/update.sh")) fs.unlinkSync("/tmp/update.sh");
       if (fs.existsSync("/tmp/update_run.sh")) fs.unlinkSync("/tmp/update_run.sh");
@@ -1461,11 +1461,11 @@ app.post("/api/terminal/exec", requireAuth, async (req, res) => {
   }
 });
 
-// Endpoint dedicado para disparar o Update Oficial do TrueNAS
-app.post("/api/terminal/run-truenas-update", requireAuth, async (req, res) => {
+// Endpoint dedicado para disparar o Update Oficial do servidor
+app.post("/api/terminal/run-server-update", requireAuth, async (req, res) => {
   const token = req.body.token || GITHUB_TOKEN || "";
   const start = Date.now();
-  const localScript = "/opt/stacks/suavit-portal/scripts/update_truenas.sh";
+  const localScript = "/opt/stacks/app-portal/scripts/update.sh";
   
   let updateScriptCmd = "";
   if (fs.existsSync(localScript)) {
@@ -1473,19 +1473,19 @@ app.post("/api/terminal/run-truenas-update", requireAuth, async (req, res) => {
     updateScriptCmd = `bash "${localScript}" "${token}"`;
   } else {
     const tmpFile = `/tmp/update_run_${Date.now()}.sh`;
-    updateScriptCmd = `curl -fsSL -H "Authorization: token ${token}" https://raw.githubusercontent.com/DavidFFerreira/Suavit_portal/main/scripts/update_truenas.sh -o "${tmpFile}" && bash "${tmpFile}" "${token}" && rm -f "${tmpFile}"`;
+    updateScriptCmd = `curl -fsSL -H "Authorization: token ${token}" https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/update.sh -o "${tmpFile}" && bash "${tmpFile}" "${token}" && rm -f "${tmpFile}"`;
   }
 
   try {
     const { stdout, stderr } = await execAsync(updateScriptCmd, {
-      cwd: "/opt/stacks/suavit-portal",
+      cwd: "/opt/stacks/app-portal",
       maxBuffer: 50 * 1024 * 1024,
       timeout: 300000,
       shell: "/bin/bash",
       env: {
         ...process.env,
         PATH: process.env.PATH + ":/usr/local/bin:/usr/bin:/bin",
-        APP_DIR: "/opt/stacks/suavit-portal",
+        APP_DIR: "/opt/stacks/app-portal",
         GITHUB_TOKEN: token,
       }
     });
@@ -1537,8 +1537,8 @@ app.get("/api/containers", requireAuth, async (req, res) => {
         };
       })
       .filter((c) => {
-        if (project.id === "suavit-portal") {
-          return c.name.startsWith("suavit-") || c.name.startsWith("supabase-");
+        if (project.id === "app-portal") {
+          return c.name.startsWith("app-") || c.name.startsWith("supabase-");
         }
         return c.name.startsWith(prefix) || c.name.startsWith(`${project.id}-`);
       });
@@ -1591,9 +1591,9 @@ app.post("/api/containers/restart-all", requireAuth, async (req, res) => {
 });
 
 app.get("/api/logs", requireAuth, async (req, res) => {
-  const service = req.query.service || "suavit-portal-prod";
+  const service = req.query.service || "app-portal-prod";
   try {
-    const cleanService = (service || "suavit-portal-prod").replace(/[^a-zA-Z0-9_\-\.]/g, "");
+    const cleanService = (service || "app-portal-prod").replace(/[^a-zA-Z0-9_\-\.]/g, "");
     const { stdout, stderr } = await execAsync(`docker logs --tail 300 --timestamps ${cleanService}`);
     res.json({ ok: true, service: cleanService, logs: stdout || stderr || "Sem logs registados ainda." });
   } catch (e) {
@@ -1724,7 +1724,7 @@ app.post("/api/storage/upload", requireAuth, async (req, res) => {
 
       // 1. Tentar upload via API HTTP do Supabase Storage
       try {
-        const storageUrl = `http://${project.kongContainer || "suavit-kong"}:8000/storage/v1/object/${bucket_id}/${encodeURIComponent(fullPath)}`;
+        const storageUrl = `http://${project.kongContainer || "app-kong"}:8000/storage/v1/object/${bucket_id}/${encodeURIComponent(fullPath)}`;
         const resp = await fetch(storageUrl, {
           method: "POST",
           headers: {
@@ -1762,7 +1762,7 @@ app.get("/api/storage/download-file", requireAuth, async (req, res) => {
   if (!bucket_id || !name) return res.status(400).send("Parâmetros em falta");
 
   try {
-    const storageUrl = `http://${project.kongContainer || "suavit-kong"}:8000/storage/v1/object/public/${bucket_id}/${encodeURIComponent(name)}`;
+    const storageUrl = `http://${project.kongContainer || "app-kong"}:8000/storage/v1/object/public/${bucket_id}/${encodeURIComponent(name)}`;
     const resp = await fetch(storageUrl, {
       headers: { Authorization: `Bearer ${SERVICE_ROLE_KEY}` },
     });
@@ -1817,7 +1817,7 @@ app.get("/api/storage/export-zip", requireAuth, async (req, res) => {
   const zipFiles = [];
   for (const f of filesList) {
     try {
-      const storageUrl = `http://${project.kongContainer || "suavit-kong"}:8000/storage/v1/object/public/${f.bucket_id}/${encodeURIComponent(f.name)}`;
+      const storageUrl = `http://${project.kongContainer || "app-kong"}:8000/storage/v1/object/public/${f.bucket_id}/${encodeURIComponent(f.name)}`;
       const resp = await fetch(storageUrl, { headers: { Authorization: `Bearer ${SERVICE_ROLE_KEY}` } });
       let buffer = Buffer.alloc(0);
       if (resp.ok) {
@@ -1895,7 +1895,7 @@ app.post("/api/storage/restore-zip", requireAuth, async (req, res) => {
 
       // 1. Tentar via HTTP Storage API
       try {
-        const storageUrl = `http://${project.kongContainer || "suavit-kong"}:8000/storage/v1/object/${targetBucket}/${encodeURIComponent(relativePath)}`;
+        const storageUrl = `http://${project.kongContainer || "app-kong"}:8000/storage/v1/object/${targetBucket}/${encodeURIComponent(relativePath)}`;
         const resp = await fetch(storageUrl, {
           method: "POST",
           headers: {
@@ -2049,7 +2049,7 @@ app.post("/api/db/backup", requireAuth, async (req, res) => {
   const { project_id, schema_only, env } = req.body;
   const targetEnv = env || "production";
   const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), targetEnv);
-  const containerName = project.postgresContainer || "suavit-postgres";
+  const containerName = project.postgresContainer || "app-postgres";
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   const filename = `${project.id}_${targetEnv}_backup_${schema_only ? "schema_" : "full_"}${timestamp}.sql`;
   const filepath = path.join(BACKUPS_DIR, filename);
@@ -2108,8 +2108,8 @@ app.post("/api/db/restore", requireAuth, async (req, res) => {
   const { project_id, filename, sql_content, env } = req.body;
   const targetEnv = env || "production";
   const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), targetEnv);
-  const containerName = project.postgresContainer || "suavit-postgres";
-  const targetPgrst = project.postgrestContainer || "suavit-postgrest";
+  const containerName = project.postgresContainer || "app-postgres";
+  const targetPgrst = project.postgrestContainer || "app-postgrest";
 
   try {
     if (filename) {
@@ -2287,8 +2287,8 @@ app.get("/api/settings/credentials", requireAuth, (req, res) => {
     ok: true,
     github_token_masked: mask(s.github_token),
     github_token_set: Boolean(s.github_token),
-    truenas_host_ip: s.truenas_host_ip,
-    truenas_apps_dir: s.truenas_apps_dir,
+    server_host_ip: s.server_host_ip,
+    server_apps_dir: s.server_apps_dir,
     supabase_master_key_masked: mask(s.supabase_master_key, 3),
     author_website: s.author_website || "https://davidferreira.pt",
     author_name: s.author_name || "David Alexandre Ferreira",
@@ -2296,13 +2296,13 @@ app.get("/api/settings/credentials", requireAuth, (req, res) => {
 });
 
 app.post("/api/settings/credentials", requireAuth, (req, res) => {
-  const { github_token, truenas_host_ip, truenas_apps_dir, supabase_master_key, author_website, author_name } = req.body;
+  const { github_token, server_host_ip, server_apps_dir, supabase_master_key, author_website, author_name } = req.body;
   const current = getSettings();
 
   const newSettings = {
     github_token: (github_token && !github_token.includes("••••")) ? github_token.trim() : current.github_token,
-    truenas_host_ip: (truenas_host_ip && typeof truenas_host_ip === "string") ? truenas_host_ip.trim() : current.truenas_host_ip,
-    truenas_apps_dir: (truenas_apps_dir && typeof truenas_apps_dir === "string") ? truenas_apps_dir.trim() : current.truenas_apps_dir,
+    server_host_ip: (server_host_ip && typeof server_host_ip === "string") ? server_host_ip.trim() : current.server_host_ip,
+    server_apps_dir: (server_apps_dir && typeof server_apps_dir === "string") ? server_apps_dir.trim() : current.server_apps_dir,
     supabase_master_key: (supabase_master_key && !supabase_master_key.includes("••••")) ? supabase_master_key.trim() : current.supabase_master_key,
     author_website: (author_website && typeof author_website === "string") ? author_website.trim() : current.author_website,
     author_name: (author_name && typeof author_name === "string") ? author_name.trim() : current.author_name,
@@ -2356,31 +2356,31 @@ function getDefaultRuleTemplates() {
     commit_message: {
       id: "commit_message",
       filename: "commit_message_guideline.md",
-      title: "Diretiva de Commits & Atualização TrueNAS",
-      description: "Obriga a IA a sugerir títulos de commit claros e a devolver o comando curl update_truenas.sh do projeto.",
-      template: `# Diretiva de Commits & Atualização TrueNAS — {name}
+      title: "Diretiva de Commits & Atualização do Servidor",
+      description: "Obriga a IA a sugerir títulos de commit claros e a devolver o comando curl update.sh do projeto.",
+      template: `# Diretiva de Commits & Atualização do Servidor — {name}
 
 O utilizador gere o repositório deste projeto ({name}) de forma independente e exige mensagens de commit claras e estruturadas para cada alteração efetuada.
 
 **Regra Principal**:
 Sempre que fizeres alterações ao código, adicionares funcionalidades, ou corrigires bugs neste projeto, no final da tua resposta deves obrigatoriamente fornecer:
 1. Uma sugestão de título (assunto) e texto (descrição) para o commit que o utilizador vai fazer no Github.
-2. O comando obrigatório para o utilizador atualizar o servidor TrueNAS (usando o script de atualização segura sem perda de dados \`update_truenas.sh\`):
+2. O comando obrigatório para o utilizador atualizar o servidor Linux (usando o script de atualização segura sem perda de dados \`update.sh\`):
 \`\`\`bash
-curl -fsSL -H "Authorization: token {token}" https://raw.githubusercontent.com/{repoOwner}/{repoName}/main/scripts/update_truenas.sh -o /tmp/update.sh && sudo bash /tmp/update.sh {token}
+curl -fsSL -H "Authorization: token {token}" https://raw.githubusercontent.com/{repoOwner}/{repoName}/main/scripts/update.sh -o /tmp/update.sh && sudo bash /tmp/update.sh {token}
 \`\`\`
 
 **Formato Esperado (apenas texto simples ou markdown)**:
 - **Título**: [Um título curto e claro, preferencialmente em PT-PT]
 - **Descrição**: [Lista de tópicos descrevendo as partes principais do que foi alterado]
-- **Comando de Atualização no TrueNAS**:
+- **Comando de Atualização no servidor**:
 \`\`\`bash
-curl -fsSL -H "Authorization: token {token}" https://raw.githubusercontent.com/{repoOwner}/{repoName}/main/scripts/update_truenas.sh -o /tmp/update.sh && sudo bash /tmp/update.sh {token}
+curl -fsSL -H "Authorization: token {token}" https://raw.githubusercontent.com/{repoOwner}/{repoName}/main/scripts/update.sh -o /tmp/update.sh && sudo bash /tmp/update.sh {token}
 \`\`\`
 
 **Regras de Qualidade e Validação**:
 1. **Compilação e Geração de Outputs Obrigatória**:
-   - Sempre que fizeres alterações ao código, deves correr a compilação de produção localmente (\`npm run build\`), garantindo que a pasta \`.output/\` é gerada com 0 erros e adicionada ao commit para que o servidor TrueNAS atualize imediatamente os ambientes de Testes (\`.output_staging\`) e Produção (\`.output_prod\`).
+   - Sempre que fizeres alterações ao código, deves correr a compilação de produção localmente (\`npm run build\`), garantindo que a pasta \`.output/\` é gerada com 0 erros e adicionada ao commit para que o servidor Linux atualize imediatamente os ambientes de Testes (\`.output_staging\`) e Produção (\`.output_prod\`).
    - Validar a compilação estática com \`npx tsc --noEmit\`.
 2. **Preservação de Dados**: Nunca alterar volumes de base de dados ou ficheiros .env diretamente sem salvaguarda.`,
     },
@@ -2494,10 +2494,10 @@ return createClient<Database>(SUPABASE_URL, keyToUse, {
       id: "docker_pinning",
       filename: "docker_images_pinning_guideline.md",
       title: "Versões Imutáveis de Imagens Docker",
-      description: "Garante versões semânticas fixas sem :latest para prevenir erros no TrueNAS.",
+      description: "Garante versões semânticas fixas sem :latest para prevenir erros no servidor.",
       template: `# Diretiva de Versões Imutáveis de Imagens Docker
 
-Para garantir 100% de estabilidade e prevenir falhas de instalação no TrueNAS SCALE (\`manifest unknown\`), todas as imagens Docker no ecossistema deste projeto DEVEM utilizar versões semânticas fixas testadas no Docker Hub.
+Para garantir 100% de estabilidade e prevenir falhas de instalação no servidor SCALE (\`manifest unknown\`), todas as imagens Docker no ecossistema deste projeto DEVEM utilizar versões semânticas fixas testadas no Docker Hub.
 
 **Tabela de Imagens Oficiais Obrigatórias**:
 - PostgreSQL: \`postgres:15\`
@@ -2722,7 +2722,7 @@ app.post("/api/rules/sync-project", requireAuth, async (req, res) => {
   const templates = getRuleTemplates();
   const settings = getSettings();
   const tokenVal = settings.github_token || "";
-  const hostIp = settings.truenas_host_ip || "192.168.1.4";
+  const hostIp = settings.server_host_ip || "192.168.1.4";
 
   // Função para interpolar variáveis no template
   const replaceVars = (tmpl) => {
@@ -3182,17 +3182,17 @@ app.post("/api/skills/import-url", requireAuth, async (req, res) => {
 });
 
 // ==============================================================================
-// APIS: FOLDER BROWSER (EXPLORADOR VISUAL DE PASTAS DO TRUENAS)
+// APIS: FOLDER BROWSER (EXPLORADOR VISUAL DE PASTAS DO SERVIDOR)
 // ==============================================================================
 
 app.get("/api/system/fs-browse", requireAuth, (req, res) => {
-  let reqPath = req.query.path || getSettings().truenas_apps_dir || "/mnt/Disco1/apps";
+  let reqPath = req.query.path || getSettings().server_apps_dir || "/mnt/opt/stacks";
   try {
     // Normalizar e proteger contra directory traversal
     let safePath = path.resolve(reqPath);
     if (!fs.existsSync(safePath)) {
       // Tentar o pai ou fallback para /mnt ou /opt/stacks
-      safePath = fs.existsSync("/mnt/Disco1/apps") ? "/mnt/Disco1/apps" : (fs.existsSync("/opt/stacks") ? "/opt/stacks" : "/");
+      safePath = fs.existsSync("/mnt/opt/stacks") ? "/mnt/opt/stacks" : (fs.existsSync("/opt/stacks") ? "/opt/stacks" : "/");
     }
 
     const entries = fs.readdirSync(safePath, { withFileTypes: true });
@@ -3371,7 +3371,7 @@ app.get("/api/projects/check-prefix", requireAuth, async (req, res) => {
     });
   }
 
-  // 2. Verificar portas em uso por todos os contentores no Docker do TrueNAS
+  // 2. Verificar portas em uso por todos os contentores no Docker do servidor
   let dockerPortConflicts = [];
   let existingDockerContainers = [];
   try {
@@ -3398,7 +3398,7 @@ app.get("/api/projects/check-prefix", requireAuth, async (req, res) => {
     return res.json({
       ok: false,
       available: false,
-      message: `Conflito de portas detetado no TrueNAS: ${conflictDetails}.`,
+      message: `Conflito de portas detetado no servidor: ${conflictDetails}.`,
       conflictDetails,
     });
   }
@@ -3415,7 +3415,7 @@ app.get("/api/projects/check-prefix", requireAuth, async (req, res) => {
       studio: `${pNum}323`,
       inbucket: `${pNum}999`,
     },
-    message: `✓ Prefixo ${pNum} e todas as portas (${pNum}000 a ${pNum}432) estão 100% livres no TrueNAS!`,
+    message: `✓ Prefixo ${pNum} e todas as portas (${pNum}000 a ${pNum}432) estão 100% livres no servidor!`,
   });
 });
 
@@ -3601,7 +3601,7 @@ app.post("/api/projects/:id/repair-stack", requireAuth, async (req, res) => {
   if (!project) return res.status(404).json({ ok: false, error: "Projeto não encontrado." });
 
   const settings = getSettings();
-  const dbPassword = settings.supabase_master_key || "suavit_secret_db_pass_2026";
+  const dbPassword = settings.supabase_master_key || "deploy_secret_db_pass_2026";
   const logs = [];
   const emitLog = (msg) => logs.push(msg);
 
@@ -3668,9 +3668,9 @@ app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
   }
 
   // 1. Definições globais e segredos da stack
-  const hostIp = settings.truenas_host_ip || "192.168.1.4";
-  const dbPassword = req.body.dbPassword || settings.supabase_master_key || "suavit_secret_db_pass_2026";
-  const jwtSecret = `super_secret_jwt_key_${cleanSlug}_portal_truenas_scale_64_chars_long`;
+  const hostIp = settings.server_host_ip || "192.168.1.4";
+  const dbPassword = req.body.dbPassword || settings.supabase_master_key || "deploy_secret_db_pass_2026";
+  const jwtSecret = `super_secret_jwt_key_${cleanSlug}_portal_server_host_64_chars_long`;
   const anonKey = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzg4MTkyNTU2LCJleHAiOjIxMDM1NTI1NTZ9.EHchSdQ898QHiuVncgL2UpV5sScvp0qTcYeZTTwiq9E`;
   const serviceKey = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3ODgxOTI1NTYsImV4cCI6MjEwMzU1MjU1Nn0.1LjNW3Rn5ekVZOVq4UfQw5aRfLmpwq0VlZKfkOv0EAg`;
 
@@ -3707,7 +3707,7 @@ app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
     }
   }
 
-  // Verificação de conflito ativo com outros contentores em execução no Docker do TrueNAS
+  // Verificação de conflito ativo com outros contentores em execução no Docker do servidor
   try {
     const { stdout: psOut } = await execAsync(`docker ps -a --format "{{.Names}}|{{.Ports}}"`, { timeout: 15000 });
     const lines = psOut.trim().split("\n").filter(Boolean);
@@ -3718,7 +3718,7 @@ app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
           if (cPorts.includes(`:${prt}->`)) {
             sendEvent("error", {
               ok: false,
-              error: `A porta ${prt} já está em uso pelo contentor "${cName}" no TrueNAS. Por favor escolha outro prefixo ou altere os últimos dígitos.`,
+              error: `A porta ${prt} já está em uso pelo contentor "${cName}" no servidor. Por favor escolha outro prefixo ou altere os últimos dígitos.`,
             });
             return res.end();
           }
@@ -3727,7 +3727,7 @@ app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
     }
   } catch (e) {}
 
-  const targetAppDir = path.resolve(baseDir || path.join(settings.truenas_apps_dir || "/mnt/Disco1/apps", cleanSlug));
+  const targetAppDir = path.resolve(baseDir || path.join(settings.server_apps_dir || "/mnt/opt/stacks", cleanSlug));
   emitLog(`[1/5] A iniciar provisionamento da stack para "${name}" (${cleanSlug})...`);
 
   // Rastreadores para rollback automático caso ocorra qualquer erro
@@ -3771,7 +3771,7 @@ app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
       }
     }
 
-    // 3. Limpeza de diretórios no TrueNAS
+    // 3. Limpeza de diretórios no servidor
     if (directoryCreated) {
       try {
         emitLog(`[Rollback 3/4] A remover diretórios locais em ${targetAppDir}...`);
@@ -3833,7 +3833,7 @@ app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
     }
   }
 
-  // 3. Criação de Pastas, Permissões e Cópia do Código Base no TrueNAS
+  // 3. Criação de Pastas, Permissões e Cópia do Código Base no servidor
   try {
     emitLog(`[3/5] A criar diretórios e a inicializar código base em ${targetAppDir}...`);
     const subDirs = [
@@ -3950,7 +3950,7 @@ services:
     let initSqlContent = "";
     if (fs.existsSync(initSqlTemplatePath)) {
       initSqlContent = fs.readFileSync(initSqlTemplatePath, "utf-8");
-      initSqlContent = initSqlContent.replace(/suavit_secret_db_pass_2026/g, dbPassword);
+      initSqlContent = initSqlContent.replace(/deploy_secret_db_pass_2026/g, dbPassword);
     } else {
       initSqlContent = `
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -4035,9 +4035,9 @@ GRANT ALL ON TABLE storage.migrations TO postgres, service_role, supabase_storag
 
 ---
 
-## 📦 1. Topologia de Contentores Docker (TrueNAS Multi-Stack Isolada)
+## 📦 1. Topologia de Contentores Docker (Linux Multi-Stack Isolada)
 
-A stack deste projeto corre de forma 100% isolada no servidor TrueNAS, utilizando contentores Docker dedicados e separados para **Produção Oficial** e **Ambiente de Testes (Staging)**:
+A stack deste projeto corre de forma 100% isolada no servidor Linux, utilizando contentores Docker dedicados e separados para **Produção Oficial** e **Ambiente de Testes (Staging)**:
 
 ### A. Ambiente de Produção Oficial
 | Serviço / Contentor | Imagem | Porta Exposta (Host) | Porta Interna | Função & Responsabilidade |
@@ -4243,11 +4243,11 @@ docker logs --tail 50 ${cleanSlug}-storage
 \`\`\`
 `.trim();
 
-    // 3.3 Gerar script dedicado de update no TrueNAS (scripts/update_truenas.sh) com suporte a inicialização inteligente
+    // 3.3 Gerar script dedicado de update no servidor (scripts/update.sh) com suporte a inicialização inteligente
     const tokenVal = settings.github_token || "";
     const updateScriptContent = `#!/usr/bin/env bash
 # =============================================================================
-#   ATUALIZADOR AUTOMÁTICO SEGURO TRUENAS SCALE — \${GITHUB_REPO}
+#   Atualizador Automático Seguro — \${GITHUB_REPO}
 # =============================================================================
 
 set -euo pipefail
@@ -4327,8 +4327,8 @@ if [ -d "\${APP_DIR}/runner.js" ]; then
 fi
 
 if [ ! -f "\${APP_DIR}/runner.js" ]; then
-  if [ -f "/mnt/Disco1/apps/suavit-portal/runner.js" ]; then
-    cp -f "/mnt/Disco1/apps/suavit-portal/runner.js" "\${APP_DIR}/runner.js" 2>/dev/null || true
+  if [ -f "/opt/stacks/app-portal/runner.js" ]; then
+    cp -f "/opt/stacks/app-portal/runner.js" "\${APP_DIR}/runner.js" 2>/dev/null || true
   fi
 fi
 [ -f "\${APP_DIR}/runner.js" ] && chmod 755 "\${APP_DIR}/runner.js" 2>/dev/null || true
@@ -4399,7 +4399,7 @@ echo -e "\${C_GREEN}\${C_BOLD}+-------------------------------------------------
 echo ""
 `.trim();
 
-    const updateScriptFile = path.join(targetAppDir, "scripts", "update_truenas.sh");
+    const updateScriptFile = path.join(targetAppDir, "scripts", "update.sh");
     await writeFileWithSudo(updateScriptFile, updateScriptContent);
     try { await execAsync(`sudo chmod 755 "${updateScriptFile}"`); } catch (e) {}
 
@@ -4467,7 +4467,7 @@ Thumbs.db
       { path: "ARCHITECTURE.md", content: aiContextContent, msg: "docs: add architecture context guide for AI assistants" },
       { path: "SUPABASE_INTEGRATION_GUIDE.md", content: supabaseGuideContent, msg: "docs: add supabase and storage integration guide with credentials" },
       { path: "src/integrations/supabase/client.ts", content: supabaseClientCode, msg: "feat: add preconfigured supabase client" },
-      { path: "scripts/update_truenas.sh", content: updateScriptContent, msg: "ci: add update_truenas.sh automated deployment script" },
+      { path: "scripts/update.sh", content: updateScriptContent, msg: "ci: add update.sh automated deployment script" },
     ];
 
     // 3.3.1 Injetar runner.js oficial (executor universal de SSR Nitro, SPA Vite e página de boas-vindas)
@@ -4604,7 +4604,7 @@ const server = http.createServer(async (req, res) => {
   <div class="card">
     <div class="badge"><span class="dot"></span> Stack Provisionada &amp; Operacional</div>
     <h1>Ambiente Pronto para Desenvolvimento</h1>
-    <p>Os contentores da stack (PostgreSQL, GoTrue Auth, Storage API, Kong Gateway e Supabase Studio) estão 100% ativos no TrueNAS.</p>
+    <p>Os contentores da stack (PostgreSQL, GoTrue Auth, Storage API, Kong Gateway e Supabase Studio) estão 100% ativos no servidor.</p>
     <div class="info-box">
       &bull; Ambiente: <strong>\${process.env.NODE_ENV || 'production'}</strong><br>
       &bull; Porta: <strong>:\${PORT}</strong><br>
@@ -4774,9 +4774,9 @@ server.listen(PORT, HOST, () => {
     }
 
   } catch (fsErr) {
-    emitLog(`✗ Erro no Passo 3 (TrueNAS Filesystem): ${fsErr.message}`);
-    await performRollback(`Erro ao criar pastas e ficheiros no TrueNAS: ${fsErr.message}`);
-    sendEvent("error", { ok: false, error: `Erro ao criar pastas no TrueNAS: ${fsErr.message}`, rolledBack: true, logs });
+    emitLog(`✗ Erro no Passo 3 (Server Filesystem): ${fsErr.message}`);
+    await performRollback(`Erro ao criar pastas e ficheiros no servidor: ${fsErr.message}`);
+    sendEvent("error", { ok: false, error: `Erro ao criar pastas no servidor: ${fsErr.message}`, rolledBack: true, logs });
     return res.end();
   }
 
@@ -5425,15 +5425,15 @@ GRANT ALL ON TABLE storage.migrations TO postgres, service_role, supabase_storag
   const dockerStarted = true;
   emitLog(`✓ Todos os 16 contentores da stack dual "${name}" estão ativos e operacionais.`);
 
-  // 5.5 Inicializar Repositório Git no TrueNAS e Conectar ao GitHub (Garante update_truenas.sh sem erros)
+  // 5.5 Inicializar Repositório Git no servidor e Conectar ao GitHub (Garante update.sh sem erros)
   if (settings.github_token) {
     try {
-      emitLog(`> A inicializar repositório Git no TrueNAS e a sincronizar com o GitHub (${repoOwner}/${cleanSlug})...`);
+      emitLog(`> A inicializar repositório Git no servidor e a sincronizar com o GitHub (${repoOwner}/${cleanSlug})...`);
       const authRemote = `https://${settings.github_token}@github.com/${repoOwner}/${cleanSlug}.git`;
       await execAsync(`cd "${targetAppDir}" && git init && git config user.name "Deployment Center" && git config user.email "deploy@local" && git config --global --add safe.directory "${targetAppDir}" 2>/dev/null || true && (git remote add origin "${authRemote}" 2>/dev/null || git remote set-url origin "${authRemote}")`, { timeout: 30000 });
       await execAsync(`cd "${targetAppDir}" && git add -A -- ':!data' ':!node_modules' ':!logs' && (git commit -m "feat: stack e arquitetura dual-stack inicial gerada pelo Deployment Center" 2>/dev/null || true) && git branch -M main && git push -u origin main --force`, { timeout: 120000 });
       await execAsync(`cd "${targetAppDir}" && git remote set-url origin "https://github.com/${repoOwner}/${cleanSlug}.git"`, { timeout: 10000 });
-      emitLog(`✓ Repositório Git inicializado na pasta do TrueNAS e sincronizado com o GitHub.`);
+      emitLog(`✓ Repositório Git inicializado na pasta do servidor e sincronizado com o GitHub.`);
     } catch (gitInitErr) {
       emitLog(`ℹ️ Nota Git: ${gitInitErr.message}`);
     }
@@ -5483,13 +5483,13 @@ GRANT ALL ON TABLE storage.migrations TO postgres, service_role, supabase_storag
     production: {
       serviceName: `${cleanSlug}-portal-prod`,
       port: portProd,
-      host: `${settings.truenas_host_ip || "192.168.1.4"}:${portProd}`,
+      host: `${settings.server_host_ip || "192.168.1.4"}:${portProd}`,
       containerName: `${cleanSlug}-portal-prod`,
     },
     staging: {
       serviceName: `${cleanSlug}-portal-staging`,
       port: portStaging,
-      host: `${settings.truenas_host_ip || "192.168.1.4"}:${portStaging}`,
+      host: `${settings.server_host_ip || "192.168.1.4"}:${portStaging}`,
       containerName: `${cleanSlug}-portal-staging`,
     },
     created_at: new Date().toISOString(),
@@ -5560,14 +5560,14 @@ Data da Cópia de Segurança: ${timestamp}
 
 ---
 
-## 🛠️ Método 2: Restauro Manual noutro Servidor Linux / TrueNAS / Docker
+## 🛠️ Método 2: Restauro Manual noutro Servidor Linux / Docker Host
 Se pretender repor este projeto noutro servidor sem utilizar o Deployment Center:
 
 ### 1. Criar o Diretório e Extrair os Ficheiros
 \`\`\`bash
-sudo mkdir -p /mnt/Disco1/apps/${slug}
-sudo chown -R $USER:$USER /mnt/Disco1/apps/${slug}
-cd /mnt/Disco1/apps/${slug}
+sudo mkdir -p /mnt/opt/stacks/${slug}
+sudo chown -R $USER:$USER /mnt/opt/stacks/${slug}
+cd /mnt/opt/stacks/${slug}
 # Copiar o conteúdo da pasta 'code/' para a raiz do projeto
 # Copiar 'infra/docker-compose.yml' e 'infra/kong.yml' para a raiz do projeto
 \`\`\`
@@ -5608,14 +5608,14 @@ Backup Date: ${timestamp}
 
 ---
 
-## 🛠️ Method 2: Manual Restore on Any Linux / TrueNAS / Docker Host
+## 🛠️ Method 2: Manual Restore on Any Linux / Docker Host Host
 To restore manually on another server without Deployment Center:
 
 ### 1. Create Directory and Extract Files
 \`\`\`bash
-sudo mkdir -p /mnt/Disco1/apps/${slug}
-sudo chown -R $USER:$USER /mnt/Disco1/apps/${slug}
-cd /mnt/Disco1/apps/${slug}
+sudo mkdir -p /mnt/opt/stacks/${slug}
+sudo chown -R $USER:$USER /mnt/opt/stacks/${slug}
+cd /mnt/opt/stacks/${slug}
 # Copy files from 'code/' into the project root
 # Copy 'infra/docker-compose.yml' and 'infra/kong.yml' to the project root
 \`\`\`
@@ -5653,10 +5653,10 @@ Date de Sauvegarde: ${timestamp}
 
 ---
 
-## 🛠️ Méthode 2: Restauration Manuelle sur Linux / TrueNAS / Docker
+## 🛠️ Méthode 2: Restauration Manuelle sur Linux / Docker Host
 \`\`\`bash
-sudo mkdir -p /mnt/Disco1/apps/${slug}
-cd /mnt/Disco1/apps/${slug}
+sudo mkdir -p /mnt/opt/stacks/${slug}
+cd /mnt/opt/stacks/${slug}
 docker compose up -d ${slug}-postgres
 docker exec -i ${slug}-postgres psql -U postgres -d postgres < database/dump_completo.sql
 docker compose up -d
@@ -5679,10 +5679,10 @@ Fecha de la Copia de Seguridad: ${timestamp}
 
 ---
 
-## 🛠️ Método 2: Restauración Manual en Servidor Linux / TrueNAS / Docker
+## 🛠️ Método 2: Restauración Manual en Servidor Linux / Docker Host
 \`\`\`bash
-sudo mkdir -p /mnt/Disco1/apps/${slug}
-cd /mnt/Disco1/apps/${slug}
+sudo mkdir -p /mnt/opt/stacks/${slug}
+cd /mnt/opt/stacks/${slug}
 docker compose up -d ${slug}-postgres
 docker exec -i ${slug}-postgres psql -U postgres -d postgres < database/dump_completo.sql
 docker compose up -d
@@ -5705,10 +5705,10 @@ Sicherungsdatum: ${timestamp}
 
 ---
 
-## 🛠️ Methode 2: Manuelle Wiederherstellung auf Linux / TrueNAS / Docker
+## 🛠️ Methode 2: Manuelle Wiederherstellung auf Linux / Docker Host
 \`\`\`bash
-sudo mkdir -p /mnt/Disco1/apps/${slug}
-cd /mnt/Disco1/apps/${slug}
+sudo mkdir -p /mnt/opt/stacks/${slug}
+cd /mnt/opt/stacks/${slug}
 docker compose up -d ${slug}-postgres
 docker exec -i ${slug}-postgres psql -U postgres -d postgres < database/dump_completo.sql
 docker compose up -d
@@ -5749,7 +5749,7 @@ app.get("/api/projects/:id/full-backup-zip", requireAuth, async (req, res) => {
   if (!project) return res.status(404).send("Projeto não encontrado");
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 16);
-  const tempBackupDir = path.join(os.tmpdir(), `suavit_backup_${id}_${Date.now()}`);
+  const tempBackupDir = path.join(os.tmpdir(), `deploy_backup_${id}_${Date.now()}`);
   const tempZipPath = path.join(os.tmpdir(), `${id}_FULL_BACKUP_${timestamp}.zip`);
 
   try {
@@ -6037,7 +6037,7 @@ app.get("/api/projects/restore-backup/execute", requireAuth, async (req, res) =>
   const portStorageInternal = 5000;
   const portMetaInternal = 8080;
 
-  const targetAppDir = targetPath ? path.resolve(targetPath) : `/mnt/Disco1/apps/${cleanSlug}`;
+  const targetAppDir = targetPath ? path.resolve(targetPath) : `/mnt/opt/stacks/${cleanSlug}`;
   const hostIp = LOCAL_IP || "192.168.1.4";
   const settings = getSettings();
   const dbPassword = generateSecureSecret(20);
@@ -6082,7 +6082,7 @@ app.get("/api/projects/restore-backup/execute", requireAuth, async (req, res) =>
       }
     }
 
-    // 2. Criar Estrutura de Pastas no TrueNAS
+    // 2. Criar Estrutura de Pastas no servidor
     emitLog(`[Passo 2/6] A preparar diretórios em ${targetAppDir}...`);
     await execAsync(`sudo mkdir -p "${targetAppDir}" "${targetAppDir}/data/storage" "${targetAppDir}/.agents/rules" "${targetAppDir}/.agents/skills" 2>/dev/null || mkdir -p "${targetAppDir}" "${targetAppDir}/data/storage" "${targetAppDir}/.agents/rules" "${targetAppDir}/.agents/skills" 2>/dev/null || true`);
     await execAsync(`sudo chmod -R 777 "${targetAppDir}" 2>/dev/null || chmod -R 777 "${targetAppDir}" 2>/dev/null || true`);
@@ -6267,7 +6267,7 @@ app.get("/api/projects/clone/execute", requireAuth, async (req, res) => {
   const portPostgres = Number(`${pNum}${suffixPostgres}`);
   const portStudio = Number(`${pNum}${suffixStudio}`);
 
-  const targetAppDir = targetPath ? path.resolve(targetPath) : `/mnt/Disco1/apps/${cleanSlug}`;
+  const targetAppDir = targetPath ? path.resolve(targetPath) : `/mnt/opt/stacks/${cleanSlug}`;
   const hostIp = LOCAL_IP || "192.168.1.4";
   const settings = getSettings();
   const dbPassword = generateSecureSecret(20);
@@ -6665,17 +6665,17 @@ app.delete("/api/projects/:id", requireAuth, async (req, res) => {
     logs.push(`⚠️ Aviso ao remover contentores Docker: ${dockerErr.message}`);
   }
 
-  // 3. Remover diretório e ficheiros locais no TrueNAS (se solicitado ou por omissão)
+  // 3. Remover diretório e ficheiros locais no servidor (se solicitado ou por omissão)
   if (delete_local_files !== false && project.appDir && fs.existsSync(project.appDir)) {
     try {
       // Garantir que não apaga o root nem o Disco1 inteiro
       const normalizedPath = path.resolve(project.appDir);
-      if (normalizedPath !== "/" && normalizedPath !== "/mnt" && normalizedPath !== "/mnt/Disco1" && normalizedPath !== "/mnt/Disco1/apps") {
+      if (normalizedPath !== "/" && normalizedPath !== "/mnt" && normalizedPath !== "/mnt/Disco1" && normalizedPath !== "/mnt/opt/stacks") {
         fs.rmSync(normalizedPath, { recursive: true, force: true });
-        logs.push(`✓ Pasta e ficheiros locais no TrueNAS (${normalizedPath}) eliminados.`);
+        logs.push(`✓ Pasta e ficheiros locais no servidor (${normalizedPath}) eliminados.`);
       }
     } catch (fsErr) {
-      logs.push(`⚠️ Aviso ao remover ficheiros no TrueNAS: ${fsErr.message}`);
+      logs.push(`⚠️ Aviso ao remover ficheiros no servidor: ${fsErr.message}`);
     }
   }
 

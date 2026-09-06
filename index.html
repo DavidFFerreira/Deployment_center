@@ -167,10 +167,10 @@
         <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
       </button>
 
-      <!-- Botão Terminal Shell TrueNAS (Geral) -->
-      <button onclick="openGlobalTerminalModal()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-emerald-400 hover:text-emerald-300 hover:border-emerald-500 text-xs font-mono font-bold flex items-center gap-1.5 shadow-sm transition" title="Abrir Terminal Shell TrueNAS">
+      <!-- Botão Terminal Shell do Servidor (Geral) -->
+      <button onclick="openGlobalTerminalModal()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-emerald-400 hover:text-emerald-300 hover:border-emerald-500 text-xs font-mono font-bold flex items-center gap-1.5 shadow-sm transition" title="Abrir Terminal Shell do Servidor">
         <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
-        <span class="hidden md:inline">Terminal TrueNAS</span>
+        <span class="hidden md:inline">Terminal Servidor</span>
       </button>
 
       <!-- Botão Atualizar Geral -->
@@ -456,8 +456,8 @@
         <div class="space-y-2">
           <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400" data-i18n="quick_commands">Ações Rápidas de Manutenção</h3>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
-            <button onclick="execPredefinedCommand('update_truenas')" class="p-3 rounded-2xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-left transition group">
-              <div class="text-indigo-600 dark:text-indigo-400 font-bold text-xs flex items-center gap-1.5"><i data-lucide="zap" class="w-4 h-4"></i> Update TrueNAS</div>
+            <button onclick="execPredefinedCommand('update_server')" class="p-3 rounded-2xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-left transition group">
+              <div class="text-indigo-600 dark:text-indigo-400 font-bold text-xs flex items-center gap-1.5"><i data-lucide="zap" class="w-4 h-4"></i> Update Servidor</div>
               <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Script de produção</p>
             </button>
             <button onclick="execPredefinedCommand('git_pull_reset')" class="p-3 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-left transition">
@@ -1171,15 +1171,15 @@
             <div id="vault-github-status" class="text-[11px] text-slate-500 font-mono"></div>
           </div>
 
-          <!-- TrueNAS Host Settings -->
+          <!-- Server Host Settings -->
           <div class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
             <label class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-              <i data-lucide="server" class="w-4 h-4"></i> IP / Domínio do Servidor (Host Linux / TrueNAS)
+              <i data-lucide="server" class="w-4 h-4"></i> IP / Domínio do Servidor (Host Linux)
             </label>
-            <input type="text" id="vault-truenas-ip" placeholder="192.168.1.4" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs font-mono focus:outline-none focus:border-indigo-500">
+            <input type="text" id="vault-server-ip" placeholder="192.168.1.4" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs font-mono focus:outline-none focus:border-indigo-500">
           </div>
 
-          <!-- TrueNAS Apps Base Path -->
+          <!-- Server Apps Base Path -->
           <div class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
             <div class="flex items-center justify-between">
               <label class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
@@ -1191,7 +1191,7 @@
             </div>
             <div class="flex items-center gap-2">
               <input type="text" id="vault-apps-dir" placeholder="/mnt/Disco1/apps" class="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs font-mono focus:outline-none focus:border-indigo-500">
-              <button onclick="openFolderBrowser('vault-apps-dir')" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-300 flex items-center gap-1" title="Explorar Pastas do TrueNAS">
+              <button onclick="openFolderBrowser('vault-apps-dir')" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-300 flex items-center gap-1" title="Explorar Pastas do Servidor">
                 <i data-lucide="folder" class="w-4 h-4"></i> Explorar
               </button>
             </div>
@@ -1355,7 +1355,7 @@
     </div>
   </div>
 
-  <!-- Modal: Terminal Shell TrueNAS & Servidor (Global) -->
+  <!-- Modal: Terminal Shell do Servidor (Global) -->
   <div id="global-terminal-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="max-w-4xl w-full rounded-3xl glass-card border border-emerald-500/30 p-6 space-y-4 shadow-2xl animate-fade-in flex flex-col max-h-[92vh]">
       
@@ -1367,7 +1367,7 @@
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Terminal TrueNAS & Shell de Sistema</h3>
+              <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Terminal Servidor & Shell de Sistema</h3>
               <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[10px] border border-emerald-500/20">
                 🟢 ROOT SHELL ATIVA
               </span>
@@ -1380,8 +1380,8 @@
 
       <!-- Barra de Ações Rápidas (Quick Actions) -->
       <div class="flex items-center gap-2 flex-wrap bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
-        <button onclick="copyAndGuideTruenasUpdate()" id="global-update-btn" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-mono font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition">
-          <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-300"></i> Copiar Comando Update TrueNAS
+        <button onclick="copyAndGuideServerUpdate()" id="global-update-btn" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-mono font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition">
+          <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-300"></i> Copiar Comando Update Servidor
         </button>
         <button onclick="executeGlobalTerminalCommand('docker ps --format \'table {{.Names}}\t{{.Status}}\t{{.Ports}}\'')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono flex items-center gap-1.5 transition">
           <i data-lucide="container" class="w-3.5 h-3.5 text-sky-400"></i> docker ps
@@ -1389,7 +1389,7 @@
         <button onclick="executeGlobalTerminalCommand('git status && git log -n 3 --oneline')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono flex items-center gap-1.5 transition">
           <i data-lucide="git-branch" class="w-3.5 h-3.5 text-purple-400"></i> git status
         </button>
-        <button onclick="executeGlobalTerminalCommand('docker compose restart suavit-portal-prod suavit-portal-staging')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono flex items-center gap-1.5 transition">
+        <button onclick="executeGlobalTerminalCommand('docker compose restart app-portal-prod app-portal-staging')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono flex items-center gap-1.5 transition">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-amber-400"></i> restart portals
         </button>
       </div>
@@ -1398,7 +1398,7 @@
       <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-slate-300 text-[11px] flex items-start gap-2.5">
         <i data-lucide="info" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
         <div class="leading-relaxed">
-          <strong class="text-emerald-400">Atualização do Servidor TrueNAS:</strong> Como o script <code class="text-white bg-slate-900 px-1 py-0.5 rounded font-mono">update_truenas.sh</code> reinicia todos os contentores do sistema (incluindo o próprio motor do Deploy Center), a sua execução completa deve ser colada na <strong>Shell do TrueNAS</strong> (<em>System Settings > Shell</em> ou SSH) para não interromper a ligação web a meio do processo.
+          <strong class="text-emerald-400">Atualização do Servidor Linux:</strong> Como o script <code class="text-white bg-slate-900 px-1 py-0.5 rounded font-mono">update.sh</code> reinicia todos os contentores do sistema (incluindo o próprio motor do Deploy Center), a sua execução completa deve ser colada na <strong>Shell do Servidor</strong> (<em>System Settings > Shell</em> ou SSH) para não interromper a ligação web a meio do processo.
         </div>
       </div>
 
@@ -1407,7 +1407,7 @@
         <div class="px-4 py-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-slate-400 text-[11px]">
           <span class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            bash /opt/stacks/suavit-portal
+            bash /opt/stacks/app-portal
           </span>
           <div class="flex items-center gap-2">
             <button onclick="clearGlobalTerminal()" class="hover:text-slate-200 transition">Limpar</button>
@@ -1417,12 +1417,12 @@
         </div>
         
         <div id="global-terminal-screen" class="p-4 flex-1 overflow-y-auto space-y-2 text-slate-300 select-text leading-relaxed max-h-[48vh]">
-          <div class="text-slate-500">Terminal Shell TrueNAS pronto. Introduza um comando bash ou clique em "Executar Update Completo TrueNAS".</div>
+          <div class="text-slate-500">Terminal Shell do Servidor pronto. Introduza um comando bash ou clique em "Executar Update Completo do Servidor".</div>
         </div>
 
         <!-- Linha de Input do Terminal -->
         <div class="p-3 bg-slate-900/90 border-t border-slate-800 flex items-center gap-2">
-          <span class="text-emerald-400 font-bold select-none">root@truenas:#</span>
+          <span class="text-emerald-400 font-bold select-none">root@server:#</span>
           <input type="text" id="global-terminal-input" placeholder="curl ..., docker ..., git ..., ls -la..." onkeydown="handleGlobalTerminalKey(event)" class="flex-1 bg-transparent text-slate-100 font-mono text-xs focus:outline-none placeholder-slate-600">
           <button onclick="sendGlobalTerminalInput()" id="global-terminal-send-btn" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 transition shadow-sm">
             <span>Executar</span> <i data-lucide="send" class="w-3 h-3"></i>
@@ -1528,7 +1528,7 @@
           </div>
           <div>
             <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Criar Novo Projeto & Stack Isolada</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Provisionamento automático no GitHub, TrueNAS e Docker</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Provisionamento automático no GitHub, Servidor Host e Docker</p>
           </div>
         </div>
         <button onclick="closeModal('project-wizard-modal')" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -1538,7 +1538,7 @@
       <div class="grid grid-cols-4 gap-2 text-center text-[11px] font-bold">
         <div id="wz-step-ind-1" class="p-2 rounded-xl bg-purple-600 text-white transition-all">1. Identificação</div>
         <div id="wz-step-ind-2" class="p-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-400 transition-all">2. Portas (XXXXX)</div>
-        <div id="wz-step-ind-3" class="p-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-400 transition-all">3. TrueNAS</div>
+        <div id="wz-step-ind-3" class="p-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-400 transition-all">3. Servidor Host</div>
         <div id="wz-step-ind-4" class="p-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-400 transition-all">4. Criar Stack</div>
       </div>
 
@@ -1742,19 +1742,19 @@
           </div>
         </div>
 
-        <!-- PASSO 3: CAMINHO NO TRUENAS & PERMISSÕES -->
+        <!-- PASSO 3: CAMINHO NO SERVIDOR & PERMISSÕES -->
         <div id="wz-step-3" class="space-y-4 hidden">
           <div class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
             <div class="flex items-center justify-between">
               <label class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                <i data-lucide="hard-drive" class="w-4 h-4 text-purple-500"></i> Caminho da Pasta no TrueNAS (Host) *
+                <i data-lucide="hard-drive" class="w-4 h-4 text-purple-500"></i> Caminho da Pasta no Servidor (Host) *
               </label>
               <button onclick="openFolderBrowser('wz-target-path')" class="px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-bold flex items-center gap-1 transition">
-                <i data-lucide="folder" class="w-3 h-3"></i> Explorar TrueNAS
+                <i data-lucide="folder" class="w-3 h-3"></i> Explorar Servidor
               </button>
             </div>
             <input type="text" id="wz-target-path" placeholder="/mnt/Disco1/apps/novo-projeto" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-xs font-mono font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-purple-500">
-            <p class="text-[11px] text-slate-500">Sugerido com base no dataset <strong>Disco1/apps</strong> do TrueNAS.</p>
+            <p class="text-[11px] text-slate-500">Diretório base de stacks no servidor host.</p>
           </div>
 
           <div class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2.5">
@@ -1764,7 +1764,7 @@
               </span>
               <button type="button" onclick="toggleSelectAllWizardSkills()" class="text-[11px] text-pink-600 dark:text-pink-400 hover:underline font-semibold" id="wz-skills-toggle-btn">Selecionar Todas</button>
             </div>
-            <p class="text-[11px] text-slate-500">As skills selecionadas serão gravadas no repositório GitHub e na pasta TrueNAS para instruir as IAs.</p>
+            <p class="text-[11px] text-slate-500">As skills selecionadas serão gravadas no repositório GitHub e na pasta do servidor para instruir as IAs.</p>
             <div id="wz-skills-list-container" class="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-1">
               <div class="text-xs text-slate-500 py-2">A carregar skills...</div>
             </div>
@@ -1828,7 +1828,7 @@
               <div><span class="text-slate-400">Porta Testes:</span> <strong id="wz-sum-staging" class="font-mono text-blue-500">-</strong></div>
               <div><span class="text-slate-400">Kong API:</span> <strong id="wz-sum-kong" class="font-mono text-indigo-500">-</strong></div>
               <div><span class="text-slate-400">Postgres:</span> <strong id="wz-sum-postgres" class="font-mono text-sky-500">-</strong></div>
-              <div class="col-span-2"><span class="text-slate-400">Caminho TrueNAS:</span> <strong id="wz-sum-path" class="font-mono text-xs text-slate-800 dark:text-slate-200 truncate block">-</strong></div>
+              <div class="col-span-2"><span class="text-slate-400">Caminho no Servidor:</span> <strong id="wz-sum-path" class="font-mono text-xs text-slate-800 dark:text-slate-200 truncate block">-</strong></div>
             </div>
           </div>
 
@@ -1905,7 +1905,7 @@
         </div>
         <div>
           <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Proteger Backup em ZIP</h3>
-          <p class="text-xs text-slate-500 dark:text-slate-400" id="dl-backup-project-name">Projeto: Suavit Portal</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400" id="dl-backup-project-name">Projeto: App Portal</p>
         </div>
       </div>
 
@@ -2346,14 +2346,14 @@
     </div>
   </div>
 
-  <!-- Modal: Explorador Visual de Pastas do TrueNAS (Folder Browser) -->
+  <!-- Modal: Explorador Visual de Pastas do Servidor (Folder Browser) -->
   <div id="folder-browser-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="max-w-xl w-full rounded-3xl glass-card border border-slate-300 dark:border-slate-700 p-6 space-y-4 shadow-2xl animate-fade-in flex flex-col max-h-[85vh]">
       <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div class="flex items-center gap-2.5">
           <div class="p-2 rounded-xl bg-indigo-500/10 text-indigo-500"><i data-lucide="folder-search" class="w-5 h-5"></i></div>
           <div>
-            <h3 class="font-bold text-base text-slate-900 dark:text-white">Explorador de Pastas do TrueNAS</h3>
+            <h3 class="font-bold text-base text-slate-900 dark:text-white">Explorador de Pastas do Servidor</h3>
             <p class="text-xs text-slate-500 dark:text-slate-400">Navegue pelos discos e datasets do servidor</p>
           </div>
         </div>
@@ -2422,7 +2422,7 @@
         </label>
         <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-800 dark:text-slate-200">
           <input type="checkbox" id="del-proj-files-cb" checked class="rounded border-slate-700 text-red-600 focus:ring-red-500">
-          <span class="flex items-center gap-1.5"><i data-lucide="hard-drive" class="w-3.5 h-3.5 text-emerald-400"></i> Eliminar pasta local e ficheiros no TrueNAS</span>
+          <span class="flex items-center gap-1.5"><i data-lucide="hard-drive" class="w-3.5 h-3.5 text-emerald-400"></i> Eliminar pasta local e ficheiros no servidor</span>
         </label>
       </div>
 
@@ -3269,7 +3269,7 @@
       showAppNotification({
         type: 'info',
         title: 'A sincronizar diretivas...',
-        message: `A aplicar as 6 diretivas no repositório GitHub e na pasta TrueNAS do projeto "${activeProjName}"...`,
+        message: `A aplicar as 6 diretivas no repositório GitHub e na pasta do servidor do projeto "${activeProjName}"...`,
       });
 
       try {
@@ -3283,7 +3283,7 @@
           showAppNotification({
             type: 'success',
             title: 'Diretivas Sincronizadas!',
-            message: `As diretivas e o script de update foram aplicados no TrueNAS e no GitHub do projeto "${activeProjName}".`,
+            message: `As diretivas e o script de update foram aplicados no servidor e no GitHub do projeto "${activeProjName}".`,
             logDetails: data.logs ? data.logs.join('\n') : undefined,
           });
         } else {
@@ -3309,8 +3309,8 @@
         const data = await res.json();
         if (data.ok) {
           document.getElementById('vault-github-token').value = data.github_token_masked || '';
-          document.getElementById('vault-truenas-ip').value = data.truenas_host_ip || '192.168.1.4';
-          document.getElementById('vault-apps-dir').value = data.truenas_apps_dir || '/mnt/Disco1/apps';
+          document.getElementById('vault-server-ip').value = data.server_host_ip || '192.168.1.4';
+          document.getElementById('vault-apps-dir').value = data.server_apps_dir || '/mnt/Disco1/apps';
           document.getElementById('vault-supabase-master-key').value = data.supabase_master_key_masked || '';
           document.getElementById('vault-author-website').value = data.author_website || 'https://davidferreira.pt';
           document.getElementById('vault-author-name').value = data.author_name || 'David Alexandre Ferreira';
@@ -3329,8 +3329,8 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             github_token: document.getElementById('vault-github-token').value,
-            truenas_host_ip: document.getElementById('vault-truenas-ip').value,
-            truenas_apps_dir: document.getElementById('vault-apps-dir').value,
+            server_host_ip: document.getElementById('vault-server-ip').value,
+            server_apps_dir: document.getElementById('vault-apps-dir').value,
             supabase_master_key: document.getElementById('vault-supabase-master-key').value,
             author_website: document.getElementById('vault-author-website').value.trim(),
             author_name: document.getElementById('vault-author-name').value.trim(),
@@ -3391,7 +3391,7 @@
     async function testFilesystemAccess() {
       const pathInput = document.getElementById('vault-apps-dir').value;
       const statusEl = document.getElementById('vault-fs-status');
-      statusEl.innerHTML = `<span class="text-indigo-400">A testar permissões no TrueNAS...</span>`;
+      statusEl.innerHTML = `<span class="text-indigo-400">A testar permissões no servidor...</span>`;
 
       try {
         const res = await fetch('/api/settings/test-filesystem', {
@@ -3450,7 +3450,7 @@
               <button onclick="promptDownloadProjectBackup('${p.id}', '${escapeHtml(p.name)}')" title="Descarregar Backup Completo em ZIP" class="px-2.5 py-1 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold flex items-center gap-1 transition">
                 <i data-lucide="download" class="w-3 h-3"></i> Backup ZIP
               </button>
-              ${p.id !== 'suavit-portal' ? `
+              ${p.id !== 'app-portal' ? `
                 <button onclick="promptDeleteProject('${p.id}', '${escapeHtml(p.name)}')" title="Eliminar Projeto" class="px-2.5 py-1 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 text-[10px] font-bold flex items-center gap-1 transition">
                   <i data-lucide="trash-2" class="w-3 h-3"></i> Eliminar
                 </button>
@@ -3536,7 +3536,7 @@
           closeModal('delete-project-modal');
           await loadProjects();
           if (currentProjectId === targetProjectToDelete.id) {
-            switchProject(data.fallbackProjectId || 'suavit-portal');
+            switchProject(data.fallbackProjectId || 'app-portal');
           } else {
             renderSettingsProjectsList();
           }
@@ -3820,8 +3820,8 @@
         if (!pathVal) {
           return showAppNotification({
             type: 'warning',
-            title: 'Caminho do TrueNAS Obrigatório',
-            message: 'Por favor indique o caminho da pasta de destino no TrueNAS.',
+            title: 'Caminho do Servidor Obrigatório',
+            message: 'Por favor indique o caminho da pasta de destino no servidor.',
           });
         }
         wizardCurrentStep = 4;
@@ -4886,7 +4886,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
     }
 
     // ===================================================================
-    // FOLDER BROWSER DO TRUENAS (EXPLORADOR VISUAL DE PASTAS)
+    // FOLDER BROWSER DO SERVIDOR (EXPLORADOR VISUAL DE PASTAS)
     // ===================================================================
     let folderBrowserTargetInputId = null;
     let fbCurrentPath = '/mnt/Disco1/apps';
@@ -4967,7 +4967,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
         const data = await res.json();
         if (data.ok) {
           await loadProjects();
-          alert(`Auto-descoberta concluída!\nForam detetados e carregados ${data.count} projeto(s) no servidor TrueNAS.`);
+          alert(`Auto-descoberta concluída!\nForam detetados e carregados ${data.count} projeto(s) no servidor host.`);
         } else {
           alert('Erro na auto-descoberta: ' + (data.error || 'Falha desconhecida'));
         }
@@ -5858,7 +5858,7 @@ Fim do Relatório
     }
 
     function fetchLogsForCurrent(env) {
-      const service = env === 'production' ? (globalStatus?.project?.production?.serviceName || 'suavit-portal-prod') : (globalStatus?.project?.staging?.serviceName || 'suavit-portal-staging');
+      const service = env === 'production' ? (globalStatus?.project?.production?.serviceName || 'app-portal-prod') : (globalStatus?.project?.staging?.serviceName || 'app-portal-staging');
       fetchLogs(service, `Logs — ${env === 'production' ? 'Produção Oficial' : 'Testes'}`);
     }
 
@@ -5898,9 +5898,9 @@ Fim do Relatório
 
     function execPredefinedCommand(type) {
       const commands = {
-        'update_truenas': 'curl -fsSL -H "Authorization: token " https://raw.githubusercontent.com/DavidFFerreira/Suavit_portal/main/scripts/update_truenas.sh -o /tmp/update.sh && sudo bash /tmp/update.sh ',
-        'git_pull_reset': 'git remote set-url origin "https://@github.com/DavidFFerreira/Suavit_portal.git" && git fetch origin main && git reset --hard origin/main',
-        'docker_restart_all': 'docker restart suavit-portal-prod suavit-portal-staging suavit-postgres suavit-postgrest suavit-kong',
+        'update_server': 'curl -fsSL -H "Authorization: token " https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/update.sh -o /tmp/update.sh && sudo bash /tmp/update.sh ',
+        'git_pull_reset': 'git remote set-url origin "https://@github.com/DavidFFerreira/Deployment_center.git" && git fetch origin main && git reset --hard origin/main',
+        'docker_restart_all': 'docker restart app-portal-prod app-portal-staging app-postgres app-postgrest app-kong',
         'docker_prune': 'docker system prune -f',
         'docker_stats': 'docker stats --no-stream',
       };
@@ -5956,7 +5956,7 @@ Fim do Relatório
     }
 
     // ===================================================================
-    // TERMINAL SHELL TRUENAS (MODAL GLOBAL NO HEADER)
+    // TERMINAL SHELL DO SERVIDOR (MODAL GLOBAL NO HEADER)
     // ===================================================================
     let globalCommandHistory = [];
     let globalCommandHistoryIdx = -1;
@@ -6006,7 +6006,7 @@ Fim do Relatório
       const outputBlockId = `term-out-${Date.now()}`;
       screen.innerHTML += `
         <div class="text-emerald-400 mt-2 font-bold flex items-center gap-1.5">
-          <span>[${time}] root@truenas:#</span> <span class="text-white select-all font-bold">${escapeHtml(command)}</span>
+          <span>[${time}] root@server:#</span> <span class="text-white select-all font-bold">${escapeHtml(command)}</span>
         </div>
         <pre id="${outputBlockId}" class="text-slate-300 font-mono text-xs whitespace-pre-wrap select-all leading-relaxed"></pre>
       `;
@@ -6047,13 +6047,13 @@ Fim do Relatório
       }
     }
 
-    function copyAndGuideTruenasUpdate() {
-      const updateCmd = 'curl -fsSL -H "Authorization: token " https://raw.githubusercontent.com/DavidFFerreira/Suavit_portal/main/scripts/update_truenas.sh -o /tmp/update.sh && sudo bash /tmp/update.sh ';
+    function copyAndGuideServerUpdate() {
+      const updateCmd = 'curl -fsSL -H "Authorization: token " https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/update.sh -o /tmp/update.sh && sudo bash /tmp/update.sh ';
       navigator.clipboard.writeText(updateCmd);
       showAppNotification({
         type: 'success',
         title: 'Comando Copiado para a Área de Transferência!',
-        message: `O comando oficial de atualização foi copiado.<br><br>Cole-o na <strong>Shell do TrueNAS</strong> (<em>System Settings &gt; Shell</em>) para atualizar todo o sistema e infraestrutura com preservação total de dados.`,
+        message: `O comando oficial de atualização foi copiado.<br><br>Cole-o na <strong>Shell do Servidor</strong> (<em>System Settings &gt; Shell</em>) para atualizar todo o sistema e infraestrutura com preservação total de dados.`,
       });
     }
 

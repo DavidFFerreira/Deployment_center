@@ -1,11 +1,11 @@
 <div align="center">
 
 # 🚀 Universal Deployment Center
-### Painel Centralizado de Orquestração Docker, Dual-Stack (Produção & Staging), Supabase On-Premise, Base de Dados, Storage e Governança de Agentes de IA para Linux & TrueNAS SCALE
+### Painel Centralizado de Orquestração Docker, Dual-Stack (Produção & Staging), Supabase On-Premise, Base de Dados, Storage e Governança de Agentes de IA para Servidores Linux
 
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Docker Compose](https://img.shields.io/badge/docker_compose-v2.29+-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
-[![Linux Compatible](https://img.shields.io/badge/Linux-Ubuntu%20%7C%20Debian%20%7C%20TrueNAS%20%7C%20RHEL-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://www.kernel.org/)
+[![Linux Compatible](https://img.shields.io/badge/Linux-Ubuntu%20%7C%20Debian%20%7C%20RHEL%20%7C%20Alpine-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://www.kernel.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%20%2F%2016-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Supabase Self-Hosted](https://img.shields.io/badge/Supabase-On--Premise-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Kong Gateway](https://img.shields.io/badge/Kong_Gateway-2.8.1-002F38?style=for-the-badge&logo=kong&logoColor=white)](https://konghq.com/)
@@ -15,7 +15,7 @@
 <br/>
 
 <p align="center">
-  <b>O ecossistema definitivo para hospedar, orquestrar, manter e governar stacks completas de aplicações modernas com Supabase local e agentes de Inteligência Artificial em qualquer servidor Linux ou TrueNAS SCALE.</b>
+  <b>O ecossistema definitivo para hospedar, orquestrar, manter e governar stacks completas de aplicações modernas com Supabase local e agentes de Inteligência Artificial em qualquer servidor Linux.</b>
 </p>
 
 [Instalação Rápida (install.sh)](#-instalação-rápida-em-qualquer-servidor-linux) •
@@ -32,7 +32,7 @@
 
 ## ⚡ Instalação Rápida em Qualquer Servidor Linux
 
-Pode instalar o **Universal Deployment Center** em qualquer distribuição Linux (Ubuntu, Debian, TrueNAS SCALE, CentOS, Rocky Linux, Fedora, Alpine) com apenas um comando:
+Pode instalar o **Universal Deployment Center** em qualquer distribuição Linux (Ubuntu, Debian, CentOS, Rocky Linux, Fedora, Alpine) com apenas um comando:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/install.sh | sudo bash
@@ -74,7 +74,7 @@ sudo bash install.sh --port 50000 --dir /opt/deployment-center --yes
 
 ## 🌐 Visão Geral
 
-O **Universal Deployment Center (v3.0)** é uma plataforma unificada de DevOps on-premise desenvolvida para servidores **Linux** e sistemas de armazenamento como **TrueNAS SCALE**. Ele transforma qualquer servidor dedicado, VPS ou máquina local numa verdadeira infraestrutura *PaaS (Platform as a Service)* semelhante a um Supabase Cloud + Vercel auto-hospedado.
+O **Universal Deployment Center (v3.0)** é uma plataforma unificada de DevOps on-premise desenvolvida para servidores e ambientes **Linux**. Ele transforma qualquer servidor dedicado, VPS ou máquina local numa verdadeira infraestrutura *PaaS (Platform as a Service)* semelhante a um Supabase Cloud + Vercel auto-hospedado.
 
 Com um clique no painel web ou através do script de instalação, o Deployment Center gera ecossistemas isolados **Dual-Stack (Produção Oficial e Ambiente de Testes/Staging)**, equipados com persistência relacional PostgreSQL, API REST PostgREST automática, Autenticação GoTrue com JWT, Storage de ficheiros com suporte S3/MinIO, painel Supabase Studio e roteamento unificado Kong API Gateway.
 
@@ -137,7 +137,7 @@ Todas as funcionalidades descritas abaixo foram capturadas diretamente da interf
   <img src="docs/images/04_terminal_shell.png" alt="Terminal Shell Integrado" width="90%" />
 </p>
 
-* **Shell Bash Integrado**: Consola web no navegador que executa comandos diretamente no host Linux / TrueNAS ou dentro do contentor do Deployment Center.
+* **Shell Bash Integrado**: Consola web no navegador que executa comandos diretamente no host Linux ou dentro do contentor do Deployment Center.
 * **Streaming de Saída**: Visualização em tempo real de fluxos de saída padrão (*stdout*) e erros (*stderr*).
 * **Botões de Ação Rápida**:
   * **Atualizar Deployment Center**: Executa o script oficial `update.sh` para descarregar a versão mais recente do Deployment Center do GitHub e reconstruir a aplicação sem perdas de dados.
@@ -430,7 +430,7 @@ Para atualizar o Deployment Center para a versão mais recente diretamente a par
 ```bash
 curl -fsSL https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/main/update.sh | bash
 ```
-*(Nota: O script `update_truenas.sh` mantém-se totalmente funcional para compatibilidade histórica).*
+*(Nota: O script `update.sh` atualiza o sistema e todos os contentores mantendo os dados preservados).*
 
 ---
 
@@ -481,7 +481,7 @@ curl -fsSL https://raw.githubusercontent.com/DavidFFerreira/Deployment_center/ma
 
 ## 🔢 Esquema de Portas e Isolamento
 
-O Deployment Center utiliza a **Gama de Portas 50000 a 59999** para garantir que nenhuma aplicação entre em conflito com os serviços nativos do host Linux ou TrueNAS SCALE (como as portas 80, 443, 8080 ou 5432).
+O Deployment Center utiliza a **Gama de Portas 50000 a 59999** para garantir que nenhuma aplicação entre em conflito com os serviços nativos do host Linux (como as portas 80, 443, 8080 ou 5432).
 
 ### Convenção do Prefixo de 2 Dígitos (`XX` de 10 a 99):
 
@@ -527,7 +527,7 @@ O contentor do **Deployment Center** opera isoladamente na porta configurada (pa
   * Supabase Postgres-Meta v0.68
   * Kong Gateway 2.8.1 Alpine
   * Supabase Studio Dashboard
-* **Sistemas Operativos Alvo**: Ubuntu Server 20.04/22.04/24.04 LTS, Debian 11/12, TrueNAS SCALE, Rocky Linux, CentOS 8/9 Stream, Alpine Linux, Fedora
+* **Sistemas Operativos Alvo**: Ubuntu Server 20.04/22.04/24.04 LTS, Debian 11/12, Rocky Linux, CentOS 8/9 Stream, Alpine Linux, Fedora
 
 ---
 

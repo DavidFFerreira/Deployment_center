@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Universal Deployment Center - Automated Linux & TrueNAS Update Script
+# Universal Deployment Center - Automated Linux Update Script
 # ==============================================================================
 
 set -eo pipefail
