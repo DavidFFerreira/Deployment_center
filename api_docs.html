@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-PT" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API RESTful M2M & SaaS Developer Portal - Deployment Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    pre code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-indigo-500 selection:text-white">
+
+  <!-- ===================================================================== -->
+  <!-- CABEÇALHO DO PORTAL DA API                                            -->
+  <!-- ===================================================================== -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/" class="p-2 rounded-xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-600/20 transition" title="Voltar ao Painel Principal">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </a>
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-500/20">
+            <i data-lucide="plug-zap" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h1 class="text-sm font-bold text-white flex items-center gap-2">
+              API RESTful M2M Portal
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">v1.0</span>
+            </h1>
+            <p class="text-[11px] text-slate-400">Guia de Integração para SaaS & Provisionamento Automático</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 hover:border-indigo-500 text-xs font-bold text-slate-300 transition">
+          <i data-lucide="github" class="w-3.5 h-3.5"></i>
+          <span>David Ferreira</span>
+        </a>
+        <a href="/" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-md shadow-indigo-600/20">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+          <span>Painel Principal</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- CORPO PRINCIPAL                                                       -->
+  <!-- ===================================================================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- BANNER HERO -->
+    <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 shadow-2xl relative overflow-hidden">
+      <div class="relative z-10 space-y-3 max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-bold">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          Machine-to-Machine (M2M) Provisioning Engine
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
+          Integre o seu SaaS com o Universal Deployment Center
+        </h2>
+        <p class="text-sm text-slate-300 leading-relaxed">
+          Esta API permite que qualquer aplicação externa (CRM, ERP, sistema de registo de clientes ou plataforma SaaS) crie, consulte, atualize, faça deploy e elimine stacks completas de contentores (PostgreSQL, Supabase Auth, Storage, Kong e Frontend) de forma 100% automatizada e programática.
+        </p>
+      </div>
+    </div>
+
+    <!-- SELETOR DE ID DE PROJETO E AUTENTICAÇÃO RÁPIDA -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- CARD: CHAVES DE API -->
+      <div class="p-5 rounded-2xl glass-card border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-sm text-white flex items-center gap-2">
+            <i data-lucide="key" class="w-4 h-4 text-indigo-400"></i>
+            Chave de Autenticação (Bearer)
+          </h3>
+          <span class="text-[10px] font-mono text-emerald-400 font-bold">SHA-256</span>
+        </div>
+        <p class="text-xs text-slate-400">
+          Insira uma chave ativa ou crie uma nova abaixo para testar os endpoints:
+        </p>
+        <div class="space-y-2">
+          <input type="text" id="api-key-input" placeholder="dc_live_sec_..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-indigo-300 focus:outline-none focus:border-indigo-500">
+          <button onclick="saveTempApiKey()" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition">
+            Guardar Chave na Sessão
+          </button>
+        </div>
+      </div>
+
+      <!-- CARD: PROJETO ATIVO / ID SELETOR -->
+      <div class="p-5 rounded-2xl glass-card border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-sm text-white flex items-center gap-2">
+            <i data-lucide="folder-git2" class="w-4 h-4 text-purple-400"></i>
+            Projetos Registados no Servidor
+          </h3>
+          <button onclick="fetchProjectsList()" class="text-xs text-indigo-400 hover:underline flex items-center gap-1">
+            <i data-lucide="refresh-cw" class="w-3 h-3"></i> Recarregar
+          </button>
+        </div>
+        <p class="text-xs text-slate-400">
+          Selecione um projeto para carregar automaticamente o respetivo <strong class="text-purple-300">ID / slug</strong> nos exemplos:
+        </p>
+        <select id="project-id-select" onchange="onSelectedProjectChange(this.value)" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-white focus:outline-none focus:border-purple-500 cursor-pointer">
+          <option value="" disabled selected>A carregar projetos...</option>
+        </select>
+        <div class="text-[11px] font-mono text-purple-400 flex items-center justify-between">
+          <span>ID Ativo: <strong id="active-selected-id" class="font-bold">-</strong></span>
+          <button onclick="copyActiveId()" class="hover:text-white flex items-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i> Copiar</button>
+        </div>
+      </div>
+
+      <!-- CARD: BASE URL -->
+      <div class="p-5 rounded-2xl glass-card border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-sm text-white flex items-center gap-2">
+            <i data-lucide="globe" class="w-4 h-4 text-emerald-400"></i>
+            URL Base do Servidor
+          </h3>
+          <span class="text-[10px] font-mono text-slate-400">HTTP / HTTPS</span>
+        </div>
+        <p class="text-xs text-slate-400">
+          Endpoint raiz detetado automaticamente a partir do browser:
+        </p>
+        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-emerald-400 truncate" id="base-url-display">
+          http://localhost:50000
+        </div>
+        <p class="text-[10px] text-slate-500">
+          Todas as rotas da API começam com o prefixo <code class="text-indigo-400 font-bold">/api/v1</code>.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- NAVEGAÇÃO DOS ENDPOINTS (ABAS) -->
+    <div class="space-y-6">
+      <div class="flex items-center gap-2 overflow-x-auto border-b border-slate-800 pb-2">
+        <button onclick="switchDocTab('projects_list')" id="tab-btn-projects_list" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white flex items-center gap-1.5 transition whitespace-nowrap">
+          <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono text-[10px]">GET</span>
+          <span>1. Listar Projetos & Obter IDs</span>
+        </button>
+        <button onclick="switchDocTab('create_tenant')" id="tab-btn-create_tenant" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap">
+          <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px]">POST</span>
+          <span>2. Criar Novo Cliente (Tenant)</span>
+        </button>
+        <button onclick="switchDocTab('project_status')" id="tab-btn-project_status" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap">
+          <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono text-[10px]">GET</span>
+          <span>3. Detalhes & Portas do Projeto</span>
+        </button>
+        <button onclick="switchDocTab('deploy_tenant')" id="tab-btn-deploy_tenant" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap">
+          <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px]">POST</span>
+          <span>4. Executar Deploy</span>
+        </button>
+        <button onclick="switchDocTab('delete_tenant')" id="tab-btn-delete_tenant" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap">
+          <span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono text-[10px]">DEL</span>
+          <span>5. Eliminar Stack</span>
+        </button>
+        <button onclick="switchDocTab('sse_webhooks')" id="tab-btn-sse_webhooks" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap">
+          <span class="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono text-[10px]">HOOK</span>
+          <span>6. SSE Logs & Webhooks</span>
+        </button>
+      </div>
+
+      <!-- PAINEL DE CONTEÚDO DA DOCUMENTAÇÃO -->
+      <div class="p-6 sm:p-8 rounded-3xl glass-card border border-slate-800 space-y-6">
+
+        <!-- CABEÇALHO DO ENDPOINT ATIVO -->
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-5">
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="active-method-badge" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">GET</span>
+              <code id="active-endpoint-path" class="text-sm sm:text-base font-bold text-white font-mono">/api/v1/projects</code>
+            </div>
+            <p id="active-endpoint-desc" class="text-xs text-slate-400 mt-1">
+              Lista todos os projetos e tenants configurados no Deployment Center, devolvendo respetivos IDs, nomes e portas.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Seletor de Linguagem para Exemplos -->
+            <div class="flex items-center p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+              <button onclick="setSnippetLang('curl')" id="lang-btn-curl" class="px-2.5 py-1 rounded-lg font-bold bg-indigo-600 text-white">cURL</button>
+              <button onclick="setSnippetLang('node')" id="lang-btn-node" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white">Node.js</button>
+              <button onclick="setSnippetLang('python')" id="lang-btn-python" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white">Python</button>
+            </div>
+            <!-- Botão Testar em Direto -->
+            <button onclick="executeLiveTest()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-emerald-600/20 cursor-pointer">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i>
+              <span>Executar Teste em Tempo Real</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CÓDIGO DE EXEMPLO -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span class="font-bold flex items-center gap-1.5 text-slate-300">
+              <i data-lucide="code" class="w-4 h-4 text-indigo-400"></i>
+              Código de Exemplo (<span id="current-lang-display" class="uppercase">cURL</span>)
+            </span>
+            <button onclick="copyCurrentSnippet()" class="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span id="copy-snippet-text">Copiar Código</span>
+            </button>
+          </div>
+          <pre class="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-indigo-300 overflow-x-auto"><code id="code-snippet-display">// Carregando exemplo...</code></pre>
+        </div>
+
+        <!-- CONSOLA DE RESPOSTA EM TEMPO REAL -->
+        <div id="live-response-container" class="hidden space-y-2 border-t border-slate-800 pt-5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-emerald-400 flex items-center gap-1.5">
+              <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
+              Resposta HTTP em Direto: <span id="live-status-code" class="font-mono text-white">...</span>
+            </span>
+            <span id="live-timing" class="text-slate-500 font-mono">0ms</span>
+          </div>
+          <pre class="p-4 rounded-2xl bg-slate-950 border border-emerald-500/30 text-xs text-emerald-300 font-mono overflow-x-auto max-h-96"><code id="live-response-output"></code></pre>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- RODAPÉ LEGAL & AUTORIA                                                 -->
+  <!-- ===================================================================== -->
+  <footer class="border-t border-slate-800/80 mt-12 py-8 bg-slate-950 text-center text-xs text-slate-500 space-y-2">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2">
+      <div>
+        © 2026 <a href="https://github.com/DavidFFerreira" target="_blank" rel="noopener noreferrer" class="font-bold text-slate-300 hover:text-indigo-400 underline underline-offset-2 transition">David Ferreira</a>. Todos os direitos reservados.
+      </div>
+      <p class="text-[11px] text-slate-600 max-w-2xl mx-auto">
+        Universal Deployment Center é software proprietário protegido pela Convenção de Berna, Tratado WCT da OMPI e Leis Internacionais de Propriedade Intelectual. A cópia, venda ou redistribuição sem autorização prévia por escrito é estritamente proibida.
+      </p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT DE INTERAÇÃO -->
+  <script>
+    let activeDocTab = 'projects_list';
+    let activeLang = 'curl';
+    let projectsData = [];
+    let selectedProjectId = 'portal-web';
+
+    const baseUrl = window.location.origin;
+    document.getElementById('base-url-display').textContent = baseUrl;
+
+    const endpointsConfig = {
+      projects_list: {
+        method: 'GET',
+        path: '/api/v1/projects',
+        desc: 'Lista todos os projetos e tenants configurados no Deployment Center, devolvendo respetivos IDs, nomes e portas.',
+        badgeClass: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+        curl: () => `curl -X GET "${baseUrl}/api/v1/projects" \\
+  -H "Authorization: Bearer ${getApiKey()}"`,
+        node: () => `const resp = await fetch("${baseUrl}/api/v1/projects", {\n  headers: { "Authorization": "Bearer ${getApiKey()}" }\n});\nconst { projects } = await resp.json();\nconsole.log("IDs dos Projetos:", projects.map(p => p.id));`,
+        python: () => `import requests\n\nresp = requests.get("${baseUrl}/api/v1/projects", headers={\n    "Authorization": "Bearer ${getApiKey()}"\n})\nprojects = resp.json().get("projects", [])\nprint("IDs:", [p["id"] for p in projects])`
+      },
+      create_tenant: {
+        method: 'POST',
+        path: '/api/v1/projects',
+        desc: 'Cria uma nova stack completa para um cliente (16 contentores Docker, Postgres, Auth, Storage, Kong e App). Responde 202 Accepted imediatamente com o ID gerado.',
+        badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+        curl: () => `curl -X POST "${baseUrl}/api/v1/projects" \\
+  -H "Authorization: Bearer ${getApiKey()}" \\
+  -H "Content-Type: application/json" \\
+  -d '{\n    "name": "Cliente Exemplo",\n    "slug": "cliente-exemplo",\n    "repo_url": "https://github.com/DavidFFerreira/Deployment_center.git",\n    "webhook_url": "https://seu-saas.com/api/webhooks/deploy"\n  }'`,
+        node: () => `const payload = {\n  name: "Cliente Exemplo",\n  slug: "cliente-exemplo",\n  repo_url: "https://github.com/DavidFFerreira/Deployment_center.git",\n  webhook_url: "https://seu-saas.com/api/webhooks/deploy"\n};\n\nconst resp = await fetch("${baseUrl}/api/v1/projects", {\n  method: "POST",\n  headers: {\n    "Authorization": "Bearer ${getApiKey()}",\n    "Content-Type": "application/json"\n  },\n  body: JSON.stringify(payload)\n});\nconst data = await resp.json();\nconsole.log("Job ID:", data.job_id, "Project ID:", data.project.id);`,
+        python: () => `import requests\n\npayload = {\n    "name": "Cliente Exemplo",\n    "slug": "cliente-exemplo",\n    "repo_url": "https://github.com/DavidFFerreira/Deployment_center.git"\n}\nheaders = {\n    "Authorization": "Bearer ${getApiKey()}",\n    "Content-Type": "application/json"\n}\nr = requests.post("${baseUrl}/api/v1/projects", json=payload, headers=headers)\nprint("Resposta:", r.json())`
+      },
+      project_status: {
+        method: 'GET',
+        path: '/api/v1/projects/:id',
+        desc: 'Devolve informações detalhadas do tenant (portas atribuídas, URLs Kong/Studio, contentores ativos e chaves Supabase).',
+        badgeClass: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+        curl: () => `curl -X GET "${baseUrl}/api/v1/projects/${selectedProjectId}" \\
+  -H "Authorization: Bearer ${getApiKey()}"`,
+        node: () => `const resp = await fetch("${baseUrl}/api/v1/projects/${selectedProjectId}", {\n  headers: { "Authorization": "Bearer ${getApiKey()}" }\n});\nconst data = await resp.json();\nconsole.log("Detalhes:", data.project);`,
+        python: () => `import requests\n\nresp = requests.get("${baseUrl}/api/v1/projects/${selectedProjectId}", headers={\n    "Authorization": "Bearer ${getApiKey()}"\n})\nprint("Dados:", resp.json())`
+      },
+      deploy_tenant: {
+        method: 'POST',
+        path: '/api/v1/projects/:id/deploy',
+        desc: 'Dispara um deploy programático para o ambiente de Produção ou Staging do tenant.',
+        badgeClass: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+        curl: () => `curl -X POST "${baseUrl}/api/v1/projects/${selectedProjectId}/deploy" \\
+  -H "Authorization: Bearer ${getApiKey()}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"target": "production", "commit": "HEAD"}'`,
+        node: () => `const resp = await fetch("${baseUrl}/api/v1/projects/${selectedProjectId}/deploy", {\n  method: "POST",\n  headers: {\n    "Authorization": "Bearer ${getApiKey()}",\n    "Content-Type": "application/json"\n  },\n  body: JSON.stringify({ target: "production" })\n});\nconsole.log(await resp.json());`,
+        python: () => `import requests\n\nr = requests.post("\${baseUrl}/api/v1/projects/${selectedProjectId}/deploy", json={\n    "target": "production"\n}, headers={"Authorization": "Bearer ${getApiKey()}"})\nprint(r.json())`
+      },
+      delete_tenant: {
+        method: 'DELETE',
+        path: '/api/v1/projects/:id',
+        desc: 'Desliga os contentores Docker da stack e remove o registo (suporta opcionalmente ?remove_volumes=true).',
+        badgeClass: 'bg-rose-500/20 text-rose-400 border-rose-500/30',
+        curl: () => `curl -X DELETE "${baseUrl}/api/v1/projects/${selectedProjectId}?remove_volumes=true" \\
+  -H "Authorization: Bearer ${getApiKey()}"`,
+        node: () => `const resp = await fetch("${baseUrl}/api/v1/projects/${selectedProjectId}?remove_volumes=true", {\n  method: "DELETE",\n  headers: { "Authorization": "Bearer ${getApiKey()}" }\n});\nconsole.log(await resp.json());`,
+        python: () => `import requests\n\nr = requests.delete("${baseUrl}/api/v1/projects/${selectedProjectId}?remove_volumes=true", headers={\n    "Authorization": "Bearer ${getApiKey()}"\n})\nprint(r.json())`
+      },
+      sse_webhooks: {
+        method: 'GET',
+        path: '/api/v1/jobs/:job_id/logs',
+        desc: 'Subscrição em tempo real aos logs de criação e deploy via Server-Sent Events (SSE) e validação de Webhooks HMAC SHA-256.',
+        badgeClass: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+        curl: () => `# Ouvir canal SSE de logs:\ncurl -N "${baseUrl}/api/v1/jobs/SEU_JOB_ID/logs" \\
+  -H "Authorization: Bearer ${getApiKey()}"`,
+        node: () => `// Ouvir SSE no Frontend ou Node.js\nconst evtSource = new EventSource("${baseUrl}/api/v1/jobs/SEU_JOB_ID/logs");\nevtSource.onmessage = (e) => {\n  const payload = JSON.parse(e.data);\n  console.log("Log:", payload.log);\n  if (payload.status === "completed") evtSource.close();\n};`,
+        python: () => `import hmac, hashlib\n\n# Validar assinatura de Webhook enviada pelo Deployment Center\ndef verify_webhook(raw_body, signature_header, secret):\n    expected = "sha256=" + hmac.new(secret.encode(), raw_body, hashlib.sha256).hexdigest()\n    return hmac.compare_digest(expected, signature_header)`
+      }
+    };
+
+    function getApiKey() {
+      const input = document.getElementById('api-key-input');
+      return input && input.value.trim() ? input.value.trim() : 'dc_live_sec_SUA_CHAVE_AQUI';
+    }
+
+    function saveTempApiKey() {
+      const input = document.getElementById('api-key-input');
+      if (input && input.value.trim()) {
+        localStorage.setItem('dc_temp_api_key', input.value.trim());
+        updateSnippetDisplay();
+        alert('Chave de API memorizada na sessão!');
+      }
+    }
+
+    function switchDocTab(tabKey) {
+      activeDocTab = tabKey;
+      document.querySelectorAll('[id^="tab-btn-"]').forEach(btn => {
+        btn.className = 'px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-900 flex items-center gap-1.5 transition whitespace-nowrap';
+      });
+      const activeBtn = document.getElementById(`tab-btn-${tabKey}`);
+      if (activeBtn) {
+        activeBtn.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white flex items-center gap-1.5 transition whitespace-nowrap';
+      }
+
+      const cfg = endpointsConfig[tabKey];
+      if (cfg) {
+        document.getElementById('active-method-badge').textContent = cfg.method;
+        document.getElementById('active-method-badge').className = `px-2 py-0.5 rounded text-xs font-mono font-bold ${cfg.badgeClass}`;
+        document.getElementById('active-endpoint-path').textContent = cfg.path.replace(':id', selectedProjectId);
+        document.getElementById('active-endpoint-desc').textContent = cfg.desc;
+      }
+      updateSnippetDisplay();
+    }
+
+    function setSnippetLang(lang) {
+      activeLang = lang;
+      ['curl', 'node', 'python'].forEach(l => {
+        const btn = document.getElementById(`lang-btn-${l}`);
+        if (btn) {
+          btn.className = l === lang 
+            ? 'px-2.5 py-1 rounded-lg font-bold bg-indigo-600 text-white' 
+            : 'px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white';
+        }
+      });
+      document.getElementById('current-lang-display').textContent = lang;
+      updateSnippetDisplay();
+    }
+
+    function updateSnippetDisplay() {
+      const cfg = endpointsConfig[activeDocTab];
+      if (!cfg) return;
+      const snippet = cfg[activeLang]();
+      document.getElementById('code-snippet-display').textContent = snippet;
+    }
+
+    async function copyCurrentSnippet() {
+      const code = document.getElementById('code-snippet-display').textContent;
+      await navigator.clipboard.writeText(code);
+      const textEl = document.getElementById('copy-snippet-text');
+      textEl.textContent = 'Copiado!';
+      setTimeout(() => textEl.textContent = 'Copiar Código', 2000);
+    }
+
+    function copyActiveId() {
+      if (!selectedProjectId) return;
+      navigator.clipboard.writeText(selectedProjectId);
+      alert(`ID "${selectedProjectId}" copiado!`);
+    }
+
+    function onSelectedProjectChange(val) {
+      selectedProjectId = val;
+      document.getElementById('active-selected-id').textContent = val;
+      const cfg = endpointsConfig[activeDocTab];
+      if (cfg) {
+        document.getElementById('active-endpoint-path').textContent = cfg.path.replace(':id', selectedProjectId);
+      }
+      updateSnippetDisplay();
+    }
+
+    async function fetchProjectsList() {
+      try {
+        const res = await fetch('/api/projects');
+        const data = await res.json();
+        if (data.ok && data.projects) {
+          projectsData = data.projects;
+          const select = document.getElementById('project-id-select');
+          select.innerHTML = projectsData.map(p => `<option value="${p.id}">${p.name} (ID: ${p.id})</option>`).join('');
+          if (projectsData.length > 0) {
+            selectedProjectId = projectsData[0].id;
+            select.value = selectedProjectId;
+            document.getElementById('active-selected-id').textContent = selectedProjectId;
+          }
+          updateSnippetDisplay();
+        }
+      } catch (e) {
+        console.error("Falha ao buscar projetos", e);
+      }
+    }
+
+    async function executeLiveTest() {
+      const container = document.getElementById('live-response-container');
+      const statusEl = document.getElementById('live-status-code');
+      const outputEl = document.getElementById('live-response-output');
+      const timingEl = document.getElementById('live-timing');
+
+      container.classList.remove('hidden');
+      statusEl.textContent = 'A enviar pedido...';
+      outputEl.textContent = 'A aguardar resposta do Deployment Center...';
+
+      const startTime = performance.now();
+      try {
+        let url = '/api/v1/projects';
+        let method = 'GET';
+        let body = undefined;
+
+        if (activeDocTab === 'project_status') {
+          url = `/api/v1/projects/${selectedProjectId}`;
+        } else if (activeDocTab === 'create_tenant') {
+          url = '/api/v1/projects';
+          method = 'POST';
+          body = JSON.stringify({ name: "Cliente Teste", slug: "cliente-teste-" + Date.now().toString().slice(-4) });
+        }
+
+        const headers = { 'Content-Type': 'application/json' };
+        const savedKey = localStorage.getItem('dc_temp_api_key');
+        if (savedKey) headers['Authorization'] = `Bearer ${savedKey}`;
+
+        const resp = await fetch(url, { method, headers, body });
+        const endTime = performance.now();
+        const duration = Math.round(endTime - startTime);
+        timingEl.textContent = `${duration}ms`;
+        statusEl.textContent = `HTTP ${resp.status} ${resp.statusText}`;
+
+        const json = await resp.json();
+        outputEl.textContent = JSON.stringify(json, null, 2);
+      } catch (e) {
+        statusEl.textContent = 'Erro de Conexão';
+        outputEl.textContent = 'Erro ao contactar endpoint: ' + e.message;
+      }
+    }
+
+    // Inicialização
+    const savedKey = localStorage.getItem('dc_temp_api_key');
+    if (savedKey) {
+      document.getElementById('api-key-input').value = savedKey;
+    }
+    fetchProjectsList();
+    switchDocTab('projects_list');
+    lucide.createIcons();
+  </script>
+</body>
+</html>

@@ -185,11 +185,17 @@
         <i data-lucide="refresh-cw" id="refresh-icon" class="w-4 h-4"></i>
       </button>
 
-      <!-- Botão API Helper & SaaS Integration -->
-      <button onclick="openApiHelperModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600/10 to-purple-600/10 hover:from-indigo-600/20 hover:to-purple-600/20 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer" title="API RESTful M2M & Helper de Integração SaaS">
+      <!-- Botão API Helper & SaaS Integration (Modal) -->
+      <button onclick="openApiHelperModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600/20 to-purple-600/20 hover:from-indigo-600/30 hover:to-purple-600/30 border border-indigo-500/40 text-indigo-600 dark:text-indigo-300 text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer" title="Abrir Modal Interativo da API & SaaS Helper">
         <i data-lucide="plug-zap" class="w-4 h-4 text-indigo-500"></i>
-        <span class="hidden lg:inline">API & SaaS Helper</span>
+        <span>API Helper</span>
       </button>
+
+      <!-- Link Direto ao Portal / Documentação da API -->
+      <a href="/api/docs" target="_blank" class="px-2.5 py-1.5 rounded-xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 hover:border-indigo-500 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center gap-1.5 transition" title="Abrir Documentação Completa e Site da API em Nova Aba">
+        <i data-lucide="external-link" class="w-3.5 h-3.5 text-indigo-500"></i>
+        <span class="hidden xl:inline">Site da API</span>
+      </a>
 
       <!-- Botão Definições Globais (Projetos & Gestores) -->
       <button onclick="openSettingsModal()" class="p-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 transition" title="Definições Globais">
@@ -242,6 +248,10 @@
           <i data-lucide="plug-zap" class="w-3.5 h-3.5"></i>
           <span>API & SaaS Helper</span>
         </button>
+        <a href="/api/docs" target="_blank" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer" title="Ver Documentação Completa e Site da API">
+          <i data-lucide="external-link" class="w-3.5 h-3.5 text-indigo-500"></i>
+          <span>Site da API</span>
+        </a>
       </div>
     </div>
 
@@ -807,9 +817,15 @@
             <p class="text-xs text-slate-500 dark:text-slate-400">Integração Machine-to-Machine para automação de novos clientes, stacks e deploys</p>
           </div>
         </div>
-        <button onclick="closeModal('api-helper-modal')" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 cursor-pointer">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <div class="flex items-center gap-2">
+          <a href="/api/docs" target="_blank" class="px-3 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer" title="Abrir Documentação Completa e Site da API em Nova Aba">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">Ver Site da API</span> <span>↗</span>
+          </a>
+          <button onclick="closeModal('api-helper-modal')" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 cursor-pointer">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Navegação Interna do Modal (Tabs) -->

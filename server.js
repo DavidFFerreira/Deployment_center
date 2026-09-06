@@ -1055,6 +1055,12 @@ app.get("/", requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
+// Portal Web da API & Documentação Swagger-Style
+app.get(["/api", "/api/docs", "/api/helper"], requireAuth, (req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.sendFile(path.join(__dirname, "api_docs.html"));
+});
+
 app.get("/api/system/version", (req, res) => {
   let commit = CURRENT_DEPLOY_CENTER_COMMIT;
   try {
