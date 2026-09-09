@@ -2273,6 +2273,54 @@ function formatBytes(bytes) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 }
 
+function runCommandStreaming(cmd, cwd, onLine = () => {}) {
+  return new Promise((resolve, reject) => {
+    let shellBin, shellArgs;
+    if (process.platform === "win32") {
+      shellBin = process.env.ComSpec || "cmd.exe";
+      shellArgs = ["/c", cmd];
+    } else {
+      shellBin = fs.existsSync("/bin/bash") ? "/bin/bash" : "/bin/sh";
+      shellArgs = ["-c", cmd];
+    }
+    const child = spawn(shellBin, shellArgs, { cwd: cwd || process.cwd() });
+    let stdoutText = "";
+    let stderrText = "";
+
+    if (child.stdout) {
+      child.stdout.on("data", (chunk) => {
+        const str = chunk.toString();
+        stdoutText += str;
+        const lines = str.split("\n");
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed) onLine(trimmed);
+        }
+      });
+    }
+
+    if (child.stderr) {
+      child.stderr.on("data", (chunk) => {
+        const str = chunk.toString();
+        stderrText += str;
+        const lines = str.split("\n");
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed) onLine(trimmed);
+        }
+      });
+    }
+
+    child.on("close", (code) => {
+      resolve({ code, stdout: stdoutText, stderr: stderrText });
+    });
+
+    child.on("error", (err) => {
+      reject(err);
+    });
+  });
+}
+
 async function ensureProjectBuildOutputs(project, commitHash, environment, emitLog = () => {}) {
   const shortHash = (commitHash || "HEAD").slice(0, 7);
   const cacheDir = path.join(project.appDir, ".build_cache", shortHash);
@@ -2317,9 +2365,9 @@ async function ensureProjectBuildOutputs(project, commitHash, environment, emitL
       if (!buildScript && scripts["build:prod"]) buildScript = "npm run build:prod";
 
       if (buildScript) {
-        emitLog(`> A executar: "${buildScript}" no projeto...`);
+        emitLog(`> A executar compilação: "${buildScript}" no projeto...`);
         const buildCmd = `docker run --rm -v "${project.appDir}:/app" -w /app node:20-alpine sh -c "npm install --prefer-offline --no-audit --legacy-peer-deps 2>&1 && ${buildScript} 2>&1" || (npm install --prefer-offline --legacy-peer-deps 2>&1 && ${buildScript} 2>&1)`;
-        await execAsync(buildCmd, { cwd: project.appDir, timeout: 300000 });
+        await runCommandStreaming(buildCmd, project.appDir, (line) => emitLog(line));
         emitLog(`✓ Compilação Just-in-Time concluída com sucesso!`);
 
         if (fs.existsSync(localOutput) && fs.readdirSync(localOutput).length > 0) {
@@ -2351,50 +2399,85 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
   const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), environment);
   if (!environment || !commit_hash) return res.status(400).json({ error: "Parâmetros em falta" });
 
+  const isStream = req.query.stream === "true" || req.headers.accept?.includes("text/event-stream");
+
+  if (isStream) {
+    res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
+    if (typeof res.flushHeaders === "function") res.flushHeaders();
+  }
+
+  const fullLogs = [];
+  const emitLog = (msg, step = null) => {
+    const timestamp = new Date().toLocaleTimeString("pt-PT");
+    const formatted = `[${timestamp}] ${msg}`;
+    fullLogs.push(formatted);
+    if (isStream) {
+      res.write(`data: ${JSON.stringify({ type: "log", message: formatted, step })}\n\n`);
+    }
+  };
+
   const globalState = getGlobalState();
   if (!globalState.projects) globalState.projects = {};
   if (!globalState.projects[project.id]) {
     globalState.projects[project.id] = { production: null, previousProduction: null, staging: null, previousStaging: null, history: [] };
   }
   const pState = globalState.projects[project.id];
-  let logs = "";
 
   try {
     const targetDir = project.appDir;
     const targetService = environment === "production" ? project.production.containerName : project.staging.containerName;
+    const shortCommit = commit_hash.slice(0, 7);
+
+    emitLog(`🚀 A iniciar processo de publicação da versão ${shortCommit} no ambiente ${environment.toUpperCase()}...`, "A preparar publicação...");
 
     if (fs.existsSync(targetDir)) {
       const activeToken = getActiveGithubToken();
-    const authRemote = activeToken ? `https://${activeToken}@github.com/${project.repoOwner}/${project.repoName}.git` : "origin";
+      const authRemote = activeToken ? `https://${activeToken}@github.com/${project.repoOwner}/${project.repoName}.git` : "origin";
       const targetFolder = environment === "production" ? ".output_prod" : ".output_staging";
 
       // 1. Garantir que a pasta do projeto no servidor é um repositório git inicializado
       if (!fs.existsSync(path.join(targetDir, ".git"))) {
-        await execAsync(`cd "${targetDir}" && git init && git remote add origin "${authRemote}" 2>/dev/null || true`);
+        emitLog("A inicializar repositório Git local...");
+        await runCommandStreaming(`git init && git remote add origin "${authRemote}" 2>/dev/null || true`, targetDir, (l) => emitLog(l));
       }
 
       // 2. Fetch e reset preservando ficheiros de infraestrutura e dados
+      emitLog(`[1/4] A contactar o GitHub e a transferir dados da versão ${shortCommit}...`, "A obter dados do GitHub...");
+      await runCommandStreaming(`git remote set-url origin "${authRemote}" 2>/dev/null || true`, targetDir);
+      await runCommandStreaming(`git fetch origin`, targetDir, (l) => emitLog(`[Git] ${l}`));
+
+      emitLog(`[Git] A aplicar checkout na versão ${shortCommit} (git reset --hard)...`);
+      await runCommandStreaming(`git reset --hard ${commit_hash}`, targetDir, (l) => emitLog(`[Git] ${l}`));
+      await runCommandStreaming(`git clean -fd --exclude=data --exclude=.env* --exclude=docker-compose.yml --exclude=kong.yml --exclude=kong_*.yml --exclude=runner.js --exclude=.output*`, targetDir, (l) => emitLog(`[Git] ${l}`));
+
       const syncBundleCmd = environment === "production"
         ? `mkdir -p .output_prod && if [ -d ".output" ] && [ "$(ls -A .output 2>/dev/null)" ]; then cp -a .output/. .output_prod/ 2>/dev/null || true; elif [ -d ".output_staging" ] && [ "$(ls -A .output_staging 2>/dev/null)" ]; then cp -a .output_staging/. .output_prod/ 2>/dev/null || true; fi`
         : `mkdir -p .output_staging && if [ -d ".output" ] && [ "$(ls -A .output 2>/dev/null)" ]; then cp -a .output/. .output_staging/ 2>/dev/null || true; fi`;
 
-      const cmd = `cd "${targetDir}" && (git remote set-url origin "${authRemote}" 2>/dev/null || true) && git fetch origin && git reset --hard ${commit_hash} && git clean -fd --exclude=data --exclude=.env* --exclude=docker-compose.yml --exclude=kong.yml --exclude=kong_*.yml --exclude=runner.js --exclude=.output* && ${syncBundleCmd} && (chmod -R 755 .output .output_staging .output_prod runner.js deploy-center 2>/dev/null || true)`;
-      const { stdout: gitOut, stderr: gitErr } = await execAsync(cmd);
-      logs += gitOut + "\n" + gitErr + "\n";
+      await runCommandStreaming(syncBundleCmd, targetDir);
+      await runCommandStreaming(`chmod -R 755 .output .output_staging .output_prod runner.js deploy-center 2>/dev/null || true`, targetDir);
+      emitLog(`✓ Sincronização do código-fonte concluída.`);
 
       // 2.1 Regenerar ou assegurar outputs Just-in-Time se ausentes
+      emitLog(`[2/4] A verificar ficheiros de compilação e outputs (.output / dist)...`, "A verificar outputs da aplicação...");
       try {
         const buildRes = await ensureProjectBuildOutputs(project, commit_hash, environment, (msg) => {
-          logs += `[Build Just-in-Time] ${msg}\n`;
+          emitLog(`[Build JIT] ${msg}`);
         });
         if (!buildRes.ok) {
-          logs += `[Build Aviso] ${buildRes.message}\n`;
+          emitLog(`⚠️ [Build Aviso] ${buildRes.message}`);
+        } else {
+          emitLog(`✓ [Build JIT] Outputs assegurados (${buildRes.source}).`);
         }
       } catch (buildErr) {
-        logs += `[Build Aviso] ${buildErr.message}\n`;
+        emitLog(`⚠️ [Build Aviso] ${buildErr.message}`);
       }
 
       // 3. Aplicar migrações SQL da base de dados se existirem no container correspondente (Prod vs Staging)
+      emitLog(`[3/4] A verificar migrações SQL da base de dados...`, "A aplicar migrações SQL...");
       try {
         const migrationsDir = path.join(targetDir, "supabase/migrations");
         const initDir = path.join(targetDir, "supabase/init");
@@ -2402,31 +2485,64 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
         const targetPg = project.postgresContainer;
         const targetPgrst = project.postgrestContainer;
 
+        let sqlCount = 0;
         for (const d of dirsToCheck) {
           if (fs.existsSync(d)) {
             const files = fs.readdirSync(d).filter((f) => f.endsWith(".sql")).sort();
             for (const f of files) {
               const sqlFile = path.join(d, f);
-              logs += `[SQL Migration] A executar: ${f} em ${targetPg} (${environment})...\n`;
-              await execAsync(`docker exec -i ${targetPg} psql -U postgres -d postgres < "${sqlFile}" 2>&1 || true`);
+              emitLog(`[SQL Migration] A executar: ${f} em ${targetPg} (${environment})...`);
+              await runCommandStreaming(`docker exec -i ${targetPg} psql -U postgres -d postgres < "${sqlFile}" 2>&1 || true`, targetDir, (l) => emitLog(`[SQL] ${l}`));
+              sqlCount++;
             }
           }
         }
-        await execAsync(`docker exec -i ${targetPg} psql -U postgres -d postgres -c "NOTIFY pgrst, 'reload schema'; NOTIFY pgrst, 'reload config';" 2>&1 || true`);
-        await execAsync(`docker restart ${targetPgrst} 2>/dev/null || true`);
-        logs += `[DB] Migrações verificadas e schema cache recarregado com sucesso no ambiente ${environment}.\n`;
+        if (sqlCount === 0) {
+          emitLog(`✓ Nenhuma nova migração SQL pendente.`);
+        } else {
+          emitLog(`✓ ${sqlCount} migração(ões) SQL executada(s).`);
+        }
+        emitLog(`[DB] A recarregar schema cache do PostgREST...`);
+        await runCommandStreaming(`docker exec -i ${targetPg} psql -U postgres -d postgres -c "NOTIFY pgrst, 'reload schema'; NOTIFY pgrst, 'reload config';" 2>&1 || true`, targetDir);
+        await runCommandStreaming(`docker restart ${targetPgrst} 2>/dev/null || true`, targetDir);
+        emitLog(`✓ Schema cache recarregado com sucesso.`);
       } catch (sqlErr) {
-        logs += `[DB Aviso] ${sqlErr.message}\n`;
+        emitLog(`⚠️ [DB Aviso] ${sqlErr.message}`);
       }
 
       // 4. Reiniciar contentor da aplicação com recriação forçada
-      const restartCmd = `cd "${targetDir}" && docker rm -f ${targetService} 2>/dev/null || true && (docker compose up -d --force-recreate ${targetService} 2>/dev/null || docker-compose up -d --force-recreate ${targetService} 2>/dev/null || docker restart ${targetService} 2>/dev/null || true)`;
-      const { stdout: restartOut, stderr: restartErr } = await execAsync(restartCmd);
-      logs += restartOut + "\n" + restartErr;
-      await execAsync(`cd "${targetDir}" && git remote set-url origin "https://github.com/${project.repoOwner}/${project.repoName}.git" 2>/dev/null || true`);
+      emitLog(`[4/4] A recriar contentor da aplicação (${targetService})...`, "A reiniciar contentor...");
+      const restartCmd = `docker rm -f ${targetService} 2>/dev/null || true && (docker compose up -d --force-recreate ${targetService} 2>/dev/null || docker-compose up -d --force-recreate ${targetService} 2>/dev/null || docker restart ${targetService} 2>/dev/null || true)`;
+      await runCommandStreaming(restartCmd, targetDir, (l) => emitLog(`[Docker] ${l}`));
+      emitLog(`✓ Contentor ${targetService} reiniciado.`);
+
+      await runCommandStreaming(`git remote set-url origin "https://github.com/${project.repoOwner}/${project.repoName}.git" 2>/dev/null || true`, targetDir);
       commitsCache.delete(project.id);
+
+      // Verificação de Healthcheck
+      const targetPort = environment === "production" ? (project.production?.port || 58100) : (project.staging?.port || 58101);
+      emitLog(`🩺 A verificar disponibilidade HTTP na porta :${targetPort}...`);
+      let healthy = false;
+      for (let i = 1; i <= 6; i++) {
+        try {
+          const checkRes = await execAsync(`curl -s -o /dev/null -w "%{http_code}" --max-time 3 http://127.0.0.1:${targetPort}/ || true`);
+          const code = parseInt(checkRes.stdout.trim(), 10);
+          if (code > 0 && code < 500) {
+            emitLog(`✓ Contentor online a responder com HTTP ${code} na porta :${targetPort}!`);
+            healthy = true;
+            break;
+          }
+        } catch (e) {}
+        if (i < 6) {
+          emitLog(`A aguardar estabilização do serviço (tentativa ${i}/6)...`);
+          await new Promise(r => setTimeout(r, 2000));
+        }
+      }
+      if (!healthy) {
+        emitLog(`ℹ️ Contentor iniciado (a porta :${targetPort} poderá demorar mais alguns segundos a aquecer).`);
+      }
     } else {
-      logs = `Deploy em ${environment}: Commit ${commit_hash}`;
+      emitLog(`Deploy em ${environment}: Commit ${shortCommit} (diretoria ${targetDir} não encontrada)`);
     }
 
     if (environment === "production") {
@@ -2463,16 +2579,29 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
       date: new Date().toISOString(),
       status: "success",
       type: is_rollback ? "rollback" : "deploy",
-      logs,
+      logs: fullLogs.join("\n"),
     };
 
     pState.history.unshift(record);
     if (pState.history.length > 50) pState.history = pState.history.slice(0, 50);
     saveGlobalState(globalState);
 
-    res.json({ ok: true, record, logs });
+    emitLog(`✨ Publicação concluída com sucesso!`);
+
+    if (isStream) {
+      res.write(`data: ${JSON.stringify({ type: "done", ok: true, record, logs: fullLogs.join("\n") })}\n\n`);
+      res.end();
+    } else {
+      res.json({ ok: true, record, logs: fullLogs.join("\n") });
+    }
   } catch (err) {
-    res.status(500).json({ ok: false, error: err.message, logs });
+    emitLog(`❌ Erro crítico no deploy: ${err.message}`);
+    if (isStream) {
+      res.write(`data: ${JSON.stringify({ type: "done", ok: false, error: err.message, logs: fullLogs.join("\n") })}\n\n`);
+      res.end();
+    } else {
+      res.status(500).json({ ok: false, error: err.message, logs: fullLogs.join("\n") });
+    }
   }
 });
 

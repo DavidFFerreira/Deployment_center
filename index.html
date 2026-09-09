@@ -6564,6 +6564,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
     let currentDeployFilesLoaded = false;
 
     async function openDeployModal(hash, env, isPromotion = false, isRollback = false) {
+      if (isDeployInProgress) return;
       const commit = allCommits.find((c) => c.hash === hash) || { 
         hash, 
         shortHash: hash ? hash.slice(0, 7) : 'HEAD', 
@@ -6651,6 +6652,8 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       
       const cancelBtn = document.getElementById('deploy-cancel-btn');
       if (cancelBtn) cancelBtn.classList.remove('hidden');
+      const closeIcon = document.getElementById('deploy-modal-close-icon');
+      if (closeIcon) closeIcon.classList.remove('hidden');
 
       let actionLabel = 'Iniciar Publicação';
       if (isPromotion) actionLabel = 'Confirmar Promoção';
@@ -6734,12 +6737,17 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       }
     }
 
+    let isDeployInProgress = false;
+
     async function executeDeployAction() {
       if (!pendingDeployCommit || !pendingDeployEnv) return;
+      if (isDeployInProgress) return; // Bloqueio total contra duplo clique
 
+      isDeployInProgress = true;
       const isProd = pendingDeployEnv === 'production';
       const confirmBtn = document.getElementById('deploy-confirm-btn');
       const cancelBtn = document.getElementById('deploy-cancel-btn');
+      const closeIcon = document.getElementById('deploy-modal-close-icon');
       const logsContainer = document.getElementById('deploy-logs-container');
       const logsScreen = document.getElementById('deploy-logs-screen');
       const timerLabel = document.getElementById('deploy-timer');
@@ -6748,26 +6756,46 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       const successCard = document.getElementById('deploy-success-card');
       const errorCard = document.getElementById('deploy-error-card');
 
+      // 1. Estado imediato de loading no botão e bloqueio para evitar duplo clique
       confirmBtn.disabled = true;
-      cancelBtn.classList.add('hidden');
+      confirmBtn.className = 'px-6 py-2.5 rounded-xl bg-slate-700/90 text-white text-xs font-bold flex items-center gap-2 cursor-not-allowed opacity-90 transition pointer-events-none shadow-none';
+      confirmBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-indigo-400"></i> <span>A publicar...</span>`;
+
+      if (cancelBtn) cancelBtn.classList.add('hidden');
+      if (closeIcon) closeIcon.classList.add('hidden');
+      if (window.lucide) lucide.createIcons();
+
       logsContainer.classList.remove('hidden');
       successCard.classList.add('hidden');
       errorCard.classList.add('hidden');
 
       let seconds = 0;
       clearInterval(deployTimerInterval);
+      timerLabel.textContent = '0s';
       deployTimerInterval = setInterval(() => {
         seconds++;
         timerLabel.textContent = `${seconds}s`;
       }, 1000);
 
-      logsScreen.textContent = `[${new Date().toLocaleTimeString()}] A iniciar deploy de [${pendingDeployCommit.shortHash || pendingDeployCommit.hash.slice(0, 7)}] em ${pendingDeployEnv.toUpperCase()}...\n`;
-      logsScreen.textContent += `[${new Date().toLocaleTimeString()}] [1/4] A contactar o servidor e a obter o commit do repositório...\n`;
+      const commitShort = pendingDeployCommit.shortHash || pendingDeployCommit.hash.slice(0, 7);
+      logsScreen.textContent = `[${new Date().toLocaleTimeString()}] A iniciar deploy de [${commitShort}] em ${pendingDeployEnv.toUpperCase()}...\n`;
+      progressLabel.textContent = 'A conectar e a transferir dados do commit...';
+      progressLabel.className = 'text-indigo-400 font-bold';
+      if (spinIcon) spinIcon.classList.add('animate-spin');
+
+      const appendTerminalLine = (text) => {
+        if (!text) return;
+        logsScreen.textContent += text + '\n';
+        logsScreen.scrollTop = logsScreen.scrollHeight;
+      };
 
       try {
-        const res = await fetch('/api/deploy', {
+        const res = await fetch('/api/deploy?stream=true', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'text/event-stream'
+          },
           body: JSON.stringify({
             project_id: currentProjectId,
             environment: pendingDeployEnv,
@@ -6778,17 +6806,67 @@ Vamos começar a implementar o primeiro módulo do plano.`;
           })
         });
 
-        const data = await res.json();
+        const contentType = res.headers.get('content-type') || '';
+        let finalResult = null;
+
+        if (contentType.includes('text/event-stream') && res.body && res.body.getReader) {
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let streamBuffer = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            streamBuffer += decoder.decode(value, { stream: true });
+            const parts = streamBuffer.split('\n');
+            streamBuffer = parts.pop(); // Guarda fragmento parcial
+
+            for (const line of parts) {
+              const trimmed = line.trim();
+              if (!trimmed) continue;
+              if (trimmed.startsWith('data: ')) {
+                try {
+                  const payload = JSON.parse(trimmed.slice(6));
+                  if (payload.type === 'log') {
+                    appendTerminalLine(payload.message);
+                    if (payload.step) {
+                      progressLabel.textContent = payload.step;
+                    }
+                  } else if (payload.type === 'step') {
+                    progressLabel.textContent = payload.label || `Passo ${payload.current}/${payload.total}`;
+                  } else if (payload.type === 'done') {
+                    finalResult = payload;
+                  }
+                } catch (pe) {
+                  appendTerminalLine(trimmed.slice(6));
+                }
+              }
+            }
+          }
+
+          if (streamBuffer.trim().startsWith('data: ')) {
+            try {
+              const payload = JSON.parse(streamBuffer.trim().slice(6));
+              if (payload.type === 'log') appendTerminalLine(payload.message);
+              if (payload.type === 'done') finalResult = payload;
+            } catch (pe) {}
+          }
+        } else {
+          // Fallback caso receba JSON tradicional
+          const data = await res.json();
+          finalResult = data;
+          if (data.logs) {
+            appendTerminalLine(data.logs);
+          }
+        }
+
         clearInterval(deployTimerInterval);
+        isDeployInProgress = false;
+        if (closeIcon) closeIcon.classList.remove('hidden');
 
-        if (data.ok) {
-          logsScreen.textContent += `[${new Date().toLocaleTimeString()}] [2/4] A sincronizar os ficheiros e a aplicar migrações SQL...\n`;
-          logsScreen.textContent += `[${new Date().toLocaleTimeString()}] [3/4] A reiniciar o contentor da aplicação...\n`;
-          logsScreen.textContent += `[${new Date().toLocaleTimeString()}] [4/4] Verificação de integridade concluída com sucesso!\n\n`;
-          if (data.logs) logsScreen.textContent += `--- SAÍDA DO PROCESSO ---\n${data.logs}\n`;
-          logsScreen.textContent += `\n🎉 Publicação finalizada com sucesso em ${seconds}s!`;
-          logsScreen.scrollTop = logsScreen.scrollHeight;
-
+        if (finalResult && finalResult.ok) {
+          appendTerminalLine(`\n🎉 Publicação finalizada com sucesso em ${seconds}s!`);
           progressLabel.textContent = 'Deploy Concluído com Sucesso!';
           progressLabel.className = 'text-emerald-500 font-bold';
           if (spinIcon) spinIcon.classList.remove('animate-spin');
@@ -6796,12 +6874,12 @@ Vamos começar a implementar o primeiro módulo do plano.`;
           // Mostrar Card de Sucesso Elegante
           const port = isProd ? (globalStatus?.project?.production?.port || 58100) : (globalStatus?.project?.staging?.port || 58101);
           document.getElementById('deploy-success-title').textContent = isProd ? 'Publicado na Produção Oficial (:58100)!' : 'Publicado no Ambiente de Testes (:58101)!';
-          document.getElementById('deploy-success-msg').textContent = `Versão ${pendingDeployCommit.shortHash || pendingDeployCommit.hash.slice(0, 7)} instalada com sucesso em ${seconds} segundos.`;
+          document.getElementById('deploy-success-msg').textContent = `Versão ${commitShort} instalada com sucesso em ${seconds} segundos.`;
           document.getElementById('deploy-success-open-link').href = `http://${window.location.hostname}:${port}/`;
           document.getElementById('deploy-success-open-link').textContent = `Abrir Site (:${port})`;
           successCard.classList.remove('hidden');
 
-          confirmBtn.className = 'px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-500/25 transition';
+          confirmBtn.className = 'px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-500/25 transition cursor-pointer pointer-events-auto';
           confirmBtn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Concluir`;
           confirmBtn.disabled = false;
           confirmBtn.onclick = () => {
@@ -6809,6 +6887,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
             refreshData();
           };
         } else {
+          const errMsg = (finalResult && finalResult.error) || 'Falha na execução do deploy';
           lastDeployErrorPayload = {
             date: new Date().toISOString(),
             project: currentProjectId,
@@ -6816,26 +6895,28 @@ Vamos começar a implementar o primeiro módulo do plano.`;
             commitHash: pendingDeployCommit.hash,
             commitMessage: pendingDeployCommit.message,
             commitAuthor: pendingDeployCommit.author,
-            error: data.error || 'Falha na execução do deploy',
-            logs: data.logs || logsScreen.textContent,
+            error: errMsg,
+            logs: logsScreen.textContent,
           };
 
-          logsScreen.textContent += `\n❌ ERRO NO DEPLOY:\n${data.error || 'Falha na execução'}\n`;
-          if (data.logs) logsScreen.textContent += `${data.logs}\n`;
+          appendTerminalLine(`\n❌ ERRO NO DEPLOY:\n${errMsg}`);
           progressLabel.textContent = 'Falha no Deploy';
           progressLabel.className = 'text-red-500 font-bold';
           if (spinIcon) spinIcon.classList.remove('animate-spin');
 
-          document.getElementById('deploy-error-details').textContent = data.error || 'Erro desconhecido durante o deploy.';
+          document.getElementById('deploy-error-details').textContent = errMsg;
           errorCard.classList.remove('hidden');
 
-          confirmBtn.className = 'px-5 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition';
+          confirmBtn.className = 'px-5 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition cursor-pointer pointer-events-auto';
           confirmBtn.innerHTML = `Fechar`;
           confirmBtn.disabled = false;
           confirmBtn.onclick = () => closeModal('deploy-action-modal');
         }
       } catch (e) {
         clearInterval(deployTimerInterval);
+        isDeployInProgress = false;
+        if (closeIcon) closeIcon.classList.remove('hidden');
+
         lastDeployErrorPayload = {
           date: new Date().toISOString(),
           project: currentProjectId,
@@ -6846,7 +6927,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
           logs: logsScreen.textContent,
         };
 
-        logsScreen.textContent += `\n❌ Erro de ligação: ${e.message}\n`;
+        appendTerminalLine(`\n❌ Erro de ligação: ${e.message}`);
         progressLabel.textContent = 'Erro de Ligação';
         progressLabel.className = 'text-red-500 font-bold';
         if (spinIcon) spinIcon.classList.remove('animate-spin');
@@ -6854,7 +6935,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
         document.getElementById('deploy-error-details').textContent = `Erro de Ligação: ${e.message}`;
         errorCard.classList.remove('hidden');
 
-        confirmBtn.className = 'px-5 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition';
+        confirmBtn.className = 'px-5 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition cursor-pointer pointer-events-auto';
         confirmBtn.innerHTML = `Fechar`;
         confirmBtn.disabled = false;
         confirmBtn.onclick = () => closeModal('deploy-action-modal');
@@ -6930,6 +7011,9 @@ Fim do Relatório
     }
   
     function closeModal(id) {
+      if (id === 'deploy-action-modal' && isDeployInProgress) {
+        return; // Impedir encerramento acidental durante o processo de deploy
+      }
       const el = document.getElementById(id);
       if (el) el.classList.add('hidden');
     }
