@@ -7519,18 +7519,21 @@ Fim do Relatório
       try {
         const res = await fetch(`/api/projects/${pId}/uptime-30d`);
         const data = await res.json();
-        if (data.ok && Array.isArray(data.history)) {
-          if (avgLabel) avgLabel.textContent = `${data.uptime_percent}%`;
+        const historyList = data.history || data.days || [];
+        if (data.ok && Array.isArray(historyList)) {
+          if (avgLabel) avgLabel.textContent = data.avgUptime || `${data.uptime_percent || 100}%`;
           
-          container.innerHTML = data.history.map((day) => {
+          container.innerHTML = historyList.map((day) => {
+            const uptimeVal = day.uptime_percent !== undefined ? day.uptime_percent : (day.uptime !== undefined ? day.uptime : 100);
+            const latencyVal = day.latency_ms !== undefined ? day.latency_ms : (day.latencyMs !== undefined ? day.latencyMs : 20);
             let bgClass = 'bg-emerald-500 hover:bg-emerald-400';
-            let titleText = `${day.date}: Operacional (100%) - Latência: ${day.latency_ms}ms`;
+            let titleText = `${day.date}: Operacional (${uptimeVal}%) - Latência: ${latencyVal}ms`;
             if (day.status === 'down') {
               bgClass = 'bg-red-500 hover:bg-red-400';
               titleText = `${day.date}: Indisponível`;
-            } else if (day.status === 'degraded' || day.uptime_percent < 98) {
+            } else if (day.status === 'degraded' || uptimeVal < 98) {
               bgClass = 'bg-amber-500 hover:bg-amber-400';
-              titleText = `${day.date}: Latência Alta (${day.latency_ms}ms) - Uptime: ${day.uptime_percent}%`;
+              titleText = `${day.date}: Latência Alta (${latencyVal}ms) - Uptime: ${uptimeVal}%`;
             }
             return `<div title="${titleText}" class="w-1.5 h-6 rounded-full ${bgClass} transition-colors cursor-pointer shrink-0"></div>`;
           }).join('');
@@ -7671,14 +7674,15 @@ Fim do Relatório
           const savLabel = document.getElementById('purge-savings-label');
           const purgeBtn = document.getElementById('purge-builds-btn');
 
-          if (gitEl) gitEl.textContent = s.git_size_pretty || '-';
-          if (outEl) outEl.textContent = s.active_outputs_size_pretty || '-';
-          if (cacheEl) cacheEl.textContent = s.build_cache_size_pretty || '-';
-          if (totEl) totEl.textContent = s.total_project_size_pretty || '-';
-          if (savLabel) savLabel.textContent = s.purgeable_cache_size_pretty || '0 B';
+          if (gitEl) gitEl.textContent = s.gitFormatted || s.git_size_pretty || '-';
+          if (outEl) outEl.textContent = s.activeOutputsFormatted || s.active_outputs_size_pretty || '-';
+          if (cacheEl) cacheEl.textContent = s.buildCacheFormatted || s.build_cache_size_pretty || '-';
+          if (totEl) totEl.textContent = s.totalProjectFormatted || s.total_project_size_pretty || '-';
+          if (savLabel) savLabel.textContent = s.purgeableFormatted || s.purgeable_cache_size_pretty || '0 B';
 
           if (purgeBtn) {
-            if (s.purgeable_builds_count > 0) {
+            const count = s.purgeableCount !== undefined ? s.purgeableCount : (s.purgeable_builds_count || 0);
+            if (count > 0) {
               purgeBtn.disabled = false;
               purgeBtn.className = 'px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm shadow-indigo-600/20';
             } else {
@@ -7797,15 +7801,16 @@ Fim do Relatório
         const res = await fetch(`/api/projects/${pId}/env?target_env=${currentEnvSubTab}`);
         const data = await res.json();
         if (data.ok) {
-          currentEnvData = (data.parsed_vars || []).map((item) => ({
+          const varsList = data.parsed_vars || data.variables || [];
+          currentEnvData = varsList.map((item) => ({
             key: item.key,
             value: item.value,
-            is_secret: item.is_secret,
+            is_secret: item.is_secret !== undefined ? item.is_secret : (item.isSecret !== undefined ? item.isSecret : false),
             visible: false
           }));
 
           const rawTextarea = document.getElementById('env-raw-textarea');
-          if (rawTextarea) rawTextarea.value = data.raw_content || '';
+          if (rawTextarea) rawTextarea.value = data.raw_content || data.raw || '';
 
           renderEnvTable();
         } else {

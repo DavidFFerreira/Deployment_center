@@ -2542,16 +2542,22 @@ app.get("/api/projects/:id/storage-stats", requireAuth, async (req, res) => {
       stats: {
         gitBytes,
         gitFormatted: formatBytes(gitBytes),
+        git_size_pretty: formatBytes(gitBytes),
         buildCacheBytes,
         buildCacheFormatted: formatBytes(buildCacheBytes),
+        build_cache_size_pretty: formatBytes(buildCacheBytes),
         activeOutputsBytes,
         activeOutputsFormatted: formatBytes(activeOutputsBytes),
+        active_outputs_size_pretty: formatBytes(activeOutputsBytes),
         totalProjectBytes,
         totalProjectFormatted: formatBytes(totalProjectBytes),
+        total_project_size_pretty: formatBytes(totalProjectBytes),
         cachedBuildsCount: cachedBuilds.length,
         purgeableCount: purgeableBuilds.length,
+        purgeable_builds_count: purgeableBuilds.length,
         purgeableBytes,
         purgeableFormatted: formatBytes(purgeableBytes),
+        purgeable_cache_size_pretty: formatBytes(purgeableBytes),
       },
     });
   } catch (err) {
@@ -2625,7 +2631,7 @@ app.post("/api/system/docker-prune", requireAuth, async (req, res) => {
 
 app.get("/api/projects/:id/env", requireAuth, async (req, res) => {
   const { id } = req.params;
-  const envType = req.query.env || "production";
+  const envType = req.query.envType || req.query.target_env || req.query.env || "production";
   const project = findProject(id);
   if (!project) return res.status(404).json({ ok: false, error: "Projeto não encontrado" });
 
@@ -2653,7 +2659,7 @@ app.get("/api/projects/:id/env", requireAuth, async (req, res) => {
           value = value.slice(1, -1);
         }
         const isSecret = /KEY|SECRET|PASSWORD|PASS|TOKEN|CREDENTIAL|PRIVATE|JWT/i.test(key);
-        variables.push({ key, value, isSecret });
+        variables.push({ key, value, isSecret, is_secret: isSecret });
       }
     }
 
@@ -2661,7 +2667,9 @@ app.get("/api/projects/:id/env", requireAuth, async (req, res) => {
       ok: true,
       filename,
       raw,
+      raw_content: raw,
       variables,
+      parsed_vars: variables,
     });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
@@ -2670,7 +2678,9 @@ app.get("/api/projects/:id/env", requireAuth, async (req, res) => {
 
 app.post("/api/projects/:id/env", requireAuth, async (req, res) => {
   const { id } = req.params;
-  const { envType = "production", raw, restartContainers = false } = req.body;
+  const envType = req.body.envType || req.body.target_env || req.body.env || "production";
+  const raw = req.body.raw !== undefined ? req.body.raw : (req.body.content !== undefined ? req.body.content : "");
+  const restartContainers = req.body.restartContainers || req.body.restart_container || false;
   const project = findProject(id);
   if (!project) return res.status(404).json({ ok: false, error: "Projeto não encontrado" });
 
@@ -2720,7 +2730,9 @@ app.get("/api/projects/:id/uptime-30d", requireAuth, async (req, res) => {
       days.push({
         date: dateStr,
         uptime: 100,
+        uptime_percent: 100,
         latencyMs: latency,
+        latency_ms: latency,
         status: "operational",
       });
     }
@@ -2728,8 +2740,11 @@ app.get("/api/projects/:id/uptime-30d", requireAuth, async (req, res) => {
     res.json({
       ok: true,
       days,
+      history: days,
       avgUptime: "100.0%",
+      uptime_percent: 100,
       avgLatency: "22 ms",
+      latency_ms: 22,
     });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
