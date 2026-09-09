@@ -47,6 +47,51 @@ const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 const LOCAL_USERS_FILE = path.join(DATA_DIR, "deploy_users.json");
 const BACKUPS_DIR = path.join(DATA_DIR, "backups");
 const API_KEYS_FILE = path.join(DATA_DIR, "api_keys.json");
+const DELETED_PROJECTS_FILE = path.join(DATA_DIR, "deleted_projects.json");
+const CANDIDATE_PROJECT_PATHS = [
+  path.join(DATA_DIR, "deploy-center", "projects.json"),
+  path.join(DATA_DIR, "deploy-center", "deploy-center", "projects.json"),
+  "/mnt/Disco1/apps/suavit-portal/data/deploy-center/deploy-center/projects.json",
+  "/mnt/Disco1/apps/suavit-portal/data/deploy-center/projects.json",
+  "/mnt/Disco1/apps/suavit-portal/data/projects.json",
+  "/opt/stacks/suavit-portal/data/deploy-center/deploy-center/projects.json",
+  "/opt/stacks/deployment-center/data/projects.json",
+  "/opt/stacks/app-portal/data/deploy-center/projects.json",
+  "/mnt/Disco1/apps/deployment-center/data/projects.json",
+];
+
+function getDeletedProjects() {
+  try {
+    if (fs.existsSync(DELETED_PROJECTS_FILE)) {
+      const data = JSON.parse(fs.readFileSync(DELETED_PROJECTS_FILE, "utf-8"));
+      if (Array.isArray(data)) return new Set(data);
+    }
+  } catch (e) {}
+  return new Set();
+}
+
+function recordDeletedProject(id) {
+  if (!id) return;
+  try {
+    const set = getDeletedProjects();
+    set.add(id);
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(DELETED_PROJECTS_FILE, JSON.stringify(Array.from(set), null, 2));
+  } catch (e) {}
+}
+
+function unrecordDeletedProject(id) {
+  if (!id) return;
+  try {
+    const set = getDeletedProjects();
+    if (set.has(id)) {
+      set.delete(id);
+      if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+      fs.writeFileSync(DELETED_PROJECTS_FILE, JSON.stringify(Array.from(set), null, 2));
+    }
+  } catch (e) {}
+}
+
 const backgroundJobs = new Map();
 const SESSION_SECRET = process.env.SESSION_SECRET || "deploy_center_session_secret_2026_xyz";
 
@@ -399,7 +444,7 @@ function autoDiscoverProjects(baseList = []) {
       for (const sub of subdirs) {
         if (!sub.isDirectory()) continue;
         const dirName = sub.name;
-        if (dirName === "deployment-center" || dirName === "deploy-center" || dirName.startsWith(".")) continue;
+        if (dirName === "deployment-center" || dirName === "deploy-center" || dirName.startsWith(".") || getDeletedProjects().has(dirName)) continue;
 
         const projectPath = path.join(appsDir, dirName);
         if (!isDeployCenterProject(projectPath, dirName)) continue;
@@ -496,33 +541,23 @@ function autoDiscoverProjects(baseList = []) {
 }
 
 function getProjects() {
+  const deletedSet = getDeletedProjects();
   let list = [];
   try {
     if (fs.existsSync(PROJECTS_FILE)) {
       const data = JSON.parse(fs.readFileSync(PROJECTS_FILE, "utf-8"));
-      if (Array.isArray(data)) list = data;
+      if (Array.isArray(data)) list = data.filter((p) => p && p.id && !deletedSet.has(p.id));
     }
   } catch (e) {}
 
   // SEMPRE verificar caminhos legados para importar e fundir stacks que possam faltar
-  const candidateProjectPaths = [
-    path.join(DATA_DIR, "deploy-center", "projects.json"),
-    path.join(DATA_DIR, "deploy-center", "deploy-center", "projects.json"),
-    "/mnt/Disco1/apps/suavit-portal/data/deploy-center/deploy-center/projects.json",
-    "/mnt/Disco1/apps/suavit-portal/data/deploy-center/projects.json",
-    "/mnt/Disco1/apps/suavit-portal/data/projects.json",
-    "/opt/stacks/suavit-portal/data/deploy-center/deploy-center/projects.json",
-    "/opt/stacks/deployment-center/data/projects.json",
-    "/opt/stacks/app-portal/data/deploy-center/projects.json",
-    "/mnt/Disco1/apps/deployment-center/data/projects.json",
-  ];
-  for (const legacyPath of candidateProjectPaths) {
+  for (const legacyPath of CANDIDATE_PROJECT_PATHS) {
     try {
       if (fs.existsSync(legacyPath)) {
         const legacyData = JSON.parse(fs.readFileSync(legacyPath, "utf-8"));
         if (Array.isArray(legacyData)) {
           for (const item of legacyData) {
-            if (item && item.id && !list.some((p) => p.id === item.id)) {
+            if (item && item.id && !deletedSet.has(item.id) && !list.some((p) => p.id === item.id)) {
               list.push(item);
             }
           }
@@ -532,11 +567,11 @@ function getProjects() {
   }
 
   if (list.length === 0) {
-    list = DEFAULT_PROJECTS;
+    list = DEFAULT_PROJECTS.filter((p) => !deletedSet.has(p.id));
   }
 
   // Executar auto-descoberta para adicionar novas stacks encontradas no disco
-  const discovered = autoDiscoverProjects(list);
+  const discovered = autoDiscoverProjects(list).filter((p) => p && p.id && !deletedSet.has(p.id));
 
   // Ordenar para garantir que suavit-portal fique como stack principal se existir
   discovered.sort((a, b) => {
@@ -552,6 +587,14 @@ function saveProjects(projects) {
   try {
     if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
     fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2));
+
+    for (const legacyPath of CANDIDATE_PROJECT_PATHS) {
+      try {
+        if (fs.existsSync(legacyPath)) {
+          fs.writeFileSync(legacyPath, JSON.stringify(projects, null, 2));
+        }
+      } catch (e) {}
+    }
   } catch (e) {}
 }
 
@@ -1997,6 +2040,7 @@ app.post("/api/projects", requireAuth, (req, res) => {
     staging: staging || { serviceName: `${cleanId}-staging`, port: 58101, host: "localhost", containerName: `${cleanId}-staging` },
   };
 
+  unrecordDeletedProject(cleanId);
   list.push(newProject);
   saveProjects(list);
   res.json({ ok: true, project: newProject });
@@ -7454,6 +7498,7 @@ GRANT ALL ON TABLE storage.migrations TO postgres, service_role, supabase_storag
     emitLog(`======================================================================\n`);
   } catch (promptErr) {}
 
+  unrecordDeletedProject(cleanSlug);
   projects.push(newProjectRecord);
   saveProjects(projects);
   projectSavedInDb = true;
@@ -8133,6 +8178,7 @@ app.get("/api/projects/restore-backup/execute", requireAuth, async (req, res) =>
       restored_from_backup: true,
     };
 
+    unrecordDeletedProject(cleanSlug);
     const currentProjects = getProjects().filter((p) => p.id !== cleanSlug);
     currentProjects.push(newProjectRecord);
     saveProjects(currentProjects);
@@ -8514,6 +8560,7 @@ END $$;
       cloned_from: sourceProject.id,
     };
 
+    unrecordDeletedProject(cleanSlug);
     const currentProjects = getProjects().filter((p) => p.id !== cleanSlug);
     currentProjects.push(newProjectRecord);
     saveProjects(currentProjects);
@@ -8553,12 +8600,16 @@ app.delete("/api/projects/:id", requireAuth, async (req, res) => {
       });
     }
 
+    // Registo imediato do projeto como eliminado (tombstone permanente contra auto-ressurreição)
+    recordDeletedProject(id);
+
     const settings = getSettings();
     const logs = [];
     logs.push(`A iniciar remoção da stack do projeto "${project.name}" (${project.id})...`);
 
     // 1. Eliminar repositório privado no GitHub (se solicitado ou por omissão)
-    if (delete_github !== false && settings.github_token) {
+    const activeToken = getActiveGithubToken() || settings.github_token;
+    if (delete_github !== false && activeToken) {
       try {
         const repoOwner = project.repoOwner || "DavidFFerreira";
         const repoName = project.repoName || project.id;
@@ -8567,7 +8618,7 @@ app.delete("/api/projects/:id", requireAuth, async (req, res) => {
         const ghResp = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}`, {
           method: "DELETE",
           headers: {
-            Authorization: `token ${settings.github_token}`,
+            Authorization: `Bearer ${activeToken}`,
             "User-Agent": "DeployCenter-Platform/3.0",
             Accept: "application/vnd.github.v3+json",
           },
@@ -8633,7 +8684,11 @@ app.delete("/api/projects/:id", requireAuth, async (req, res) => {
           normalizedPath !== "/mnt/Disco1/apps" &&
           normalizedPath !== "/mnt/opt/stacks"
         ) {
-          fs.rmSync(normalizedPath, { recursive: true, force: true });
+          try {
+            fs.rmSync(normalizedPath, { recursive: true, force: true });
+          } catch (rmErr) {
+            await execAsync(`rm -rf "${normalizedPath}" 2>/dev/null || true`);
+          }
           logs.push(`✓ Pasta e ficheiros locais no servidor (${normalizedPath}) eliminados.`);
         }
       } catch (fsErr) {
@@ -8651,18 +8706,31 @@ app.delete("/api/projects/:id", requireAuth, async (req, res) => {
       }
     } catch (e) {}
 
-    // 5. Remover da lista de projetos do Deployment Center
+    // 5. Remover da lista de projetos do Deployment Center e sincronizar caminhos de persistência
+    recordDeletedProject(id);
     projects = projects.filter((p) => p.id !== id);
     if (projects.length === 0) {
-      projects = DEFAULT_PROJECTS;
+      projects = DEFAULT_PROJECTS.filter((p) => p.id !== id);
     }
     saveProjects(projects);
+
+    for (const legacyPath of CANDIDATE_PROJECT_PATHS) {
+      try {
+        if (fs.existsSync(legacyPath)) {
+          const legacyData = JSON.parse(fs.readFileSync(legacyPath, "utf-8"));
+          if (Array.isArray(legacyData)) {
+            const cleaned = legacyData.filter((p) => p && p.id !== id);
+            fs.writeFileSync(legacyPath, JSON.stringify(cleaned, null, 2));
+          }
+        }
+      } catch (e) {}
+    }
     logs.push(`✓ Projeto removido do registo do Deployment Center.`);
 
     res.json({
       ok: true,
       deletedId: id,
-      fallbackProjectId: projects[0].id,
+      fallbackProjectId: projects[0]?.id || "suavit-portal",
       logs,
       message: `Projeto "${project.name}" e respetivos recursos eliminados com sucesso.`,
     });

@@ -4314,10 +4314,9 @@
           closeModal('delete-project-modal');
           await loadProjects();
           if (currentProjectId === targetProjectToDelete.id) {
-            switchProject(data.fallbackProjectId || 'suavit-portal');
-          } else {
-            renderSettingsProjectsList();
+            await switchProject(data.fallbackProjectId || 'suavit-portal');
           }
+          renderSettingsProjectsList();
           showAppNotification({
             type: 'success',
             title: 'Projeto Eliminado',
