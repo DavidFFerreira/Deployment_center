@@ -3430,12 +3430,13 @@
     let currentDocSubTab = 'arch';
 
     async function loadProjectDocs() {
-      if (!currentProject) return;
+      const pId = currentProjectId || activeProject?.id;
+      if (!pId) return;
       const viewer = document.getElementById('doc-content-viewer');
       if (viewer) viewer.textContent = 'A carregar ficheiros canónicos e arquitetura da stack...';
 
       try {
-        const res = await fetch(`/api/projects/${currentProject.id}/documentation`);
+        const res = await fetch(`/api/projects/${pId}/documentation`);
         const data = await res.json();
         if (!data.ok) throw new Error(data.error || 'Erro ao carregar documentação');
         currentProjectDocsData = data;
@@ -6137,10 +6138,11 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       if (!projectId) return;
       currentProjectId = projectId;
       localStorage.setItem('deploy_project_id', projectId);
-      activeProject = projectsList.find((p) => p.id === projectId) || projectsList[0];
+      const found = projectsList && projectsList.find((p) => p.id === projectId);
+      if (found) activeProject = found;
       
       const select = document.getElementById('project-selector');
-      if (select) select.value = projectId;
+      if (select && select.value !== projectId) select.value = projectId;
 
       updateProjectMetadataUi();
       updateProjectServiceLinks();
@@ -6163,14 +6165,14 @@ Vamos começar a implementar o primeiro módulo do plano.`;
 
     
     function updateProjectMetadataUi() {
-      const p = activeProject || globalStatus?.project || (projectsList && projectsList.find(x => x.id === currentProjectId)) || { id: currentProjectId || 'portal-web', name: 'Projeto' };
-      const pId = p.id || currentProjectId || 'portal-web';
+      const pId = currentProjectId || activeProject?.id || 'portal-web';
+      const p = (projectsList && projectsList.find(x => x.id === pId)) || (activeProject && activeProject.id === pId ? activeProject : null) || globalStatus?.project || { id: pId, name: 'Projeto' };
       const pName = p.name || pId;
 
       const select = document.getElementById('project-selector');
-      if (select && pId && select.value !== pId) {
-        if (Array.from(select.options).some(opt => opt.value === pId)) {
-          select.value = pId;
+      if (select && currentProjectId && select.value !== currentProjectId) {
+        if (Array.from(select.options).some(opt => opt.value === currentProjectId)) {
+          select.value = currentProjectId;
         }
       }
 
@@ -6294,10 +6296,12 @@ Vamos começar a implementar o primeiro módulo do plano.`;
         const data = await res.json();
         globalStatus = data;
         if (data.project) {
-          activeProject = data.project;
-          if (!currentProjectId && data.project.id) {
-            currentProjectId = data.project.id;
-            localStorage.setItem('deploy_project_id', currentProjectId);
+          if (data.project.id === currentProjectId || !currentProjectId) {
+            activeProject = data.project;
+            if (!currentProjectId && data.project.id) {
+              currentProjectId = data.project.id;
+              localStorage.setItem('deploy_project_id', currentProjectId);
+            }
           }
           const select = document.getElementById('project-selector');
           if (select && currentProjectId && select.value !== currentProjectId) {

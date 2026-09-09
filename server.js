@@ -315,8 +315,8 @@ const DEFAULT_PROJECTS = [
 ];
 
 function isDeployCenterProject(projectPath, dirName) {
+  if (dirName === "suavit-portal" || dirName === "app-portal" || dirName === "teste" || dirName === "fitmaster-pro") return true;
   if (!projectPath || !fs.existsSync(projectPath)) return false;
-  if (dirName === "app-portal") return true;
 
   // 1. Ficheiros característicos gerados obrigatoriamente pelo Deployment Center
   const hasKongConfig =
@@ -344,18 +344,52 @@ function isDeployCenterProject(projectPath, dirName) {
     } catch (e) {}
   }
 
-  return hasKongConfig || hasMarker || hasComposeStructure;
+  // 3. Verificação de contentores ativos associados ao nome
+  let hasRunningContainers = false;
+  try {
+    const { execSync } = require("child_process");
+    const out = execSync(`docker ps --filter "name=${dirName}" --format "{{.Names}}" 2>/dev/null`, { encoding: "utf-8" });
+    if (out && out.trim().length > 0) hasRunningContainers = true;
+  } catch (e) {}
+
+  return hasKongConfig || hasMarker || hasComposeStructure || hasRunningContainers;
 }
 
 function autoDiscoverProjects(baseList = []) {
   const settings = getSettings();
-  const baseAppsDir = settings.server_apps_dir || "/mnt/opt/stacks";
-  const searchDirs = [baseAppsDir, "/opt/stacks"];
+  const baseAppsDir = settings.server_apps_dir || "/mnt/Disco1/apps";
+  const searchDirs = [baseAppsDir, "/mnt/Disco1/apps", "/mnt/Disco1/stacks", "/mnt/apps", "/opt/stacks", "/mnt/opt/stacks"].filter(Boolean);
 
-  // Filtrar rigorosamente a lista base para manter apenas projetos válidos do Deployment Center
-  let projects = baseList.filter((p) => {
-    if (p.id === "app-portal") return true;
-    return isDeployCenterProject(p.appDir, p.id);
+  try {
+    if (fs.existsSync("/mnt")) {
+      const zfsEntries = fs.readdirSync("/mnt", { withFileTypes: true });
+      for (const entry of zfsEntries) {
+        if (entry.isDirectory()) {
+          const candidateApps = path.join("/mnt", entry.name, "apps");
+          if (fs.existsSync(candidateApps) && !searchDirs.includes(candidateApps)) {
+            searchDirs.push(candidateApps);
+          }
+          const candidateStacks = path.join("/mnt", entry.name, "stacks");
+          if (fs.existsSync(candidateStacks) && !searchDirs.includes(candidateStacks)) {
+            searchDirs.push(candidateStacks);
+          }
+        }
+      }
+    }
+  } catch (e) {}
+
+  // Normalizar appDir de projetos existentes na base se estiverem apontados para caminhos antigos
+  let projects = baseList.map((p) => {
+    if (!fs.existsSync(p.appDir)) {
+      for (const d of searchDirs) {
+        const candidate = path.join(d, p.id);
+        if (fs.existsSync(candidate)) {
+          p.appDir = candidate;
+          break;
+        }
+      }
+    }
+    return p;
   });
 
   for (const appsDir of searchDirs) {
@@ -466,32 +500,35 @@ function getProjects() {
   try {
     if (fs.existsSync(PROJECTS_FILE)) {
       const data = JSON.parse(fs.readFileSync(PROJECTS_FILE, "utf-8"));
-      if (Array.isArray(data) && data.length > 0) list = data;
+      if (Array.isArray(data)) list = data;
     }
   } catch (e) {}
 
-  if (list.length === 0) {
-    // Tentar importar de dados legados se existirem
-    const candidateProjectPaths = [
-      path.join(DATA_DIR, "deploy-center", "projects.json"),
-      path.join(DATA_DIR, "deploy-center", "deploy-center", "projects.json"),
-      "/opt/stacks/deployment-center/data/projects.json",
-      "/opt/stacks/app-portal/data/deploy-center/projects.json",
-      "/mnt/Disco1/apps/deployment-center/data/projects.json",
-      "/mnt/Disco1/apps/suavit-portal/data/deploy-center/projects.json"
-    ];
-    for (const legacyPath of candidateProjectPaths) {
-      try {
-        if (fs.existsSync(legacyPath)) {
-          const legacyData = JSON.parse(fs.readFileSync(legacyPath, "utf-8"));
-          if (Array.isArray(legacyData) && legacyData.length > 0) {
-            list = legacyData;
-            saveProjects(list);
-            break;
+  // SEMPRE verificar caminhos legados para importar e fundir stacks que possam faltar
+  const candidateProjectPaths = [
+    path.join(DATA_DIR, "deploy-center", "projects.json"),
+    path.join(DATA_DIR, "deploy-center", "deploy-center", "projects.json"),
+    "/mnt/Disco1/apps/suavit-portal/data/deploy-center/deploy-center/projects.json",
+    "/mnt/Disco1/apps/suavit-portal/data/deploy-center/projects.json",
+    "/mnt/Disco1/apps/suavit-portal/data/projects.json",
+    "/opt/stacks/suavit-portal/data/deploy-center/deploy-center/projects.json",
+    "/opt/stacks/deployment-center/data/projects.json",
+    "/opt/stacks/app-portal/data/deploy-center/projects.json",
+    "/mnt/Disco1/apps/deployment-center/data/projects.json",
+  ];
+  for (const legacyPath of candidateProjectPaths) {
+    try {
+      if (fs.existsSync(legacyPath)) {
+        const legacyData = JSON.parse(fs.readFileSync(legacyPath, "utf-8"));
+        if (Array.isArray(legacyData)) {
+          for (const item of legacyData) {
+            if (item && item.id && !list.some((p) => p.id === item.id)) {
+              list.push(item);
+            }
           }
         }
-      } catch (e) {}
-    }
+      }
+    } catch (e) {}
   }
 
   if (list.length === 0) {
@@ -511,7 +548,23 @@ function saveProjects(projects) {
 
 function findProject(projectId, envType = "production") {
   const list = getProjects();
+  if (!projectId) return list[0] || DEFAULT_PROJECTS[0];
+
   let p = list.find((item) => item.id === projectId);
+  if (!p) {
+    p = list.find((item) => item.id?.toLowerCase() === projectId.toLowerCase() || item.name?.toLowerCase() === projectId.toLowerCase() || item.appDir?.endsWith(`/${projectId}`));
+  }
+  if (!p) {
+    const candidateDirs = ["/mnt/Disco1/apps", "/opt/stacks", "/mnt/opt/stacks"];
+    for (const base of candidateDirs) {
+      const pDir = path.join(base, projectId);
+      if (fs.existsSync(pDir)) {
+        const auto = autoDiscoverProjects(list);
+        p = auto.find((item) => item.id === projectId);
+        if (p) break;
+      }
+    }
+  }
   if (!p && list.length > 0) p = list[0];
   if (!p) p = DEFAULT_PROJECTS[0];
 
