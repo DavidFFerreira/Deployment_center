@@ -416,6 +416,46 @@
     </div>
 
     <!-- ===================================================================== -->
+    <!-- BARRA DE TELEMETRIA: CONSUMO EM TEMPO REAL & UPTIME 30 DIAS           -->
+    <!-- ===================================================================== -->
+    <div class="rounded-2xl glass-card border border-slate-200 dark:border-slate-800/80 p-3.5 shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
+      <!-- Uptime 30 Dias -->
+      <div class="flex items-center gap-3 w-full md:w-auto">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">
+          <i data-lucide="activity" class="w-4 h-4 text-emerald-500"></i>
+          <span>Uptime 30d:</span>
+          <span class="text-emerald-500" id="uptime-avg-label">100%</span>
+        </div>
+        <!-- 30 Barrinhas Visuais -->
+        <div class="flex items-center gap-1 overflow-x-auto py-1" id="uptime-bars-container">
+          <!-- Gerado dinamicamente -->
+        </div>
+      </div>
+
+      <!-- Métricas em Tempo Real do Servidor -->
+      <div class="flex items-center gap-4 w-full md:w-auto justify-end text-xs flex-wrap">
+        <div class="flex items-center gap-1.5">
+          <span class="text-slate-400 font-semibold">Load:</span>
+          <span class="font-mono font-bold text-slate-800 dark:text-slate-200" id="host-cpu-metric">-</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400 font-semibold">RAM:</span>
+          <div class="w-16 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div id="host-ram-bar" class="h-full bg-emerald-500 transition-all" style="width: 0%"></div>
+          </div>
+          <span class="font-mono font-bold text-slate-800 dark:text-slate-200" id="host-ram-metric">-</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-slate-400 font-semibold">Disco:</span>
+          <span class="font-mono font-bold text-slate-800 dark:text-slate-200" id="host-disk-metric">-</span>
+        </div>
+        <span id="resource-alert-badge" class="hidden px-2 py-0.5 rounded-full bg-red-500/20 text-red-500 font-bold text-[10px] animate-pulse">
+          ⚠️ Alerta > 85%
+        </span>
+      </div>
+    </div>
+
+    <!-- ===================================================================== -->
     <!-- PAINEL PRINCIPAL DE SEPARADORES (TABS MODERNAS)                      -->
     <!-- ===================================================================== -->
     <div class="rounded-3xl glass-card border shadow-xl overflow-hidden">
@@ -441,6 +481,10 @@
         <!-- Tab: Base de Dados & Supabase -->
         <button id="tab-btn-database" onclick="switchTab('database')" class="tab-btn shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-slate-200/80 dark:hover:bg-slate-900">
           <i data-lucide="database" class="w-4 h-4 text-amber-500"></i> <span data-i18n="tab_database">Base de Dados & Supabase</span>
+        </button>
+        <!-- Tab: Variáveis (.env) -->
+        <button id="tab-btn-env" onclick="switchTab('env')" class="tab-btn shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-slate-200/80 dark:hover:bg-slate-900">
+          <i data-lucide="key-round" class="w-4 h-4 text-cyan-500"></i> <span>Variáveis (.env)</span>
         </button>
         <!-- Tab: Histórico -->
         <button id="tab-btn-history" onclick="switchTab('history')" class="tab-btn shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-slate-200/80 dark:hover:bg-slate-900">
@@ -496,6 +540,49 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="containers-list">
           <div class="text-center py-12 text-slate-500 text-sm col-span-2">A carregar contentores...</div>
+        </div>
+
+        <!-- Live Log Streamer dos Contentores com Filtros -->
+        <div class="mt-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <i data-lucide="radio" class="w-4 h-4 text-emerald-500 animate-pulse"></i>
+              <h4 class="text-xs font-bold text-slate-800 dark:text-slate-200">Live Logs da Stack</h4>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-bold">Em Direto</span>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap text-xs">
+              <!-- Seletor de Contentor -->
+              <select id="live-log-container-select" onchange="restartLiveLogs()" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
+                <option value="all">📦 Todos os Contentores</option>
+              </select>
+
+              <!-- Filtro de Severidade -->
+              <select id="live-log-level-select" onchange="restartLiveLogs()" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
+                <option value="all">Todos os Níveis</option>
+                <option value="error">🔴 Apenas Erros</option>
+                <option value="warn">🟡 Avisos & Erros</option>
+              </select>
+
+              <!-- Pesquisa de Texto -->
+              <div class="relative">
+                <input type="text" id="live-log-search-input" oninput="restartLiveLogs()" placeholder="Filtrar texto..." class="px-2.5 py-1.5 pl-7 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 w-36 focus:w-48 transition-all focus:outline-none">
+                <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2"></i>
+              </div>
+
+              <!-- Pausa de Scroll -->
+              <button onclick="toggleLiveLogPause()" id="live-log-pause-btn" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold transition flex items-center gap-1 text-slate-700 dark:text-slate-300">
+                <i data-lucide="pause" class="w-3.5 h-3.5"></i> <span id="live-log-pause-label">Pausar</span>
+              </button>
+
+              <!-- Limpar Ecrã -->
+              <button onclick="clearLiveLogs()" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold transition text-slate-700 dark:text-slate-300">
+                Limpar
+              </button>
+            </div>
+          </div>
+
+          <!-- Janela do Terminal de Logs -->
+          <pre id="live-logs-terminal" class="p-4 rounded-xl bg-slate-950 text-slate-300 font-mono text-[11px] leading-relaxed max-h-72 overflow-y-auto border border-slate-800 select-text whitespace-pre-wrap">A conectar aos streams dos contentores...</pre>
         </div>
       </div>
 
@@ -627,6 +714,48 @@
         <!-- Lista de Ficheiros e Pastas com suporte a Drag & Drop -->
         <div class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-900/40" id="storage-files-container" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
           <div class="text-center py-12 text-slate-500 text-sm">Selecione um bucket para explorar ficheiros.</div>
+        </div>
+
+        <!-- Painel de Otimização de Armazenamento & Purge de Builds Antigas -->
+        <div class="mt-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h4 class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <i data-lucide="hard-drive" class="w-4 h-4 text-indigo-500"></i> Otimização de Armazenamento & Builds em Disco
+              </h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                Limpeza de artefactos de compilação antigos (.build_cache). O código-fonte no Git permanece intacto e os outputs são reconstruídos automaticamente sob demanda.
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="executeDockerPrune()" id="docker-prune-btn" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold transition flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5 text-slate-400"></i> Otimizar Docker
+              </button>
+              <button onclick="executeBuildsPurge()" id="purge-builds-btn" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm shadow-indigo-600/20">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Limpar Builds Antigas (<span id="purge-savings-label">0 B</span>)
+              </button>
+            </div>
+          </div>
+
+          <!-- Métricas de Espaço -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-100 dark:border-slate-800/60">
+              <span class="text-[10px] font-bold text-slate-400 uppercase">Repositório Git</span>
+              <div class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5" id="stat-git-size">-</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-100 dark:border-slate-800/60">
+              <span class="text-[10px] font-bold text-slate-400 uppercase">Outputs Ativos</span>
+              <div class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5" id="stat-outputs-size">-</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-100 dark:border-slate-800/60">
+              <span class="text-[10px] font-bold text-slate-400 uppercase">Cache de Builds</span>
+              <div class="text-sm font-bold text-indigo-600 dark:text-indigo-400 mt-0.5" id="stat-cache-size">-</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-100 dark:border-slate-800/60">
+              <span class="text-[10px] font-bold text-slate-400 uppercase">Total do Projeto</span>
+              <div class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5" id="stat-total-size">-</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -815,6 +944,81 @@
           <div class="relative">
             <pre id="doc-content-viewer" class="p-4 rounded-2xl bg-slate-950 text-slate-200 font-mono text-xs overflow-x-auto max-h-[550px] leading-relaxed whitespace-pre-wrap selection:bg-purple-600 selection:text-white border border-slate-800"></pre>
           </div>
+        </div>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- TAB CONTENT: GESTÃO DE VARIÁVEIS DE AMBIENTE (.env)                 -->
+      <!-- =================================================================== -->
+      <div id="tab-content-env" class="p-4 md:p-6 space-y-4 hidden">
+        <div class="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h3 class="font-bold text-base flex items-center gap-2 text-cyan-600 dark:text-cyan-400">
+              <i data-lucide="key-round" class="w-5 h-5"></i> <span>Gestão Segura de Variáveis de Ambiente (.env)</span>
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Edição protegida de segredos, tokens e chaves de API com mascaramento visual e permissões 0600.</p>
+          </div>
+
+          <!-- Ações e Sub-abas (.env) -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl">
+              <button id="env-subtab-prod" onclick="switchEnvSubTab('production')" class="px-3 py-1 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Produção (.env.production)
+              </button>
+              <button id="env-subtab-stg" onclick="switchEnvSubTab('staging')" class="px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span> Testes (.env.staging)
+              </button>
+              <button id="env-subtab-base" onclick="switchEnvSubTab('global')" class="px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-slate-400"></span> Base (.env)
+              </button>
+            </div>
+
+            <button onclick="toggleEnvEditorMode()" id="env-editor-mode-btn" class="px-3 py-1.5 rounded-xl bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-bold transition text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="code-2" class="w-4 h-4"></i> <span id="env-editor-mode-label">Modo Código Bruto</span>
+            </button>
+            <button onclick="addEnvVariableRow()" id="env-add-var-btn" class="px-3 py-1.5 rounded-xl bg-cyan-600/10 hover:bg-cyan-600/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 text-xs font-bold transition flex items-center gap-1.5">
+              <i data-lucide="plus" class="w-4 h-4"></i> Adicionar Variável
+            </button>
+            <button onclick="saveCurrentEnv()" id="env-save-btn" class="px-4 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm shadow-cyan-600/25">
+              <i data-lucide="save" class="w-4 h-4"></i> Gravar & Aplicar
+            </button>
+          </div>
+        </div>
+
+        <!-- Opção de Reinício Automático -->
+        <div class="p-3 rounded-2xl bg-cyan-500/5 dark:bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-between text-xs">
+          <label class="flex items-center gap-2 cursor-pointer font-semibold text-slate-700 dark:text-slate-300">
+            <input type="checkbox" id="env-restart-checkbox" checked class="w-4 h-4 rounded text-cyan-600 focus:ring-cyan-500 border-slate-300 dark:border-slate-700">
+            <span>Reiniciar contentor da aplicação automaticamente após gravar para carregar novas variáveis</span>
+          </label>
+          <span class="text-[11px] text-slate-400" id="env-file-indicator">Ficheiro: .env.production</span>
+        </div>
+
+        <!-- Modo Visual: Tabela de Variáveis com Máscaras -->
+        <div id="env-table-mode" class="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
+                  <th class="p-3 w-2/5">CHAVE (VARIÁVEL)</th>
+                  <th class="p-3 w-1/2">VALOR (CONFIGURAÇÃO OU SEGREDO)</th>
+                  <th class="p-3 text-right">AÇÕES</th>
+                </tr>
+              </thead>
+              <tbody id="env-table-body" class="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
+                <tr><td colspan="3" class="text-center py-8 text-slate-400 font-sans">A carregar variáveis...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Modo Código Bruto: Editor Textarea -->
+        <div id="env-raw-mode" class="hidden rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-950">
+          <div class="p-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+            <span>Editor de Texto Plano — Formato KEY=VALUE</span>
+            <span>UTF-8 · LF</span>
+          </div>
+          <textarea id="env-raw-textarea" class="w-full h-96 p-4 bg-slate-950 text-slate-200 font-mono text-xs leading-relaxed focus:outline-none resize-y" placeholder="CHAVE=VALOR"></textarea>
         </div>
       </div>
 
@@ -1162,6 +1366,19 @@
             <span id="deploy-modal-author">-</span>
             <span id="deploy-modal-date">-</span>
           </div>
+
+          <!-- Alerta de Migrações SQL e Diff Stat -->
+          <div id="deploy-modal-migration-alert" class="hidden p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 space-y-1.5">
+            <div class="flex items-center gap-2 font-bold text-xs">
+              <i data-lucide="database-zap" class="w-4 h-4 text-amber-500"></i>
+              <span>Migrações SQL Detetadas nesta Versão</span>
+            </div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-300">
+              Esta publicação inclui ficheiros SQL que serão aplicados automaticamente na base de dados:
+            </p>
+            <div id="deploy-modal-migration-files" class="font-mono text-[10px] space-y-0.5 max-h-24 overflow-y-auto pl-1"></div>
+          </div>
+          <div id="deploy-modal-diff-stat" class="hidden p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 font-mono text-[10px] text-slate-400 whitespace-pre-wrap"></div>
 
           <!-- Caixa Expansível de Ficheiros Alterados -->
           <div class="pt-1 border-t border-slate-200 dark:border-slate-800">
@@ -3196,14 +3413,15 @@
         activeBtn.classList.remove('text-slate-600', 'dark:text-slate-400');
       }
 
-      ['versions', 'containers', 'terminal', 'storage', 'database', 'history', 'docs'].forEach((id) => {
+      ['versions', 'containers', 'terminal', 'storage', 'database', 'env', 'history', 'docs'].forEach((id) => {
         const content = document.getElementById(`tab-content-${id}`);
         if (content) content.classList.toggle('hidden', id !== tabId);
       });
 
-      if (tabId === 'containers') fetchContainers();
-      if (tabId === 'storage') loadStorageBuckets();
+      if (tabId === 'containers') { fetchContainers(); startLiveLogsStream(); }
+      if (tabId === 'storage') { loadStorageBuckets(); loadStorageOptimizationStats(); }
       if (tabId === 'database') { fetchDbStats(); fetchDbBackups(); fetchDbTables(); }
+      if (tabId === 'env') loadProjectEnv();
       if (tabId === 'docs') loadProjectDocs();
       if (window.lucide) lucide.createIcons();
     }
@@ -5930,14 +6148,17 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       await refreshData();
 
       // Recarregar os dados da aba que estiver atualmente visível
-      const visibleTab = ['containers', 'storage', 'database', 'history', 'versions'].find((id) => {
+      const visibleTab = ['containers', 'storage', 'database', 'history', 'versions', 'env', 'docs'].find((id) => {
         const el = document.getElementById(`tab-content-${id}`);
         return el && !el.classList.contains('hidden');
       });
 
-      if (visibleTab === 'containers') fetchContainers();
-      if (visibleTab === 'storage') loadStorageBuckets();
+      if (visibleTab === 'containers') { fetchContainers(); startLiveLogsStream(); }
+      if (visibleTab === 'storage') { loadStorageBuckets(); loadStorageOptimizationStats(); }
       if (visibleTab === 'database') { fetchDbStats(); fetchDbBackups(); fetchDbTables(); }
+      if (visibleTab === 'env') { loadProjectEnv(); }
+      if (visibleTab === 'docs') { loadProjectDocs(); }
+      loadUptimeHistory();
     }
 
     
@@ -6252,6 +6473,17 @@ Vamos começar a implementar o primeiro módulo do plano.`;
                       <div class="flex items-center gap-2 flex-wrap">
                         <code class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono text-xs font-bold">${c.shortHash}</code>
                         
+                        <!-- Badge de Outputs Prontos vs Regenerável sob Demanda -->
+                        ${c.has_outputs ? `
+                          <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold text-[10px] border border-emerald-500/20 flex items-center gap-1" title="Outputs compilados prontos em cache local">
+                            <i data-lucide="check-circle-2" class="w-3 h-3"></i> Outputs Prontos
+                          </span>
+                        ` : `
+                          <span class="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold text-[10px] border border-amber-500/20 flex items-center gap-1" title="Outputs ausentes ou limpos para economizar espaço. O Deployment Center irá compilá-los automaticamente sob demanda ao fazer deploy.">
+                            <i data-lucide="zap" class="w-3 h-3"></i> Regenerável
+                          </span>
+                        `}
+
                         <!-- Badges de Estado Visíveis no Próprio Commit -->
                         ${isProd ? `
                           <span class="px-2.5 py-0.5 rounded-full bg-emerald-500 text-white font-extrabold text-[10px] shadow-sm flex items-center gap-1">
@@ -6400,6 +6632,12 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       document.getElementById('deploy-success-card').classList.add('hidden');
       document.getElementById('deploy-error-card').classList.add('hidden');
       document.getElementById('deploy-modal-actions').classList.remove('hidden');
+
+      // Resetar Alertas de Migração e Diff
+      const migAlert = document.getElementById('deploy-modal-migration-alert');
+      if (migAlert) migAlert.classList.add('hidden');
+      const diffStat = document.getElementById('deploy-modal-diff-stat');
+      if (diffStat) diffStat.classList.add('hidden');
       
       const confirmBtn = document.getElementById('deploy-confirm-btn');
       confirmBtn.disabled = false;
@@ -6417,7 +6655,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       document.getElementById('deploy-action-modal').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
 
-      // Pré-carregar ficheiros alterados em segundo plano
+      // Pré-carregar ficheiros alterados e preview de migrações em segundo plano
       preloadDeployFiles(commit.hash);
     }
 
@@ -6445,6 +6683,35 @@ Vamos começar a implementar o primeiro módulo do plano.`;
             `).join('');
           }
         }
+      } catch (e) {}
+
+      // Obter Diff Stat e Migrações SQL entre versão ativa e alvo
+      try {
+        const pId = currentProjectId || 'portal-web';
+        const previewRes = await fetch(`/api/projects/${pId}/deploy-preview?target_commit=${hash}&environment=${pendingDeployEnv}`);
+        const previewData = await previewRes.json();
+        const migAlert = document.getElementById('deploy-modal-migration-alert');
+        const migFiles = document.getElementById('deploy-modal-migration-files');
+        const diffStat = document.getElementById('deploy-modal-diff-stat');
+
+        if (previewData.ok && previewData.has_sql_migrations && previewData.sql_files && previewData.sql_files.length > 0) {
+          if (migAlert) migAlert.classList.remove('hidden');
+          if (migFiles) {
+            migFiles.innerHTML = previewData.sql_files.map(f => `<div class="text-amber-500 font-semibold">• ${escapeHtml(f)}</div>`).join('');
+          }
+        } else {
+          if (migAlert) migAlert.classList.add('hidden');
+        }
+
+        if (previewData.ok && previewData.diff_stat) {
+          if (diffStat) {
+            diffStat.classList.remove('hidden');
+            diffStat.textContent = `Resumo de Alterações (Diff Stat):\n${previewData.diff_stat.trim()}`;
+          }
+        } else {
+          if (diffStat) diffStat.classList.add('hidden');
+        }
+        if (window.lucide) lucide.createIcons();
       } catch (e) {}
     }
 
@@ -7190,6 +7457,564 @@ Fim do Relatório
       updateProjectServiceLinks();
       fetchDbStats();
       fetchDbTables();
+    }
+
+    // ===================================================================
+    // TELEMETRIA EM TEMPO REAL & UPTIME 30 DIAS
+    // ===================================================================
+    let systemMetricsEventSource = null;
+
+    function initRealtimeMetrics() {
+      if (systemMetricsEventSource) {
+        systemMetricsEventSource.close();
+        systemMetricsEventSource = null;
+      }
+
+      const cpuEl = document.getElementById('host-cpu-metric');
+      const ramEl = document.getElementById('host-ram-metric');
+      const ramBar = document.getElementById('host-ram-bar');
+      const diskEl = document.getElementById('host-disk-metric');
+      const alertBadge = document.getElementById('resource-alert-badge');
+
+      try {
+        systemMetricsEventSource = new EventSource('/api/system/metrics/stream');
+        systemMetricsEventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.host) {
+              const h = data.host;
+              if (cpuEl) cpuEl.textContent = `${h.cpu_percent || 0}%`;
+              if (ramEl) ramEl.textContent = `${h.ram_percent || 0}%`;
+              if (ramBar) {
+                ramBar.style.width = `${Math.min(h.ram_percent || 0, 100)}%`;
+                ramBar.className = (h.ram_percent > 85) ? 'h-full bg-red-500 transition-all' : (h.ram_percent > 70 ? 'h-full bg-amber-500 transition-all' : 'h-full bg-emerald-500 transition-all');
+              }
+              if (diskEl) diskEl.textContent = `${h.disk_percent || 0}%`;
+
+              if (alertBadge) {
+                if (h.alert_resource_high) {
+                  alertBadge.classList.remove('hidden');
+                } else {
+                  alertBadge.classList.add('hidden');
+                }
+              }
+            }
+          } catch (err) {}
+        };
+
+        systemMetricsEventSource.onerror = () => {
+          // SSE reconnects automatically
+        };
+      } catch (e) {
+        console.warn('Falha ao ligar EventSource de métricas:', e);
+      }
+    }
+
+    async function loadUptimeHistory() {
+      const container = document.getElementById('uptime-bars-container');
+      const avgLabel = document.getElementById('uptime-avg-label');
+      if (!container) return;
+
+      const pId = currentProjectId || 'portal-web';
+      try {
+        const res = await fetch(`/api/projects/${pId}/uptime-30d`);
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.history)) {
+          if (avgLabel) avgLabel.textContent = `${data.uptime_percent}%`;
+          
+          container.innerHTML = data.history.map((day) => {
+            let bgClass = 'bg-emerald-500 hover:bg-emerald-400';
+            let titleText = `${day.date}: Operacional (100%) - Latência: ${day.latency_ms}ms`;
+            if (day.status === 'down') {
+              bgClass = 'bg-red-500 hover:bg-red-400';
+              titleText = `${day.date}: Indisponível`;
+            } else if (day.status === 'degraded' || day.uptime_percent < 98) {
+              bgClass = 'bg-amber-500 hover:bg-amber-400';
+              titleText = `${day.date}: Latência Alta (${day.latency_ms}ms) - Uptime: ${day.uptime_percent}%`;
+            }
+            return `<div title="${titleText}" class="w-1.5 h-6 rounded-full ${bgClass} transition-colors cursor-pointer shrink-0"></div>`;
+          }).join('');
+        }
+      } catch (e) {
+        console.warn('Erro ao carregar histórico de uptime:', e);
+      }
+    }
+
+    // ===================================================================
+    // LIVE LOG STREAMER (DOCKER) COM FILTROS EM TEMPO REAL
+    // ===================================================================
+    let liveLogsEventSource = null;
+    let isLiveLogPaused = false;
+
+    function startLiveLogsStream() {
+      if (liveLogsEventSource) {
+        liveLogsEventSource.close();
+        liveLogsEventSource = null;
+      }
+
+      const terminal = document.getElementById('live-logs-terminal');
+      if (!terminal) return;
+
+      const containerSelect = document.getElementById('live-log-container-select');
+      const levelSelect = document.getElementById('live-log-level-select');
+      const searchInput = document.getElementById('live-log-search-input');
+
+      const containerName = containerSelect ? containerSelect.value : 'all';
+      const level = levelSelect ? levelSelect.value : 'ALL';
+      const search = searchInput ? searchInput.value.trim() : '';
+
+      const pId = currentProjectId || 'portal-web';
+      let url = `/api/projects/${pId}/logs/stream?container=${encodeURIComponent(containerName)}&level=${encodeURIComponent(level)}&tail=80`;
+      if (search) url += `&search=${encodeURIComponent(search)}`;
+
+      try {
+        liveLogsEventSource = new EventSource(url);
+        liveLogsEventSource.onmessage = (event) => {
+          if (isLiveLogPaused) return;
+          try {
+            const item = JSON.parse(event.data);
+            if (item.line) {
+              appendLiveLogLine(item.line, item.level, item.container);
+            }
+          } catch (e) {
+            appendLiveLogLine(event.data, 'INFO');
+          }
+        };
+
+        liveLogsEventSource.onerror = () => {
+          // SSE reconnects automatically
+        };
+      } catch (e) {
+        console.warn('Erro ao iniciar stream de logs:', e);
+      }
+    }
+
+    function appendLiveLogLine(lineText, level, containerName) {
+      const terminal = document.getElementById('live-logs-terminal');
+      if (!terminal) return;
+
+      if (terminal.textContent.includes('A conectar aos streams')) {
+        terminal.textContent = '';
+      }
+
+      const lineSpan = document.createElement('div');
+      lineSpan.className = 'py-0.5 leading-tight font-mono text-[11px]';
+
+      let colorClass = 'text-slate-300';
+      if (level === 'ERROR' || lineText.toLowerCase().includes('error') || lineText.toLowerCase().includes('fatal')) {
+        colorClass = 'text-red-400 bg-red-950/20 px-1 rounded';
+      } else if (level === 'WARN' || lineText.toLowerCase().includes('warn')) {
+        colorClass = 'text-amber-300';
+      } else if (level === 'SUCCESS' || lineText.toLowerCase().includes('success') || lineText.toLowerCase().includes('ready') || lineText.toLowerCase().includes('started')) {
+        colorClass = 'text-emerald-400';
+      }
+
+      const prefix = containerName ? `[${containerName}] ` : '';
+      lineSpan.innerHTML = `<span class="${colorClass}">${escapeHtml(prefix + lineText)}</span>`;
+
+      terminal.appendChild(lineSpan);
+
+      while (terminal.childNodes.length > 400) {
+        terminal.removeChild(terminal.firstChild);
+      }
+
+      if (!isLiveLogPaused) {
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+    }
+
+    function restartLiveLogs() {
+      const terminal = document.getElementById('live-logs-terminal');
+      if (terminal) terminal.textContent = 'A reconectar com os filtros atualizados...\n';
+      startLiveLogsStream();
+    }
+
+    function toggleLiveLogPause() {
+      isLiveLogPaused = !isLiveLogPaused;
+      const btn = document.getElementById('live-log-pause-btn');
+      const label = document.getElementById('live-log-pause-label');
+      if (btn && label) {
+        if (isLiveLogPaused) {
+          btn.className = 'px-2.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-500 border border-amber-500/30 text-xs font-bold transition flex items-center gap-1';
+          btn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5"></i> <span id="live-log-pause-label">Retomar</span>`;
+        } else {
+          btn.className = 'px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold transition flex items-center gap-1 text-slate-700 dark:text-slate-300';
+          btn.innerHTML = `<i data-lucide="pause" class="w-3.5 h-3.5"></i> <span id="live-log-pause-label">Pausar</span>`;
+        }
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+
+    function clearLiveLogs() {
+      const terminal = document.getElementById('live-logs-terminal');
+      if (terminal) terminal.textContent = 'Logs limpos.\n';
+    }
+
+    // ===================================================================
+    // OTIMIZAÇÃO DE ARMAZENAMENTO & PURGE DE BUILDS
+    // ===================================================================
+    let currentStorageOptimizationStats = null;
+
+    async function loadStorageOptimizationStats() {
+      const pId = currentProjectId || 'portal-web';
+      try {
+        const res = await fetch(`/api/projects/${pId}/storage-stats`);
+        const data = await res.json();
+        if (data.ok && data.stats) {
+          currentStorageOptimizationStats = data.stats;
+          const s = data.stats;
+
+          const gitEl = document.getElementById('stat-git-size');
+          const outEl = document.getElementById('stat-outputs-size');
+          const cacheEl = document.getElementById('stat-cache-size');
+          const totEl = document.getElementById('stat-total-size');
+          const savLabel = document.getElementById('purge-savings-label');
+          const purgeBtn = document.getElementById('purge-builds-btn');
+
+          if (gitEl) gitEl.textContent = s.git_size_pretty || '-';
+          if (outEl) outEl.textContent = s.active_outputs_size_pretty || '-';
+          if (cacheEl) cacheEl.textContent = s.build_cache_size_pretty || '-';
+          if (totEl) totEl.textContent = s.total_project_size_pretty || '-';
+          if (savLabel) savLabel.textContent = s.purgeable_cache_size_pretty || '0 B';
+
+          if (purgeBtn) {
+            if (s.purgeable_builds_count > 0) {
+              purgeBtn.disabled = false;
+              purgeBtn.className = 'px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm shadow-indigo-600/20';
+            } else {
+              purgeBtn.disabled = true;
+              purgeBtn.className = 'px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-400 text-xs font-bold transition flex items-center gap-1.5 cursor-not-allowed';
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Erro ao carregar estatísticas de armazenamento:', e);
+      }
+    }
+
+    async function executeBuildsPurge() {
+      const pId = currentProjectId || 'portal-web';
+      const purgeBtn = document.getElementById('purge-builds-btn');
+      const originalText = purgeBtn ? purgeBtn.innerHTML : '';
+
+      if (!confirm('Deseja eliminar os artefactos de compilação antigos (.build_cache)?\\n\\nIsto libertará espaço em disco. Se precisar de voltar a um commit antigo, os outputs serão reconstruídos automaticamente sob demanda.')) {
+        return;
+      }
+
+      if (purgeBtn) {
+        purgeBtn.disabled = true;
+        purgeBtn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> A limpar...`;
+        if (window.lucide) lucide.createIcons();
+      }
+
+      try {
+        const res = await fetch(`/api/projects/${pId}/outputs/purge`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showAppNotification({
+            type: 'success',
+            title: 'Limpeza Concluída',
+            message: `Foram libertados ${data.freed_bytes_pretty} em ${data.deleted_count} compilação(ões) antiga(s).`
+          });
+          loadStorageOptimizationStats();
+        } else {
+          alert('Erro ao limpar compilações: ' + (data.error || 'Falha desconhecida'));
+        }
+      } catch (e) {
+        alert('Erro de comunicação: ' + e.message);
+      } finally {
+        if (purgeBtn) {
+          purgeBtn.disabled = false;
+          purgeBtn.innerHTML = originalText;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+    }
+
+    async function executeDockerPrune() {
+      const btn = document.getElementById('docker-prune-btn');
+      const originalText = btn ? btn.innerHTML : '';
+
+      if (!confirm('Deseja executar a otimização de imagens e cache de compilação do Docker?\\n\\nIsto executa `docker image prune` e `docker builder prune` em imagens suspensas sem afetar contentores ou volumes em execução.')) {
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> A otimizar...`;
+        if (window.lucide) lucide.createIcons();
+      }
+
+      try {
+        const res = await fetch('/api/system/docker-prune', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showAppNotification({
+            type: 'success',
+            title: 'Docker Otimizado',
+            message: 'Limpeza de imagens e cache do Docker concluída com sucesso.'
+          });
+          loadStorageOptimizationStats();
+        } else {
+          alert('Erro ao otimizar Docker: ' + (data.error || 'Falha desconhecida'));
+        }
+      } catch (e) {
+        alert('Erro de comunicação: ' + e.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+    }
+
+    // ===================================================================
+    // GESTÃO SEGURA DE VARIÁVEIS DE AMBIENTE (.env)
+    // ===================================================================
+    let currentEnvSubTab = 'production';
+    let currentEnvEditorMode = 'table';
+    let currentEnvData = [];
+
+    async function loadProjectEnv(targetEnv) {
+      if (targetEnv) currentEnvSubTab = targetEnv;
+      const pId = currentProjectId || 'portal-web';
+      
+      const fileIndicator = document.getElementById('env-file-indicator');
+      const filename = currentEnvSubTab === 'production' ? '.env.production' : (currentEnvSubTab === 'staging' ? '.env.staging' : '.env');
+      if (fileIndicator) fileIndicator.textContent = `Ficheiro: ${filename}`;
+
+      const tbody = document.getElementById('env-table-body');
+      if (tbody) tbody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-slate-400 font-sans">A carregar variáveis de ${filename}...</td></tr>`;
+
+      try {
+        const res = await fetch(`/api/projects/${pId}/env?target_env=${currentEnvSubTab}`);
+        const data = await res.json();
+        if (data.ok) {
+          currentEnvData = (data.parsed_vars || []).map((item) => ({
+            key: item.key,
+            value: item.value,
+            is_secret: item.is_secret,
+            visible: false
+          }));
+
+          const rawTextarea = document.getElementById('env-raw-textarea');
+          if (rawTextarea) rawTextarea.value = data.raw_content || '';
+
+          renderEnvTable();
+        } else {
+          if (tbody) tbody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-red-500 font-sans">Erro: ${data.error || 'Falha ao ler ficheiro'}</td></tr>`;
+        }
+      } catch (e) {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-red-500 font-sans">Erro de comunicação: ${e.message}</td></tr>`;
+      }
+    }
+
+    function switchEnvSubTab(targetEnv) {
+      currentEnvSubTab = targetEnv;
+      const prodBtn = document.getElementById('env-subtab-prod');
+      const stgBtn = document.getElementById('env-subtab-stg');
+      const baseBtn = document.getElementById('env-subtab-base');
+
+      const activeClass = 'px-3 py-1 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 shadow-sm flex items-center gap-1.5';
+      const inactiveClass = 'px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5';
+
+      if (prodBtn) {
+        prodBtn.className = targetEnv === 'production' ? activeClass + ' text-emerald-600 dark:text-emerald-400' : inactiveClass;
+      }
+      if (stgBtn) {
+        stgBtn.className = targetEnv === 'staging' ? activeClass + ' text-blue-600 dark:text-blue-400' : inactiveClass;
+      }
+      if (baseBtn) {
+        baseBtn.className = targetEnv === 'global' ? activeClass + ' text-slate-800 dark:text-slate-200' : inactiveClass;
+      }
+
+      loadProjectEnv(targetEnv);
+    }
+
+    function renderEnvTable() {
+      const tbody = document.getElementById('env-table-body');
+      if (!tbody) return;
+
+      if (!currentEnvData || currentEnvData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-slate-400 font-sans">Nenhuma variável definida neste ficheiro. Clique em "Adicionar Variável" acima.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = currentEnvData.map((v, idx) => {
+        const isSecret = v.is_secret;
+        const isMasked = isSecret && !v.visible;
+
+        return `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-950/40 transition">
+            <td class="p-2.5">
+              <input type="text" value="${escapeHtml(v.key)}" onchange="updateEnvKey(${idx}, this.value)" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono font-bold text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-cyan-500">
+            </td>
+            <td class="p-2.5">
+              <div class="relative flex items-center">
+                <input type="${isMasked ? 'password' : 'text'}" value="${escapeHtml(v.value)}" onchange="updateEnvValue(${idx}, this.value)" class="w-full px-2.5 py-1.5 pr-8 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-cyan-500">
+                ${isSecret ? `
+                  <button type="button" onclick="toggleEnvSecret(${idx})" class="absolute right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                    <i data-lucide="${v.visible ? 'eye-off' : 'eye'}" class="w-3.5 h-3.5"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </td>
+            <td class="p-2.5 text-right">
+              <button onclick="deleteEnvVariableRow(${idx})" class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition" title="Eliminar Variável">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function toggleEnvSecret(index) {
+      if (currentEnvData[index]) {
+        currentEnvData[index].visible = !currentEnvData[index].visible;
+        renderEnvTable();
+      }
+    }
+
+    function updateEnvKey(index, newKey) {
+      if (currentEnvData[index]) {
+        currentEnvData[index].key = newKey.trim();
+        syncEnvRawTextarea();
+      }
+    }
+
+    function updateEnvValue(index, newVal) {
+      if (currentEnvData[index]) {
+        currentEnvData[index].value = newVal;
+        syncEnvRawTextarea();
+      }
+    }
+
+    function addEnvVariableRow() {
+      if (currentEnvEditorMode === 'raw') {
+        toggleEnvEditorMode();
+      }
+      currentEnvData.push({
+        key: 'NOVA_VARIAVEL',
+        value: '',
+        is_secret: false,
+        visible: true
+      });
+      renderEnvTable();
+      syncEnvRawTextarea();
+    }
+
+    function deleteEnvVariableRow(index) {
+      currentEnvData.splice(index, 1);
+      renderEnvTable();
+      syncEnvRawTextarea();
+    }
+
+    function syncEnvRawTextarea() {
+      const rawTextarea = document.getElementById('env-raw-textarea');
+      if (rawTextarea) {
+        rawTextarea.value = currentEnvData.map((item) => `${item.key}=${item.value}`).join('\n');
+      }
+    }
+
+    function toggleEnvEditorMode() {
+      const tableMode = document.getElementById('env-table-mode');
+      const rawMode = document.getElementById('env-raw-mode');
+      const modeLabel = document.getElementById('env-editor-mode-label');
+      const rawTextarea = document.getElementById('env-raw-textarea');
+
+      if (currentEnvEditorMode === 'table') {
+        currentEnvEditorMode = 'raw';
+        syncEnvRawTextarea();
+        if (tableMode) tableMode.classList.add('hidden');
+        if (rawMode) rawMode.classList.remove('hidden');
+        if (modeLabel) modeLabel.textContent = 'Modo Tabela Protegida';
+      } else {
+        currentEnvEditorMode = 'table';
+        if (rawTextarea) {
+          const lines = rawTextarea.value.split('\n');
+          const parsed = [];
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || trimmed.startsWith('#')) continue;
+            const eqIdx = trimmed.indexOf('=');
+            if (eqIdx !== -1) {
+              const k = trimmed.slice(0, eqIdx).trim();
+              const v = trimmed.slice(eqIdx + 1).trim();
+              const isSecret = /secret|password|token|key|pwd|auth/i.test(k);
+              parsed.push({ key: k, value: v, is_secret: isSecret, visible: false });
+            }
+          }
+          currentEnvData = parsed;
+        }
+        if (tableMode) tableMode.classList.remove('hidden');
+        if (rawMode) rawMode.classList.add('hidden');
+        if (modeLabel) modeLabel.textContent = 'Modo Código Bruto';
+        renderEnvTable();
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function saveCurrentEnv() {
+      const saveBtn = document.getElementById('env-save-btn');
+      const originalHtml = saveBtn ? saveBtn.innerHTML : '';
+      const pId = currentProjectId || 'portal-web';
+      const restartCheckbox = document.getElementById('env-restart-checkbox');
+      const restartContainer = restartCheckbox ? restartCheckbox.checked : false;
+
+      let contentToSave = '';
+      if (currentEnvEditorMode === 'raw') {
+        const rawTextarea = document.getElementById('env-raw-textarea');
+        contentToSave = rawTextarea ? rawTextarea.value : '';
+      } else {
+        contentToSave = currentEnvData.map((item) => `${item.key}=${item.value}`).join('\n') + '\n';
+      }
+
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> A gravar...`;
+        if (window.lucide) lucide.createIcons();
+      }
+
+      try {
+        const res = await fetch(`/api/projects/${pId}/env`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            target_env: currentEnvSubTab,
+            content: contentToSave,
+            restart_container: restartContainer
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showAppNotification({
+            type: 'success',
+            title: 'Variáveis Gravadas',
+            message: `Ficheiro ${data.filename} gravado com permissões 0600.${restartContainer ? ' Contentor reiniciado com sucesso.' : ''}`
+          });
+          loadProjectEnv();
+        } else {
+          alert('Erro ao gravar variáveis: ' + (data.error || 'Falha desconhecida'));
+        }
+      } catch (e) {
+        alert('Erro de comunicação: ' + e.message);
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = originalHtml;
+          if (window.lucide) lucide.createIcons();
+        }
+      }
     }
 
     async function loadStorageBuckets() {
@@ -8423,6 +9248,9 @@ data: {"status":"ready","done":true,"completed_at":"2026-09-06T13:45:30.000Z"}`
         console.error('Erro inicial ao carregar projetos:', e);
       }
       await refreshData();
+      initRealtimeMetrics();
+      loadUptimeHistory();
+      loadStorageOptimizationStats();
       setInterval(refreshData, 30000);
     })();
   </script>
