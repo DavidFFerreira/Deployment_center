@@ -6117,7 +6117,8 @@ Vamos começar a implementar o primeiro módulo do plano.`;
           projectsList = data.projects;
           if (projectsList.length > 0) {
             if (!currentProjectId || !projectsList.some((p) => p.id === currentProjectId)) {
-              currentProjectId = projectsList[0].id;
+              const preferred = projectsList.find((p) => p.id === 'suavit-portal' || p.id === 'suavit') || projectsList[0];
+              currentProjectId = preferred.id;
               localStorage.setItem('deploy_project_id', currentProjectId);
             }
           }

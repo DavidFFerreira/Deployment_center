@@ -536,7 +536,16 @@ function getProjects() {
   }
 
   // Executar auto-descoberta para adicionar novas stacks encontradas no disco
-  return autoDiscoverProjects(list);
+  const discovered = autoDiscoverProjects(list);
+
+  // Ordenar para garantir que suavit-portal fique como stack principal se existir
+  discovered.sort((a, b) => {
+    if (a.id === "suavit-portal" || a.id === "suavit") return -1;
+    if (b.id === "suavit-portal" || b.id === "suavit") return 1;
+    return 0;
+  });
+
+  return discovered;
 }
 
 function saveProjects(projects) {
@@ -551,6 +560,9 @@ function findProject(projectId, envType = "production") {
   if (!projectId) return list[0] || DEFAULT_PROJECTS[0];
 
   let p = list.find((item) => item.id === projectId);
+  if (!p && (projectId === "suavit" || projectId === "suavit-portal")) {
+    p = list.find((item) => item.id === "suavit-portal" || item.id === "suavit");
+  }
   if (!p) {
     p = list.find((item) => item.id?.toLowerCase() === projectId.toLowerCase() || item.name?.toLowerCase() === projectId.toLowerCase() || item.appDir?.endsWith(`/${projectId}`));
   }
