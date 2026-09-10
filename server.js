@@ -8,6 +8,8 @@ import os from "os";
 import { fileURLToPath } from "url";
 import child_process, { exec, spawn } from "child_process";
 import { promisify } from "util";
+import { summarizeUptime, matchesLog, parseEnv } from "./lib/observability.js";
+import { runCommandStreaming, ensureProjectBuildOutputs, shellQuote } from "./lib/deploy-runtime.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -312,7 +314,7 @@ function saveSettings(newSettings) {
 const SERVICE_ROLE_KEY = process.env.SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3ODgxOTI1NTYsImV4cCI6MjEwMzU1MjU1Nn0.1LjNW3Rn5ekVZOVq4UfQw5aRfLmpwq0VlZKfkOv0EAg";
 
 // Middleware com suporte a payload grande para backups SQL e uploads
-app.use(express.json({ limit: "250mb" }));
+app.use(express.json({ limit: "250mb", verify: (req, res, buffer) => { if (req.originalUrl.startsWith("/api/webhook/")) req.rawBody = buffer; } }));
 app.use(express.urlencoded({ extended: true, limit: "250mb" }));
 app.use(cookieParser());
 
@@ -392,7 +394,7 @@ function isDeployCenterProject(projectPath, dirName) {
   // 3. Verificação de contentores ativos associados ao nome
   let hasRunningContainers = false;
   try {
-    const { execSync } = require("child_process");
+    const { execSync } = child_process;
     const out = execSync(`docker ps --filter "name=${dirName}" --format "{{.Names}}" 2>/dev/null`, { encoding: "utf-8" });
     if (out && out.trim().length > 0) hasRunningContainers = true;
   } catch (e) {}
@@ -953,10 +955,12 @@ function getGlobalState() {
   };
 }
 
-function saveGlobalState(state) {
+function saveGlobalState(state, strict = false) {
   try {
-    fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
-  } catch (e) {}
+    fs.mkdirSync(path.dirname(STATE_FILE), { recursive: true });
+    fs.writeFileSync(STATE_FILE + '.tmp', JSON.stringify(state, null, 2));
+    fs.renameSync(STATE_FILE + '.tmp', STATE_FILE);
+  } catch (e) { if (strict) throw e; }
 }
 
 async function getProjectDeployState(project) {
@@ -2317,131 +2321,59 @@ function formatBytes(bytes) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 }
 
-function runCommandStreaming(cmd, cwd, onLine = () => {}) {
-  return new Promise((resolve, reject) => {
-    let shellBin, shellArgs;
-    if (process.platform === "win32") {
-      shellBin = process.env.ComSpec || "cmd.exe";
-      shellArgs = ["/c", cmd];
-    } else {
-      shellBin = fs.existsSync("/bin/bash") ? "/bin/bash" : "/bin/sh";
-      shellArgs = ["-c", cmd];
+async function getComposeRecreateCommand(project, environment) {
+  const root = project.appDir;
+  const base = ['compose.yaml', 'compose.yml', 'docker-compose.yml', 'docker-compose.yaml'].find(name => fs.existsSync(path.join(root, name)));
+  if (!base) throw new Error('Ficheiro Compose não encontrado.');
+  const files = [base];
+  const override = ['compose.override.yaml', 'compose.override.yml', 'docker-compose.override.yml', 'docker-compose.override.yaml'].find(name => fs.existsSync(path.join(root, name)));
+  if (override) files.push(override);
+  const args = files.map(name => '-f ' + shellQuote(path.join(root, name))).join(' ');
+  let cli = 'docker compose';
+  try { await execAsync(cli + ' version', { timeout: 10000 }); } catch { cli = 'docker-compose'; }
+  const { stdout } = await execAsync(cli + ' ' + args + ' config --format json', { cwd: root, timeout: 15000, maxBuffer: 10 * 1024 * 1024 });
+  const config = JSON.parse(stdout);
+  const services = {};
+  const selected = [];
+  for (const env of ['production', 'staging']) {
+    const container = project[env]?.containerName;
+    const service = Object.keys(config.services || {}).find(key => config.services[key].container_name === container || key === project[env]?.serviceName || key === container);
+    if (!service) {
+      if (env === environment || environment === 'global') throw new Error('Serviço Compose do ambiente não encontrado: ' + env);
+      continue;
     }
-    const child = spawn(shellBin, shellArgs, { cwd: cwd || process.cwd() });
-    let stdoutText = "";
-    let stderrText = "";
-
-    if (child.stdout) {
-      child.stdout.on("data", (chunk) => {
-        const str = chunk.toString();
-        stdoutText += str;
-        const lines = str.split("\n");
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (trimmed) onLine(trimmed);
-        }
-      });
+    const variables = {};
+    for (const name of ['.env', '.env.' + env]) {
+      const file = path.join(root, name);
+      if (fs.existsSync(file)) Object.assign(variables, parseEnv(fs.readFileSync(file, 'utf8')));
     }
-
-    if (child.stderr) {
-      child.stderr.on("data", (chunk) => {
-        const str = chunk.toString();
-        stderrText += str;
-        const lines = str.split("\n");
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (trimmed) onLine(trimmed);
-        }
-      });
+    // Published host ports in generated .env files are not the container listen ports.
+    for (const key of ['PORT', 'HOST', 'NITRO_PORT', 'NITRO_HOST']) {
+      if (config.services[service].environment?.[key] !== undefined) variables[key] = String(config.services[service].environment[key]);
     }
-
-    child.on("close", (code) => {
-      resolve({ code, stdout: stdoutText, stderr: stderrText });
-    });
-
-    child.on("error", (err) => {
-      reject(err);
-    });
-  });
+    services[service] = { environment: Object.fromEntries(Object.entries(variables).map(([key, value]) => [key, value.replaceAll('$', '$$')])) };
+    if (env === environment || environment === 'global') selected.push(service);
+  }
+  const overrideFile = path.join(root, 'data', 'deploy-center.env.override.json');
+  fs.mkdirSync(path.dirname(overrideFile), { recursive: true });
+  fs.writeFileSync(overrideFile, JSON.stringify({ services }), { mode: 0o600 });
+  fs.chmodSync(overrideFile, 0o600);
+  return cli + ' ' + args + ' -f ' + shellQuote(overrideFile) + ' up -d --force-recreate --no-deps ' + selected.map(shellQuote).join(' ');
 }
 
-async function ensureProjectBuildOutputs(project, commitHash, environment, emitLog = () => {}) {
-  const shortHash = (commitHash || "HEAD").slice(0, 7);
-  const cacheDir = path.join(project.appDir, ".build_cache", shortHash);
-  const targetOutputFolder = environment === "production" ? ".output_prod" : ".output_staging";
-  const targetOutputPath = path.join(project.appDir, targetOutputFolder);
+const deploymentsInProgress = new Set();
 
-  // 1. Se já existir na cache local deste commit, restaurar diretamente
-  if (fs.existsSync(cacheDir) && fs.readdirSync(cacheDir).length > 0) {
-    emitLog(`✓ Outputs do commit ${shortHash} encontrados na cache local. A restaurar para ${targetOutputFolder}...`);
-    await execAsync(`mkdir -p "${targetOutputPath}" && rm -rf "${targetOutputPath}"/* && cp -a "${cacheDir}"/. "${targetOutputPath}"/ 2>/dev/null || true`);
-    return { ok: true, source: "cache" };
-  }
-
-  // 2. Se a pasta de output já estiver presente localmente na raiz (.output ou dist), copiar e guardar em cache
-  const localOutput = path.join(project.appDir, ".output");
-  const localDist = path.join(project.appDir, "dist");
-  const hasLocalOutput = fs.existsSync(localOutput) && fs.readdirSync(localOutput).length > 0;
-  const hasLocalDist = fs.existsSync(localDist) && fs.readdirSync(localDist).length > 0;
-
-  if (hasLocalOutput) {
-    emitLog(`✓ Outputs detetados na raiz (.output). A sincronizar com ${targetOutputFolder} e a guardar na cache...`);
-    fs.mkdirSync(cacheDir, { recursive: true });
-    await execAsync(`mkdir -p "${targetOutputPath}" && cp -a "${localOutput}"/. "${targetOutputPath}"/ && cp -a "${localOutput}"/. "${cacheDir}"/ 2>/dev/null || true`);
-    return { ok: true, source: "local_output" };
-  }
-
-  if (hasLocalDist) {
-    emitLog(`✓ Outputs detetados na raiz (dist). A sincronizar com ${targetOutputFolder} e a guardar na cache...`);
-    fs.mkdirSync(cacheDir, { recursive: true });
-    await execAsync(`mkdir -p "${targetOutputPath}" && cp -a "${localDist}"/. "${targetOutputPath}"/ && cp -a "${localDist}"/. "${cacheDir}"/ 2>/dev/null || true`);
-    return { ok: true, source: "local_dist" };
-  }
-
-  // 3. Just-in-Time Build: Compilação sob demanda a partir do código do commit
-  const pkgJsonPath = path.join(project.appDir, "package.json");
-  if (fs.existsSync(pkgJsonPath)) {
-    emitLog(`ℹ️ Outputs do commit ${shortHash} ausentes. A iniciar compilação Just-in-Time...`);
-    try {
-      const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8"));
-      const scripts = pkg.scripts || {};
-      let buildScript = scripts.build ? "npm run build" : "";
-      if (!buildScript && scripts["build:prod"]) buildScript = "npm run build:prod";
-
-      if (buildScript) {
-        emitLog(`> A executar compilação: "${buildScript}" no projeto...`);
-        const buildCmd = `docker run --rm -v "${project.appDir}:/app" -w /app node:20-alpine sh -c "npm install --prefer-offline --no-audit --legacy-peer-deps 2>&1 && ${buildScript} 2>&1" || (npm install --prefer-offline --legacy-peer-deps 2>&1 && ${buildScript} 2>&1)`;
-        await runCommandStreaming(buildCmd, project.appDir, (line) => emitLog(line));
-        emitLog(`✓ Compilação Just-in-Time concluída com sucesso!`);
-
-        if (fs.existsSync(localOutput) && fs.readdirSync(localOutput).length > 0) {
-          fs.mkdirSync(cacheDir, { recursive: true });
-          await execAsync(`mkdir -p "${targetOutputPath}" && cp -a "${localOutput}"/. "${targetOutputPath}"/ && cp -a "${localOutput}"/. "${cacheDir}"/ 2>/dev/null || true`);
-          return { ok: true, source: "built_output" };
-        } else if (fs.existsSync(localDist) && fs.readdirSync(localDist).length > 0) {
-          fs.mkdirSync(cacheDir, { recursive: true });
-          await execAsync(`mkdir -p "${targetOutputPath}" && cp -a "${localDist}"/. "${targetOutputPath}"/ && cp -a "${localDist}"/. "${cacheDir}"/ 2>/dev/null || true`);
-          return { ok: true, source: "built_dist" };
-        }
-      }
-    } catch (bErr) {
-      emitLog(`⚠️ Aviso durante a compilação Just-in-Time: ${bErr.message}`);
-    }
-  }
-
-  // Fallback protetor: preservar versão anterior do ambiente para nunca quebrar o serviço
-  if (fs.existsSync(targetOutputPath) && fs.readdirSync(targetOutputPath).length > 0) {
-    emitLog(`ℹ️ A utilizar versão anterior de ${targetOutputFolder} como fallback de segurança.`);
-    return { ok: true, source: "previous_fallback" };
-  }
-
-  return { ok: false, message: "Não foi possível gerar nem localizar os outputs da aplicação." };
-}
-
-app.post("/api/deploy", requireAuth, async (req, res) => {
-  const { project_id, environment, commit_hash, commit_message, commit_author, is_rollback } = req.body;
+async function handleDeploy(req, res) {
+  let { project_id, environment, commit_hash, commit_message, commit_author, is_rollback } = req.body;
   const project = findProject(project_id || (getProjects()[0]?.id || "portal-web"), environment);
-  if (!environment || !commit_hash) return res.status(400).json({ error: "Parâmetros em falta" });
+  if (!['production', 'staging'].includes(environment) || typeof commit_hash !== 'string' || !/^[a-f0-9]{7,40}$/i.test(commit_hash)) {
+    return res.status(400).json({ ok: false, error: 'Ambiente ou commit inválido.' });
+  }
+  if (!project || (project_id && !getProjects().some(p => p.id === project_id))) return res.status(404).json({ ok: false, error: 'Projeto não encontrado.' });
+  const lockKey = path.resolve(project.appDir);
+  if (deploymentsInProgress.has(lockKey)) return res.status(409).json({ ok: false, error: 'Já existe uma publicação em curso neste projeto.' });
+  deploymentsInProgress.add(lockKey);
+  let buildTransaction, restartAttempted = false;
 
   const isStream = req.query.stream === "true" || req.headers.accept?.includes("text/event-stream");
 
@@ -2463,7 +2395,7 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
     }
   };
 
-  const globalState = getGlobalState();
+  const globalState = structuredClone(getGlobalState());
   if (!globalState.projects) globalState.projects = {};
   if (!globalState.projects[project.id]) {
     globalState.projects[project.id] = { production: null, previousProduction: null, staging: null, previousStaging: null, history: [] };
@@ -2479,46 +2411,32 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
 
     if (fs.existsSync(targetDir)) {
       const activeToken = getActiveGithubToken();
-      const authRemote = activeToken ? `https://${activeToken}@github.com/${project.repoOwner}/${project.repoName}.git` : "origin";
+      const authRemote = `https://github.com/${project.repoOwner}/${project.repoName}.git`;
+      const gitAuth = activeToken ? `git -c ${shellQuote("http.extraHeader=Authorization: Basic " + Buffer.from("x-access-token:" + activeToken).toString("base64"))}` : "git";
       const targetFolder = environment === "production" ? ".output_prod" : ".output_staging";
 
       // 1. Garantir que a pasta do projeto no servidor é um repositório git inicializado
       if (!fs.existsSync(path.join(targetDir, ".git"))) {
         emitLog("A inicializar repositório Git local...");
-        await runCommandStreaming(`git init && git remote add origin "${authRemote}" 2>/dev/null || true`, targetDir, (l) => emitLog(l));
+        await runCommandStreaming(`git init && git remote add origin ${shellQuote(authRemote)}`, targetDir, (l) => emitLog(l));
       }
 
       // 2. Fetch e reset preservando ficheiros de infraestrutura e dados
       emitLog(`[1/4] A contactar o GitHub e a transferir dados da versão ${shortCommit}...`, "A obter dados do GitHub...");
-      await runCommandStreaming(`git remote set-url origin "${authRemote}" 2>/dev/null || true`, targetDir);
-      await runCommandStreaming(`git fetch origin`, targetDir, (l) => emitLog(`[Git] ${l}`));
+      await runCommandStreaming(`git remote set-url origin ${shellQuote(authRemote)}`, targetDir);
+      await runCommandStreaming(`${gitAuth} fetch origin`, targetDir, (l) => emitLog(`[Git] ${l}`));
+      const resolved = await runCommandStreaming(`git rev-parse --verify ${commit_hash}^{commit}`, targetDir);
+      commit_hash = resolved.stdout.trim();
+      if (!/^[a-f0-9]{40}$/i.test(commit_hash)) throw new Error("Não foi possível confirmar o commit.");
 
       emitLog(`[Git] A aplicar checkout na versão ${shortCommit} (git reset --hard)...`);
       await runCommandStreaming(`git reset --hard ${commit_hash}`, targetDir, (l) => emitLog(`[Git] ${l}`));
-      await runCommandStreaming(`git clean -fd --exclude=data --exclude=.env* --exclude=docker-compose.yml --exclude=kong.yml --exclude=kong_*.yml --exclude=runner.js --exclude=.output*`, targetDir, (l) => emitLog(`[Git] ${l}`));
+      await runCommandStreaming(`git clean -fd --exclude=data --exclude=.env* --exclude=docker-compose.yml --exclude=kong.yml --exclude=kong_*.yml --exclude=runner.js --exclude=.output* --exclude=.build_cache`, targetDir, (l) => emitLog(`[Git] ${l}`));
 
-      const syncBundleCmd = environment === "production"
-        ? `mkdir -p .output_prod && if [ -d ".output" ] && [ "$(ls -A .output 2>/dev/null)" ]; then cp -a .output/. .output_prod/ 2>/dev/null || true; elif [ -d ".output_staging" ] && [ "$(ls -A .output_staging 2>/dev/null)" ]; then cp -a .output_staging/. .output_prod/ 2>/dev/null || true; fi`
-        : `mkdir -p .output_staging && if [ -d ".output" ] && [ "$(ls -A .output 2>/dev/null)" ]; then cp -a .output/. .output_staging/ 2>/dev/null || true; fi`;
-
-      await runCommandStreaming(syncBundleCmd, targetDir);
-      await runCommandStreaming(`chmod -R 755 .output .output_staging .output_prod runner.js deploy-center 2>/dev/null || true`, targetDir);
-      emitLog(`✓ Sincronização do código-fonte concluída.`);
-
-      // 2.1 Regenerar ou assegurar outputs Just-in-Time se ausentes
-      emitLog(`[2/4] A verificar ficheiros de compilação e outputs (.output / dist)...`, "A verificar outputs da aplicação...");
-      try {
-        const buildRes = await ensureProjectBuildOutputs(project, commit_hash, environment, (msg) => {
-          emitLog(`[Build JIT] ${msg}`);
-        });
-        if (!buildRes.ok) {
-          emitLog(`⚠️ [Build Aviso] ${buildRes.message}`);
-        } else {
-          emitLog(`✓ [Build JIT] Outputs assegurados (${buildRes.source}).`);
-        }
-      } catch (buildErr) {
-        emitLog(`⚠️ [Build Aviso] ${buildErr.message}`);
-      }
+      emitLog('[2/4] A preparar outputs verificados do commit...', 'A compilar aplicação...');
+      buildTransaction = await ensureProjectBuildOutputs(project, commit_hash, environment, msg => emitLog('[Build] ' + msg));
+      if (!buildTransaction.ok) throw new Error(buildTransaction.message || 'Outputs indisponíveis.');
+      emitLog('✓ Outputs preparados a partir do commit confirmado.');
 
       // 3. Aplicar migrações SQL da base de dados se existirem no container correspondente (Prod vs Staging)
       emitLog(`[3/4] A verificar migrações SQL da base de dados...`, "A aplicar migrações SQL...");
@@ -2536,7 +2454,7 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
             for (const f of files) {
               const sqlFile = path.join(d, f);
               emitLog(`[SQL Migration] A executar: ${f} em ${targetPg} (${environment})...`);
-              await runCommandStreaming(`docker exec -i ${targetPg} psql -U postgres -d postgres < "${sqlFile}" 2>&1 || true`, targetDir, (l) => emitLog(`[SQL] ${l}`));
+              await runCommandStreaming(`docker exec -i ${targetPg} psql -v ON_ERROR_STOP=1 -U postgres -d postgres < "${sqlFile}" 2>&1`, targetDir, (l) => emitLog(`[SQL] ${l}`));
               sqlCount++;
             }
           }
@@ -2551,12 +2469,13 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
         await runCommandStreaming(`docker restart ${targetPgrst} 2>/dev/null || true`, targetDir);
         emitLog(`✓ Schema cache recarregado com sucesso.`);
       } catch (sqlErr) {
-        emitLog(`⚠️ [DB Aviso] ${sqlErr.message}`);
+        throw new Error(`Falha nas migrações: ${sqlErr.message}`);
       }
 
       // 4. Reiniciar contentor da aplicação com recriação forçada
       emitLog(`[4/4] A recriar contentor da aplicação (${targetService})...`, "A reiniciar contentor...");
-      const restartCmd = `docker rm -f ${targetService} 2>/dev/null || true && (docker compose up -d --force-recreate ${targetService} 2>/dev/null || docker-compose up -d --force-recreate ${targetService} 2>/dev/null || docker restart ${targetService} 2>/dev/null || true)`;
+      restartAttempted = true;
+      const restartCmd = await getComposeRecreateCommand(project, environment);
       await runCommandStreaming(restartCmd, targetDir, (l) => emitLog(`[Docker] ${l}`));
       emitLog(`✓ Contentor ${targetService} reiniciado.`);
 
@@ -2569,9 +2488,9 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
       let healthy = false;
       for (let i = 1; i <= 6; i++) {
         try {
-          const checkRes = await execAsync(`curl -s -o /dev/null -w "%{http_code}" --max-time 3 http://127.0.0.1:${targetPort}/ || true`);
+          const checkRes = await execAsync(`curl -s -o /dev/null -w "%{http_code}" --max-time 3 http://${getSettings().server_host_ip || "127.0.0.1"}:${targetPort}/ || true`);
           const code = parseInt(checkRes.stdout.trim(), 10);
-          if (code > 0 && code < 500) {
+          if (code >= 200 && code < 400) {
             emitLog(`✓ Contentor online a responder com HTTP ${code} na porta :${targetPort}!`);
             healthy = true;
             break;
@@ -2583,10 +2502,10 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
         }
       }
       if (!healthy) {
-        emitLog(`ℹ️ Contentor iniciado (a porta :${targetPort} poderá demorar mais alguns segundos a aquecer).`);
+        throw new Error(`A aplicação não passou a verificação HTTP na porta ${targetPort}.`);
       }
     } else {
-      emitLog(`Deploy em ${environment}: Commit ${shortCommit} (diretoria ${targetDir} não encontrada)`);
+      throw new Error(`Diretório do projeto não encontrado: ${targetDir}`);
     }
 
     if (environment === "production") {
@@ -2628,8 +2547,12 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
 
     pState.history.unshift(record);
     if (pState.history.length > 50) pState.history = pState.history.slice(0, 50);
-    saveGlobalState(globalState);
+    const latestState = structuredClone(getGlobalState());
+    latestState.projects ||= {};
+    latestState.projects[project.id] = pState;
+    saveGlobalState(latestState, true);
 
+    try { buildTransaction?.finish(); } catch (cleanupErr) { emitLog(`Aviso de limpeza: ${cleanupErr.message}`); }
     emitLog(`✨ Publicação concluída com sucesso!`);
 
     if (isStream) {
@@ -2640,14 +2563,24 @@ app.post("/api/deploy", requireAuth, async (req, res) => {
     }
   } catch (err) {
     emitLog(`❌ Erro crítico no deploy: ${err.message}`);
+    if (buildTransaction) {
+      try {
+        buildTransaction.rollback();
+        if (restartAttempted) await runCommandStreaming(await getComposeRecreateCommand(project, environment), project.appDir, emitLog);
+        emitLog('Outputs anteriores restaurados. Migrações SQL já aplicadas não são revertidas automaticamente.');
+      } catch (restoreErr) { emitLog(`Falha ao restaurar a aplicação: ${restoreErr.message}`); }
+    }
     if (isStream) {
       res.write(`data: ${JSON.stringify({ type: "done", ok: false, error: err.message, logs: fullLogs.join("\n") })}\n\n`);
       res.end();
     } else {
       res.status(500).json({ ok: false, error: err.message, logs: fullLogs.join("\n") });
     }
+  } finally {
+    deploymentsInProgress.delete(lockKey);
   }
-});
+}
+app.post("/api/deploy", requireAuth, handleDeploy);
 
 // ==============================================================================
 // APIS: DEPLOY PREVIEW (DIFF DE COMMITS E FICHEIROS MODIFICADOS)
@@ -2699,6 +2632,9 @@ app.get("/api/projects/:id/deploy-preview", requireAuth, async (req, res) => {
       targetCommit: target_commit.slice(0, 7),
       commitsCount: commits.length,
       commits,
+      diff_stat: diffStat,
+      has_sql_migrations: sqlMigrations.length > 0,
+      sql_files: sqlMigrations,
       diffStat,
       hasMigrations: sqlMigrations.length > 0,
       sqlMigrations,
@@ -2772,7 +2708,7 @@ app.get("/api/projects/:id/storage-stats", requireAuth, async (req, res) => {
     const activeProdCommit = pState.production?.shortHash || pState.production?.commit?.slice(0, 7) || "";
     const activeStagingCommit = pState.staging?.shortHash || pState.staging?.commit?.slice(0, 7) || "";
 
-    const purgeableBuilds = cachedBuilds.filter((b) => b.hash !== activeProdCommit && b.hash !== activeStagingCommit);
+    const purgeableBuilds = cachedBuilds.filter((b) => /^[a-f0-9]{7}$/i.test(b.hash) && b.hash !== activeProdCommit && b.hash !== activeStagingCommit);
     const purgeableBytes = purgeableBuilds.reduce((acc, b) => acc + b.size, 0);
 
     res.json({
@@ -2825,7 +2761,7 @@ app.post("/api/projects/:id/outputs/purge", requireAuth, async (req, res) => {
     const items = fs.readdirSync(cacheDir, { withFileTypes: true });
 
     for (const it of items) {
-      if (it.isDirectory() && it.name !== activeProdCommit && it.name !== activeStagingCommit) {
+      if (it.isDirectory() && /^[a-f0-9]{7}$/i.test(it.name) && it.name !== activeProdCommit && it.name !== activeStagingCommit) {
         const itemPath = path.join(cacheDir, it.name);
         try {
           const { stdout } = await execAsync(`du -sb "${itemPath}" 2>/dev/null || echo "0"`);
@@ -2839,6 +2775,8 @@ app.post("/api/projects/:id/outputs/purge", requireAuth, async (req, res) => {
 
     res.json({
       ok: true,
+      deleted_count: purgedCount,
+      freed_bytes_pretty: formatBytes(purgedBytes),
       purgedCount,
       purgedBytes,
       purgedFormatted: formatBytes(purgedBytes),
@@ -2926,17 +2864,14 @@ app.post("/api/projects/:id/env", requireAuth, async (req, res) => {
     let filename = envType === "production" ? ".env.production" : envType === "staging" ? ".env.staging" : ".env";
     const targetFile = path.join(project.appDir, filename);
 
+    parseEnv(raw);
     fs.writeFileSync(targetFile, String(raw || "").trim() + "\n", { mode: 0o600 });
+    fs.chmodSync(targetFile, 0o600);
 
-    let restartLogs = "";
+    let restartLogs = '';
     if (restartContainers) {
-      const targetService = envType === "staging" ? project.staging?.containerName : project.production?.containerName;
-      if (targetService) {
-        try {
-          const { stdout } = await execAsync(`docker restart ${targetService} 2>&1 || true`);
-          restartLogs = `Contentor ${targetService} reiniciado para aplicar novas variáveis.`;
-        } catch (e) {}
-      }
+      await runCommandStreaming(await getComposeRecreateCommand(project, envType), project.appDir);
+      restartLogs = 'Configuração aplicada por recriação do serviço.';
     }
 
     res.json({
@@ -2953,40 +2888,42 @@ app.post("/api/projects/:id/env", requireAuth, async (req, res) => {
 // APIS: HISTÓRICO DE UPTIME DE 30 DIAS & LATÊNCIA
 // ==============================================================================
 
-app.get("/api/projects/:id/uptime-30d", requireAuth, async (req, res) => {
-  const { id } = req.params;
-  const project = findProject(id);
-  if (!project) return res.status(404).json({ ok: false, error: "Projeto não encontrado" });
-
+const UPTIME_FILE = path.join(DATA_DIR, 'uptime-samples.json');
+function readUptimeSamples() {
+  try { return JSON.parse(fs.readFileSync(UPTIME_FILE, 'utf8')); } catch { return {}; }
+}
+let samplingUptime = false;
+async function sampleProjectUptime() {
+  if (samplingUptime) return;
+  samplingUptime = true;
   try {
-    const days = [];
-    const now = new Date();
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-      const dateStr = d.toISOString().split("T")[0];
-      const latency = Math.floor(18 + (d.getDate() % 7) * 2);
-      days.push({
-        date: dateStr,
-        uptime: 100,
-        uptime_percent: 100,
-        latencyMs: latency,
-        latency_ms: latency,
-        status: "operational",
-      });
+    const samples = readUptimeSamples();
+    const date = new Date().toISOString().slice(0, 10);
+    const cutoff = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+    const host = getSettings().server_host_ip || '127.0.0.1';
+    for (const record of getProjects()) {
+      const project = findProject(record.id);
+      samples[record.id] ||= {};
+      for (const env of ['production', 'staging']) {
+        const days = samples[record.id][env] ||= {};
+        const health = await checkHttpHealth('http://' + host + ':' + project[env].port + '/');
+        const day = days[date] ||= { checks: 0, online: 0, latencySum: 0 };
+        day.checks++;
+        if (health.statusCode >= 200 && health.statusCode < 400) { day.online++; day.latencySum += health.latency; }
+        for (const key of Object.keys(days)) if (key < cutoff) delete days[key];
+      }
     }
-
-    res.json({
-      ok: true,
-      days,
-      history: days,
-      avgUptime: "100.0%",
-      uptime_percent: 100,
-      avgLatency: "22 ms",
-      latency_ms: 22,
-    });
-  } catch (err) {
-    res.status(500).json({ ok: false, error: err.message });
-  }
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(UPTIME_FILE + '.tmp', JSON.stringify(samples));
+    fs.renameSync(UPTIME_FILE + '.tmp', UPTIME_FILE);
+  } catch (err) { console.error('Falha ao guardar amostras de uptime:', err.message); }
+  finally { samplingUptime = false; }
+}
+app.get("/api/projects/:id/uptime-30d", requireAuth, (req, res) => {
+  if (!getProjects().some(p => p.id === req.params.id)) return res.status(404).json({ ok: false, error: 'Projeto não encontrado.' });
+  const environment = req.query.environment === 'staging' ? 'staging' : 'production';
+  const samples = readUptimeSamples()[req.params.id]?.[environment] || {};
+  res.json({ ...summarizeUptime(samples), environment, basis: 'Amostras HTTP recolhidas enquanto o Deployment Center está ativo.' });
 });
 
 // ==============================================================================
@@ -3004,6 +2941,8 @@ app.get("/api/system/metrics/stream", requireAuth, (req, res) => {
     isAlive = false;
   });
 
+  const cpuSnapshot = () => os.cpus().reduce((sum, cpu) => ({ idle: sum.idle + cpu.times.idle, total: sum.total + Object.values(cpu.times).reduce((a, b) => a + b, 0) }), { idle: 0, total: 0 });
+  let previousCpu = cpuSnapshot();
   const sendMetrics = async () => {
     if (!isAlive) return;
     try {
@@ -3037,10 +2976,18 @@ app.get("/api/system/metrics/stream", requireAuth, (req, res) => {
       const osMemFree = os.freemem();
       const osMemUsedPerc = Math.round(((osMemTotal - osMemFree) / osMemTotal) * 100);
       const osLoad = os.loadavg();
+      const currentCpu = cpuSnapshot();
+      const totalDelta = currentCpu.total - previousCpu.total;
+      const cpuPercent = totalDelta > 0 ? Math.max(0, Math.min(100, Math.round(100 * (1 - (currentCpu.idle - previousCpu.idle) / totalDelta)))) : null;
+      previousCpu = currentCpu;
 
       const payload = {
         timestamp: Date.now(),
         host: {
+          cpu_percent: cpuPercent,
+          ram_percent: osMemUsedPerc,
+          disk_percent: parseInt(diskUsage, 10) || 0,
+          alert_resource_high: osMemUsedPerc >= 85 || (parseInt(diskUsage, 10) || 0) >= 85,
           load: osLoad[0].toFixed(2),
           memPerc: osMemUsedPerc,
           memFormatted: `${formatBytes(osMemTotal - osMemFree)} / ${formatBytes(osMemTotal)}`,
@@ -3075,72 +3022,48 @@ app.get("/api/system/metrics/stream", requireAuth, (req, res) => {
 // APIS: LIVE LOG STREAMER MULTIPLEXADO COM FILTROS (SSE STREAM)
 // ==============================================================================
 
-app.get("/api/projects/:id/logs/stream", requireAuth, (req, res) => {
-  const { id } = req.params;
-  const project = findProject(id);
-  if (!project) return res.status(404).send("Projeto não encontrado");
-
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
+app.get("/api/projects/:id/logs/stream", requireAuth, async (req, res) => {
+  const project = findProject(req.params.id);
+  if (!getProjects().some(p => p.id === req.params.id)) return res.status(404).json({ ok: false, error: 'Projeto não encontrado' });
+  const search = String(req.query.search || req.query.q || '');
+  const level = String(req.query.level || 'all').toLowerCase();
+  const tail = Math.max(1, Math.min(500, parseInt(req.query.tail, 10) || 80));
+  let names;
+  try {
+    const { stdout } = await execAsync('docker ps -a --format "{{.Names}}"', { timeout: 10000 });
+    names = stdout.trim().split(/\r?\n/).filter(name => name.startsWith(project.containerPrefix || project.id + '-') || [project.production?.containerName, project.staging?.containerName].includes(name));
+  } catch (err) { return res.status(500).json({ ok: false, error: err.message }); }
+  const requested = req.query.container || 'all';
+  if (requested !== 'all' && !names.includes(requested)) return res.status(400).json({ ok: false, error: 'Contentor não pertence ao projeto.' });
+  const selected = requested === 'all' ? names : [requested];
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders?.();
-
-  const containerParam = req.query.container || "all";
-  const searchParam = (req.query.q || "").toLowerCase();
-  const levelParam = (req.query.level || "all").toLowerCase();
-
-  let targetContainers = [];
-  if (containerParam === "all") {
-    targetContainers = [
-      project.production?.containerName,
-      project.staging?.containerName,
-      project.postgresContainer,
-      project.postgrestContainer,
-      project.kongContainer,
-    ].filter(Boolean);
-  } else {
-    targetContainers = [containerParam];
+  let alive = true;
+  const children = [];
+  const write = item => { if (alive) res.write('data: ' + JSON.stringify(item) + '\n\n'); };
+  const timer = setInterval(() => { if (alive) res.write(': heartbeat\n\n'); }, 15000);
+  res.on('close', () => { alive = false; clearInterval(timer); for (const child of children) child.kill(); });
+  write({ type: 'containers', containers: names });
+  for (const container of selected) {
+    const child = spawn('docker', ['logs', '--follow', '--tail', String(tail), '--timestamps', container]);
+    children.push(child);
+    for (const stream of [child.stdout, child.stderr]) {
+      let pending = '';
+      const send = line => {
+        const match = matchesLog(line, search, level);
+        if (line && match.matches) write({ container, level: match.level, line, timestamp: new Date().toISOString() });
+      };
+      stream?.on('data', chunk => {
+        pending += chunk.toString();
+        const lines = pending.split(/\r?\n/); pending = lines.pop();
+        for (const line of lines) send(line);
+      });
+      stream?.on('end', () => { if (pending) send(pending); });
+    }
+    child.on('error', err => write({ container, level: 'error', line: 'Erro no stream: ' + err.message }));
   }
-
-  let isAlive = true;
-  req.on("close", () => {
-    isAlive = false;
-  });
-
-  const sendLog = (container, text) => {
-    if (!isAlive || !text) return;
-    const lines = text.split("\n");
-    for (const rawLine of lines) {
-      const line = rawLine.trim();
-      if (!line) continue;
-      if (searchParam && !line.toLowerCase().includes(searchParam)) continue;
-
-      let level = "info";
-      if (/error|fatal|fail|err|panic/i.test(line)) level = "error";
-      else if (/warn|warning/i.test(line)) level = "warn";
-
-      if (levelParam !== "all" && level !== levelParam) continue;
-
-      res.write(
-        `data: ${JSON.stringify({
-          timestamp: new Date().toISOString(),
-          container,
-          level,
-          line,
-        })}\n\n`
-      );
-    }
-  };
-
-  (async () => {
-    for (const c of targetContainers) {
-      if (!isAlive) break;
-      try {
-        const { stdout } = await execAsync(`docker logs --tail 40 --timestamps ${c} 2>&1 || true`);
-        sendLog(c, stdout);
-      } catch (e) {}
-    }
-  })();
 });
 
 // ==============================================================================
@@ -3149,49 +3072,33 @@ app.get("/api/projects/:id/logs/stream", requireAuth, (req, res) => {
 
 app.post("/api/webhook/deploy/:projectId", async (req, res) => {
   const { projectId } = req.params;
-  const project = findProject(projectId);
-  if (!project) return res.status(404).json({ ok: false, error: "Projeto não encontrado" });
-
-  const event = req.headers["x-github-event"];
-  if (event === "ping") {
-    return res.json({ ok: true, message: "Ping recebido com sucesso!" });
-  }
-
-  if (event !== "push") {
-    return res.json({ ok: true, message: `Evento ${event} ignorado.` });
-  }
-
-  const payload = req.body || {};
-  const ref = payload.ref || "";
-  const commit = payload.head_commit || {};
-  const commitHash = commit.id || "";
-  const commitMessage = commit.message || "";
-  const commitAuthor = commit.author?.name || "GitHub Webhook";
-
-  let targetEnv = "staging";
-  if (ref === `refs/heads/${project.branch || "main"}`) {
-    targetEnv = "production";
-  }
-
-  if (commitHash) {
-    console.log(`[Webhook Auto-Deploy] Disparado para ${project.name} (${targetEnv}) - Commit: ${commitHash.slice(0, 7)}`);
-    setImmediate(async () => {
-      try {
-        await execAsync(`curl -s -X POST http://127.0.0.1:${PORT}/api/deploy -H "Content-Type: application/json" -d '${JSON.stringify({
-          project_id: project.id,
-          environment: targetEnv,
-          commit_hash: commitHash,
-          commit_message: `[Auto-Deploy Webhook] ${commitMessage}`.slice(0, 100),
-          commit_author: commitAuthor,
-        })}'`);
-      } catch (e) {}
-    });
-  }
-
-  res.json({
-    ok: true,
-    message: `Webhook recebido. Deploy iniciado para ${targetEnv} com o commit ${commitHash.slice(0, 7)}.`,
+  const record = getProjects().find(p => p.id === projectId);
+  if (!record) return res.status(404).json({ ok: false, error: 'Projeto não encontrado.' });
+  const secret = record.webhookSecret || process.env.GITHUB_WEBHOOK_SECRET;
+  if (!secret) return res.status(503).json({ ok: false, error: 'Configure GITHUB_WEBHOOK_SECRET e o mesmo segredo no webhook GitHub.' });
+  const signature = String(req.headers['x-hub-signature-256'] || '');
+  const expected = 'sha256=' + crypto.createHmac('sha256', secret).update(req.rawBody || Buffer.alloc(0)).digest('hex');
+  if (signature.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return res.status(401).json({ ok: false, error: 'Assinatura de webhook inválida.' });
+  const event = req.headers['x-github-event'];
+  if (event === 'ping') return res.json({ ok: true, message: 'Webhook validado.' });
+  if (event !== 'push' || req.body.deleted) return res.json({ ok: true, message: 'Evento ignorado.' });
+  const environment = req.body.ref === 'refs/heads/' + (record.branch || 'main') ? 'production' : req.body.ref === 'refs/heads/' + (record.stagingBranch || 'staging') ? 'staging' : null;
+  if (!environment) return res.json({ ok: true, message: 'Ramo sem publicação automática configurada.' });
+  const commit = req.body.head_commit || {};
+  if (!/^[a-f0-9]{40}$/i.test(commit.id || '')) return res.status(400).json({ ok: false, error: 'Commit inválido.' });
+  const jobId = 'webhook-' + crypto.randomUUID();
+  backgroundJobs.set(jobId, { status: 'running', logs: [] });
+  setImmediate(async () => {
+    const result = { status() { return this; }, json(data) {
+      backgroundJobs.set(jobId, { status: data.ok ? 'completed' : 'failed', ...data });
+      console.log('[Webhook ' + jobId + '] ' + (data.ok ? 'Deploy concluído.' : data.error));
+    } };
+    try {
+      await handleDeploy({ body: { project_id: projectId, environment, commit_hash: commit.id, commit_message: commit.message, commit_author: commit.author?.name || 'GitHub Webhook' }, query: {}, headers: {}, user: { username: 'GitHub Webhook' } }, result);
+    } catch (err) { result.json({ ok: false, error: err.message }); }
+    setTimeout(() => backgroundJobs.delete(jobId), 3600000).unref();
   });
+  res.status(202).json({ ok: true, jobId, message: 'Webhook validado. Publicação agendada; o resultado será registado no servidor.' });
 });
 
 // ==============================================================================
@@ -8600,8 +8507,8 @@ app.delete("/api/projects/:id", requireAuth, async (req, res) => {
       });
     }
 
-    // Registo imediato do projeto como eliminado (tombstone permanente contra auto-ressurreição)
-    recordDeletedProject(id);
+    // Só ocultar o registo depois de confirmar a remoção dos recursos.
+    const deletionErrors = [];
 
     const settings = getSettings();
     const logs = [];
@@ -8630,12 +8537,14 @@ app.delete("/api/projects/:id", requireAuth, async (req, res) => {
           logs.push(`ℹ️ Repositório GitHub não encontrado ou já foi eliminado.`);
         } else {
           const errJson = await ghResp.json().catch(() => ({}));
-          logs.push(`⚠️ Aviso GitHub: ${errJson.message || `Erro HTTP ${ghResp.status}`}`);
+          deletionErrors.push(`GitHub: ${errJson.message || `Erro HTTP ${ghResp.status}`}`);
         }
       } catch (ghErr) {
-        logs.push(`⚠️ Aviso ao contactar GitHub: ${ghErr.message}`);
+        deletionErrors.push(`GitHub: ${ghErr.message}`);
       }
     }
+
+    if (delete_github !== false && !activeToken) deletionErrors.push("Token GitHub indisponível para eliminar o repositório.");
 
     // 2. Parar e remover contentores Docker e volumes da stack
     try {
@@ -8687,13 +8596,23 @@ app.delete("/api/projects/:id", requireAuth, async (req, res) => {
           try {
             fs.rmSync(normalizedPath, { recursive: true, force: true });
           } catch (rmErr) {
-            await execAsync(`rm -rf "${normalizedPath}" 2>/dev/null || true`);
+            await execAsync(`rm -rf ${shellQuote(normalizedPath)}`);
           }
           logs.push(`✓ Pasta e ficheiros locais no servidor (${normalizedPath}) eliminados.`);
         }
       } catch (fsErr) {
-        logs.push(`⚠️ Aviso ao remover ficheiros no servidor: ${fsErr.message}`);
+        deletionErrors.push(`Ficheiros: ${fsErr.message}`);
       }
+    }
+
+    try {
+      const { stdout } = await execAsync('docker ps -a --format "{{.Names}}"', { timeout: 10000 });
+      const remaining = stdout.trim().split(/\r?\n/).filter(name => name.startsWith(project.containerPrefix || project.id + '-'));
+      if (remaining.length) deletionErrors.push('Contentores ainda existentes: ' + remaining.join(', '));
+    } catch (err) { deletionErrors.push('Não foi possível confirmar a remoção Docker: ' + err.message); }
+    if (delete_local_files !== false && project.appDir && fs.existsSync(project.appDir)) deletionErrors.push('O diretório do projeto ainda existe.');
+    if (deletionErrors.length) {
+      return res.status(500).json({ ok: false, partial: true, logs, error: 'Remoção incompleta; projeto mantido visível para nova tentativa. ' + deletionErrors.join(' | ') });
     }
 
     // 4. Remover do estado global se existir
@@ -8746,4 +8665,6 @@ app.delete("/api/projects/:id", requireAuth, async (req, res) => {
 // Arrancar Servidor
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Deployment Center v3.0 ativo na porta ${PORT}`);
+  sampleProjectUptime();
+  setInterval(sampleProjectUptime, 60000).unref();
 });

@@ -22,6 +22,9 @@ RUN npm install --production
 
 COPY . ./
 
+# Impedir a publicação de uma imagem com erros no template de provisionamento.
+RUN npm run build
+
 EXPOSE 50000
 
 ENV PORT=50000

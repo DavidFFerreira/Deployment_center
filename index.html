@@ -3350,6 +3350,7 @@
     // Estado de Deploy Modal
     let pendingDeployCommit = null;
     let pendingDeployEnv = null;
+    let pendingDeployIsRollback = false;
     let deployTimerInterval = null;
 
     function t(key) {
@@ -3418,6 +3419,7 @@
         if (content) content.classList.toggle('hidden', id !== tabId);
       });
 
+      if (tabId !== 'containers' && liveLogsEventSource) { liveLogsEventSource.close(); liveLogsEventSource = null; }
       if (tabId === 'containers') { fetchContainers(); startLiveLogsStream(); }
       if (tabId === 'storage') { loadStorageBuckets(); loadStorageOptimizationStats(); }
       if (tabId === 'database') { fetchDbStats(); fetchDbBackups(); fetchDbTables(); }
@@ -6136,6 +6138,9 @@ Vamos começar a implementar o primeiro módulo do plano.`;
 
     async function switchProject(projectId) {
       if (!projectId) return;
+      if (liveLogsEventSource) { liveLogsEventSource.close(); liveLogsEventSource = null; }
+      const liveSelect = document.getElementById('live-log-container-select');
+      if (liveSelect) liveSelect.innerHTML = '<option value="all">📦 Todos os Contentores</option>';
       currentProjectId = projectId;
       localStorage.setItem('deploy_project_id', projectId);
       const found = projectsList && projectsList.find((p) => p.id === projectId);
@@ -6575,6 +6580,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       
       pendingDeployCommit = commit;
       pendingDeployEnv = env;
+      pendingDeployIsRollback = Boolean(isRollback);
       lastDeployErrorPayload = null;
       currentDeployFilesLoaded = false;
 
@@ -6801,7 +6807,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
             commit_hash: pendingDeployCommit.hash,
             commit_message: pendingDeployCommit.message,
             commit_author: pendingDeployCommit.author,
-            is_rollback: false,
+            is_rollback: pendingDeployIsRollback,
           })
         });
 
@@ -7571,7 +7577,7 @@ Fim do Relatório
             const data = JSON.parse(event.data);
             if (data.host) {
               const h = data.host;
-              if (cpuEl) cpuEl.textContent = `${h.cpu_percent || 0}%`;
+              if (cpuEl) cpuEl.textContent = h.cpu_percent == null ? '—' : `${h.cpu_percent}%`;
               if (ramEl) ramEl.textContent = `${h.ram_percent || 0}%`;
               if (ramBar) {
                 ramBar.style.width = `${Math.min(h.ram_percent || 0, 100)}%`;
@@ -7614,6 +7620,7 @@ Fim do Relatório
           container.innerHTML = historyList.map((day) => {
             const uptimeVal = day.uptime_percent !== undefined ? day.uptime_percent : (day.uptime !== undefined ? day.uptime : 100);
             const latencyVal = day.latency_ms !== undefined ? day.latency_ms : (day.latencyMs !== undefined ? day.latencyMs : 20);
+            if (day.status === 'unknown' || uptimeVal === null) return `<div title="${day.date}: Sem medições" class="w-1.5 h-6 rounded-full bg-slate-300 dark:bg-slate-700 shrink-0"></div>`;
             let bgClass = 'bg-emerald-500 hover:bg-emerald-400';
             let titleText = `${day.date}: Operacional (${uptimeVal}%) - Latência: ${latencyVal}ms`;
             if (day.status === 'down') {
@@ -7664,6 +7671,11 @@ Fim do Relatório
           if (isLiveLogPaused) return;
           try {
             const item = JSON.parse(event.data);
+            if (item.type === 'containers' && containerSelect) {
+              const selected = containerSelect.value;
+              containerSelect.innerHTML = '<option value="all">📦 Todos os Contentores</option>' + item.containers.map(name => '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>').join('');
+              containerSelect.value = item.containers.includes(selected) ? selected : 'all';
+            }
             if (item.line) {
               appendLiveLogLine(item.line, item.level, item.container);
             }
@@ -8093,7 +8105,7 @@ Fim do Relatório
           showAppNotification({
             type: 'success',
             title: 'Variáveis Gravadas',
-            message: `Ficheiro ${data.filename} gravado com permissões 0600.${restartContainer ? ' Contentor reiniciado com sucesso.' : ''}`
+            message: data.message || `Ficheiro ${data.filename} gravado.`
           });
           loadProjectEnv();
         } else {

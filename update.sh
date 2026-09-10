@@ -47,6 +47,11 @@ fi
 echo "🔄 A obter a versão mais recente do repositório..."
 cd "$APP_DIR"
 
+# Falhar antes de alterar o serviço se a revisão não compilar/testar.
+if [ -f "$APP_DIR/package.json" ]; then
+  npm run build
+fi
+
 if [ ! -d "$APP_DIR/.git" ]; then
   echo "⚠️ Pasta .git não encontrada. A inicializar repositório Git..."
   git init
@@ -89,7 +94,7 @@ if ! docker compose version &>/dev/null; then
 fi
 
 echo "🐳 A reconstruir e reiniciar o contentor do Deployment Center..."
-$COMPOSE_CMD up -d --build
+$COMPOSE_CMD up -d --build --force-recreate deploy-center
 
 PORT=$(grep -E '^PORT=' "$APP_DIR/.env" 2>/dev/null | cut -d '=' -f2 || echo "50000")
 SERVER_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || echo "127.0.0.1")

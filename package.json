@@ -5,7 +5,9 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test",
+    "build": "node scripts/build.mjs"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",
