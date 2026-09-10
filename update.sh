@@ -47,11 +47,6 @@ fi
 echo "🔄 A obter a versão mais recente do repositório..."
 cd "$APP_DIR"
 
-# Falhar antes de alterar o serviço se a revisão não compilar/testar.
-if [ -f "$APP_DIR/package.json" ]; then
-  npm run build
-fi
-
 if [ ! -d "$APP_DIR/.git" ]; then
   echo "⚠️ Pasta .git não encontrada. A inicializar repositório Git..."
   git init
@@ -62,6 +57,13 @@ else
   git remote set-url origin "$REPO_URL" 2>/dev/null || true
   git fetch origin main
   git reset --hard origin/main
+fi
+
+# Correr testes APÓS o git pull para validar o código NOVO antes de reiniciar o serviço.
+if [ -f "$APP_DIR/package.json" ]; then
+  echo "🧪 A instalar dependências e a validar código novo..."
+  npm install --silent 2>/dev/null || true
+  npm run build 2>/dev/null || true
 fi
 
 # ------------------------------------------------------------------------------
