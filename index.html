@@ -227,7 +227,7 @@
             </button>
           </div>
           <div class="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-            <span id="main-project-repo">Repo: -</span>
+            <span id="main-project-repo" class="inline-flex items-center">Repo: -</span>
             <span>•</span>
             <span id="main-project-branch">Branch: main</span>
           </div>
@@ -235,6 +235,11 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <a id="main-project-github-btn" href="#" target="_blank" rel="noopener noreferrer" class="hidden px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 hover:border-slate-500 text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer" title="Abrir Repositório no GitHub">
+          <i data-lucide="github" class="w-3.5 h-3.5 text-slate-200"></i>
+          <span class="hidden sm:inline">Repositório GitHub</span>
+          <i data-lucide="external-link" class="w-3 h-3 text-slate-400"></i>
+        </a>
         <button onclick="openApiHelperModal()" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer" title="Abrir Helper e Exemplos da API M2M">
           <i data-lucide="plug-zap" class="w-3.5 h-3.5"></i>
           <span data-i18n="api_helper">API & SaaS Helper</span>
@@ -2427,11 +2432,16 @@
 
             <!-- Ações Após Criação -->
             <div id="wz-post-actions" class="hidden pt-1 flex items-center justify-between gap-2 flex-wrap">
-              <button onclick="downloadWizardLogsTxt()" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center gap-1.5 transition">
-                <i data-lucide="download" class="w-3.5 h-3.5 text-purple-400"></i> Descarregar Log (.txt)
-              </button>
-              <button onclick="finishWizardAndGoToProject()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-500/25 transition">
-                <span>🚀 Abrir Projeto no Deployment Center</span>
+              <div class="flex items-center gap-2">
+                <button onclick="downloadWizardLogsTxt()" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center gap-1.5 transition">
+                  <i data-lucide="download" class="w-3.5 h-3.5 text-purple-400"></i> Descarregar Log (.txt)
+                </button>
+                <a id="wz-gh-link-btn" href="#" target="_blank" rel="noopener noreferrer" class="hidden px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer" title="Abrir Repositório no GitHub">
+                  <i data-lucide="github" class="w-3.5 h-3.5 text-slate-200"></i> <span>Ver no GitHub</span> <i data-lucide="external-link" class="w-3 h-3 text-slate-400"></i>
+                </a>
+              </div>
+              <button onclick="finishWizardAndGoToProject()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-500/25 transition cursor-pointer">
+                <span>🚀 Abrir Stack</span>
               </button>
             </div>
           </div>
@@ -4196,7 +4206,9 @@
         return;
       }
 
-      container.innerHTML = projectsList.map((p) => `
+      container.innerHTML = projectsList.map((p) => {
+        const pGhUrl = p.githubUrl || (p.repoUrl && p.repoUrl.includes('github.com') ? p.repoUrl : (p.repoOwner && p.repoName ? `https://github.com/${p.repoOwner}/${p.repoName}` : (p.id === 'suavit-portal' || p.id === 'suavit' ? 'https://github.com/DavidFFerreira/Suavit_portal' : `https://github.com/DavidFFerreira/${p.repoName || p.id}`)));
+        return `
         <div class="p-4 rounded-2xl bg-slate-100 dark:bg-slate-900 border ${p.id === currentProjectId ? 'border-purple-500 shadow-md shadow-purple-500/10' : 'border-slate-200 dark:border-slate-800'} space-y-2">
           <div class="flex items-center justify-between">
             <h4 class="font-extrabold text-xs text-slate-900 dark:text-white flex items-center gap-1.5 flex-wrap">
@@ -4210,11 +4222,14 @@
             ${p.id === currentProjectId ? '<span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[10px] font-bold">Ativo</span>' : ''}
           </div>
           <div class="text-[11px] text-slate-500 font-mono space-y-0.5">
-            <div>Repo: ${p.repoOwner}/${p.repoName} (${p.branch || 'main'})</div>
+            <div>Repo: <a href="${escapeHtml(pGhUrl)}" target="_blank" rel="noopener noreferrer" class="hover:underline text-indigo-500 dark:text-indigo-400 font-semibold inline-flex items-center gap-1">${escapeHtml(p.repoOwner || 'DavidFFerreira')}/${escapeHtml(p.repoName || p.id)} <i data-lucide="external-link" class="w-2.5 h-2.5"></i></a> (${escapeHtml(p.branch || 'main')})</div>
             <div>Portas: ${p.production?.port || 58100} (Prod) | ${p.staging?.port || 58101} (Testes)</div>
           </div>
           <div class="pt-2 flex items-center justify-between gap-2 border-t border-slate-200 dark:border-slate-800">
             <div class="flex items-center gap-1.5 flex-wrap">
+              <a href="${escapeHtml(pGhUrl)}" target="_blank" rel="noopener noreferrer" title="Abrir Repositório no GitHub" class="px-2.5 py-1 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer">
+                <i data-lucide="github" class="w-3 h-3 text-slate-300"></i> GitHub
+              </a>
               <button onclick="openCloneWizard('${p.id}')" title="Clonar Projeto com Nova Stack e Base de Dados Limpa" class="px-2.5 py-1 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[10px] font-bold flex items-center gap-1 transition">
                 <i data-lucide="copy" class="w-3 h-3"></i> Clonar
               </button>
@@ -4230,7 +4245,8 @@
             ${p.id !== currentProjectId ? `<button onclick="switchProject('${p.id}'); closeModal('settings-modal');" class="px-3 py-1 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-bold shadow-sm">Ativar</button>` : ''}
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
       if (window.lucide) lucide.createIcons();
     }
 
@@ -5112,7 +5128,10 @@
       const spinnerIcon = document.getElementById('wz-spinner-icon');
 
       nextBtn.disabled = true;
+      nextBtn.classList.add('opacity-75', 'cursor-not-allowed', 'pointer-events-none');
+      nextBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin mr-1.5 inline-block"></i><span>A Criar e Iniciar Stack...</span>`;
       prevBtn.disabled = true;
+      prevBtn.classList.add('hidden');
       progressContainer.classList.remove('hidden');
       if (postActions) postActions.classList.add('hidden');
       logsEl.innerHTML = '';
@@ -5181,7 +5200,25 @@
                   await loadProjects();
                   if (spinnerIcon) spinnerIcon.innerHTML = `<span class="text-emerald-400 font-bold text-xs">✓ Concluído</span>`;
                   if (postActions) postActions.classList.remove('hidden');
-                  nextBtn.classList.add('hidden');
+                  
+                  // Atualizar botão de ver no GitHub se aplicável
+                  const ghLinkBtn = document.getElementById('wz-gh-link-btn');
+                  if (ghLinkBtn) {
+                    const ghUrl = evt.project?.githubUrl || (evt.project?.repoOwner && evt.project?.repoName ? `https://github.com/${evt.project.repoOwner}/${evt.project.repoName}` : (payload.createGithubRepo ? `https://github.com/DavidFFerreira/${payload.slug}` : null));
+                    if (ghUrl) {
+                      ghLinkBtn.href = ghUrl;
+                      ghLinkBtn.classList.remove('hidden');
+                    } else {
+                      ghLinkBtn.classList.add('hidden');
+                    }
+                  }
+
+                  // Configurar o botão principal como "Abrir Stack"
+                  nextBtn.classList.remove('hidden', 'opacity-75', 'cursor-not-allowed', 'pointer-events-none');
+                  nextBtn.disabled = false;
+                  nextBtn.onclick = finishWizardAndGoToProject;
+                  nextBtn.innerHTML = `<i data-lucide="external-link" class="w-4 h-4 mr-1 inline-block"></i><span>🚀 Abrir Stack</span>`;
+                  nextBtn.className = "px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-500/25 transition cursor-pointer";
                   prevBtn.classList.add('hidden');
 
                   // Renderizar Card do Prompt Mestre de Arranque para a IA
@@ -5210,6 +5247,8 @@ Vamos começar a implementar o primeiro módulo do plano.`;
                     promptCard.classList.remove('hidden');
                   }
 
+                  if (window.lucide) lucide.createIcons();
+
                   showAppNotification({
                     type: 'success',
                     title: 'Projeto Criado com Sucesso',
@@ -5219,9 +5258,14 @@ Vamos começar a implementar o primeiro módulo do plano.`;
                   processCompleted = true;
                   if (spinnerIcon) spinnerIcon.innerHTML = `<span class="text-red-400 font-bold text-xs">✗ Erro</span>`;
                   if (postActions) postActions.classList.remove('hidden');
+                  nextBtn.classList.remove('opacity-75', 'cursor-not-allowed', 'pointer-events-none');
                   nextBtn.disabled = false;
+                  nextBtn.onclick = wizardNextStep;
                   nextBtn.innerHTML = `<span>🔄 Tentar Novamente</span>`;
+                  nextBtn.className = "px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-purple-500/25 transition cursor-pointer";
                   prevBtn.disabled = false;
+                  prevBtn.classList.remove('hidden');
+                  if (window.lucide) lucide.createIcons();
                   showAppNotification({
                     type: 'error',
                     title: evt.rolledBack ? 'Erro com Rollback Efetuado' : 'Erro ao Criar Stack',
@@ -5236,14 +5280,25 @@ Vamos começar a implementar o primeiro módulo do plano.`;
         if (!processCompleted && latestCreatedProject) {
           if (spinnerIcon) spinnerIcon.innerHTML = `<span class="text-emerald-400 font-bold text-xs">✓ Concluído</span>`;
           if (postActions) postActions.classList.remove('hidden');
-          nextBtn.classList.add('hidden');
+          nextBtn.classList.remove('hidden', 'opacity-75', 'cursor-not-allowed', 'pointer-events-none');
+          nextBtn.disabled = false;
+          nextBtn.onclick = finishWizardAndGoToProject;
+          nextBtn.innerHTML = `<i data-lucide="external-link" class="w-4 h-4 mr-1 inline-block"></i><span>🚀 Abrir Stack</span>`;
+          nextBtn.className = "px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-500/25 transition cursor-pointer";
           prevBtn.classList.add('hidden');
+          if (window.lucide) lucide.createIcons();
         }
       } catch (e) {
         appendLiveWizardLog(`✗ Falha de ligação: ${e.message}`, new Date().toLocaleTimeString('pt-PT'));
         if (spinnerIcon) spinnerIcon.innerHTML = `<span class="text-red-400 font-bold text-xs">✗ Erro</span>`;
+        nextBtn.classList.remove('opacity-75', 'cursor-not-allowed', 'pointer-events-none');
         nextBtn.disabled = false;
+        nextBtn.onclick = wizardNextStep;
+        nextBtn.innerHTML = `<span>🔄 Tentar Novamente</span>`;
+        nextBtn.className = "px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-purple-500/25 transition cursor-pointer";
         prevBtn.disabled = false;
+        prevBtn.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
         showAppNotification({
           type: 'error',
           title: 'Erro de Ligação',
@@ -6189,12 +6244,38 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       const mBadge = document.getElementById('main-project-id-badge');
       if (mBadge) mBadge.textContent = pId;
 
+      let projectGithubUrl = null;
+      if (p.githubUrl) {
+        projectGithubUrl = p.githubUrl;
+      } else if (p.repoUrl && p.repoUrl.includes('github.com')) {
+        projectGithubUrl = p.repoUrl;
+      } else if (p.repoOwner && p.repoName) {
+        projectGithubUrl = `https://github.com/${p.repoOwner}/${p.repoName}`;
+      } else if (p.repo && p.repo.includes('/')) {
+        projectGithubUrl = `https://github.com/${p.repo}`;
+      } else if (p.id === 'suavit-portal' || p.id === 'suavit') {
+        projectGithubUrl = 'https://github.com/DavidFFerreira/Suavit_portal';
+      } else if (p.id) {
+        projectGithubUrl = `https://github.com/DavidFFerreira/${p.repoName || p.id}`;
+      }
+
       const mRepo = document.getElementById('main-project-repo');
       if (mRepo) {
-        if (p.repoOwner && p.repoName) {
-          mRepo.innerHTML = `<i data-lucide="github" class="w-3 h-3 inline-block mr-1"></i>${escapeHtml(p.repoOwner)}/${escapeHtml(p.repoName)}`;
+        if (projectGithubUrl) {
+          const repoText = (p.repoOwner && p.repoName) ? `${p.repoOwner}/${p.repoName}` : (p.repo || (p.repoName || p.id));
+          mRepo.innerHTML = `<a href="${escapeHtml(projectGithubUrl)}" target="_blank" rel="noopener noreferrer" class="hover:text-purple-400 hover:underline inline-flex items-center gap-1 transition text-slate-400 dark:text-slate-300 font-semibold" title="Abrir repositório no GitHub"><i data-lucide="github" class="w-3 h-3 inline-block text-purple-400"></i><span>${escapeHtml(repoText)}</span><i data-lucide="external-link" class="w-2.5 h-2.5 opacity-60"></i></a>`;
         } else {
           mRepo.innerHTML = `<i data-lucide="github" class="w-3 h-3 inline-block mr-1"></i>Sem repo associado`;
+        }
+      }
+
+      const mGhBtn = document.getElementById('main-project-github-btn');
+      if (mGhBtn) {
+        if (projectGithubUrl) {
+          mGhBtn.href = projectGithubUrl;
+          mGhBtn.classList.remove('hidden');
+        } else {
+          mGhBtn.classList.add('hidden');
         }
       }
 
