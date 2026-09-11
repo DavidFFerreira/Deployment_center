@@ -439,18 +439,22 @@
 
       <!-- Métricas em Tempo Real do Servidor -->
       <div class="flex items-center gap-4 w-full md:w-auto justify-end text-xs flex-wrap">
-        <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-1.5" title="Carga Média do Sistema (1 min)">
           <span class="text-slate-400 font-semibold">Load:</span>
+          <span class="font-mono font-bold text-slate-800 dark:text-slate-200" id="host-load-metric">-</span>
+        </div>
+        <div class="flex items-center gap-1.5" title="Utilização de CPU">
+          <span class="text-slate-400 font-semibold">CPU:</span>
           <span class="font-mono font-bold text-slate-800 dark:text-slate-200" id="host-cpu-metric">-</span>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2" title="Memória RAM Utilizada">
           <span class="text-slate-400 font-semibold">RAM:</span>
           <div class="w-16 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
             <div id="host-ram-bar" class="h-full bg-emerald-500 transition-all" style="width: 0%"></div>
           </div>
           <span class="font-mono font-bold text-slate-800 dark:text-slate-200" id="host-ram-metric">-</span>
         </div>
-        <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-1.5" title="Espaço em Disco">
           <span class="text-slate-400 font-semibold">Disco:</span>
           <span class="font-mono font-bold text-slate-800 dark:text-slate-200" id="host-disk-metric">-</span>
         </div>
@@ -7645,6 +7649,7 @@ Fim do Relatório
         systemMetricsEventSource = null;
       }
 
+      const loadEl = document.getElementById('host-load-metric');
       const cpuEl = document.getElementById('host-cpu-metric');
       const ramEl = document.getElementById('host-ram-metric');
       const ramBar = document.getElementById('host-ram-bar');
@@ -7658,20 +7663,48 @@ Fim do Relatório
             const data = JSON.parse(event.data);
             if (data.host) {
               const h = data.host;
-              if (cpuEl) cpuEl.textContent = h.cpu_percent == null ? '—' : `${h.cpu_percent}%`;
-              if (ramEl) ramEl.textContent = `${h.ram_percent || 0}%`;
-              if (ramBar) {
-                ramBar.style.width = `${Math.min(h.ram_percent || 0, 100)}%`;
-                ramBar.className = (h.ram_percent > 85) ? 'h-full bg-red-500 transition-all' : (h.ram_percent > 70 ? 'h-full bg-amber-500 transition-all' : 'h-full bg-emerald-500 transition-all');
-              }
-              if (diskEl) diskEl.textContent = `${h.disk_percent || 0}%`;
 
-              if (alertBadge) {
-                if (h.alert_resource_high) {
-                  alertBadge.classList.remove('hidden');
-                } else {
-                  alertBadge.classList.add('hidden');
+              // 1. Carga Média (Load)
+              const loadVal = h.load != null ? h.load : (Array.isArray(h.loadavg) ? h.loadavg[0] : null);
+              if (loadEl) loadEl.textContent = loadVal != null ? String(loadVal) : '—';
+
+              // 2. CPU % (direto do host ou soma dos contentores)
+              let cpuVal = h.cpu_percent != null ? h.cpu_percent : (h.cpu != null ? h.cpu : null);
+              if (cpuVal == null && Array.isArray(data.containers) && data.containers.length > 0) {
+                const sumCpu = data.containers.reduce((acc, c) => {
+                  const num = parseFloat(String(c.cpu || '0').replace('%', ''));
+                  return acc + (isNaN(num) ? 0 : num);
+                }, 0);
+                cpuVal = Math.round(sumCpu * 10) / 10;
+              }
+              if (cpuEl) cpuEl.textContent = cpuVal != null ? `${cpuVal}%` : (loadVal ? `${loadVal}` : '—');
+
+              // 3. RAM % e Barra
+              const ramVal = h.ram_percent != null ? h.ram_percent : (h.memPerc != null ? h.memPerc : (h.memory_percent != null ? h.memory_percent : 0));
+              if (ramEl) {
+                ramEl.textContent = `${ramVal}%`;
+                if (h.memFormatted) {
+                  ramEl.title = `Memória RAM: ${h.memFormatted}`;
                 }
+              }
+              if (ramBar) {
+                ramBar.style.width = `${Math.min(ramVal, 100)}%`;
+                ramBar.className = (ramVal > 85) ? 'h-full bg-red-500 transition-all' : (ramVal > 70 ? 'h-full bg-amber-500 transition-all' : 'h-full bg-emerald-500 transition-all');
+              }
+
+              // 4. Disco %
+              const diskVal = h.disk_percent != null ? h.disk_percent : (h.diskPerc != null ? h.diskPerc : 0);
+              if (diskEl) {
+                diskEl.textContent = `${diskVal}%`;
+                if (h.diskTotal && h.diskUsed) {
+                  diskEl.title = `Espaço em Disco: ${h.diskUsed} utilizados de ${h.diskTotal}`;
+                }
+              }
+
+              // 5. Alerta de Recursos Críticos
+              if (alertBadge) {
+                const isAlert = Boolean(h.alert_resource_high || h.alert || ramVal >= 85 || diskVal >= 85);
+                alertBadge.classList.toggle('hidden', !isAlert);
               }
             }
           } catch (err) {}
