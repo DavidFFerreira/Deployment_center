@@ -2,9 +2,11 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-const root = resolve(new URL('..', import.meta.url).pathname);
-const nodeCommand = process.platform === 'win32' ? 'node' : process.execPath;
-const run = (command, args) => execFileSync(command, args, { cwd: root, stdio: 'inherit', shell: process.platform === 'win32' });
+import { fileURLToPath } from 'node:url';
+
+const root = fileURLToPath(new URL('..', import.meta.url));
+const nodeCommand = process.execPath;
+const run = (command, args) => execFileSync(command, args, { cwd: root, stdio: 'inherit' });
 
 // This repository is the Deployment Center itself, so its production artifact
 // is the Docker image. There is no frontend bundler or application .output

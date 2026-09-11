@@ -256,10 +256,13 @@ function getSettings() {
     const candidatePaths = [
       path.join(DATA_DIR, "deploy-center", "settings.json"),
       path.join(DATA_DIR, "deploy-center", "deploy-center", "settings.json"),
+      path.join(DATA_DIR, "backups", "settings.json.bak"),
       "/opt/stacks/deployment-center/data/settings.json",
       "/opt/deployment-center/data/settings.json",
       "/mnt/Disco1/apps/deployment-center/data/settings.json",
+      "/mnt/Disco1/apps/deployment-center/data/backups/settings.json.bak",
       "/mnt/Disco1/apps/suavit-portal/data/deploy-center/settings.json",
+      "/mnt/Disco1/apps/suavit-portal/data/deploy-center/deploy-center/settings.json",
     ];
     for (const cp of candidatePaths) {
       if (fs.existsSync(cp)) {
@@ -5766,40 +5769,44 @@ app.post("/api/projects/wizard-create", requireAuth, async (req, res) => {
   };
 
   // 2. Criação do Repositório Privado no GitHub (se solicitado)
-  if (createGithubRepo !== false && settings.github_token) {
-    try {
-      emitLog(`[2/5] A criar repositório privado no GitHub: ${cleanSlug}...`);
-      const ghResp = await fetch("https://api.github.com/user/repos", {
-        method: "POST",
-        headers: {
-          Authorization: `token ${settings.github_token}`,
-          "User-Agent": "DeployCenter-Platform/3.0",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: cleanSlug,
-          description: `Stack e portal gerado automaticamente para ${name} via Deployment Center`,
-          private: true,
-          auto_init: true,
-        }),
-      });
+  if (createGithubRepo !== false) {
+    if (!settings.github_token) {
+      emitLog(`⚠️ [2/5] Aviso GitHub: Token do GitHub não configurado nas Definições do Deployment Center. O repositório privado não pôde ser criado automaticamente.`);
+    } else {
+      try {
+        emitLog(`[2/5] A criar repositório privado no GitHub: ${cleanSlug}...`);
+        const ghResp = await fetch("https://api.github.com/user/repos", {
+          method: "POST",
+          headers: {
+            Authorization: `token ${settings.github_token}`,
+            "User-Agent": "DeployCenter-Platform/3.0",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: cleanSlug,
+            description: `Stack e portal gerado automaticamente para ${name} via Deployment Center`,
+            private: true,
+            auto_init: true,
+          }),
+        });
 
-      if (ghResp.ok) {
-        const ghData = await ghResp.json();
-        repoOwner = ghData.owner?.login || repoOwner;
-        repoName = ghData.name || cleanSlug;
-        newlyCreatedGithubRepo = true;
-        emitLog(`✓ Repositório privado criado no GitHub: https://github.com/${repoOwner}/${repoName}`);
-      } else {
-        const ghErr = await ghResp.json().catch(() => ({}));
-        if (ghResp.status === 422 && ghErr.errors?.[0]?.message?.includes("already exists")) {
-          emitLog(`ℹ️ Repositório GitHub "${cleanSlug}" já existente na sua conta (reutilizado com sucesso).`);
+        if (ghResp.ok) {
+          const ghData = await ghResp.json();
+          repoOwner = ghData.owner?.login || repoOwner;
+          repoName = ghData.name || cleanSlug;
+          newlyCreatedGithubRepo = true;
+          emitLog(`✓ Repositório privado criado no GitHub: https://github.com/${repoOwner}/${repoName}`);
         } else {
-          emitLog(`⚠️ Aviso GitHub: ${ghErr.message || "Não foi possível criar o repositório no GitHub."}`);
+          const ghErr = await ghResp.json().catch(() => ({}));
+          if (ghResp.status === 422 && ghErr.errors?.[0]?.message?.includes("already exists")) {
+            emitLog(`ℹ️ Repositório GitHub "${cleanSlug}" já existente na sua conta (reutilizado com sucesso).`);
+          } else {
+            emitLog(`⚠️ Aviso GitHub: ${ghErr.message || "Não foi possível criar o repositório no GitHub."}`);
+          }
         }
+      } catch (ghErr) {
+        emitLog(`⚠️ Aviso GitHub: ${ghErr.message}`);
       }
-    } catch (ghErr) {
-      emitLog(`⚠️ Aviso GitHub: ${ghErr.message}`);
     }
   }
 
