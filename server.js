@@ -2470,32 +2470,91 @@ async function handleDeploy(req, res) {
       emitLog(`[3/4] A verificar migrações SQL da base de dados...`, "A aplicar migrações SQL...");
       try {
         const migrationsDir = path.join(targetDir, "supabase/migrations");
-        const initDir = path.join(targetDir, "supabase/init");
-        const dirsToCheck = [initDir, migrationsDir];
         const targetPg = project.postgresContainer;
         const targetPgrst = project.postgrestContainer;
 
         let sqlCount = 0;
-        for (const d of dirsToCheck) {
-          if (fs.existsSync(d)) {
-            const files = fs.readdirSync(d).filter((f) => f.endsWith(".sql")).sort();
-            for (const f of files) {
-              const sqlFile = path.join(d, f);
+        if (targetPg && fs.existsSync(migrationsDir)) {
+          // 3.1 Garantir tabela de controlo de migrações (padrão Supabase)
+          const createTableSql = "CREATE SCHEMA IF NOT EXISTS supabase_migrations; CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations (version text PRIMARY KEY, inserted_at timestamptz DEFAULT now());";
+          await runCommandStreaming(`docker exec -i ${targetPg} psql -U postgres -d postgres -c "${createTableSql}" 2>&1`, targetDir);
+
+          // 3.2 Obter versões de migrações já registadas
+          const appliedRes = await runCommandStreaming(`docker exec -i ${targetPg} psql -U postgres -d postgres -t -A -c "SELECT version FROM supabase_migrations.schema_migrations;" 2>&1`, targetDir);
+          const appliedSet = new Set((appliedRes.stdout || "").split("\n").map(s => s.trim()).filter(Boolean));
+
+          const allMigrationFiles = fs.readdirSync(migrationsDir).filter(f => f.endsWith(".sql")).sort();
+
+          // 3.3 Bootstrap para bases de dados existentes que nunca usaram tabela de migrações:
+          // Se a tabela de migrações estiver vazia mas já existirem tabelas em public, marcar migrações históricas como aplicadas
+          if (appliedSet.size === 0 && allMigrationFiles.length > 0) {
+            const tableCheck = await runCommandStreaming(`docker exec -i ${targetPg} psql -U postgres -d postgres -t -A -c "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name NOT LIKE 'pg_%';" 2>&1`, targetDir);
+            const userTableCount = parseInt(tableCheck.stdout?.trim() || "0", 10);
+
+            if (userTableCount > 0) {
+              emitLog(`[DB Migration] Base de dados existente detetada (${userTableCount} tabelas). A sincronizar histórico de migrações...`);
+              let newFiles = new Set();
+              const previousCommit = environment === "production" ? pState.production?.commit : pState.staging?.commit;
+
+              if (previousCommit && previousCommit !== commit_hash) {
+                try {
+                  const diffRes = await runCommandStreaming(`git diff --name-only ${previousCommit}..${commit_hash} 2>/dev/null || true`, targetDir);
+                  const diffFiles = (diffRes.stdout || "").split("\n").map(s => s.trim()).filter(f => f.startsWith("supabase/migrations/")).map(f => path.basename(f));
+                  newFiles = new Set(diffFiles);
+                } catch (e) {}
+              }
+
+              if (newFiles.size === 0) {
+                try {
+                  const showRes = await runCommandStreaming(`git show --name-only --format="" ${commit_hash} 2>/dev/null || true`, targetDir);
+                  const commitFiles = (showRes.stdout || "").split("\n").map(s => s.trim()).filter(f => f.startsWith("supabase/migrations/")).map(f => path.basename(f));
+                  newFiles = new Set(commitFiles);
+                } catch (e) {}
+              }
+
+              for (const f of allMigrationFiles) {
+                const version = f.replace(/\.sql$/i, "");
+                if (!newFiles.has(f)) {
+                  await runCommandStreaming(`docker exec -i ${targetPg} psql -U postgres -d postgres -c "INSERT INTO supabase_migrations.schema_migrations (version) VALUES ('${version}') ON CONFLICT DO NOTHING;" 2>&1`, targetDir);
+                  appliedSet.add(version);
+                  appliedSet.add(f);
+                }
+              }
+              emitLog(`[DB Migration] ${appliedSet.size} migrações históricas marcadas como já aplicadas.`);
+            }
+          }
+
+          // 3.4 Executar apenas migrações pendentes
+          for (const f of allMigrationFiles) {
+            const version = f.replace(/\.sql$/i, "");
+            const basePrefix = f.split("_")[0];
+            const isApplied = appliedSet.has(version) || appliedSet.has(f) || appliedSet.has(basePrefix);
+
+            if (!isApplied) {
+              const sqlFile = path.join(migrationsDir, f);
               emitLog(`[SQL Migration] A executar: ${f} em ${targetPg} (${environment})...`);
               await runCommandStreaming(`docker exec -i ${targetPg} psql -v ON_ERROR_STOP=1 -U postgres -d postgres < "${sqlFile}" 2>&1`, targetDir, (l) => emitLog(`[SQL] ${l}`));
+              await runCommandStreaming(`docker exec -i ${targetPg} psql -U postgres -d postgres -c "INSERT INTO supabase_migrations.schema_migrations (version) VALUES ('${version}') ON CONFLICT DO NOTHING;" 2>&1`, targetDir);
+              appliedSet.add(version);
+              appliedSet.add(f);
               sqlCount++;
             }
           }
         }
+
         if (sqlCount === 0) {
           emitLog(`✓ Nenhuma nova migração SQL pendente.`);
         } else {
           emitLog(`✓ ${sqlCount} migração(ões) SQL executada(s).`);
         }
-        emitLog(`[DB] A recarregar schema cache do PostgREST...`);
-        await runCommandStreaming(`docker exec -i ${targetPg} psql -U postgres -d postgres -c "NOTIFY pgrst, 'reload schema'; NOTIFY pgrst, 'reload config';" 2>&1 || true`, targetDir);
-        await runCommandStreaming(`docker restart ${targetPgrst} 2>/dev/null || true`, targetDir);
-        emitLog(`✓ Schema cache recarregado com sucesso.`);
+        if (targetPgrst) {
+          emitLog(`[DB] A recarregar schema cache do PostgREST...`);
+          if (targetPg) {
+            await runCommandStreaming(`docker exec -i ${targetPg} psql -U postgres -d postgres -c "NOTIFY pgrst, 'reload schema'; NOTIFY pgrst, 'reload config';" 2>&1 || true`, targetDir);
+          }
+          await runCommandStreaming(`docker restart ${targetPgrst} 2>/dev/null || true`, targetDir);
+          emitLog(`✓ Schema cache recarregado com sucesso.`);
+        }
       } catch (sqlErr) {
         throw new Error(`Falha nas migrações: ${sqlErr.message}`);
       }
@@ -2643,7 +2702,7 @@ app.get("/api/projects/:id/deploy-preview", requireAuth, async (req, res) => {
           diffStat = diffOut.trim();
 
           const { stdout: filesOut } = await execAsync(`git -C "${project.appDir}" diff --name-only ${currentActive}..${target_commit} 2>/dev/null || true`);
-          sqlMigrations = filesOut.trim().split("\n").filter((f) => f.includes("supabase/migrations/") || f.includes("supabase/init/")).filter(Boolean);
+          sqlMigrations = filesOut.trim().split("\n").filter((f) => f.includes("supabase/migrations/")).filter(Boolean);
         } catch (e) {}
       } else {
         try {
@@ -6283,7 +6342,7 @@ if ! docker ps --format '{{.Names}}' | grep -q "^\${PG_CONTAINER}\$"; then
   PG_CONTAINER="\${GITHUB_REPO}-postgres"
 fi
 if docker ps --format '{{.Names}}' | grep -q "^\${PG_CONTAINER}\$"; then
-  for mig_dir in "\${APP_DIR}/supabase/migrations" "\${APP_DIR}/supabase/init"; do
+  for mig_dir in "\${APP_DIR}/supabase/migrations"; do
     if [ -d "\${mig_dir}" ]; then
       for sql_file in \$(ls -1 "\${mig_dir}/"*.sql 2>/dev/null | sort); do
         bname=\$(basename "\${sql_file}")
