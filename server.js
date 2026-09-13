@@ -1708,26 +1708,30 @@ A stack deste projeto corre de forma 100% isolada no servidor Linux, utilizando 
 
 ---
 
-## 🔑 2. Variáveis de Ambiente para a IA & Frontend
+## 🔑 2. Arquitetura Dual-Access & Variáveis de Ambiente
+
+> **DIRETIVA CRÍTICA DUAL-ACCESS (LOCAL & CLOUDFLARE TUNNEL):**  
+> 1. **No Browser**: O cliente Supabase usa sempre **same-origin** (\`window.location.origin\`). Desta forma, a aplicação funciona simultaneamente em rede local (\`http://${hostIp}:${portProd}\`) e externamente via Cloudflare Tunnel (\`https://seu-dominio.tld\`) sem erros de *"Failed to fetch"* nem *"Mixed Content"*.  
+> 2. **No Servidor / Container Portal (\`runner.js\`)**: O servidor Node do portal inclui um reverse proxy transparente que encaminha as rotas \`/auth/v1/*\`, \`/rest/v1/*\`, \`/storage/v1/*\` e \`/realtime/v1/*\` diretamente para o Kong interno (\`http://${cleanSlug}-kong-prod:8000\`).  
+> 3. **Rota \`/auth\` da SPA**: A rota \`/auth\` no frontend é a página de login React/Vite. O proxy NUNCA intercepta \`/auth\`, apenas \`/auth/v1/*\`.  
+> 4. **Segurança de Chaves**: Segredos de backend (\`SUPABASE_SERVICE_ROLE_KEY\`, \`DATABASE_URL\`) NUNCA devem ser colocados no \`.env\` público do Vite para não serem expostos no bundle do cliente.
 
 \`\`\`env
-# Produção (.env.production / .env)
+# Frontend Público (.env.production / .env / .env.staging)
 PORT=${portProd}
 VITE_PORT=${portProd}
 APP_PORT=${portProd}
-VITE_SUPABASE_URL=http://${hostIp}:${portKongProd}
+# VITE_SUPABASE_URL vazio para assumir automaticamente window.location.origin no browser
+VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
-SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
-DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresProd}/postgres
 
-# Testes (.env.staging)
-PORT=${portStaging}
-VITE_PORT=${portStaging}
-APP_PORT=${portStaging}
-VITE_SUPABASE_URL=http://${hostIp}:${portKongStaging}
-VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
+# Backend Privado / Docker (.env.server)
+PORT=3000
+NODE_ENV=production
+SUPABASE_URL=http://${cleanSlug}-kong-prod:8000
+SUPABASE_ANON_KEY=${anonKey}
 SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
-DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresStaging}/postgres
+DATABASE_URL=postgres://postgres:${dbPassword}@${cleanSlug}-postgres-prod:5432/postgres
 \`\`\`
 
 ---
@@ -1793,8 +1797,8 @@ function generateSupabaseGuideContent(project, settings = {}) {
 | Parâmetro | Valor / Endpoint | Descrição & Utilização |
 | :--- | :--- | :--- |
 | **Aplicação Web / Portal** | \`http://${hostIp}:${portProd}\` | URL oficial da aplicação em Produção (Porta ${portProd}) |
-| **Gateway Kong Produção** | \`http://${hostIp}:${portKongProd}\` | Endpoint Unificado para API, Auth e Storage de Produção |
-| **Vite Supabase URL (Prod)** | \`http://${hostIp}:${portKongProd}\` | Variável \`VITE_SUPABASE_URL\` em Produção |
+| **Gateway Kong Produção** | \`http://${hostIp}:${portKongProd}\` | Gateway Kong interno/admin (No browser, aceder via \`/\` do Portal) |
+| **Vite Supabase URL (Prod)** | *(Vazio / Same-Origin)* | No browser resolve automaticamente para \`window.location.origin\` |
 | **PostgreSQL Produção** | \`postgres://postgres:${dbPassword}@${hostIp}:${portPostgresProd}/postgres\` | Ligação direta à base de dados de Produção |
 | **Studio Produção** | \`http://${hostIp}:${portStudioProd}\` | Dashboard visual web de Produção |
 
@@ -1802,8 +1806,8 @@ function generateSupabaseGuideContent(project, settings = {}) {
 | Parâmetro | Valor / Endpoint | Descrição & Utilização |
 | :--- | :--- | :--- |
 | **Aplicação Web / Portal** | \`http://${hostIp}:${portStaging}\` | URL oficial da aplicação em Testes (Porta ${portStaging}) |
-| **Gateway Kong Testes** | \`http://${hostIp}:${portKongStaging}\` | Endpoint Unificado para API, Auth e Storage de Testes |
-| **Vite Supabase URL (Staging)** | \`http://${hostIp}:${portKongStaging}\` | Variável \`VITE_SUPABASE_URL\` em Testes |
+| **Gateway Kong Testes** | \`http://${hostIp}:${portKongStaging}\` | Gateway Kong interno/admin (No browser, aceder via \`/\` do Portal) |
+| **Vite Supabase URL (Staging)** | *(Vazio / Same-Origin)* | No browser resolve automaticamente para \`window.location.origin\` |
 | **PostgreSQL Testes** | \`postgres://postgres:${dbPassword}@${hostIp}:${portPostgresStaging}/postgres\` | Ligação direta à base de dados de Testes |
 | **Studio Testes** | \`http://${hostIp}:${portStudioStaging}\` | Dashboard visual web de Testes |
 
@@ -1815,30 +1819,31 @@ function generateSupabaseGuideContent(project, settings = {}) {
 
 ---
 
-## 📄 2. Variáveis de Ambiente (\`.env\` / \`.env.production\` / \`.env.staging\`)
+## 📄 2. Variáveis de Ambiente (\`.env\` vs \`.env.server\`)
+
+> **Regra de Segurança:** As variáveis de frontend (.env) são públicas e visíveis no browser do cliente. Nunca coloques chaves de \`service_role\` ou passwords de base de dados no \`.env\` do Vite!
 
 \`\`\`env
-# .env / .env.production
+# .env.production / .env
 PORT=${portProd}
 VITE_PORT=${portProd}
 APP_PORT=${portProd}
-VITE_SUPABASE_URL=http://${hostIp}:${portKongProd}
+# Vazio para usar same-origin (funciona em http://${hostIp}:${portProd} e no Cloudflare Tunnel)
+VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
-SUPABASE_URL=http://${hostIp}:${portKongProd}
-SUPABASE_ANON_KEY=${anonKey}
-SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
-DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresProd}/postgres
 
 # .env.staging
 PORT=${portStaging}
 VITE_PORT=${portStaging}
 APP_PORT=${portStaging}
-VITE_SUPABASE_URL=http://${hostIp}:${portKongStaging}
+VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
-SUPABASE_URL=http://${hostIp}:${portKongStaging}
+
+# .env.server (Ficheiro seguro de backend no servidor - não lido pelo Vite)
+SUPABASE_URL=http://${cleanSlug}-kong-prod:8000
 SUPABASE_ANON_KEY=${anonKey}
 SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
-DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresStaging}/postgres
+DATABASE_URL=postgres://postgres:${dbPassword}@${cleanSlug}-postgres-prod:5432/postgres
 \`\`\`
 
 ---
@@ -1848,11 +1853,28 @@ DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresStaging}/
 \`\`\`typescript
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'http://${hostIp}:${portKongProd}';
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '${anonKey}';
+// Arquitetura Dual-Access: No browser utiliza same-origin (window.location.origin), permitindo
+// funcionamento simultâneo em rede local (192.168.1.4:PORT) e externo (Cloudflare Tunnel) sem Mixed Content.
+// O runner.js do portal faz o proxy das rotas /auth/v1/*, /rest/v1/*, /storage/v1/* para o Kong.
+const getSupabaseUrl = (): string => {
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'http://localhost:3000';
+  }
+  return (import.meta.env && import.meta.env.VITE_SUPABASE_URL) || '';
+};
+
+const supabaseUrl = getSupabaseUrl();
+const supabaseKey =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY) ||
+  (typeof process !== 'undefined' && (process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY)) ||
+  '${anonKey}';
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
   },
@@ -1938,6 +1960,9 @@ A porta principal da aplicação em Produção Oficial é ${portProd} (e em Test
 O Gateway Kong de Supabase está ativo na porta ${portKongProd} (Staging: ${portKongStaging}), o PostgreSQL na porta ${portPostgresProd} (Staging: ${portPostgresStaging}) e o Supabase Studio na porta ${portStudioProd} (Staging: ${portStudioStaging}).
 Todas as tabelas e esquemas foram provisionados no PostgreSQL dos contentores Docker (${cleanSlug}-postgres-staging e ${cleanSlug}-postgres-prod).
 Segue estritamente a zero-mock-policy: toda a persistência tem de ser real no Supabase através de src/integrations/supabase/client.ts e os uploads nos Storage Buckets.
+IMPORTANTE - ARQUITETURA DUAL-ACCESS (LOCAL & TÚNEL EXTERNO):
+O frontend utiliza chamadas same-origin relativas (window.location.origin) para autenticação (/auth/v1/*) e dados (/rest/v1/*, /storage/v1/*), que são transparentemente encaminhadas pelo runner.js para o Kong interno. NUNCA coloques URLs fixas com IPs privados (ex: http://${settings.server_host_ip || '192.168.1.4'}:${portKongProd}) no cliente de frontend, garantindo funcionamento simultâneo em rede local e externamente via Cloudflare Tunnel sem erros de 'Failed to fetch' ou Mixed Content.
+A rota /auth no frontend é a página de login SPA e nunca deve ser confundida com os endpoints de API /auth/v1/*.
 Garante Dark/Light mode com seletor no Header, internacionalização (pt-PT padrão) e conformidade de rodapé.
 Vamos começar a implementar o primeiro módulo do plano.`;
 }
@@ -4262,6 +4287,26 @@ Ao longo do desenvolvimento deste projeto, deves estritamente obedecer às segui
    - **NUNCA alteres as portas no \`docker-compose.yml\` nem tentes mapear portas como 3000, 80 ou 3080**.
    - A stack deste projeto corre com os 9 contentores nativos orquestrados pelo Deployment Center.`,
     },
+    dual_access_architecture: {
+      id: "dual_access_architecture",
+      filename: "dual_access_architecture_guideline.md",
+      title: "Arquitetura Dual-Access (Local & Cloudflare Tunnel)",
+      description: "Garante compatibilidade simultânea local e remota sem 'Failed to fetch' ou Mixed Content.",
+      template: `# Diretiva de Arquitetura Dual-Access (Local & Cloudflare Tunnel)
+
+1. **Acesso Dual Transparente (Zero Hardcoded IPs no Browser)**:
+   - O Frontend no browser NUNCA deve chamar IPs privados ou portas diretas de Kong (ex: \`http://192.168.1.4:{portKong}\`).
+   - O cliente Supabase (\`src/integrations/supabase/client.ts\`) deve utilizar sempre same-origin (\`window.location.origin\` no browser), garantindo funcionamento imediato tanto em rede local (\`http://192.168.1.4:{portProd}\`) como externamente via Cloudflare Tunnel (\`https://dominio.com\`) sem erros de Mixed Content (HTTPS -> HTTP).
+
+2. **Reverse Proxy Integrado no Servidor (\`runner.js\`)**:
+   - O servidor da aplicação (\`runner.js\`) encaminha automaticamente todas as rotas da API Supabase (\`/auth/v1/*\`, \`/rest/v1/*\`, \`/storage/v1/*\`, \`/realtime/v1/*\`) para o gateway Kong interno da stack na rede Docker.
+
+3. **Preservação Estrita da Rota \`/auth\` da SPA**:
+   - A rota \`/auth\` no frontend é a página de login da SPA. O proxy NUNCA deve interceptar \`/auth\` simples; apenas endpoints que começam por \`/auth/v1/*\`.
+
+4. **Higiene de Segredos**:
+   - As variáveis \`SUPABASE_SERVICE_ROLE_KEY\` e \`DATABASE_URL\` pertencem exclusivamente ao servidor (\`.env.server\`). NUNCA as coloques no \`.env\` público do Vite.`,
+    },
     lovable_client: {
       id: "lovable_client",
       filename: "lovable_supabase_client.md",
@@ -4275,7 +4320,7 @@ Atenção: O ficheiro \`src/integrations/supabase/client.server.ts\` é auto-ger
 Se alguma vez fizeres trigger de um build ou notares que o \`client.server.ts\` foi regenerado, garante a seguinte lógica na função \`createSupabaseAdminClient()\`:
 
 \`\`\`typescript
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const SUPABASE_URL = process.env.SUPABASE_URL || (typeof window !== "undefined" && window.location?.origin ? window.location.origin : (process.env.VITE_SUPABASE_URL || "http://localhost:3000"));
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
@@ -6274,45 +6319,77 @@ echo ""
     await writeFileWithSudo(updateScriptFile, updateScriptContent);
     try { await execAsync(`sudo chmod 755 "${updateScriptFile}"`); } catch (e) {}
 
-    // 3.4 Gerar .env, .env.production e .env.staging
+    // 3.4 Gerar .env, .env.production, .env.staging e .env.server (segurança reforçada)
     const envProdContent = `
 PORT=${portProd}
 VITE_PORT=${portProd}
 APP_PORT=${portProd}
-VITE_SUPABASE_URL=http://${hostIp}:${portKongProd}
+# VITE_SUPABASE_URL vazio para assumir automaticamente window.location.origin no browser
+VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
-SUPABASE_URL=http://${hostIp}:${portKongProd}
-SUPABASE_ANON_KEY=${anonKey}
-SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
-DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresProd}/postgres
 `.trim();
 
     const envStagingContent = `
 PORT=${portStaging}
 VITE_PORT=${portStaging}
 APP_PORT=${portStaging}
-VITE_SUPABASE_URL=http://${hostIp}:${portKongStaging}
+# VITE_SUPABASE_URL vazio para assumir automaticamente window.location.origin no browser
+VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=${anonKey}
-SUPABASE_URL=http://${hostIp}:${portKongStaging}
+`.trim();
+
+    const envServerProdContent = `
+PORT=3000
+NODE_ENV=production
+SUPABASE_URL=http://${cleanSlug}-kong-prod:8000
 SUPABASE_ANON_KEY=${anonKey}
 SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
-DATABASE_URL=postgres://postgres:${dbPassword}@${hostIp}:${portPostgresStaging}/postgres
+DATABASE_URL=postgres://postgres:${dbPassword}@${cleanSlug}-postgres-prod:5432/postgres
+`.trim();
+
+    const envServerStagingContent = `
+PORT=3000
+NODE_ENV=staging
+SUPABASE_URL=http://${cleanSlug}-kong-staging:8000
+SUPABASE_ANON_KEY=${anonKey}
+SUPABASE_SERVICE_ROLE_KEY=${serviceKey}
+DATABASE_URL=postgres://postgres:${dbPassword}@${cleanSlug}-postgres-staging:5432/postgres
 `.trim();
 
     await writeFileWithSudo(path.join(targetAppDir, ".env.example"), envProdContent);
     await writeFileWithSudo(path.join(targetAppDir, ".env.production"), envProdContent);
     await writeFileWithSudo(path.join(targetAppDir, ".env"), envProdContent);
     await writeFileWithSudo(path.join(targetAppDir, ".env.staging"), envStagingContent);
+    await writeFileWithSudo(path.join(targetAppDir, ".env.server"), envServerProdContent);
+    await writeFileWithSudo(path.join(targetAppDir, ".env.server.production"), envServerProdContent);
+    await writeFileWithSudo(path.join(targetAppDir, ".env.server.staging"), envServerStagingContent);
 
-    // 3.5 Gerar src/integrations/supabase/client.ts
+    // 3.5 Gerar src/integrations/supabase/client.ts canónico com suporte Dual-Access
     const supabaseClientCode = `
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'http://${hostIp}:${portKongProd}';
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '${anonKey}';
+// Arquitetura Dual-Access: No browser utiliza same-origin (window.location.origin), permitindo
+// funcionamento simultâneo em rede local (192.168.1.4:PORT) e externo (Cloudflare Tunnel) sem Mixed Content.
+// O runner.js do portal faz o proxy das rotas /auth/v1/*, /rest/v1/*, /storage/v1/* para o Kong interno.
+const getSupabaseUrl = (): string => {
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'http://localhost:3000';
+  }
+  return (import.meta.env && import.meta.env.VITE_SUPABASE_URL) || '';
+};
+
+const supabaseUrl = getSupabaseUrl();
+const supabaseKey =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY) ||
+  (typeof process !== 'undefined' && (process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY)) ||
+  '${anonKey}';
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
   },
@@ -6320,7 +6397,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 `.trim();
     await writeFileWithSudo(path.join(targetAppDir, "src", "integrations", "supabase", "client.ts"), supabaseClientCode);
 
-    // 3.6 Gerar .gitignore robusto (protege data/, logs, node_modules)
+    // 3.6 Gerar .gitignore robusto (protege data/, logs, node_modules e segredos)
     const gitignoreContent = `
 # Dados locais e volumes Docker
 data/
@@ -6328,6 +6405,7 @@ data/*
 *.log
 .env.local
 .env*.local
+.env.server*
 
 # Dependências
 node_modules/
@@ -6399,6 +6477,73 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, "http://" + (req.headers.host || "localhost"));
     const cleanPath = decodeURIComponent(url.pathname);
+
+    // 0. Reverse Proxy Transparente para Supabase / Kong (Arquitetura Dual-Access)
+    // Encaminha /auth/v1/*, /rest/v1/*, /storage/v1/*, /realtime/v1/*, /functions/v1/*
+    // IMPORTANTE: /auth (login do frontend SPA) NÃO é interceptado aqui!
+    const isApiProxyRoute =
+      cleanPath.startsWith("/auth/v1/") || cleanPath === "/auth/v1" ||
+      cleanPath.startsWith("/rest/v1/") || cleanPath === "/rest/v1" ||
+      cleanPath.startsWith("/storage/v1/") || cleanPath === "/storage/v1" ||
+      cleanPath.startsWith("/realtime/v1/") || cleanPath === "/realtime/v1" ||
+      cleanPath.startsWith("/functions/v1/") || cleanPath === "/functions/v1";
+
+    if (isApiProxyRoute) {
+      if (req.method === "OPTIONS") {
+        res.writeHead(204, {
+          "Access-Control-Allow-Origin": req.headers.origin || "*",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
+          "Access-Control-Allow-Headers": "Authorization, apikey, Content-Type, Range, Prefer, X-Client-Info, x-upsert",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Max-Age": "86400",
+        });
+        return res.end();
+      }
+
+      const targetUrlStr = process.env.SUPABASE_URL || "http://localhost:8000";
+      let targetUrl;
+      try {
+        targetUrl = new URL(targetUrlStr);
+      } catch (e) {
+        targetUrl = new URL("http://localhost:8000");
+      }
+
+      const proxyHeaders = { ...req.headers };
+      proxyHeaders.host = targetUrl.host;
+      proxyHeaders["x-forwarded-for"] = req.socket.remoteAddress || req.headers["x-forwarded-for"] || "";
+      proxyHeaders["x-forwarded-proto"] = req.headers["x-forwarded-proto"] || "http";
+
+      const outgoing = http.request(
+        {
+          hostname: targetUrl.hostname,
+          port: targetUrl.port || (targetUrl.protocol === "https:" ? 443 : 80),
+          path: req.url,
+          method: req.method,
+          headers: proxyHeaders,
+        },
+        (upstreamRes) => {
+          const respHeaders = { ...upstreamRes.headers };
+          respHeaders["access-control-allow-origin"] = req.headers.origin || "*";
+          respHeaders["access-control-allow-credentials"] = "true";
+          respHeaders["access-control-allow-methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD";
+          respHeaders["access-control-allow-headers"] = "Authorization, apikey, Content-Type, Range, Prefer, X-Client-Info, x-upsert";
+
+          res.writeHead(upstreamRes.statusCode, respHeaders);
+          upstreamRes.pipe(res);
+        }
+      );
+
+      outgoing.on("error", (err) => {
+        console.error("[Runner API Proxy Error]", err.message);
+        if (!res.headersSent) {
+          res.writeHead(502, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Gateway de API temporariamente indisponível", details: err.message }));
+        }
+      });
+
+      req.pipe(outgoing);
+      return;
+    }
 
     // 1. Servir ficheiros estáticos
     const candidateDirs = [publicDir, outputDir, path.join(__dirname, "dist")];
@@ -6495,6 +6640,54 @@ const server = http.createServer(async (req, res) => {
     console.error("[Runner Fatal Error]", err);
     res.writeHead(500, { "Content-Type": "text/plain" });
     res.end("Internal Server Error: " + err.message);
+  }
+});
+
+server.on("upgrade", (req, socket, head) => {
+  try {
+    const url = new URL(req.url, "http://" + (req.headers.host || "localhost"));
+    const cleanPath = decodeURIComponent(url.pathname);
+    if (cleanPath.startsWith("/realtime/v1/") || cleanPath === "/realtime/v1") {
+      const targetUrlStr = process.env.SUPABASE_URL || "http://localhost:8000";
+      let targetUrl;
+      try { targetUrl = new URL(targetUrlStr); } catch (e) { targetUrl = new URL("http://localhost:8000"); }
+
+      const proxyReq = http.request({
+        hostname: targetUrl.hostname,
+        port: targetUrl.port || (targetUrl.protocol === "https:" ? 443 : 80),
+        path: req.url,
+        method: req.method,
+        headers: {
+          ...req.headers,
+          host: targetUrl.host,
+        },
+      });
+
+      proxyReq.on("upgrade", (upstreamRes, upstreamSocket, upstreamHead) => {
+        socket.write(
+          \`HTTP/1.1 101 Switching Protocols\\r\\n\` +
+            Object.entries(upstreamRes.headers)
+              .map(([k, v]) => \`\${k}: \${v}\`)
+              .join("\\r\\n") +
+            \`\\r\\n\\r\\n\`
+        );
+        if (upstreamHead && upstreamHead.length) socket.write(upstreamHead);
+        if (head && head.length) upstreamSocket.write(head);
+        upstreamSocket.pipe(socket);
+        socket.pipe(upstreamSocket);
+      });
+
+      proxyReq.on("error", (err) => {
+        console.error("[Runner WebSocket Proxy Error]", err.message);
+        socket.destroy();
+      });
+
+      proxyReq.end();
+    } else {
+      socket.destroy();
+    }
+  } catch (err) {
+    socket.destroy();
   }
 });
 
@@ -6877,11 +7070,12 @@ services:
       NITRO_PORT: 3000
       NITRO_HOST: "0.0.0.0"
       NODE_ENV: production
-      VITE_SUPABASE_URL: http://${hostIp}:${portKongProd}
+      VITE_SUPABASE_URL: ""
       VITE_SUPABASE_PUBLISHABLE_KEY: ${anonKey}
       SUPABASE_URL: http://${cleanSlug}-kong-prod:8000
       SUPABASE_ANON_KEY: ${anonKey}
       SUPABASE_SERVICE_KEY: ${serviceKey}
+      SUPABASE_SERVICE_ROLE_KEY: ${serviceKey}
     command: ["node", "runner.js"]
     ports:
       - "${portProd}:3000"
@@ -7085,11 +7279,12 @@ services:
       NITRO_PORT: 3000
       NITRO_HOST: "0.0.0.0"
       NODE_ENV: staging
-      VITE_SUPABASE_URL: http://${hostIp}:${portKongStaging}
+      VITE_SUPABASE_URL: ""
       VITE_SUPABASE_PUBLISHABLE_KEY: ${anonKey}
       SUPABASE_URL: http://${cleanSlug}-kong-staging:8000
       SUPABASE_ANON_KEY: ${anonKey}
       SUPABASE_SERVICE_KEY: ${serviceKey}
+      SUPABASE_SERVICE_ROLE_KEY: ${serviceKey}
     command: ["node", "runner.js"]
     ports:
       - "${portStaging}:3000"
