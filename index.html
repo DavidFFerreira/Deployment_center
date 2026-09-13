@@ -5256,6 +5256,9 @@ A porta principal da aplicação em Produção Oficial é ${pProd} (e em Testes/
 O Gateway Kong de Supabase está ativo na porta ${pKong}, o PostgreSQL na porta ${pPostgres} e o Supabase Studio na porta ${pStudio}.
 Todas as tabelas e esquemas foram provisionados no PostgreSQL dos contentores Docker (${payload.slug}-postgres-staging e ${payload.slug}-postgres-prod).
 Segue estritamente a zero-mock-policy: toda a persistência tem de ser real no Supabase através de src/integrations/supabase/client.ts e os uploads nos Storage Buckets.
+IMPORTANTE - ARQUITETURA DUAL-ACCESS (LOCAL & TÚNEL EXTERNO):
+O frontend utiliza chamadas same-origin relativas (window.location.origin) para autenticação (/auth/v1/*) e dados (/rest/v1/*, /storage/v1/*), que são transparentemente encaminhadas pelo runner.js para o Kong interno. NUNCA coloques URLs fixas com IPs privados no cliente.
+REGRA CRÍTICA PARA STORAGE E IMAGENS: NUNCA guardes URLs absolutas com IPs locais na base de dados (ex: avatar_url, photo_url, logo_url). Utiliza SEMPRE caminhos relativos (/storage/v1/object/public/...) e o helper toPublicStorageUrl() de src/lib/storage.utils.ts para que imagens, fotos e documentos funcionem perfeitamente tanto no IP local como externamente via Cloudflare Tunnel sem Mixed Content nem erros de rede.
 Garante Dark/Light mode com seletor no Header, internacionalização (pt-PT padrão) e conformidade de rodapé.
 Vamos começar a implementar o primeiro módulo do plano.`;
 

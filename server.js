@@ -1713,8 +1713,9 @@ A stack deste projeto corre de forma 100% isolada no servidor Linux, utilizando 
 > **DIRETIVA CRÍTICA DUAL-ACCESS (LOCAL & CLOUDFLARE TUNNEL):**  
 > 1. **No Browser**: O cliente Supabase usa sempre **same-origin** (\`window.location.origin\`). Desta forma, a aplicação funciona simultaneamente em rede local (\`http://${hostIp}:${portProd}\`) e externamente via Cloudflare Tunnel (\`https://seu-dominio.tld\`) sem erros de *"Failed to fetch"* nem *"Mixed Content"*.  
 > 2. **No Servidor / Container Portal (\`runner.js\`)**: O servidor Node do portal inclui um reverse proxy transparente que encaminha as rotas \`/auth/v1/*\`, \`/rest/v1/*\`, \`/storage/v1/*\` e \`/realtime/v1/*\` diretamente para o Kong interno (\`http://${cleanSlug}-kong-prod:8000\`).  
-> 3. **Rota \`/auth\` da SPA**: A rota \`/auth\` no frontend é a página de login React/Vite. O proxy NUNCA intercepta \`/auth\`, apenas \`/auth/v1/*\`.  
-> 4. **Segurança de Chaves**: Segredos de backend (\`SUPABASE_SERVICE_ROLE_KEY\`, \`DATABASE_URL\`) NUNCA devem ser colocados no \`.env\` público do Vite para não serem expostos no bundle do cliente.
+> 3. **Ficheiros e Imagens (Storage Dual-Access)**: NUNCA graves URLs absolutas com IPs locais na base de dados (ex: \`http://192.168.1.4:...\` ou \`http://kong:8000/...\`). Grava sempre caminhos relativos (\`/storage/v1/object/public/<bucket>/<ficheiro>\`) e renderiza imagens com \`toPublicStorageUrl(item.image_url)\` de \`src/lib/storage.utils.ts\` para garantir que ficheiros abrem sem falha em IP local e via domínio externo.  
+> 4. **Rota \`/auth\` da SPA**: A rota \`/auth\` no frontend é a página de login React/Vite. O proxy NUNCA intercepta \`/auth\`, apenas \`/auth/v1/*\`.  
+> 5. **Segurança de Chaves**: Segredos de backend (\`SUPABASE_SERVICE_ROLE_KEY\`, \`DATABASE_URL\`) NUNCA devem ser colocados no \`.env\` público do Vite para não serem expostos no bundle do cliente.
 
 \`\`\`env
 # Frontend Público (.env.production / .env / .env.staging)
@@ -1885,6 +1886,11 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 
 ## 🪣 4. Guia de Gestão de Storage Buckets (Documentos, Fotos, PDFs)
 
+> ⚠️ **REGRA CRÍTICA DUAL-ACCESS PARA IMAGENS E FICHEIROS:**
+> **NUNCA** graves URLs absolutas com IPs privados ou portas na base de dados (ex: \`http://192.168.1.4:...\` ou \`http://kong:8000/...\`).
+> Se gravares uma URL com IP local, as imagens e ficheiros **falharão com erro de rede ou Mixed Content** quando acedidos via domínio externo / Túnel Cloudflare.
+> Grava **SEMPRE** o caminho relativo: \`/storage/v1/object/public/<bucket>/<ficheiro>\` através do helper \`getRelativePublicUrl(bucket, path)\` ou passa as URLs na UI por \`toPublicStorageUrl(item.image_url)\` de \`@/lib/storage.utils\`.
+
 ### A. Criar Buckets via SQL no PostgreSQL
 \`\`\`sql
 -- Criar bucket 'documentos' ou 'ficheiros' no schema storage
@@ -1899,9 +1905,10 @@ CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = '
 CREATE POLICY "Allow Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'documentos');
 \`\`\`
 
-### B. Upload de Ficheiro no Frontend (React / TypeScript)
+### B. Upload de Ficheiro no Frontend & Obtenção de URL Dual-Access
 \`\`\`typescript
 import { supabase } from '@/integrations/supabase/client';
+import { getRelativePublicUrl } from '@/lib/storage.utils';
 
 export async function uploadDocument(bucket: string, filePath: string, file: File) {
   const { data, error } = await supabase.storage
@@ -1909,19 +1916,44 @@ export async function uploadDocument(bucket: string, filePath: string, file: Fil
     .upload(filePath, file, { upsert: true });
 
   if (error) throw error;
-  return data;
+
+  // Devolve caminho relativo portátil (ex: "/storage/v1/object/public/documentos/relatorio.pdf")
+  // Este valor é 100% seguro para guardar na base de dados sem prender o registo ao IP local!
+  return getRelativePublicUrl(bucket, data.path);
 }
 \`\`\`
 
-### C. Obter URL Público do Ficheiro
+### C. Renderizar Imagens no Frontend com Normalização Automática
+\`\`\`tsx
+import { toPublicStorageUrl } from '@/lib/storage.utils';
+
+export function UserAvatar({ url, name }: { url?: string; name: string }) {
+  // toPublicStorageUrl normaliza qualquer URL antiga (com IP local, porta ou hostname Docker)
+  // para o domínio/origem atual em que o utilizador está a navegar.
+  return (
+    <img
+      src={toPublicStorageUrl(url, 'avatars')}
+      alt={name}
+      className="w-10 h-10 rounded-full object-cover"
+      loading="lazy"
+    />
+  );
+}
+\`\`\`
+
+### D. Ficheiros em Buckets Privados (Documentos, Faturas, PDFs)
 \`\`\`typescript
 import { supabase } from '@/integrations/supabase/client';
+import { toSignedStorageUrl } from '@/lib/storage.utils';
 
-export function getPublicUrl(bucket: string, filePath: string) {
-  const { data } = supabase.storage
+export async function getDocumentDownloadUrl(bucket: string, filePath: string) {
+  const { data, error } = await supabase.storage
     .from(bucket)
-    .getPublicUrl(filePath);
-  return data.publicUrl;
+    .createSignedUrl(filePath, 3600); // 1 hora de validade
+
+  if (error) throw error;
+  // toSignedStorageUrl remove hostnames internos do Docker e devolve URL relativa funcional
+  return toSignedStorageUrl(data.signedUrl);
 }
 \`\`\`
 
@@ -1961,7 +1993,8 @@ O Gateway Kong de Supabase está ativo na porta ${portKongProd} (Staging: ${port
 Todas as tabelas e esquemas foram provisionados no PostgreSQL dos contentores Docker (${cleanSlug}-postgres-staging e ${cleanSlug}-postgres-prod).
 Segue estritamente a zero-mock-policy: toda a persistência tem de ser real no Supabase através de src/integrations/supabase/client.ts e os uploads nos Storage Buckets.
 IMPORTANTE - ARQUITETURA DUAL-ACCESS (LOCAL & TÚNEL EXTERNO):
-O frontend utiliza chamadas same-origin relativas (window.location.origin) para autenticação (/auth/v1/*) e dados (/rest/v1/*, /storage/v1/*), que são transparentemente encaminhadas pelo runner.js para o Kong interno. NUNCA coloques URLs fixas com IPs privados (ex: http://${settings.server_host_ip || '192.168.1.4'}:${portKongProd}) no cliente de frontend, garantindo funcionamento simultâneo em rede local e externamente via Cloudflare Tunnel sem erros de 'Failed to fetch' ou Mixed Content.
+O frontend utiliza chamadas same-origin relativas (window.location.origin) para autenticação (/auth/v1/*) e dados (/rest/v1/*, /storage/v1/*), que são transparentemente encaminhadas pelo runner.js para o Kong interno. NUNCA coloques URLs fixas com IPs privados (ex: http://${settings.server_host_ip || '192.168.1.4'}:${portKongProd}) no cliente de frontend.
+REGRA CRÍTICA PARA STORAGE E IMAGENS: NUNCA guardes URLs absolutas com IPs locais na base de dados (ex: avatar_url, photo_url, logo_url). Utiliza SEMPRE caminhos relativos (/storage/v1/object/public/...) e o helper toPublicStorageUrl() de src/lib/storage.utils.ts para que imagens, fotos e documentos funcionem perfeitamente tanto no IP local como externamente via Cloudflare Tunnel sem Mixed Content nem erros de rede.
 A rota /auth no frontend é a página de login SPA e nunca deve ser confundida com os endpoints de API /auth/v1/*.
 Garante Dark/Light mode com seletor no Header, internacionalização (pt-PT padrão) e conformidade de rodapé.
 Vamos começar a implementar o primeiro módulo do plano.`;
@@ -4330,8 +4363,9 @@ Ao longo do desenvolvimento deste projeto, deves estritamente obedecer às segui
    - **NUNCA utilizes** chaves de serviço (\`SUPABASE_SERVICE_ROLE_KEY\`) em ficheiros de componentes públicos do frontend.
    - Para leitura de imagens e dados públicos, usa SEMPRE o cliente padrão do Supabase (\`supabase\`) com a chave anónima (\`VITE_SUPABASE_PUBLISHABLE_KEY\`).
 
-3. **Carregamento de Imagens e Ativos de Storage**:
-   - Os caminhos guardados na base de dados para ficheiros (ex: \`documentos/123.pdf\`) são relativos. Usa sempre \`supabase.storage.from('bucket').getPublicUrl(caminho)\` para gerar URLs absolutos válidos.
+3. **Carregamento e Persistência de Imagens e Ficheiros de Storage**:
+   - Os caminhos guardados na base de dados (ex: \`avatar_url\`, \`photo_url\`, \`logo_url\`) devem ser SEMPRE caminhos relativos (\`/storage/v1/object/public/<bucket>/<ficheiro>\`). NUNCA graves URLs absolutas com IPs locais ou portas na base de dados.
+   - Na renderização de imagens e links de download, passa sempre os valores pelo utilitário canónico \`toPublicStorageUrl(url)\` de \`@/lib/storage.utils\` para garantir funcionamento simultâneo em rede local e via Cloudflare Tunnel.
 
 4. **Respeito Absoluto por Valores Enum e Check Constraints**:
    - Nunca alteres strings literais ou valores enviados nos payloads do Frontend (ex: estados de pedidos, roles, tipos) sem teres a certeza absoluta de que esses valores respeitam as Check Constraints e Enums definidos no PostgreSQL.
@@ -4364,7 +4398,12 @@ Ao longo do desenvolvimento deste projeto, deves estritamente obedecer às segui
    - A rota \`/auth\` no frontend é a página de login da SPA. O proxy NUNCA deve interceptar \`/auth\` simples; apenas endpoints que começam por \`/auth/v1/*\`.
 
 4. **Higiene de Segredos**:
-   - As variáveis \`SUPABASE_SERVICE_ROLE_KEY\` e \`DATABASE_URL\` pertencem exclusivamente ao servidor (\`.env.server\`). NUNCA as coloques no \`.env\` público do Vite.`,
+   - As variáveis \`SUPABASE_SERVICE_ROLE_KEY\` e \`DATABASE_URL\` pertencem exclusivamente ao servidor (\`.env.server\`). NUNCA as coloques no \`.env\` público do Vite.
+
+5. **Armazenamento de Ficheiros & Imagens (Storage Dual-Access)**:
+   - NUNCA guardes URLs absolutas com IPs privados (\`http://192.168.1.4:...\`) ou portas na base de dados.
+   - Utiliza sempre caminhos relativos portáteis (\`/storage/v1/object/public/<bucket>/<ficheiro>\`) gerados por \`getRelativePublicUrl()\` e renderiza imagens com \`toPublicStorageUrl()\` de \`@/lib/storage.utils\`.
+   - Desta forma, todas as imagens, fotos e anexos carregam sem falha quer no IP local sem internet quer via Cloudflare Tunnel externo sem erros de Mixed Content.`,
     },
     lovable_client: {
       id: "lovable_client",
@@ -6453,8 +6492,77 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
     autoRefreshToken: true,
   },
 });
+
+/**
+ * Helper canónico para URLs relativas de ficheiros públicos de Storage.
+ * Garante que a URL guardada na base de dados é agnóstica de domínio e funciona tanto em rede local como via Túnel Cloudflare.
+ */
+export const getStoragePublicUrl = (bucket: string, path: string): string => {
+  const clean = path.replace(/^\\/+/, '');
+  return \`/storage/v1/object/public/\${bucket}/\${clean}\`;
+};
 `.trim();
     await writeFileWithSudo(path.join(targetAppDir, "src", "integrations", "supabase", "client.ts"), supabaseClientCode);
+
+    // 3.5.1 Gerar src/lib/storage.utils.ts canónico para normalização e visualização de imagens/ficheiros
+    const storageUtilsCode = `
+/**
+ * Utilitário Canónico de Storage para Arquitetura Dual-Access
+ * 
+ * Garante que imagens, documentos e ficheiros funcionam perfeitamente tanto em
+ * rede local (http://192.168.1.4:PORT) como via Túnel Cloudflare (https://dominio.com),
+ * prevenindo erros de "Mixed Content", links quebrados ou dependência de IPs privados.
+ */
+
+/**
+ * Normaliza qualquer URL de Storage (seja com IP local, hostname Docker interno como kong:8000,
+ * ou domínio anterior) para um caminho relativo canónico (/storage/v1/object/public/...).
+ */
+export function toPublicStorageUrl(urlOrPath: string | null | undefined, bucket?: string): string {
+  if (!urlOrPath) return "";
+  
+  if (urlOrPath.startsWith("data:") || urlOrPath.startsWith("blob:")) {
+    return urlOrPath;
+  }
+
+  const storageIdx = urlOrPath.indexOf("/storage/v1/");
+  if (storageIdx !== -1) {
+    return urlOrPath.substring(storageIdx);
+  }
+
+  if (bucket) {
+    const cleanPath = urlOrPath.replace(/^\\/+/, "");
+    return \`/storage/v1/object/public/\${bucket}/\${cleanPath}\`;
+  }
+
+  return urlOrPath;
+}
+
+export const toPublicSignedUrl = toPublicStorageUrl;
+
+/**
+ * Normaliza URLs assinadas (signed URLs) geradas pelo servidor/SSR para caminhos relativos,
+ * removendo hostnames internos do Docker (ex: http://kong:8000) que o browser não consegue resolver.
+ */
+export function toSignedStorageUrl(signedUrl: string | null | undefined): string {
+  if (!signedUrl) return "";
+  const signIdx = signedUrl.indexOf("/storage/v1/object/sign/");
+  if (signIdx !== -1) {
+    return signedUrl.substring(signIdx);
+  }
+  return toPublicStorageUrl(signedUrl);
+}
+
+/**
+ * Devolve o caminho relativo canónico para gravação na base de dados.
+ * NUNCA deves gravar URLs absolutas com IPs privados ou domínios na base de dados!
+ */
+export function getRelativePublicUrl(bucket: string, filePath: string): string {
+  const cleanPath = filePath.replace(/^\\/+/, "");
+  return \`/storage/v1/object/public/\${bucket}/\${cleanPath}\`;
+}
+`.trim();
+    await writeFileWithSudo(path.join(targetAppDir, "src", "lib", "storage.utils.ts"), storageUtilsCode);
 
     // 3.6 Gerar .gitignore robusto (protege data/, logs, node_modules e segredos)
     const gitignoreContent = `
@@ -6481,6 +6589,7 @@ Thumbs.db
       { path: "ARCHITECTURE.md", content: aiContextContent, msg: "docs: add architecture context guide for AI assistants" },
       { path: "SUPABASE_INTEGRATION_GUIDE.md", content: supabaseGuideContent, msg: "docs: add supabase and storage integration guide with credentials" },
       { path: "src/integrations/supabase/client.ts", content: supabaseClientCode, msg: "feat: add preconfigured supabase client" },
+      { path: "src/lib/storage.utils.ts", content: storageUtilsCode, msg: "feat: add dual-access storage utilities" },
       { path: "scripts/update.sh", content: updateScriptContent, msg: "ci: add update.sh automated deployment script" },
     ];
 
@@ -6586,6 +6695,14 @@ const server = http.createServer(async (req, res) => {
           respHeaders["access-control-allow-credentials"] = "true";
           respHeaders["access-control-allow-methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD";
           respHeaders["access-control-allow-headers"] = "Authorization, apikey, Content-Type, Range, Prefer, X-Client-Info, x-upsert";
+
+          // Se o upstream devolver redirect (301/302/307), reescrever location para caminho relativo
+          if (respHeaders.location) {
+            const locStorageIdx = respHeaders.location.indexOf("/storage/v1/");
+            if (locStorageIdx !== -1) {
+              respHeaders.location = respHeaders.location.substring(locStorageIdx);
+            }
+          }
 
           res.writeHead(upstreamRes.statusCode, respHeaders);
           upstreamRes.pipe(res);
