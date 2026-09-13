@@ -95,8 +95,14 @@ if ! docker compose version &>/dev/null; then
   COMPOSE_CMD="docker-compose"
 fi
 
-echo "🐳 A reconstruir e reiniciar o contentor do Deployment Center..."
-$COMPOSE_CMD up -d --build --force-recreate deploy-center
+echo "🐳 A sincronizar ficheiros e a reiniciar o contentor do Deployment Center..."
+# Garantir que todo o código e dependências locais (incluindo a pasta lib/) são copiados integralmente
+if docker ps -a --format '{{.Names}}' | grep -q '^universal-deploy-center$'; then
+  docker cp "$APP_DIR/." universal-deploy-center:/app/ 2>/dev/null || true
+  docker restart universal-deploy-center 2>/dev/null || true
+else
+  $COMPOSE_CMD up -d --build --force-recreate deploy-center
+fi
 
 PORT=$(grep -E '^PORT=' "$APP_DIR/.env" 2>/dev/null | cut -d '=' -f2 || echo "50000")
 SERVER_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || echo "127.0.0.1")
