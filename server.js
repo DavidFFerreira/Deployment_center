@@ -2589,7 +2589,31 @@ async function handleDeploy(req, res) {
             if (!isApplied) {
               const sqlFile = path.join(migrationsDir, f);
               emitLog(`[SQL Migration] A executar: ${f} em ${targetPg} (${environment})...`);
-              await runCommandStreaming(`docker exec -i ${targetPg} psql -v ON_ERROR_STOP=1 -U postgres -d postgres < "${sqlFile}" 2>&1`, targetDir, (l) => emitLog(`[SQL] ${l}`));
+
+              let execFile = sqlFile;
+              let tempCleanDir = null;
+              try {
+                if (typeof fs.readFileSync === "function" && typeof fs.writeFileSync === "function") {
+                  let rawSql = "";
+                  try { rawSql = fs.readFileSync(sqlFile, "utf-8"); } catch (e) {}
+                  if (rawSql && /CREATE\s+POLICY/i.test(rawSql)) {
+                    rawSql = rawSql.replace(
+                      /CREATE\s+POLICY\s+("?[a-zA-Z0-9_\- ]+"?)\s+ON\s+([a-zA-Z0-9_\-.]+)/gi,
+                      (match, policyName, tableName) => `DROP POLICY IF EXISTS ${policyName} ON ${tableName}; ${match}`
+                    );
+                    tempCleanDir = path.join(os.tmpdir(), `dc_mig_${Date.now()}_${Math.random().toString(36).slice(2)}`);
+                    if (typeof fs.mkdirSync === "function") fs.mkdirSync(tempCleanDir, { recursive: true });
+                    execFile = path.join(tempCleanDir, f);
+                    fs.writeFileSync(execFile, rawSql, "utf-8");
+                  }
+                }
+                await runCommandStreaming(`docker exec -i ${targetPg} psql -v ON_ERROR_STOP=1 -U postgres -d postgres < "${execFile}" 2>&1`, targetDir, (l) => emitLog(`[SQL] ${l}`));
+              } finally {
+                if (tempCleanDir && typeof fs.rmSync === "function") {
+                  try { fs.rmSync(tempCleanDir, { recursive: true, force: true }); } catch (e) {}
+                }
+              }
+
               await runCommandStreaming(`docker exec -i ${targetPg} psql -U postgres -d postgres -c "INSERT INTO supabase_migrations.schema_migrations (version) VALUES ('${version}') ON CONFLICT DO NOTHING;" 2>&1`, targetDir);
               appliedSet.add(version);
               appliedSet.add(f);
