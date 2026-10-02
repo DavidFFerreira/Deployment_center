@@ -2495,20 +2495,31 @@ async function handleDeploy(req, res) {
 
     if (fs.existsSync(targetDir)) {
       const activeToken = getActiveGithubToken();
-      const authRemote = `https://github.com/${project.repoOwner}/${project.repoName}.git`;
-      const gitAuth = activeToken ? `git -c ${shellQuote("http.extraHeader=Authorization: Basic " + Buffer.from("x-access-token:" + activeToken).toString("base64"))}` : "git";
+      const publicRemote = `https://github.com/${project.repoOwner}/${project.repoName}.git`;
+      const authRemote = activeToken
+        ? `https://${encodeURIComponent(activeToken)}@github.com/${project.repoOwner}/${project.repoName}.git`
+        : publicRemote;
       const targetFolder = environment === "production" ? ".output_prod" : ".output_staging";
 
       // 1. Garantir que a pasta do projeto no servidor é um repositório git inicializado
       if (!fs.existsSync(path.join(targetDir, ".git"))) {
         emitLog("A inicializar repositório Git local...");
-        await runCommandStreaming(`git init && git remote add origin ${shellQuote(authRemote)}`, targetDir, (l) => emitLog(l));
+        await runCommandStreaming(`git init && git remote add origin ${shellQuote(publicRemote)}`, targetDir, (l) => emitLog(l));
       }
 
       // 2. Fetch e reset preservando ficheiros de infraestrutura e dados
       emitLog(`[1/4] A contactar o GitHub e a transferir dados da versão ${shortCommit}...`, "A obter dados do GitHub...");
       await runCommandStreaming(`git remote set-url origin ${shellQuote(authRemote)}`, targetDir);
-      await runCommandStreaming(`${gitAuth} fetch origin`, targetDir, (l) => emitLog(`[Git] ${l}`));
+      try {
+        await runCommandStreaming(`git fetch origin`, targetDir, (l) => {
+          const sanitized = activeToken ? l.replaceAll(activeToken, "******") : l;
+          emitLog(`[Git] ${sanitized}`);
+        });
+      } finally {
+        try {
+          await runCommandStreaming(`git remote set-url origin ${shellQuote(publicRemote)}`, targetDir);
+        } catch (_) {}
+      }
       const resolved = await runCommandStreaming(`git rev-parse --verify ${commit_hash}^{commit}`, targetDir);
       commit_hash = resolved.stdout.trim();
       if (!/^[a-f0-9]{40}$/i.test(commit_hash)) throw new Error("Não foi possível confirmar o commit.");
