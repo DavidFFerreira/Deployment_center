@@ -2509,8 +2509,10 @@ async function handleDeploy(req, res) {
 
       // 2. Fetch e reset preservando ficheiros de infraestrutura e dados
       emitLog(`[1/4] A contactar o GitHub e a transferir dados da versão ${shortCommit}...`, "A obter dados do GitHub...");
+      emitLog(`[Git] A configurar remote origin...`);
       await runCommandStreaming(`git remote set-url origin ${shellQuote(authRemote)}`, targetDir);
       try {
+        emitLog(`[Git] A transferir dados do repositório remoto (git fetch origin)...`);
         await runCommandStreaming(`git fetch origin`, targetDir, (l) => {
           const sanitized = activeToken ? l.replaceAll(activeToken, "******") : l;
           emitLog(`[Git] ${sanitized}`);
@@ -2520,6 +2522,7 @@ async function handleDeploy(req, res) {
           await runCommandStreaming(`git remote set-url origin ${shellQuote(publicRemote)}`, targetDir);
         } catch (_) {}
       }
+      emitLog(`[Git] A validar commit ${shortCommit}...`);
       const resolved = await runCommandStreaming(`git rev-parse --verify ${commit_hash}^{commit}`, targetDir);
       commit_hash = resolved.stdout.trim();
       if (!/^[a-f0-9]{40}$/i.test(commit_hash)) throw new Error("Não foi possível confirmar o commit.");
@@ -2755,7 +2758,9 @@ async function handleDeploy(req, res) {
     }
   } catch (err) {
     const rawToken = getActiveGithubToken();
-    const details = [err.message, err.stderr, err.stdout].filter(Boolean).join(" | ").trim();
+    let details = err.message || String(err);
+    if (err.stderr) details += ` | Stderr: ${err.stderr.trim()}`;
+    if (err.stdout) details += ` | Stdout: ${err.stdout.trim()}`;
     const sanitizedErr = rawToken ? details.replaceAll(rawToken, "******") : details;
     emitLog(`❌ Erro crítico no deploy: ${sanitizedErr}`);
     if (buildTransaction) {
