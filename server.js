@@ -364,8 +364,30 @@ const DEFAULT_PROJECTS = [
   },
 ];
 
+const IGNORED_PROJECT_IDS = new Set([
+  "deployment-center",
+  "deploy-center",
+  "hyperhdr",
+  "ombi",
+  "portainer",
+  "dockge",
+  "qbittorrent",
+  "teslamate",
+  "nginx-proxy-manager",
+  "cloudflared",
+  "jackett",
+  "sonarr",
+  "radarr",
+  "bazarr",
+  "mosquitto",
+  "glances",
+  "xteve",
+  "govee2mqtt",
+]);
+
 function isDeployCenterProject(projectPath, dirName) {
-  if (dirName === "suavit-portal" || dirName === "app-portal" || dirName === "teste" || dirName === "fitmaster-pro") return true;
+  if (IGNORED_PROJECT_IDS.has(dirName.toLowerCase())) return false;
+  if (dirName === "suavit-portal" || dirName === "app-portal" || dirName === "teste" || dirName === "fitmaster-pro" || dirName === "gymgest" || dirName === "portal-procurment-valerio") return true;
   if (!projectPath || !fs.existsSync(projectPath)) return false;
 
   // 1. Ficheiros característicos gerados obrigatoriamente pelo Deployment Center
@@ -394,15 +416,15 @@ function isDeployCenterProject(projectPath, dirName) {
     } catch (e) {}
   }
 
-  // 3. Verificação de contentores ativos associados ao nome
-  let hasRunningContainers = false;
+  // 3. Contentores ativos característicos do Deployment Center (portal ou postgres)
+  let hasDeployContainers = false;
   try {
     const { execSync } = child_process;
-    const out = execSync(`docker ps --filter "name=${dirName}" --format "{{.Names}}" 2>/dev/null`, { encoding: "utf-8" });
-    if (out && out.trim().length > 0) hasRunningContainers = true;
+    const out = execSync(`docker ps --filter "name=${dirName}-portal" --filter "name=${dirName}-postgres" --format "{{.Names}}" 2>/dev/null`, { encoding: "utf-8" });
+    if (out && out.trim().length > 0) hasDeployContainers = true;
   } catch (e) {}
 
-  return hasKongConfig || hasMarker || hasComposeStructure || hasRunningContainers;
+  return hasKongConfig || hasMarker || hasComposeStructure || hasDeployContainers;
 }
 
 function autoDiscoverProjects(baseList = []) {
@@ -449,7 +471,7 @@ function autoDiscoverProjects(baseList = []) {
       for (const sub of subdirs) {
         if (!sub.isDirectory()) continue;
         const dirName = sub.name;
-        if (dirName === "deployment-center" || dirName === "deploy-center" || dirName.startsWith(".") || getDeletedProjects().has(dirName)) continue;
+        if (dirName === "deployment-center" || dirName === "deploy-center" || dirName.startsWith(".") || getDeletedProjects().has(dirName) || IGNORED_PROJECT_IDS.has(dirName.toLowerCase())) continue;
 
         const projectPath = path.join(appsDir, dirName);
         if (!isDeployCenterProject(projectPath, dirName)) continue;
@@ -551,7 +573,7 @@ function getProjects() {
   try {
     if (fs.existsSync(PROJECTS_FILE)) {
       const data = JSON.parse(fs.readFileSync(PROJECTS_FILE, "utf-8"));
-      if (Array.isArray(data)) list = data.filter((p) => p && p.id && !deletedSet.has(p.id));
+      if (Array.isArray(data)) list = data.filter((p) => p && p.id && !deletedSet.has(p.id) && !IGNORED_PROJECT_IDS.has(p.id.toLowerCase()));
     }
   } catch (e) {}
 
@@ -562,7 +584,7 @@ function getProjects() {
         const legacyData = JSON.parse(fs.readFileSync(legacyPath, "utf-8"));
         if (Array.isArray(legacyData)) {
           for (const item of legacyData) {
-            if (item && item.id && !deletedSet.has(item.id) && !list.some((p) => p.id === item.id)) {
+            if (item && item.id && !deletedSet.has(item.id) && !IGNORED_PROJECT_IDS.has(item.id.toLowerCase()) && !list.some((p) => p.id === item.id)) {
               list.push(item);
             }
           }
@@ -572,11 +594,11 @@ function getProjects() {
   }
 
   if (list.length === 0) {
-    list = DEFAULT_PROJECTS.filter((p) => !deletedSet.has(p.id));
+    list = DEFAULT_PROJECTS.filter((p) => !deletedSet.has(p.id) && !IGNORED_PROJECT_IDS.has(p.id.toLowerCase()));
   }
 
   // Executar auto-descoberta para adicionar novas stacks encontradas no disco
-  const discovered = autoDiscoverProjects(list).filter((p) => p && p.id && !deletedSet.has(p.id));
+  const discovered = autoDiscoverProjects(list).filter((p) => p && p.id && !deletedSet.has(p.id) && !IGNORED_PROJECT_IDS.has(p.id.toLowerCase()));
 
   // Ordenar para garantir que suavit-portal fique como stack principal se existir
   discovered.sort((a, b) => {
