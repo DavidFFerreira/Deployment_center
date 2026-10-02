@@ -2468,7 +2468,8 @@ async function handleDeploy(req, res) {
     const targetService = environment === "production" ? project.production.containerName : project.staging.containerName;
     const shortCommit = commit_hash.slice(0, 7);
 
-    emitLog(`🚀 A iniciar processo de publicação da versão ${shortCommit} no ambiente ${environment.toUpperCase()}...`, "A preparar publicação...");
+    const initialTargetPort = environment === "production" ? (project.production?.port || 58100) : (project.staging?.port || 58101);
+    emitLog(`🚀 A iniciar processo de publicação de [${project.name || project.id}] v${shortCommit} no ambiente ${environment.toUpperCase()} (Porta :${initialTargetPort})...`, "A preparar publicação...");
 
     if (fs.existsSync(targetDir)) {
       const activeToken = getActiveGithubToken();
@@ -2603,7 +2604,21 @@ async function handleDeploy(req, res) {
       commitsCache.delete(project.id);
 
       // Verificação de Healthcheck
-      const targetPort = environment === "production" ? (project.production?.port || 58100) : (project.staging?.port || 58101);
+      let targetPort = environment === "production" ? (project.production?.port || 58100) : (project.staging?.port || 58101);
+      try {
+        const composeBase = ['compose.yaml', 'compose.yml', 'docker-compose.yml', 'docker-compose.yaml'].map(f => path.join(targetDir, f)).find(f => fs.existsSync(f));
+        if (composeBase) {
+          const compContent = fs.readFileSync(composeBase, 'utf-8');
+          const svcMatch = compContent.match(new RegExp(`${targetService}[\\s\\S]*?ports:[\\s\\S]*?["']?(\\d{5}):(?:3000|80|8080)["']?`, 'i'));
+          if (svcMatch && svcMatch[1]) {
+            const detectedPort = parseInt(svcMatch[1], 10);
+            if (detectedPort && detectedPort !== targetPort) {
+              emitLog(`ℹ️ Porta ajustada dinamicamente a partir do docker-compose.yml: :${detectedPort} (configurada: :${targetPort})`);
+              targetPort = detectedPort;
+            }
+          }
+        }
+      } catch (composePortErr) {}
       emitLog(`🩺 A verificar disponibilidade HTTP na porta :${targetPort}...`);
       let healthy = false;
       for (let i = 1; i <= 6; i++) {
