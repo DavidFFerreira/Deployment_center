@@ -2754,7 +2754,10 @@ async function handleDeploy(req, res) {
       res.json({ ok: true, record, logs: fullLogs.join("\n") });
     }
   } catch (err) {
-    emitLog(`❌ Erro crítico no deploy: ${err.message}`);
+    const rawToken = getActiveGithubToken();
+    const details = [err.message, err.stderr, err.stdout].filter(Boolean).join(" | ").trim();
+    const sanitizedErr = rawToken ? details.replaceAll(rawToken, "******") : details;
+    emitLog(`❌ Erro crítico no deploy: ${sanitizedErr}`);
     if (buildTransaction) {
       try {
         buildTransaction.rollback();
