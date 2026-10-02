@@ -2650,7 +2650,8 @@ async function handleDeploy(req, res) {
           emitLog(`✓ Schema cache recarregado com sucesso.`);
         }
       } catch (sqlErr) {
-        throw new Error(`Falha nas migrações: ${sqlErr.message}`);
+        const details = [sqlErr.message, sqlErr.stderr, sqlErr.stdout].filter(Boolean).join(" | ").trim();
+        throw new Error(`Falha nas migrações: ${details}`);
       }
 
       // 4. Reiniciar contentor da aplicação com recriação forçada
