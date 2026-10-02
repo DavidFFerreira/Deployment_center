@@ -5376,8 +5376,12 @@ app.get("/api/projects/check-prefix", requireAuth, async (req, res) => {
   });
 });
 
-async function ensureSupabaseStackHealthy(cleanSlug, targetAppDir, dbPassword, emitLog = () => {}) {
-  emitLog(`[Supabase Init] A sincronizar schemas, roles e ficheiros da stack "${cleanSlug}"...`);
+async function ensureSupabaseStackHealthy(projectOrSlug, targetAppDir, dbPassword, emitLog = () => {}) {
+  const project = typeof projectOrSlug === "object" ? projectOrSlug : (getProjects().find((p) => p.id === projectOrSlug) || { id: projectOrSlug, appDir: targetAppDir });
+  const cleanSlug = (project.id || "").replace(/[^a-zA-Z0-9_-]/g, "");
+  targetAppDir = targetAppDir || project.appDir;
+
+  emitLog(`[Supabase Init] A sincronizar schemas, roles e ficheiros da stack "${project.name || cleanSlug}"...`);
 
   // 1. Garantir que o kong.yml é um ficheiro válido e não um diretório
   const kongFilePath = path.join(targetAppDir, "kong.yml");
@@ -5423,27 +5427,51 @@ services:
         paths:
           - /pg
 `.trim();
-    await writeFileWithSudo(kongFilePath, kongConfig);
-    await execAsync(`sudo chmod 666 "${kongFilePath}" 2>/dev/null || true`);
-    emitLog(`✓ kong.yml validado com sucesso.`);
+    if (!fs.existsSync(kongFilePath)) {
+      await writeFileWithSudo(kongFilePath, kongConfig);
+      await execAsync(`sudo chmod 666 "${kongFilePath}" 2>/dev/null || true`);
+      emitLog(`✓ kong.yml validado com sucesso.`);
+    }
   } catch (kErr) {
     emitLog(`⚠️ Aviso kong.yml: ${kErr.message}`);
   }
 
-  // 2. Aguardar que o PostgreSQL esteja online e pronto para aceitar ligações
-  let pgReady = false;
-  for (let i = 0; i < 20; i++) {
+  // 2. Identificar contentores PostgreSQL ativos (Dual-Stack e Single-Stack)
+  const pgCandidates = [
+    project.postgresContainerProd,
+    project.postgresContainerStaging,
+    project.postgresContainer,
+    `${cleanSlug}-postgres-prod`,
+    `${cleanSlug}-postgres-staging`,
+    `${cleanSlug}-postgres`,
+  ].filter(Boolean);
+
+  const activePgContainers = [];
+  for (const name of new Set(pgCandidates)) {
     try {
-      await execAsync(`docker exec ${cleanSlug}-postgres pg_isready -U postgres -d postgres`, { timeout: 5000 });
-      pgReady = true;
-      break;
-    } catch (e) {
-      await new Promise((r) => setTimeout(r, 1500));
-    }
+      const { stdout } = await execAsync(`docker inspect --format '{{.State.Running}}' "${name}" 2>/dev/null || true`);
+      if (stdout.trim() === "true") activePgContainers.push(name);
+    } catch {}
   }
 
-  if (!pgReady) {
-    emitLog(`⚠️ Contentor ${cleanSlug}-postgres ainda não está a responder a pg_isready. A tentar injeção direta...`);
+  if (activePgContainers.length === 0) {
+    emitLog(`⚠️ Nenhum contentor PostgreSQL ativo encontrado para ${cleanSlug}.`);
+  }
+
+  for (const pg of activePgContainers) {
+    let pgReady = false;
+    for (let i = 0; i < 15; i++) {
+      try {
+        await execAsync(`docker exec "${pg}" pg_isready -U postgres -d postgres`, { timeout: 5000 });
+        pgReady = true;
+        break;
+      } catch (e) {
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+    }
+    if (!pgReady) {
+      emitLog(`⚠️ Contentor ${pg} ainda não está pronto via pg_isready.`);
+    }
   }
 
   // 3. Script SQL Mestre completo (Schemas, Extensões, Roles, Permissões e Tabelas de Storage)
@@ -5533,20 +5561,65 @@ GRANT ALL ON TABLE storage.objects TO postgres, service_role, supabase_storage_a
 GRANT ALL ON TABLE storage.migrations TO postgres, service_role, supabase_storage_admin, authenticator;
 `.trim();
 
-  try {
-    await runSqlInPostgresContainer(`${cleanSlug}-postgres`, masterSql);
-    emitLog(`✓ Schemas (auth, storage), roles ('anon', 'authenticated', etc.) e tabelas configurados no PostgreSQL.`);
-  } catch (sqlErr) {
-    emitLog(`⚠️ Falha na execução do SQL: ${sqlErr.message}`);
+  for (const pg of activePgContainers) {
+    try {
+      await runSqlInPostgresContainer(pg, masterSql);
+      emitLog(`✓ Schemas (auth, storage), roles e tabelas configurados no PostgreSQL (${pg}).`);
+    } catch (sqlErr) {
+      emitLog(`⚠️ Falha na execução do SQL em ${pg}: ${sqlErr.message}`);
+    }
   }
 
-  // 4. Reiniciar serviços dependentes para recarregarem os schemas e roles imediatamente
-  try {
-    emitLog(`A reiniciar Auth, Storage, PostgREST, Meta e Kong para sincronização imediata...`);
-    await execAsync(`docker restart ${cleanSlug}-auth ${cleanSlug}-storage ${cleanSlug}-postgrest ${cleanSlug}-meta ${cleanSlug}-kong`, { timeout: 60000 });
-    emitLog(`✓ Todos os serviços da stack sincronizados e operacionais.`);
-  } catch (rErr) {
-    emitLog(`⚠️ Aviso no reinício de contentores: ${rErr.message}`);
+  // 4. Reiniciar serviços dependentes ativos para recarregarem os schemas e roles imediatamente
+  const candidateServices = [
+    project.authContainerProd,
+    project.authContainerStaging,
+    project.authContainer,
+    project.storageContainerProd,
+    project.storageContainerStaging,
+    project.storageContainer,
+    project.postgrestContainerProd,
+    project.postgrestContainerStaging,
+    project.postgrestContainer,
+    project.metaContainerProd,
+    project.metaContainerStaging,
+    project.metaContainer,
+    project.kongContainerProd,
+    project.kongContainerStaging,
+    project.kongContainer,
+    `${cleanSlug}-auth-prod`,
+    `${cleanSlug}-auth-staging`,
+    `${cleanSlug}-auth`,
+    `${cleanSlug}-storage-prod`,
+    `${cleanSlug}-storage-staging`,
+    `${cleanSlug}-storage`,
+    `${cleanSlug}-postgrest-prod`,
+    `${cleanSlug}-postgrest-staging`,
+    `${cleanSlug}-postgrest`,
+    `${cleanSlug}-meta-prod`,
+    `${cleanSlug}-meta-staging`,
+    `${cleanSlug}-meta`,
+    `${cleanSlug}-kong-prod`,
+    `${cleanSlug}-kong-staging`,
+    `${cleanSlug}-kong`,
+  ].filter(Boolean);
+
+  const runningToRestart = [];
+  for (const name of new Set(candidateServices)) {
+    try {
+      const { stdout } = await execAsync(`docker inspect --format '{{.State.Running}}' "${name}" 2>/dev/null || true`);
+      if (stdout.trim() === "true") runningToRestart.push(name);
+    } catch {}
+  }
+
+  if (runningToRestart.length > 0) {
+    try {
+      emitLog(`A reiniciar serviços dependentes da stack (${runningToRestart.join(", ")})...`);
+      await execAsync(`docker restart ${runningToRestart.join(" ")}`, { timeout: 60000 });
+      emitLog(`✓ Todos os serviços da stack sincronizados e operacionais.`);
+    } catch (rErr) {
+      emitLog(`⚠️ Aviso no reinício de contentores: ${rErr.message}`);
+    }
   }
 
   return true;
@@ -5563,7 +5636,7 @@ app.post("/api/projects/:id/repair-stack", requireAuth, async (req, res) => {
   const emitLog = (msg) => logs.push(msg);
 
   try {
-    await ensureSupabaseStackHealthy(project.id, project.appDir, dbPassword, emitLog);
+    await ensureSupabaseStackHealthy(project, project.appDir, dbPassword, emitLog);
     res.json({ ok: true, message: `Stack "${project.name}" reparada e sincronizada com sucesso!`, logs });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message, logs });
