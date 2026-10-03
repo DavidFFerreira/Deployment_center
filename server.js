@@ -4459,7 +4459,20 @@ Ao longo do desenvolvimento deste projeto, deves estritamente obedecer às segui
      - PostgreSQL Database: **\`{portPostgres}\`**
      - Supabase Studio: **\`{portStudio}\`**
    - **NUNCA alteres as portas no \`docker-compose.yml\` nem tentes mapear portas como 3000, 80 ou 3080**.
-   - A stack deste projeto corre com os 9 contentores nativos orquestrados pelo Deployment Center.`,
+   - A stack deste projeto corre com os 9 contentores nativos orquestrados pelo Deployment Center.
+
+6. **Dependências do Contentor de Produção (evita o erro "A aplicação não passou a verificação HTTP" no deploy)**:
+   - O portal corre em \`node:22-bookworm-slim\` com \`node runner.js\`. O docker-compose monta APENAS \`./.output_prod\` / \`./.output_staging\` em \`/app/.output\` e \`./runner.js\` em \`/app/runner.js\`. Dentro do contentor NÃO existem \`src/\`, \`node_modules/\` nem \`package.json\`.
+   - O \`runner.js\` só pode importar módulos nativos (\`node:*\`) e ficheiros dentro de \`.output/\`. Importar \`./src/...\` ou pacotes npm (ex.: \`pg\`) faz o contentor falhar ao arrancar (\`ERR_MODULE_NOT_FOUND\`), entrar em ciclo de reinício e o deploy falhar.
+   - Se precisares mesmo de ficheiros de \`src/\` ou de pacotes npm, inclui-os no bundle do build ou pede ao utilizador para adicionar volumes ao docker-compose do servidor (ex.: \`./src/server:/app/src/server:ro\` e \`./node_modules:/app/node_modules:ro\`) ANTES do deploy. Lista no commit as novas dependências do contentor.
+   - Em produção usa nomes da rede Docker e variáveis de ambiente (\`DB_HOST\`, \`DB_PORT\`, \`DB_USER\`, \`DB_PASSWORD\`, \`DB_NAME\`). Nunca uses IPs ou portas de produção como valor por omissão: o ambiente de testes não pode escrever na base de dados de produção. Não ponhas passwords no código.
+   - Antes de cada commit que altere \`runner.js\`, corre \`npm run build\` e confirma que \`node runner.js\` arranca com apenas \`.output\` e \`runner.js\`.
+
+7. **Migrações SQL Idempotentes e Válidas (evita "Falha nas migrações" no deploy)**:
+   - O deploy executa as migrações com \`psql -v ON_ERROR_STOP=1\`: qualquer erro aborta o deploy.
+   - Usa \`CREATE TABLE IF NOT EXISTS\`, \`ADD COLUMN IF NOT EXISTS\`, \`CREATE INDEX IF NOT EXISTS\` e \`DROP POLICY IF EXISTS\` antes de cada \`CREATE POLICY\`.
+   - Nunca inventes nomes de tabelas ou colunas. Antes de escrever um \`REFERENCES\`, confirma nas migrações anteriores que a tabela e a coluna existem.
+   - Respeita os limites e as check constraints já existentes (ex.: comprimento de códigos de série).`,
     },
     dual_access_architecture: {
       id: "dual_access_architecture",
