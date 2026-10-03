@@ -2600,6 +2600,19 @@ async function handleDeploy(req, res) {
             const basePrefix = f.split("_")[0];
             const isApplied = appliedSet.has(version) || appliedSet.has(f) || appliedSet.has(basePrefix);
 
+            // Migração baseline (00000000000000_*): recria o esquema completo e não é idempotente.
+            // Se a base de dados já tem tabelas, regista-a como aplicada em vez de a executar.
+            if (!isApplied && /^0+_/.test(f)) {
+              const tc = await runCommandStreaming(`docker exec -i ${targetPg} psql -U postgres -d postgres -t -A -c \"SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name NOT LIKE 'pg_%';\" 2>&1`, targetDir);
+              if (parseInt(tc.stdout?.trim() || "0", 10) > 0) {
+                emitLog(`[DB Migration] ${f} é uma baseline e a base de dados já tem esquema. Registada como aplicada.`);
+                await runCommandStreaming(`docker exec -i ${targetPg} psql -U postgres -d postgres -c \"INSERT INTO supabase_migrations.schema_migrations (version) VALUES ('${version}') ON CONFLICT DO NOTHING;\" 2>&1`, targetDir);
+                appliedSet.add(version);
+                appliedSet.add(f);
+                continue;
+              }
+            }
+
             if (!isApplied) {
               const sqlFile = path.join(migrationsDir, f);
               emitLog(`[SQL Migration] A executar: ${f} em ${targetPg} (${environment})...`);
