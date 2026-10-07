@@ -1207,6 +1207,9 @@
         <button onclick="switchApiTab('keys')" id="api-tab-btn-keys" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
           <i data-lucide="key" class="w-3.5 h-3.5"></i> <span data-i18n="api_tab_keys">Chaves de API</span>
         </button>
+        <button onclick="switchApiTab('mcp')" id="api-tab-btn-mcp" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 text-purple-600 dark:text-purple-400 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30">
+          <i data-lucide="bot" class="w-3.5 h-3.5 text-purple-500"></i> <span>MCP Server (AI)</span>
+        </button>
         <button onclick="switchApiTab('create')" id="api-tab-btn-create" class="api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
           <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> <span data-i18n="api_tab_create">1. Criar Tenant</span>
         </button>
@@ -1309,8 +1312,83 @@
             <span id="test-endpoint-status" class="text-xs text-slate-500"></span>
           </div>
           
-          <div id="test-endpoint-output" class="hidden rounded-2xl bg-black border border-slate-800 p-3.5 font-mono text-[11px] text-sky-400 overflow-x-auto max-h-48">
-            <pre><code id="test-endpoint-output-code"></code></pre>
+        </div>
+
+        <!-- TAB: MCP SERVER (MODEL CONTEXT PROTOCOL PARA ASSISTENTES DE IA) -->
+        <div id="api-tab-content-mcp" class="hidden space-y-4">
+          <div class="p-4 rounded-2xl bg-gradient-to-br from-purple-500/10 via-indigo-500/10 to-transparent border border-purple-500/30 space-y-3">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2">
+                <div class="p-2 rounded-xl bg-purple-600 text-white shadow-md shadow-purple-600/30">
+                  <i data-lucide="bot" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h4 class="font-extrabold text-sm text-slate-900 dark:text-white">Servidor MCP Ativo & Pronto para Conexão</h4>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Conecte o Claude Desktop, Cursor, Antigravity ou VS Code diretamente a este Deployment Center.</p>
+                </div>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30">Protocolo 2024-11-05</span>
+            </div>
+
+            <!-- Link Direto com Token para Clientes SSE -->
+            <div class="space-y-1.5 pt-2">
+              <label class="text-[11px] font-bold text-slate-600 dark:text-slate-300 block">Link de Conexão Rápida SSE (Com Token):</label>
+              <div class="flex items-center gap-2">
+                <input type="text" id="mcp-quick-link" readonly class="flex-1 px-3 py-2 rounded-xl bg-slate-950 font-mono text-xs text-purple-300 border border-slate-800 select-all" value="A carregar...">
+                <button onclick="copyMcpQuickLink()" class="px-3 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-1.5 shrink-0">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Link
+                </button>
+              </div>
+              <p class="text-[10px] text-slate-500">Cole este link em clientes MCP remotos. Para autenticação por cabeçalho, envie <code class="font-mono text-indigo-400">Authorization: Bearer &lt;chave&gt;</code> para o endpoint <code class="font-mono text-indigo-400">/mcp</code>.</p>
+            </div>
+          </div>
+
+          <!-- Snippet JSON para Claude Desktop / Cursor -->
+          <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                <i data-lucide="code" class="w-4 h-4 text-indigo-500"></i> Configuração JSON (Claude Desktop / Cursor / Antigravity)
+              </span>
+              <button onclick="copyMcpJsonConfig()" class="px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold transition flex items-center gap-1">
+                <i data-lucide="copy" class="w-3 h-3"></i> Copiar JSON
+              </button>
+            </div>
+            <pre class="p-3.5 rounded-xl bg-slate-950 text-indigo-300 font-mono text-[11px] overflow-x-auto border border-slate-800"><code id="mcp-json-config-code">A carregar configuração...</code></pre>
+          </div>
+
+          <!-- Tabela de Ferramentas MCP Disponíveis -->
+          <div class="space-y-2">
+            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Ferramentas (Tools) Disponibilizadas aos Agentes:</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs" id="mcp-tools-list-cards">
+              <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
+                <code class="font-mono font-bold text-purple-600 dark:text-purple-400">dc_list_projects</code>
+                <p class="text-[11px] text-slate-500">Lista todos os projetos/tenants, portas ativas e repositórios.</p>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
+                <code class="font-mono font-bold text-purple-600 dark:text-purple-400">dc_get_project_info</code>
+                <p class="text-[11px] text-slate-500">Detalhes exaustivos: portas Postgres/Kong/Studio e commit ativo.</p>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
+                <code class="font-mono font-bold text-purple-600 dark:text-purple-400">dc_list_containers</code>
+                <p class="text-[11px] text-slate-500">Lista os 16 contentores da stack com estados em tempo real.</p>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
+                <code class="font-mono font-bold text-purple-600 dark:text-purple-400">dc_get_logs</code>
+                <p class="text-[11px] text-slate-500">Consulta logs recentes por contentor ou serviço ('portal', 'postgres').</p>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
+                <code class="font-mono font-bold text-purple-600 dark:text-purple-400">dc_restart_container</code>
+                <p class="text-[11px] text-slate-500">Reinicia contentor ou resolve semanticamente por serviço/ambiente.</p>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
+                <code class="font-mono font-bold text-purple-600 dark:text-purple-400">dc_deploy</code>
+                <p class="text-[11px] text-slate-500">Dispara a publicação de um commit para Staging ou Produção.</p>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1 col-span-1 md:col-span-2">
+                <code class="font-mono font-bold text-purple-600 dark:text-purple-400">dc_rollback</code>
+                <p class="text-[11px] text-slate-500">Reverte o ambiente para a versão estável funcional anterior.</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -9512,15 +9590,62 @@ data: {"status":"ready","done":true,"completed_at":"2026-09-06T13:45:30.000Z"}`
         activeBtn.className = 'api-tab-btn px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 bg-indigo-600 text-white shadow-md shadow-indigo-600/20 cursor-pointer';
       }
 
+      const keysContent = document.getElementById('api-tab-content-keys');
+      const endpointsContent = document.getElementById('api-tab-content-endpoints');
+      const mcpContent = document.getElementById('api-tab-content-mcp');
+
+      if (keysContent) keysContent.classList.add('hidden');
+      if (endpointsContent) endpointsContent.classList.add('hidden');
+      if (mcpContent) mcpContent.classList.add('hidden');
+
       if (tab === 'keys') {
-        document.getElementById('api-tab-content-keys').classList.remove('hidden');
-        document.getElementById('api-tab-content-endpoints').classList.add('hidden');
+        if (keysContent) keysContent.classList.remove('hidden');
+      } else if (tab === 'mcp') {
+        if (mcpContent) mcpContent.classList.remove('hidden');
+        loadMcpConfigs();
       } else {
-        document.getElementById('api-tab-content-keys').classList.add('hidden');
-        document.getElementById('api-tab-content-endpoints').classList.remove('hidden');
+        if (endpointsContent) endpointsContent.classList.remove('hidden');
         renderEndpointDoc(tab);
       }
       if (window.lucide) lucide.createIcons();
+    }
+
+    async function loadMcpConfigs() {
+      const host = window.location.origin;
+      const token = activeApiKeyToken || 'dc_live_sec_SUA_CHAVE_AQUI';
+      const quickLink = `${host}/mcp?token=${token}`;
+      const quickLinkEl = document.getElementById('mcp-quick-link');
+      if (quickLinkEl) quickLinkEl.value = quickLink;
+
+      const jsonConfig = {
+        mcpServers: {
+          "deployment-center": {
+            url: `${host}/mcp`,
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          }
+        }
+      };
+
+      const codeEl = document.getElementById('mcp-json-config-code');
+      if (codeEl) codeEl.textContent = JSON.stringify(jsonConfig, null, 2);
+    }
+
+    function copyMcpQuickLink() {
+      const input = document.getElementById('mcp-quick-link');
+      if (input) {
+        navigator.clipboard.writeText(input.value);
+        showAppNotification({ type: 'success', title: 'Copiado', message: 'Link do servidor MCP copiado com sucesso!' });
+      }
+    }
+
+    function copyMcpJsonConfig() {
+      const codeEl = document.getElementById('mcp-json-config-code');
+      if (codeEl) {
+        navigator.clipboard.writeText(codeEl.textContent);
+        showAppNotification({ type: 'success', title: 'Copiado', message: 'Configuração JSON copiada com sucesso!' });
+      }
     }
 
     function renderEndpointDoc(endpointKey) {

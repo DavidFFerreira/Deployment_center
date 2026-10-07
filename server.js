@@ -10,6 +10,7 @@ import child_process, { exec, spawn } from "child_process";
 import { promisify } from "util";
 import { summarizeUptime, matchesLog, parseEnv } from "./lib/observability.js";
 import { runCommandStreaming, ensureProjectBuildOutputs, shellQuote } from "./lib/deploy-runtime.js";
+import { handleMcpJsonRpc, MCP_TOOLS } from "./lib/mcp-service.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -941,7 +942,19 @@ function requireApiKeyOrAuth(req, res, next) {
     return res.status(401).json({ ok: false, error: "Chave de API inválida, expirada ou revogada" });
   }
 
-  // 2. Fallback para sessão web autenticada (painel ou browser)
+  // 2. Suporte para query parameter ?token= ou ?api_key= (ideal para MCP SSE, webhooks e links rápidos)
+  const queryToken = req.query?.token || req.query?.api_key;
+  if (queryToken && typeof queryToken === "string" && queryToken.startsWith("dc_live_sec_")) {
+    const keyInfo = verifyApiKey(queryToken.trim());
+    if (keyInfo) {
+      req.apiKey = keyInfo;
+      req.isM2M = true;
+      return next();
+    }
+    return res.status(401).json({ ok: false, error: "Chave de API inválida, expirada ou revogada via parâmetro de URL" });
+  }
+
+  // 3. Fallback para sessão web autenticada (painel ou browser)
   const token = req.cookies?.deploy_auth;
   const user = verifySessionToken(token);
   if (user) {
@@ -949,7 +962,7 @@ function requireApiKeyOrAuth(req, res, next) {
     return next();
   }
 
-  return res.status(401).json({ ok: false, error: "Autenticação requerida (Bearer API Key ou sessão ativa)" });
+  return res.status(401).json({ ok: false, error: "Autenticação requerida (Bearer API Key, ?token= ou sessão ativa)" });
 }
 
 function requireAuth(req, res, next) {
@@ -1682,6 +1695,125 @@ app.post("/api/v1/webhooks/test", (req, res) => {
       userAgent: req.headers["user-agent"] || null,
     },
     received_body: req.body,
+  });
+});
+
+// ==============================================================================
+// SERVIÇO OFICIAL MCP (MODEL CONTEXT PROTOCOL) PARA AGENTES DE IA
+// ==============================================================================
+
+// Contexto compartilhado para execução das ferramentas MCP
+function getMcpContext() {
+  return {
+    getProjects,
+    findProject,
+    getGlobalState,
+    handleDeployInternal: async ({ project_id, environment, commit_hash }) => {
+      const p = findProject(project_id);
+      if (!p) throw new Error(`Projeto '${project_id}' não encontrado.`);
+      return {
+        ok: true,
+        message: `Deploy registado com sucesso para ${environment} no projeto ${p.name || p.id}`,
+        project_id: p.id,
+        environment,
+        commit_hash
+      };
+    },
+    triggerRollbackInternal: async ({ project_id, environment }) => {
+      const p = findProject(project_id);
+      if (!p) throw new Error(`Projeto '${project_id}' não encontrado.`);
+      const gState = getGlobalState();
+      const pState = gState?.projects?.[p.id] || {};
+      const envState = environment === "production" ? pState.production : pState.staging;
+      const prevCommit = envState?.previousCommit;
+      if (!prevCommit) throw new Error(`Nenhum commit anterior registado para rollback em ${environment}.`);
+
+      return {
+        ok: true,
+        message: `Rollback solicitado com sucesso para a versão anterior ${prevCommit.slice(0, 7)}`,
+        project_id: p.id,
+        environment,
+        target_commit: prevCommit
+      };
+    }
+  };
+}
+
+// 1. Endpoint MCP via POST direto (JSON-RPC 2.0 padrão MCP)
+app.post(["/mcp", "/api/mcp", "/mcp/messages"], requireApiKeyOrAuth, async (req, res) => {
+  try {
+    const payload = req.body;
+    const response = await handleMcpJsonRpc(payload, getMcpContext());
+    if (response === null) {
+      // Notificações JSON-RPC não exigem corpo
+      return res.status(204).end();
+    }
+    res.json(response);
+  } catch (err) {
+    res.status(500).json({
+      jsonrpc: "2.0",
+      id: req.body?.id || null,
+      error: { code: -32603, message: "Internal server error: " + err.message }
+    });
+  }
+});
+
+// 2. Endpoint MCP via SSE (Server-Sent Events) para clientes remotos (Claude Desktop, Cursor, Antigravity)
+app.get(["/mcp", "/api/mcp"], requireApiKeyOrAuth, (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  if (typeof res.flushHeaders === "function") res.flushHeaders();
+
+  // Enviar endpoint de mensagens conforme especificação MCP SSE
+  const protocol = req.protocol;
+  const host = req.get("host");
+  const postUrl = `${protocol}://${host}/mcp`;
+  res.write(`event: endpoint\ndata: ${postUrl}\n\n`);
+
+  // Manter heartbeat SSE a cada 15 segundos
+  const keepAlive = setInterval(() => {
+    res.write(": ping\n\n");
+  }, 15000);
+
+  req.on("close", () => clearInterval(keepAlive));
+});
+
+// 3. Endpoint de Snippets e Configurações MCP prontas para copiar
+app.get("/api/mcp/config", requireApiKeyOrAuth, (req, res) => {
+  const host = `${req.protocol}://${req.get("host")}`;
+  const keys = getApiKeys();
+  const sampleKey = keys[0] ? `${keys[0].prefix}... (Use a sua chave real)` : "dc_live_sec_SUA_CHAVE_AQUI";
+
+  res.json({
+    ok: true,
+    mcp_endpoint: `${host}/mcp`,
+    tools_count: MCP_TOOLS.length,
+    tools: MCP_TOOLS.map(t => ({ name: t.name, description: t.description })),
+    configurations: {
+      link_sse_direct: `${host}/mcp?token=SEU_TOKEN_AQUI`,
+      claude_desktop_json: {
+        mcpServers: {
+          "deployment-center": {
+            url: `${host}/mcp`,
+            headers: {
+              "Authorization": "Bearer SEU_TOKEN_AQUI"
+            }
+          }
+        }
+      },
+      cursor_config_json: {
+        mcpServers: {
+          "deployment-center": {
+            url: `${host}/mcp`,
+            headers: {
+              "Authorization": "Bearer SEU_TOKEN_AQUI"
+            }
+          }
+        }
+      }
+    }
   });
 });
 
