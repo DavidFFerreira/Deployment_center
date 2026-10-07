@@ -1204,6 +1204,26 @@ app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "login.html"));
 });
 
+// Recursos e Manifesto PWA (Progressive Web App)
+app.get("/manifest.json", (req, res) => {
+  res.setHeader("Content-Type", "application/manifest+json; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.sendFile(path.join(__dirname, "manifest.json"));
+});
+
+app.get("/sw.js", (req, res) => {
+  res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+  res.setHeader("Service-Worker-Allowed", "/");
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.sendFile(path.join(__dirname, "sw.js"));
+});
+
+app.get(["/icon.svg", "/icon-192.png", "/icon-512.png"], (req, res) => {
+  const file = req.path.replace(/^\//, "");
+  res.setHeader("Cache-Control", "public, max-age=86400");
+  res.sendFile(path.join(__dirname, file));
+});
+
 app.get("/", requireAuth, (req, res) => {
   res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   res.setHeader("Pragma", "no-cache");
