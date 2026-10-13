@@ -816,6 +816,38 @@
           </button>
         </div>
 
+        <!-- Barra de Pesquisa, Filtro e Ordenação de Storage -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 p-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs shadow-sm">
+          <!-- Campo de Pesquisa -->
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input type="text" id="storage-search-input" oninput="handleStorageSearch(this.value)" placeholder="Pesquisar buckets, pastas ou ficheiros..." class="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-100/80 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/30">
+            <button id="storage-search-clear" onclick="clearStorageSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5" title="Limpar">
+              <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <!-- Ordenação e Contador -->
+          <div class="flex items-center gap-2 flex-wrap justify-between sm:justify-end">
+            <!-- Selector de Ordenação -->
+            <div class="flex items-center gap-1.5">
+              <span class="text-slate-400 text-[11px] font-semibold hidden md:inline">Ordenar:</span>
+              <select id="storage-sort-select" onchange="handleStorageSortChange(this.value)" class="py-2 px-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none">
+                <option value="name_asc">Nome (A → Z)</option>
+                <option value="name_desc">Nome (Z → A)</option>
+                <option value="size_desc">Tamanho (Maior 1º)</option>
+                <option value="size_asc">Tamanho (Menor 1º)</option>
+                <option value="type">Tipo (Pastas 1º)</option>
+              </select>
+            </div>
+
+            <!-- Contador de Itens de Storage -->
+            <span id="storage-items-count-badge" class="px-2.5 py-1.5 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 font-mono text-[11px] font-bold border border-sky-500/20 whitespace-nowrap">
+              0 itens
+            </span>
+          </div>
+        </div>
+
         <!-- Lista de Ficheiros e Pastas com suporte a Drag & Drop -->
         <div class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-900/40" id="storage-files-container" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
           <div class="text-center py-12 text-slate-500 text-sm">Selecione um bucket para explorar ficheiros.</div>
@@ -952,10 +984,46 @@
               </h3>
               <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="db_tables_desc">Estado do Row Level Security (RLS) e estimativa de tamanho por tabela.</p>
             </div>
-            <button onclick="fetchDbTables()" class="px-3 py-1.5 rounded-xl bg-slate-200/80 dark:bg-slate-800 text-xs font-semibold flex items-center gap-1 text-slate-800 dark:text-slate-200">
+            <button onclick="fetchDbTables()" class="px-3 py-1.5 rounded-xl bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-semibold flex items-center gap-1.5 text-slate-800 dark:text-slate-200 transition">
               <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Atualizar Tabelas
             </button>
           </div>
+
+          <!-- Barra de Pesquisa, Filtro e Ordenação de Tabelas -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 p-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs shadow-sm">
+            <!-- Campo de Pesquisa -->
+            <div class="relative flex-1">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+              <input type="text" id="db-tables-search" oninput="handleDbTablesSearch(this.value)" placeholder="Pesquisar tabela ou esquema (ex: auth, users, matriculas)..." class="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-100/80 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+              <button id="db-tables-search-clear" onclick="clearDbTablesSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5" title="Limpar">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+            <!-- Filtros Rápidos & Contador -->
+            <div class="flex items-center gap-2 flex-wrap justify-between sm:justify-end">
+              <!-- Filtro de Esquema -->
+              <select id="db-tables-schema-filter" onchange="handleDbTablesSchemaFilter(this.value)" class="py-2 px-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none">
+                <option value="all">Todos os Esquemas</option>
+                <option value="public">public</option>
+                <option value="auth">auth</option>
+                <option value="storage">storage</option>
+              </select>
+
+              <!-- Filtro de RLS -->
+              <select id="db-tables-rls-filter" onchange="handleDbTablesRlsFilter(this.value)" class="py-2 px-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none">
+                <option value="all">Todos os RLS</option>
+                <option value="enabled">RLS Ativado</option>
+                <option value="disabled">RLS Desativado</option>
+              </select>
+
+              <!-- Contador de Tabelas -->
+              <span id="db-tables-count-badge" class="px-2.5 py-1.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono text-[11px] font-bold border border-indigo-500/20 whitespace-nowrap">
+                0 tabelas
+              </span>
+            </div>
+          </div>
+
           <div class="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-x-auto bg-white dark:bg-slate-900/40" id="db-tables-list">
             <div class="text-center py-8 text-slate-500 text-xs">A carregar tabelas...</div>
           </div>
@@ -7813,11 +7881,38 @@ Fim do Relatório
     // STORAGE SUPABASE (BUCKETS, PASTAS, UPLOAD, DOWNLOAD, ESPAÇO & RESTORE)
     // ===================================================================
     let loadedStorageBuckets = [];
+    let loadedStorageCurrentFolders = [];
+    let loadedStorageCurrentFiles = [];
+    let storageSearchQuery = '';
+    let storageSortKey = 'name_asc';
     let pendingZipRestoreFiles = [];
     let globalStorageStats = { totalObjects: 0, totalSizePretty: '0 B', totalSizeBytes: 0 };
     let pendingDeleteStoragePayload = null;
     let currentStorageEnv = 'production';
+
+    // Estado de Tabelas & RLS
+    let loadedDbTables = [];
+    let dbTablesSearchQuery = '';
+    let dbTablesSchemaFilter = 'all';
+    let dbTablesRlsFilter = 'all';
+    let dbTablesSortColumn = 'name';
+    let dbTablesSortDir = 'asc';
     let currentDbEnv = 'production';
+
+    function parseSizeToBytes(sizeStr) {
+      if (typeof sizeStr === 'number') return sizeStr;
+      if (!sizeStr || typeof sizeStr !== 'string') return 0;
+      const s = sizeStr.trim();
+      const match = s.match(/^([\d.]+)\s*([a-zA-Z]+)?$/);
+      if (!match) return 0;
+      const val = parseFloat(match[1]);
+      const unit = (match[2] || 'B').toUpperCase();
+      if (unit === 'KB' || unit === 'KIB') return val * 1024;
+      if (unit === 'MB' || unit === 'MIB') return val * 1024 * 1024;
+      if (unit === 'GB' || unit === 'GIB') return val * 1024 * 1024 * 1024;
+      if (unit === 'TB' || unit === 'TIB') return val * 1024 * 1024 * 1024 * 1024;
+      return val;
+    }
 
     function setStorageEnv(env) {
       currentStorageEnv = env;
@@ -8562,41 +8657,12 @@ Fim do Relatório
         upBtn.disabled = true;
         upBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-        if (loadedStorageBuckets.length === 0) {
-          container.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs">Nenhum bucket disponível no ambiente ${currentStorageEnv}.</div>`;
-          return;
-        }
-
-        let html = '<div class="divide-y divide-slate-200 dark:divide-slate-800">';
-        loadedStorageBuckets.forEach((b) => {
-          html += `
-            <div class="px-4 py-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/60 transition group">
-              <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="selectSpecificBucket('${b.id}')">
-                <i data-lucide="folder" class="w-6 h-6 text-sky-500 group-hover:scale-110 transition-transform"></i>
-                <div>
-                  <span class="font-extrabold text-xs text-slate-800 dark:text-slate-200">${escapeHtml(b.name)}</span>
-                  <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono font-semibold">Espaço: ${b.total_size || '0 B'} · ${b.object_count || 0} ficheiros</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${b.public ? 'bg-emerald-500/10 text-emerald-600' : 'bg-slate-500/10 text-slate-500'}">${b.public ? 'PÚBLICO' : 'PRIVADO'}</span>
-                <button onclick="promptDeleteBucket('${b.id}', event)" class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition" title="Eliminar Bucket">
-                  <i data-lucide="trash-2" class="w-4 h-4"></i>
-                </button>
-                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 cursor-pointer" onclick="selectSpecificBucket('${b.id}')"></i>
-              </div>
-            </div>
-          `;
-        });
-        html += '</div>';
-        container.innerHTML = html;
-        if (window.lucide) lucide.createIcons();
+        renderStorageBuckets();
         return;
       }
 
       // Se for dentro de um bucket específico
       const currentBucketObj = loadedStorageBuckets.find((b) => b.id === currentBucketId);
-      const bucketSizeStr = currentBucketObj ? ` · Espaço Total: ${currentBucketObj.total_size} (${currentBucketObj.object_count} ficheiros)` : '';
 
       let crumbsHtml = `<div class="flex items-center gap-1.5 flex-wrap"><span class="text-slate-400 font-semibold">Bucket:</span> <button onclick="selectSpecificBucket('${currentBucketId}')" class="font-bold text-sky-600 dark:text-sky-400 hover:underline">${currentBucketId}</button>`;
       
@@ -8624,73 +8690,282 @@ Fim do Relatório
         const data = await res.json();
 
         if (data.ok) {
-          const folders = data.folders || [];
-          const files = data.files || [];
-
-          if (folders.length === 0 && files.length === 0) {
-            container.innerHTML = `
-              <div class="text-center py-12 space-y-2">
-                <i data-lucide="folder-open" class="w-8 h-8 text-slate-400 mx-auto"></i>
-                <p class="text-xs text-slate-500">Esta pasta está vazia (${currentStorageEnv}).</p>
-                <div class="flex items-center justify-center gap-2 pt-2">
-                  <button onclick="triggerFileUpload(false)" class="px-3 py-1.5 rounded-xl bg-sky-600 text-white text-xs font-bold">Upload Ficheiros</button>
-                </div>
-              </div>
-            `;
-            if (window.lucide) lucide.createIcons();
-            return;
-          }
-
-          let html = '<div class="divide-y divide-slate-200 dark:divide-slate-800">';
-          
-          // Pastas (com botão de apagar pasta)
-          folders.forEach((f) => {
-            html += `
-              <div class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/60 transition group">
-                <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="loadStorageFiles('${currentBucketId}', '${f.path}')">
-                  <i data-lucide="folder" class="w-5 h-5 text-amber-500 group-hover:scale-110 transition-transform"></i>
-                  <span class="font-bold text-xs text-slate-800 dark:text-slate-200">${escapeHtml(f.name)}</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-[11px] text-slate-400 font-mono">Pasta</span>
-                  <button onclick="promptDeleteFolder('${currentBucketId}', '${f.path}', '${f.name}', event)" class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition" title="Eliminar Pasta '${escapeHtml(f.name)}'">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                  </button>
-                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 cursor-pointer" onclick="loadStorageFiles('${currentBucketId}', '${f.path}')"></i>
-                </div>
-              </div>
-            `;
-          });
-
-          // Ficheiros
-          files.forEach((f) => {
-            const sizeMb = (f.sizeBytes / 1024 / 1024).toFixed(2);
-            const formattedSize = sizeMb > 0 ? `${sizeMb} MB` : `${(f.sizeBytes / 1024).toFixed(1)} KB`;
-            html += `
-              <div class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/60 transition">
-                <div class="flex items-center gap-3 min-w-0 flex-1">
-                  <i data-lucide="file" class="w-4 h-4 text-sky-500 shrink-0"></i>
-                  <span class="text-xs font-mono text-slate-800 dark:text-slate-200 truncate">${escapeHtml(f.displayName)}</span>
-                </div>
-                <div class="flex items-center gap-3 shrink-0">
-                  <span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">${formattedSize}</span>
-                  <a href="/api/storage/download-file?bucket_id=${currentBucketId}&name=${encodeURIComponent(f.name)}&project_id=${currentProjectId}&env=${currentStorageEnv}" class="p-1.5 rounded-lg text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 transition" title="Descarregar">
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                  </a>
-                  <button onclick="deleteStorageFile('${currentBucketId}', '${f.name}')" class="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 transition" title="Eliminar Ficheiro">
-                    <i data-lucide="trash" class="w-4 h-4"></i>
-                  </button>
-                </div>
-              </div>
-            `;
-          });
-          html += '</div>';
-          container.innerHTML = html;
+          loadedStorageCurrentFolders = data.folders || [];
+          loadedStorageCurrentFiles = data.files || [];
+          renderStorageFiles();
+        } else {
+          container.innerHTML = `<div class="text-center py-8 text-red-400 text-xs">Erro ao carregar storage: ${escapeHtml(data.error || 'Falha')}</div>`;
         }
       } catch (e) {
-        container.innerHTML = `<div class="text-center py-8 text-red-400 text-xs">Erro ao carregar storage: ${e.message}</div>`;
+        container.innerHTML = `<div class="text-center py-8 text-red-400 text-xs">Erro ao carregar storage: ${escapeHtml(e.message)}</div>`;
       }
       if (window.lucide) lucide.createIcons();
+    }
+
+    function renderStorageBuckets() {
+      const container = document.getElementById('storage-files-container');
+      if (!container) return;
+
+      if (!loadedStorageBuckets || loadedStorageBuckets.length === 0) {
+        container.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs">Nenhum bucket disponível no ambiente ${currentStorageEnv}.</div>`;
+        updateStorageItemsCountBadge(0, 0, 'buckets');
+        return;
+      }
+
+      const query = (storageSearchQuery || '').toLowerCase().trim();
+      let filtered = loadedStorageBuckets.filter((b) => {
+        if (!query) return true;
+        return (b.name || '').toLowerCase().includes(query) || (b.id || '').toLowerCase().includes(query);
+      });
+
+      filtered.sort((a, b) => {
+        if (storageSortKey === 'name_asc') {
+          return (a.name || '').localeCompare(b.name || '');
+        } else if (storageSortKey === 'name_desc') {
+          return (b.name || '').localeCompare(a.name || '');
+        } else if (storageSortKey === 'size_desc') {
+          const sA = typeof a.total_size_bytes === 'number' ? a.total_size_bytes : parseSizeToBytes(a.total_size);
+          const sB = typeof b.total_size_bytes === 'number' ? b.total_size_bytes : parseSizeToBytes(b.total_size);
+          return sB - sA;
+        } else if (storageSortKey === 'size_asc') {
+          const sA = typeof a.total_size_bytes === 'number' ? a.total_size_bytes : parseSizeToBytes(a.total_size);
+          const sB = typeof b.total_size_bytes === 'number' ? b.total_size_bytes : parseSizeToBytes(b.total_size);
+          return sA - sB;
+        } else if (storageSortKey === 'type') {
+          return (b.object_count || 0) - (a.object_count || 0);
+        }
+        return 0;
+      });
+
+      updateStorageItemsCountBadge(filtered.length, loadedStorageBuckets.length, 'buckets');
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 space-y-2">
+            <i data-lucide="search-x" class="w-8 h-8 text-slate-400 mx-auto"></i>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Nenhum bucket corresponde à pesquisa "${escapeHtml(storageSearchQuery)}".</p>
+            <button onclick="clearStorageSearch()" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition">Limpar Pesquisa</button>
+          </div>
+        `;
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
+
+      let html = '<div class="divide-y divide-slate-200 dark:divide-slate-800">';
+      filtered.forEach((b) => {
+        html += `
+          <div class="px-4 py-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/60 transition group">
+            <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="selectSpecificBucket('${b.id}')">
+              <i data-lucide="folder" class="w-6 h-6 text-sky-500 group-hover:scale-110 transition-transform"></i>
+              <div>
+                <span class="font-extrabold text-xs text-slate-800 dark:text-slate-200">${escapeHtml(b.name)}</span>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono font-semibold">Espaço: ${b.total_size || '0 B'} · ${b.object_count || 0} ficheiros</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${b.public ? 'bg-emerald-500/10 text-emerald-600' : 'bg-slate-500/10 text-slate-500'}">${b.public ? 'PÚBLICO' : 'PRIVADO'}</span>
+              <button onclick="promptDeleteBucket('${b.id}', event)" class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition" title="Eliminar Bucket">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 cursor-pointer" onclick="selectSpecificBucket('${b.id}')"></i>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderStorageFiles() {
+      const container = document.getElementById('storage-files-container');
+      if (!container) return;
+
+      const query = (storageSearchQuery || '').toLowerCase().trim();
+
+      let filteredFolders = (loadedStorageCurrentFolders || []).filter((f) => {
+        if (!query) return true;
+        return (f.name || '').toLowerCase().includes(query);
+      });
+
+      let filteredFiles = (loadedStorageCurrentFiles || []).filter((f) => {
+        if (!query) return true;
+        return (f.displayName || f.name || '').toLowerCase().includes(query);
+      });
+
+      // Ordenar Pastas
+      filteredFolders.sort((a, b) => {
+        if (storageSortKey === 'name_desc') {
+          return (b.name || '').localeCompare(a.name || '');
+        }
+        return (a.name || '').localeCompare(b.name || '');
+      });
+
+      // Ordenar Ficheiros
+      filteredFiles.sort((a, b) => {
+        if (storageSortKey === 'name_asc') {
+          return (a.displayName || a.name || '').localeCompare(b.displayName || b.name || '');
+        } else if (storageSortKey === 'name_desc') {
+          return (b.displayName || b.name || '').localeCompare(a.displayName || a.name || '');
+        } else if (storageSortKey === 'size_desc') {
+          return (b.sizeBytes || 0) - (a.sizeBytes || 0);
+        } else if (storageSortKey === 'size_asc') {
+          return (a.sizeBytes || 0) - (b.sizeBytes || 0);
+        } else if (storageSortKey === 'type') {
+          const extA = (a.displayName || '').split('.').pop() || '';
+          const extB = (b.displayName || '').split('.').pop() || '';
+          return extA.localeCompare(extB);
+        }
+        return 0;
+      });
+
+      const totalItems = (loadedStorageCurrentFolders ? loadedStorageCurrentFolders.length : 0) + (loadedStorageCurrentFiles ? loadedStorageCurrentFiles.length : 0);
+      const visibleItems = filteredFolders.length + filteredFiles.length;
+      updateStorageItemsCountBadge(visibleItems, totalItems, 'itens');
+
+      if (filteredFolders.length === 0 && filteredFiles.length === 0) {
+        if (totalItems === 0) {
+          container.innerHTML = `
+            <div class="text-center py-12 space-y-2">
+              <i data-lucide="folder-open" class="w-8 h-8 text-slate-400 mx-auto"></i>
+              <p class="text-xs text-slate-500">Esta pasta está vazia (${currentStorageEnv}).</p>
+              <div class="flex items-center justify-center gap-2 pt-2">
+                <button onclick="triggerFileUpload(false)" class="px-3 py-1.5 rounded-xl bg-sky-600 text-white text-xs font-bold">Upload Ficheiros</button>
+              </div>
+            </div>
+          `;
+        } else {
+          container.innerHTML = `
+            <div class="text-center py-12 space-y-2">
+              <i data-lucide="search-x" class="w-8 h-8 text-slate-400 mx-auto"></i>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Nenhum ficheiro ou pasta corresponde a "${escapeHtml(storageSearchQuery)}".</p>
+              <button onclick="clearStorageSearch()" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition">Limpar Pesquisa</button>
+            </div>
+          `;
+        }
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
+
+      let html = `
+        <div class="px-4 py-2 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px] font-bold text-slate-500 dark:text-slate-400 select-none">
+          <div class="flex items-center gap-1.5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200" onclick="toggleStorageQuickSort('name')">
+            <span>Nome</span>
+            <span>${storageSortKey.startsWith('name') ? (storageSortKey === 'name_asc' ? '▲' : '▼') : '⇅'}</span>
+          </div>
+          <div class="flex items-center gap-8">
+            <div class="flex items-center gap-1.5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200" onclick="toggleStorageQuickSort('size')">
+              <span>Tamanho</span>
+              <span>${storageSortKey.startsWith('size') ? (storageSortKey === 'size_desc' ? '▼' : '▲') : '⇅'}</span>
+            </div>
+            <span class="w-16 text-right">Ações</span>
+          </div>
+        </div>
+        <div class="divide-y divide-slate-200 dark:divide-slate-800">
+      `;
+
+      // Pastas
+      filteredFolders.forEach((f) => {
+        html += `
+          <div class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/60 transition group">
+            <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="loadStorageFiles('${currentBucketId}', '${f.path}')">
+              <i data-lucide="folder" class="w-5 h-5 text-amber-500 group-hover:scale-110 transition-transform"></i>
+              <span class="font-bold text-xs text-slate-800 dark:text-slate-200">${escapeHtml(f.name)}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] text-slate-400 font-mono">Pasta</span>
+              <button onclick="promptDeleteFolder('${currentBucketId}', '${f.path}', '${f.name}', event)" class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition" title="Eliminar Pasta '${escapeHtml(f.name)}'">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 cursor-pointer" onclick="loadStorageFiles('${currentBucketId}', '${f.path}')"></i>
+            </div>
+          </div>
+        `;
+      });
+
+      // Ficheiros
+      filteredFiles.forEach((f) => {
+        const sizeMb = (f.sizeBytes / 1024 / 1024).toFixed(2);
+        const formattedSize = sizeMb > 0 ? `${sizeMb} MB` : `${(f.sizeBytes / 1024).toFixed(1)} KB`;
+        html += `
+          <div class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/60 transition">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <i data-lucide="file" class="w-4 h-4 text-sky-500 shrink-0"></i>
+              <span class="text-xs font-mono text-slate-800 dark:text-slate-200 truncate" title="${escapeHtml(f.displayName)}">${escapeHtml(f.displayName)}</span>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">${formattedSize}</span>
+              <a href="/api/storage/download-file?bucket_id=${currentBucketId}&name=${encodeURIComponent(f.name)}&project_id=${currentProjectId}&env=${currentStorageEnv}" class="p-1.5 rounded-lg text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 transition" title="Descarregar">
+                <i data-lucide="download" class="w-4 h-4"></i>
+              </a>
+              <button onclick="deleteStorageFile('${currentBucketId}', '${f.name}')" class="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 transition" title="Eliminar Ficheiro">
+                <i data-lucide="trash" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function handleStorageSearch(val) {
+      storageSearchQuery = val;
+      const clearBtn = document.getElementById('storage-search-clear');
+      if (clearBtn) clearBtn.classList.toggle('hidden', !val);
+      if (currentBucketId === '_all_' && !currentStoragePath) {
+        renderStorageBuckets();
+      } else {
+        renderStorageFiles();
+      }
+    }
+
+    function clearStorageSearch() {
+      storageSearchQuery = '';
+      const inp = document.getElementById('storage-search-input');
+      if (inp) inp.value = '';
+      const clearBtn = document.getElementById('storage-search-clear');
+      if (clearBtn) clearBtn.classList.add('hidden');
+      if (currentBucketId === '_all_' && !currentStoragePath) {
+        renderStorageBuckets();
+      } else {
+        renderStorageFiles();
+      }
+    }
+
+    function handleStorageSortChange(val) {
+      storageSortKey = val;
+      if (currentBucketId === '_all_' && !currentStoragePath) {
+        renderStorageBuckets();
+      } else {
+        renderStorageFiles();
+      }
+    }
+
+    function toggleStorageQuickSort(type) {
+      if (type === 'name') {
+        storageSortKey = storageSortKey === 'name_asc' ? 'name_desc' : 'name_asc';
+      } else if (type === 'size') {
+        storageSortKey = storageSortKey === 'size_desc' ? 'size_asc' : 'size_desc';
+      }
+      const sortSelect = document.getElementById('storage-sort-select');
+      if (sortSelect) sortSelect.value = storageSortKey;
+      if (currentBucketId === '_all_' && !currentStoragePath) {
+        renderStorageBuckets();
+      } else {
+        renderStorageFiles();
+      }
+    }
+
+    function updateStorageItemsCountBadge(visibleCount, totalCount, label) {
+      const badge = document.getElementById('storage-items-count-badge');
+      if (!badge) return;
+      if (visibleCount === totalCount) {
+        badge.textContent = `${totalCount} ${label}`;
+      } else {
+        badge.textContent = `${visibleCount} de ${totalCount} ${label}`;
+      }
     }
 
     // ===================================================================
@@ -9225,42 +9500,218 @@ Fim do Relatório
         const data = await res.json();
         const container = document.getElementById('db-tables-list');
         if (data.ok && data.tables && data.tables.length > 0) {
-          container.innerHTML = `
-            <table class="w-full text-left text-xs font-mono">
-              <thead class="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
-                <tr>
-                  <th class="p-3">Esquema.Tabela</th>
-                  <th class="p-3">Registos Est.</th>
-                  <th class="p-3">Tamanho</th>
-                  <th class="p-3">RLS</th>
-                  <th class="p-3 text-right">Ação</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
-                ${data.tables.map((t) => `
-                  <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-                    <td class="p-3 font-bold text-slate-800 dark:text-slate-200">${t.schema_name}.${t.table_name}</td>
-                    <td class="p-3 text-slate-500">${t.row_count_estimate || 0}</td>
-                    <td class="p-3 text-slate-500">${t.total_size || '-'}</td>
-                    <td class="p-3">
-                      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${t.rls_enabled ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}">
-                        ${t.rls_enabled ? 'ATIVADO' : 'DESATIVADO'}
-                      </span>
-                    </td>
-                    <td class="p-3 text-right">
-                      <button onclick="toggleTableRls('${t.schema_name}', '${t.table_name}', ${!t.rls_enabled})" class="px-2.5 py-1 rounded-lg text-[10px] font-bold ${t.rls_enabled ? 'bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20'}">
-                        ${t.rls_enabled ? 'Desativar RLS' : 'Ativar RLS'}
-                      </button>
-                    </td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          `;
+          loadedDbTables = data.tables;
+          populateDbSchemasFilter(loadedDbTables);
+          renderDbTables();
         } else {
-          container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Sem tabelas públicas encontradas na base de dados de ${currentDbEnv}.</div>`;
+          loadedDbTables = [];
+          if (container) {
+            container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Sem tabelas públicas encontradas na base de dados de ${currentDbEnv}.</div>`;
+          }
+          updateDbTablesCountBadge(0, 0);
         }
-      } catch (e) {}
+      } catch (e) {
+        const container = document.getElementById('db-tables-list');
+        if (container) {
+          container.innerHTML = `<div class="text-center py-8 text-red-400 text-xs">Erro ao carregar tabelas: ${escapeHtml(e.message)}</div>`;
+        }
+      }
+    }
+
+    function populateDbSchemasFilter(tables) {
+      const schSelect = document.getElementById('db-tables-schema-filter');
+      if (!schSelect) return;
+      const currentVal = schSelect.value || 'all';
+      const schemas = Array.from(new Set(tables.map((t) => t.schema_name).filter(Boolean))).sort();
+      let html = '<option value="all">Todos os Esquemas</option>';
+      schemas.forEach((s) => {
+        html += `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`;
+      });
+      schSelect.innerHTML = html;
+      if (schemas.includes(currentVal)) {
+        schSelect.value = currentVal;
+      } else {
+        schSelect.value = 'all';
+        dbTablesSchemaFilter = 'all';
+      }
+    }
+
+    function renderDbTables() {
+      const container = document.getElementById('db-tables-list');
+      if (!container) return;
+
+      const search = (dbTablesSearchQuery || '').toLowerCase().trim();
+      const schemaFilter = dbTablesSchemaFilter || 'all';
+      const rlsFilter = dbTablesRlsFilter || 'all';
+
+      let filtered = (loadedDbTables || []).filter((t) => {
+        if (schemaFilter !== 'all' && t.schema_name !== schemaFilter) {
+          return false;
+        }
+        if (rlsFilter === 'enabled' && !t.rls_enabled) return false;
+        if (rlsFilter === 'disabled' && t.rls_enabled) return false;
+
+        if (search) {
+          const full = `${t.schema_name}.${t.table_name}`.toLowerCase();
+          const tbl = (t.table_name || '').toLowerCase();
+          const sch = (t.schema_name || '').toLowerCase();
+          if (!full.includes(search) && !tbl.includes(search) && !sch.includes(search)) {
+            return false;
+          }
+        }
+        return true;
+      });
+
+      filtered.sort((a, b) => {
+        let cmp = 0;
+        if (dbTablesSortColumn === 'name') {
+          const nameA = `${a.schema_name}.${a.table_name}`.toLowerCase();
+          const nameB = `${b.schema_name}.${b.table_name}`.toLowerCase();
+          cmp = nameA.localeCompare(nameB);
+        } else if (dbTablesSortColumn === 'rows') {
+          const rowsA = parseInt(a.row_count_estimate || 0, 10);
+          const rowsB = parseInt(b.row_count_estimate || 0, 10);
+          cmp = rowsA - rowsB;
+        } else if (dbTablesSortColumn === 'size') {
+          const sizeA = typeof a.total_size_bytes === 'number' ? a.total_size_bytes : parseSizeToBytes(a.total_size);
+          const sizeB = typeof b.total_size_bytes === 'number' ? b.total_size_bytes : parseSizeToBytes(b.total_size);
+          cmp = sizeA - sizeB;
+        } else if (dbTablesSortColumn === 'rls') {
+          cmp = (a.rls_enabled ? 1 : 0) - (b.rls_enabled ? 1 : 0);
+        }
+        return dbTablesSortDir === 'asc' ? cmp : -cmp;
+      });
+
+      updateDbTablesCountBadge(filtered.length, loadedDbTables.length);
+
+      if (filtered.length === 0) {
+        if (loadedDbTables.length === 0) {
+          container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Sem tabelas públicas encontradas na base de dados de ${currentDbEnv}.</div>`;
+        } else {
+          container.innerHTML = `
+            <div class="text-center py-8 space-y-2">
+              <i data-lucide="search-x" class="w-8 h-8 text-slate-400 mx-auto"></i>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Nenhuma tabela encontrada com os filtros selecionados.</p>
+              <button onclick="clearDbTablesSearch()" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">Limpar Filtros</button>
+            </div>
+          `;
+        }
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
+
+      const sortIcon = (col) => {
+        if (dbTablesSortColumn !== col) {
+          return '<span class="text-slate-400 opacity-60 ml-1">⇅</span>';
+        }
+        return dbTablesSortDir === 'asc'
+          ? '<span class="text-indigo-600 dark:text-indigo-400 font-bold ml-1">▲</span>'
+          : '<span class="text-indigo-600 dark:text-indigo-400 font-bold ml-1">▼</span>';
+      };
+
+      const headerTh = (col, label, align = 'text-left') => {
+        const isActive = dbTablesSortColumn === col;
+        const activeCls = isActive
+          ? 'text-indigo-600 dark:text-indigo-400 font-extrabold bg-indigo-500/10'
+          : 'hover:text-slate-800 dark:hover:text-slate-200';
+        return `
+          <th onclick="sortDbTables('${col}')" class="p-3 ${align} cursor-pointer select-none transition ${activeCls}" title="Ordenar por ${label}">
+            <div class="flex items-center gap-1.5 ${align === 'text-right' ? 'justify-end' : ''}">
+              <span>${label}</span>
+              ${sortIcon(col)}
+            </div>
+          </th>
+        `;
+      };
+
+      container.innerHTML = `
+        <table class="w-full text-left text-xs font-mono">
+          <thead class="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+            <tr>
+              ${headerTh('name', 'Esquema.Tabela')}
+              ${headerTh('rows', 'Registos Est.')}
+              ${headerTh('size', 'Tamanho')}
+              ${headerTh('rls', 'RLS')}
+              <th class="p-3 text-right font-semibold">Ação</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+            ${filtered.map((t) => `
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40 transition">
+                <td class="p-3 font-bold text-slate-800 dark:text-slate-200">
+                  <span class="text-slate-400 font-normal">${escapeHtml(t.schema_name)}.</span><span>${escapeHtml(t.table_name)}</span>
+                </td>
+                <td class="p-3 text-slate-500 font-mono">${(t.row_count_estimate || 0).toLocaleString()}</td>
+                <td class="p-3 text-slate-500 font-mono font-semibold">${escapeHtml(t.total_size || '-')}</td>
+                <td class="p-3">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${t.rls_enabled ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}">
+                    ${t.rls_enabled ? 'ATIVADO' : 'DESATIVADO'}
+                  </span>
+                </td>
+                <td class="p-3 text-right">
+                  <button onclick="toggleTableRls('${t.schema_name}', '${t.table_name}', ${!t.rls_enabled})" class="px-2.5 py-1 rounded-lg text-[10px] font-bold ${t.rls_enabled ? 'bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20'} transition">
+                    ${t.rls_enabled ? 'Desativar RLS' : 'Ativar RLS'}
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function sortDbTables(col) {
+      if (dbTablesSortColumn === col) {
+        dbTablesSortDir = dbTablesSortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        dbTablesSortColumn = col;
+        dbTablesSortDir = (col === 'size' || col === 'rows') ? 'desc' : 'asc';
+      }
+      renderDbTables();
+    }
+
+    function handleDbTablesSearch(val) {
+      dbTablesSearchQuery = val;
+      const clearBtn = document.getElementById('db-tables-search-clear');
+      if (clearBtn) clearBtn.classList.toggle('hidden', !val);
+      renderDbTables();
+    }
+
+    function clearDbTablesSearch() {
+      dbTablesSearchQuery = '';
+      dbTablesSchemaFilter = 'all';
+      dbTablesRlsFilter = 'all';
+      const inp = document.getElementById('db-tables-search');
+      if (inp) inp.value = '';
+      const clearBtn = document.getElementById('db-tables-search-clear');
+      if (clearBtn) clearBtn.classList.add('hidden');
+      const schSelect = document.getElementById('db-tables-schema-filter');
+      if (schSelect) schSelect.value = 'all';
+      const rlsSelect = document.getElementById('db-tables-rls-filter');
+      if (rlsSelect) rlsSelect.value = 'all';
+      renderDbTables();
+    }
+
+    function handleDbTablesSchemaFilter(val) {
+      dbTablesSchemaFilter = val;
+      renderDbTables();
+    }
+
+    function handleDbTablesRlsFilter(val) {
+      dbTablesRlsFilter = val;
+      renderDbTables();
+    }
+
+    function updateDbTablesCountBadge(visibleCount, totalCount) {
+      const badge = document.getElementById('db-tables-count-badge');
+      if (!badge) return;
+      if (visibleCount === totalCount) {
+        badge.textContent = `${totalCount} tabelas`;
+      } else {
+        badge.textContent = `${visibleCount} de ${totalCount} tabelas`;
+      }
     }
 
     async function toggleTableRls(schema, table, enable) {

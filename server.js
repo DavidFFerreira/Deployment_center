@@ -4328,6 +4328,7 @@ app.get("/api/db/tables", requireAuth, async (req, res) => {
         c.relname as table_name,
         n.nspname as schema_name,
         c.reltuples::bigint as row_count_estimate,
+        pg_total_relation_size(c.oid) as total_size_bytes,
         pg_size_pretty(pg_total_relation_size(c.oid)) as total_size,
         c.relrowsecurity as rls_enabled
       FROM pg_class c
