@@ -179,6 +179,71 @@
       padding: 8px 12px;
       font-weight: 600;
     }
+  
+    /* ===================================================================== */
+    /* WOW ULTRA-MODERN POPUP & MODAL ANIMATIONS                             */
+    /* ===================================================================== */
+    @keyframes wow-modal-in {
+      0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(16px);
+        filter: blur(8px);
+      }
+      60% {
+        transform: scale(1.018) translateY(-2px);
+        filter: blur(0px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    @keyframes wow-modal-out {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0px);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.93) translateY(10px);
+        filter: blur(4px);
+      }
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .animate-fade-in {
+      animation: fade-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-wow-in {
+      animation: wow-modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-wow-out {
+      animation: wow-modal-out 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .glow-emerald {
+      box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.55), 0 0 15px -2px rgba(16, 185, 129, 0.35);
+    }
+    .glow-rose {
+      box-shadow: 0 0 35px -5px rgba(244, 63, 94, 0.55), 0 0 15px -2px rgba(244, 63, 94, 0.35);
+    }
+    .glow-amber {
+      box-shadow: 0 0 35px -5px rgba(245, 158, 11, 0.55), 0 0 15px -2px rgba(245, 158, 11, 0.35);
+    }
+    .glow-indigo {
+      box-shadow: 0 0 35px -5px rgba(99, 102, 241, 0.55), 0 0 15px -2px rgba(99, 102, 241, 0.35);
+    }
+    .glow-purple {
+      box-shadow: 0 0 35px -5px rgba(168, 85, 247, 0.55), 0 0 15px -2px rgba(168, 85, 247, 0.35);
+    }
   </style>
 </head>
 <body class="min-h-screen antialiased transition-colors duration-200">
@@ -3328,6 +3393,55 @@
     </div>
   </div>
 
+  
+  <!-- ===================================================================== -->
+  <!-- WOW ULTRA-MODERN POPUP SYSTEM (Alert, Confirm, Prompt & Visual Audio) -->
+  <!-- ===================================================================== -->
+  <div id="wow-popup-modal" class="fixed inset-0 z-[120] hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl transition-all duration-300">
+    <!-- Glowing ambient orb behind card -->
+    <div id="wow-ambient-glow" class="absolute w-80 h-80 rounded-full blur-3xl opacity-35 pointer-events-none transition-all duration-500 bg-indigo-500"></div>
+
+    <!-- The Popup Card with Cyber Glass styling -->
+    <div id="wow-popup-card" class="relative max-w-md w-full rounded-3xl glass-card border border-white/10 dark:border-slate-700/60 p-6 space-y-5 shadow-2xl shadow-indigo-950/50 flex flex-col transition-all duration-300">
+      <!-- Top badge + title + close X -->
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3.5">
+          <div id="wow-icon-box" class="p-3.5 rounded-2xl shrink-0 transition-transform duration-300 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+            <i data-lucide="help-circle" class="w-6 h-6" id="wow-icon"></i>
+          </div>
+          <div>
+            <span id="wow-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border border-indigo-500/30 bg-indigo-500/10 text-indigo-400">DEPLOY CENTER</span>
+            <h3 class="font-extrabold text-base text-slate-900 dark:text-white mt-1 leading-snug tracking-tight" id="wow-title">Confirmação</h3>
+          </div>
+        </div>
+        <button onclick="dismissWowPopup(null)" id="wow-close-x" class="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Message text area -->
+      <div class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium space-y-2 select-text" id="wow-message"></div>
+
+      <!-- Input for Prompt mode -->
+      <div id="wow-input-container" class="hidden space-y-1.5">
+        <label id="wow-input-label" class="text-[11px] font-bold text-slate-400 block"></label>
+        <div class="relative">
+          <input type="text" id="wow-input-field" class="w-full px-4 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-white placeholder-slate-500 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition shadow-inner">
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200/60 dark:border-slate-800/80" id="wow-actions">
+        <button id="wow-btn-cancel" onclick="dismissWowPopup(false)" class="px-4 py-2 rounded-xl border border-slate-700/60 bg-slate-800/40 hover:bg-slate-700/60 text-slate-300 text-xs font-bold transition active:scale-95">
+          Cancelar
+        </button>
+        <button id="wow-btn-confirm" onclick="confirmWowPopup()" class="px-5 py-2 rounded-xl text-white text-xs font-bold transition shadow-lg active:scale-95 bg-indigo-600 hover:bg-indigo-500">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===================================================================== -->
   <!-- SCRIPTS E LÓGICA DO DEPLOY CENTER v3.0                                -->
   <!-- ===================================================================== -->
@@ -3948,7 +4062,45 @@
     "tab_logs": "Logs",
     "tab_files": "Ficheiros",
     "password": "Palavra-passe de Encriptação",
-    "env_prod_official": "Produção Oficial"
+    "env_prod_official": "Produção Oficial",
+    "confirm_restart_container": "Reiniciar o contentor {name}?",
+    "confirm_restart_all_containers": "Tem a certeza de que deseja reiniciar todos os contentores do projeto?",
+    "confirm_reset_ai_rules": "Deseja restaurar todas as 6 diretivas de IA para os valores padrão oficiais?",
+    "confirm_reset_ai_skills": "Deseja restaurar todas as skills de IA para o catálogo padrão oficial?",
+    "confirm_revoke_api_key": "Tem a certeza que deseja revogar esta chave de API? Qualquer SaaS conectado deixará de conseguir autenticar-se.",
+    "state_copied": "Copiado!",
+    "alert_terminal_copied": "Output do terminal copiado!",
+    "alert_no_error_report": "Nenhum relatório de erro disponível.",
+    "alert_no_commit_to_promote": "Nenhum commit ativo em Testes para promover.",
+    "alert_no_previous_version": "Sem versão anterior registada para este ambiente.",
+    "btn_restore_env": "Restaurar ({env})",
+    "containers_none_active": "Nenhum contentor ativo encontrado para este projeto.",
+    "containers_none_filtered": "Nenhum contentor encontrado com os filtros selecionados.",
+    "btn_confirm": "Confirmar",
+    "btn_ok": "OK",
+    "btn_delete": "Eliminar",
+    "btn_revoke": "Revogar",
+    "wow_title_confirm": "Confirmação Necessária",
+    "wow_title_alert": "Aviso do Sistema",
+    "wow_title_prompt": "Introdução de Dados",
+    "confirm_delete_skill": "Tem a certeza de que deseja apagar a skill \"{name}\"?",
+    "confirm_clear_build_cache": "Deseja eliminar os artefactos de compilação antigos (.build_cache)? Isto libertará espaço em disco.",
+    "confirm_docker_optimize": "Deseja executar a otimização de imagens e cache do Docker? Isto executa `docker image prune` e `docker builder prune`.",
+    "confirm_db_backup": "Criar novo backup {mode} da base de dados ({env})?",
+    "confirm_db_restore": "⚠️ ATENÇÃO: Tem a certeza de que deseja restaurar o backup '{filename}' no ambiente {env}? Os dados atuais serão substituídos.",
+    "confirm_delete_storage": "Tem a certeza de que deseja eliminar '{name}'?",
+    "prompt_bucket_name": "Nome do novo Bucket:",
+    "prompt_folder_name": "Nome da nova pasta:",
+    "prompt_skill_url": "Cole o URL do ficheiro SKILL.md no GitHub:",
+    "alert_api_key_saved": "Chave de API memorizada na sessão!",
+    "alert_project_id_copied": "ID \"{id}\" copiado!",
+    "alert_skill_name_required": "Por favor introduza o nome da Skill.",
+    "alert_select_sql": "Selecione um ficheiro .sql",
+    "alert_select_zip": "Por favor selecione um ficheiro .zip válido.",
+    "alert_backup_created": "Backup criado com sucesso! Ficheiro: {filename}",
+    "alert_db_restored": "Restauro da base de dados concluído com sucesso em {env}!",
+    "alert_zip_restore_success": "🎉 Restauro concluído com sucesso! Foram repostos {count} ficheiro(s).",
+    "app_title_full": "Deployment Center — Gestão Universal de Infraestrutura & Deploys"
   },
   "en": {
     "wz_zip_label": "Initial Source Code (.ZIP File)",
@@ -4562,7 +4714,45 @@
     "tab_logs": "Logs",
     "tab_files": "Files",
     "password": "Encryption Password",
-    "env_prod_official": "Official Production"
+    "env_prod_official": "Official Production",
+    "confirm_restart_container": "Restart container {name}?",
+    "confirm_restart_all_containers": "Are you sure you want to restart all project containers?",
+    "confirm_reset_ai_rules": "Do you want to restore all 6 AI directives to their official defaults?",
+    "confirm_reset_ai_skills": "Do you want to restore all AI skills to the official default catalog?",
+    "confirm_revoke_api_key": "Are you sure you want to revoke this API key? Any connected SaaS will no longer be able to authenticate.",
+    "state_copied": "Copied!",
+    "alert_terminal_copied": "Terminal output copied!",
+    "alert_no_error_report": "No error report available.",
+    "alert_no_commit_to_promote": "No active commit in Staging to promote.",
+    "alert_no_previous_version": "No previous version recorded for this environment.",
+    "btn_restore_env": "Restore ({env})",
+    "containers_none_active": "No active containers found for this project.",
+    "containers_none_filtered": "No containers found matching selected filters.",
+    "btn_confirm": "Confirm",
+    "btn_ok": "OK",
+    "btn_delete": "Delete",
+    "btn_revoke": "Revoke",
+    "wow_title_confirm": "Confirmation Required",
+    "wow_title_alert": "System Notice",
+    "wow_title_prompt": "Data Input",
+    "confirm_delete_skill": "Are you sure you want to delete skill \"{name}\"?",
+    "confirm_clear_build_cache": "Do you want to delete old build artifacts (.build_cache)? This will free up disk space.",
+    "confirm_docker_optimize": "Do you want to run Docker image and cache optimization? This runs `docker image prune` and `docker builder prune`.",
+    "confirm_db_backup": "Create new {mode} database backup ({env})?",
+    "confirm_db_restore": "⚠️ WARNING: Are you sure you want to restore backup '{filename}' into {env}? Current data will be replaced.",
+    "confirm_delete_storage": "Are you sure you want to delete '{name}'?",
+    "prompt_bucket_name": "New Bucket Name:",
+    "prompt_folder_name": "New Folder Name:",
+    "prompt_skill_url": "Paste the SKILL.md file URL from GitHub:",
+    "alert_api_key_saved": "API key saved to session!",
+    "alert_project_id_copied": "ID \"{id}\" copied!",
+    "alert_skill_name_required": "Please enter a Skill name.",
+    "alert_select_sql": "Please select a .sql file",
+    "alert_select_zip": "Please select a valid .zip file.",
+    "alert_backup_created": "Backup created successfully! File: {filename}",
+    "alert_db_restored": "Database restore completed successfully in {env}!",
+    "alert_zip_restore_success": "🎉 Restore completed successfully! Restored {count} file(s).",
+    "app_title_full": "Deployment Center — Universal Infrastructure & Deploy Management"
   },
   "it": {
     "wz_zip_label": "Codice Sorgente Iniziale (File .ZIP)",
@@ -5176,7 +5366,45 @@
     "tab_logs": "Log",
     "tab_files": "File",
     "password": "Password di crittografia",
-    "env_prod_official": "Produzione Ufficiale"
+    "env_prod_official": "Produzione Ufficiale",
+    "confirm_restart_container": "Riavviare il container {name}?",
+    "confirm_restart_all_containers": "Sei sicuro di voler riavviare tutti i container del progetto?",
+    "confirm_reset_ai_rules": "Desideri ripristinare tutte le 6 direttive IA ai valori predefiniti ufficiali?",
+    "confirm_reset_ai_skills": "Desideri ripristinare tutte le skill IA al catalogo predefinito ufficiale?",
+    "confirm_revoke_api_key": "Sei sicuro di voler revocare questa chiave API? Qualsiasi SaaS collegato non potrà più autenticarsi.",
+    "state_copied": "Copiato!",
+    "alert_terminal_copied": "Output del terminale copiato!",
+    "alert_no_error_report": "Nessun report di errore disponibile.",
+    "alert_no_commit_to_promote": "Nessun commit attivo in Test da promuovere.",
+    "alert_no_previous_version": "Nessuna versione precedente registrata per questo ambiente.",
+    "btn_restore_env": "Ripristina ({env})",
+    "containers_none_active": "Nessun container attivo trovato per questo progetto.",
+    "containers_none_filtered": "Nessun container trovato con i filtri selezionati.",
+    "btn_confirm": "Conferma",
+    "btn_ok": "OK",
+    "btn_delete": "Elimina",
+    "btn_revoke": "Revoca",
+    "wow_title_confirm": "Conferma Richiesta",
+    "wow_title_alert": "Avviso di Sistema",
+    "wow_title_prompt": "Inserimento Dati",
+    "confirm_delete_skill": "Sei sicuro di voler eliminare la skill \"{name}\"?",
+    "confirm_clear_build_cache": "Desideri eliminare i vecchi artefatti di compilazione (.build_cache)? Questo libererà spazio su disco.",
+    "confirm_docker_optimize": "Desideri ottimizzare le immagini e la cache di Docker? Verrà eseguito `docker image prune` e `docker builder prune`.",
+    "confirm_db_backup": "Creare un nuovo backup {mode} del database ({env})?",
+    "confirm_db_restore": "⚠️ ATTENZIONE: Sei sicuro di voler ripristinare il backup '{filename}' in {env}? I dati attuali saranno sostituiti.",
+    "confirm_delete_storage": "Sei sicuro di voler eliminare '{name}'?",
+    "prompt_bucket_name": "Nome del nuovo Bucket:",
+    "prompt_folder_name": "Nome della nuova cartella:",
+    "prompt_skill_url": "Incolla l'URL del file SKILL.md su GitHub:",
+    "alert_api_key_saved": "Chiave API salvata nella sessione!",
+    "alert_project_id_copied": "ID \"{id}\" copiato!",
+    "alert_skill_name_required": "Inserisci il nome della Skill.",
+    "alert_select_sql": "Seleziona un file .sql",
+    "alert_select_zip": "Seleziona un file .zip valido.",
+    "alert_backup_created": "Backup creato con successo! File: {filename}",
+    "alert_db_restored": "Ripristino del database completato con successo in {env}!",
+    "alert_zip_restore_success": "🎉 Ripristino completato con successo! Ripristinati {count} file.",
+    "app_title_full": "Deployment Center — Gestione Universale dell'Infrastruttura e Deploy"
   },
   "de": {
     "wz_zip_label": "Initialer Quellcode (.ZIP-Datei)",
@@ -5790,7 +6018,45 @@
     "tab_logs": "Protokolle",
     "tab_files": "Dateien",
     "password": "Verschlüsselungspasswort",
-    "env_prod_official": "Offizielle Produktion"
+    "env_prod_official": "Offizielle Produktion",
+    "confirm_restart_container": "Container {name} neustarten?",
+    "confirm_restart_all_containers": "Möchten Sie wirklich alle Projekt-Container neustarten?",
+    "confirm_reset_ai_rules": "Möchten Sie alle 6 KI-Richtlinien auf die offiziellen Standardwerte zurücksetzen?",
+    "confirm_reset_ai_skills": "Möchten Sie alle KI-Skills auf den offiziellen Standardkatalog zurücksetzen?",
+    "confirm_revoke_api_key": "Möchten Sie diesen API-Schlüssel wirklich widerrufen? Verbundene SaaS-Dienste können sich nicht mehr authentifizieren.",
+    "state_copied": "Kopiert!",
+    "alert_terminal_copied": "Terminal-Ausgabe kopiert!",
+    "alert_no_error_report": "Kein Fehlerbericht verfügbar.",
+    "alert_no_commit_to_promote": "Kein aktiver Commit in der Testumgebung zum Befördern vorhanden.",
+    "alert_no_previous_version": "Keine vorherige Version für diese Umgebung erfasst.",
+    "btn_restore_env": "Wiederherstellen ({env})",
+    "containers_none_active": "Keine aktiven Container für dieses Projekt gefunden.",
+    "containers_none_filtered": "Keine Container für die ausgewählten Filter gefunden.",
+    "btn_confirm": "Bestätigen",
+    "btn_ok": "OK",
+    "btn_delete": "Löschen",
+    "btn_revoke": "Widerrufen",
+    "wow_title_confirm": "Bestätigung Erforderlich",
+    "wow_title_alert": "System-Hinweis",
+    "wow_title_prompt": "Dateneingabe",
+    "confirm_delete_skill": "Möchten Sie den Skill \"{name}\" wirklich löschen?",
+    "confirm_clear_build_cache": "Möchten Sie alte Build-Artefakte (.build_cache) löschen? Dies wird Speicherplatz freigeben.",
+    "confirm_docker_optimize": "Möchten Sie Docker-Images und Cache optimieren? Dies führt `docker image prune` und `docker builder prune` aus.",
+    "confirm_db_backup": "Neues {mode}-Datenbank-Backup erstellen ({env})?",
+    "confirm_db_restore": "⚠️ ACHTUNG: Möchten Sie das Backup '{filename}' in {env} wirklich wiederherstellen? Aktuelle Daten werden überschrieben.",
+    "confirm_delete_storage": "Möchten Sie '{name}' wirklich löschen?",
+    "prompt_bucket_name": "Name des neuen Buckets:",
+    "prompt_folder_name": "Name des neuen Ordners:",
+    "prompt_skill_url": "Fügen Sie die URL der SKILL.md-Datei auf GitHub ein:",
+    "alert_api_key_saved": "API-Schlüssel in der Sitzung gespeichert!",
+    "alert_project_id_copied": "ID \"{id}\" kopiert!",
+    "alert_skill_name_required": "Bitte geben Sie den Namen des Skills ein.",
+    "alert_select_sql": "Bitte wählen Sie eine .sql-Datei aus",
+    "alert_select_zip": "Bitte wählen Sie eine gültige .zip-Datei aus.",
+    "alert_backup_created": "Backup erfolgreich erstellt! Datei: {filename}",
+    "alert_db_restored": "Datenbank-Wiederherstellung in {env} erfolgreich abgeschlossen!",
+    "alert_zip_restore_success": "🎉 Wiederherstellung erfolgreich! {count} Datei(en) wiederhergestellt.",
+    "app_title_full": "Deployment Center — Universelles Infrastruktur- & Deployment-Management"
   },
   "de-AT": {
     "wz_zip_label": "Initialer Quellcode (.ZIP-Datei)",
@@ -6404,7 +6670,45 @@
     "tab_logs": "Protokolle",
     "tab_files": "Dateien",
     "password": "Verschlüsselungspasswort",
-    "env_prod_official": "Offizielle Produktion"
+    "env_prod_official": "Offizielle Produktion",
+    "confirm_restart_container": "Container {name} neustarten?",
+    "confirm_restart_all_containers": "Möchten Sie wirklich alle Projekt-Container neustarten?",
+    "confirm_reset_ai_rules": "Möchten Sie alle 6 KI-Richtlinien auf die offiziellen Standardwerte zurücksetzen?",
+    "confirm_reset_ai_skills": "Möchten Sie alle KI-Skills auf den offiziellen Standardkatalog zurücksetzen?",
+    "confirm_revoke_api_key": "Möchten Sie diesen API-Schlüssel wirklich widerrufen? Verbundene SaaS-Dienste können sich nicht mehr authentifizieren.",
+    "state_copied": "Kopiert!",
+    "alert_terminal_copied": "Terminal-Ausgabe kopiert!",
+    "alert_no_error_report": "Kein Fehlerbericht verfügbar.",
+    "alert_no_commit_to_promote": "Kein aktiver Commit in der Testumgebung zum Befördern vorhanden.",
+    "alert_no_previous_version": "Keine vorherige Version für diese Umgebung erfasst.",
+    "btn_restore_env": "Wiederherstellen ({env})",
+    "containers_none_active": "Keine aktiven Container für dieses Projekt gefunden.",
+    "containers_none_filtered": "Keine Container für die ausgewählten Filter gefunden.",
+    "btn_confirm": "Bestätigen",
+    "btn_ok": "OK",
+    "btn_delete": "Löschen",
+    "btn_revoke": "Widerrufen",
+    "wow_title_confirm": "Bestätigung Erforderlich",
+    "wow_title_alert": "System-Hinweis",
+    "wow_title_prompt": "Dateneingabe",
+    "confirm_delete_skill": "Möchten Sie den Skill \"{name}\" wirklich löschen?",
+    "confirm_clear_build_cache": "Möchten Sie alte Build-Artefakte (.build_cache) löschen? Dies wird Speicherplatz freigeben.",
+    "confirm_docker_optimize": "Möchten Sie Docker-Images und Cache optimieren? Dies führt `docker image prune` und `docker builder prune` aus.",
+    "confirm_db_backup": "Neues {mode}-Datenbank-Backup erstellen ({env})?",
+    "confirm_db_restore": "⚠️ ACHTUNG: Möchten Sie das Backup '{filename}' in {env} wirklich wiederherstellen? Aktuelle Daten werden überschrieben.",
+    "confirm_delete_storage": "Möchten Sie '{name}' wirklich löschen?",
+    "prompt_bucket_name": "Name des neuen Buckets:",
+    "prompt_folder_name": "Name des neuen Ordners:",
+    "prompt_skill_url": "Fügen Sie die URL der SKILL.md-Datei auf GitHub ein:",
+    "alert_api_key_saved": "API-Schlüssel in der Sitzung gespeichert!",
+    "alert_project_id_copied": "ID \"{id}\" kopiert!",
+    "alert_skill_name_required": "Bitte geben Sie den Namen des Skills ein.",
+    "alert_select_sql": "Bitte wählen Sie eine .sql-Datei aus",
+    "alert_select_zip": "Bitte wählen Sie eine gültige .zip-Datei aus.",
+    "alert_backup_created": "Backup erfolgreich erstellt! Datei: {filename}",
+    "alert_db_restored": "Datenbank-Wiederherstellung in {env} erfolgreich abgeschlossen!",
+    "alert_zip_restore_success": "🎉 Wiederherstellung erfolgreich! {count} Datei(en) wiederhergestellt.",
+    "app_title_full": "Deployment Center — Universelles Infrastruktur- & Deployment-Management"
   },
   "nl": {
     "wz_zip_label": "Initiële Broncode (.ZIP-bestand)",
@@ -7043,7 +7347,45 @@
     "tab_logs": "Logs",
     "tab_files": "Bestanden",
     "password": "Versleutelingswachtwoord",
-    "env_prod_official": "Officiële Productie"
+    "env_prod_official": "Officiële Productie",
+    "confirm_restart_container": "Container {name} herstarten?",
+    "confirm_restart_all_containers": "Weet u zeker dat u alle containers van het project wilt herstarten?",
+    "confirm_reset_ai_rules": "Wilt u alle 6 AI-richtlijnen herstellen naar de officiële standaardwaarden?",
+    "confirm_reset_ai_skills": "Wilt u alle AI-vaardigheden herstellen naar de officiële standaardcatalogus?",
+    "confirm_revoke_api_key": "Weet u zeker dat u deze API-sleutel wilt intrekken? Verbonden SaaS-diensten kunnen niet langer verifiëren.",
+    "state_copied": "Gekopieerd!",
+    "alert_terminal_copied": "Terminaluitvoer gekopieerd!",
+    "alert_no_error_report": "Geen foutrapport beschikbaar.",
+    "alert_no_commit_to_promote": "Geen actieve commit in Staging om te promoten.",
+    "alert_no_previous_version": "Geen eerdere versie geregistreerd voor deze omgeving.",
+    "btn_restore_env": "Herstellen ({env})",
+    "containers_none_active": "Geen actieve containers gevonden voor dit project.",
+    "containers_none_filtered": "Geen containers gevonden met de geselecteerde filters.",
+    "btn_confirm": "Bevestigen",
+    "btn_ok": "OK",
+    "btn_delete": "Verwijderen",
+    "btn_revoke": "Intrekken",
+    "wow_title_confirm": "Bevestiging Vereist",
+    "wow_title_alert": "Systeemmelding",
+    "wow_title_prompt": "Gegevensinvoer",
+    "confirm_delete_skill": "Weet u zeker dat u skill \"{name}\" wilt verwijderen?",
+    "confirm_clear_build_cache": "Wilt u oude build-artefacten (.build_cache) verwijderen? Dit maakt schijfruimte vrij.",
+    "confirm_docker_optimize": "Wilt u Docker-images en cache optimaliseren? Dit voert `docker image prune` en `docker builder prune` uit.",
+    "confirm_db_backup": "Nieuwe {mode}-databaseback-up maken ({env})?",
+    "confirm_db_restore": "⚠️ WAARSCHUWING: Weet u zeker dat u back-up '{filename}' wilt herstellen in {env}? Huidige gegevens worden vervangen.",
+    "confirm_delete_storage": "Weet u zeker dat u '{name}' wilt verwijderen?",
+    "prompt_bucket_name": "Naam van nieuwe bucket:",
+    "prompt_folder_name": "Naam van nieuwe map:",
+    "prompt_skill_url": "Plak de URL van het SKILL.md-bestand op GitHub:",
+    "alert_api_key_saved": "API-sleutel opgeslagen in sessie!",
+    "alert_project_id_copied": "ID \"{id}\" gekopieerd!",
+    "alert_skill_name_required": "Voer de naam van de Skill in.",
+    "alert_select_sql": "Selecteer een .sql-bestand",
+    "alert_select_zip": "Selecteer een geldig .zip-bestand.",
+    "alert_backup_created": "Back-up succesvol gemaakt! Bestand: {filename}",
+    "alert_db_restored": "Databaseherstel succesvol voltooid in {env}!",
+    "alert_zip_restore_success": "🎉 Herstel succesvol voltooid! {count} bestand(en) hersteld.",
+    "app_title_full": "Deployment Center — Universeel Infrastructuur- & Implementatiebeheer"
   },
   "el": {
     "wz_zip_label": "Αρχικός Πηγαίος Κώδικας (Αρχείο .ZIP)",
@@ -7497,7 +7839,7 @@
     "confirm_deploy_prod": "Επιβεβαίωση δημοσίευσης στην παραγωγή",
     "confirm_deploy_prod_sub": "Ο επίσημος ιστότοπος ({port}) θα ενημερωθεί σε αυτήν την έκδοση.",
     "btn_start_deploy": "Έναρξη ανάπτυξης",
-    "btn_cancel": "Άκυρο",
+    "btn_cancel": "Ακύρωση",
     "btn_publishing": "Δημοσίευση...",
     "status_deploy_failed": "Αποτυχία ανάπτυξης",
     "port_label": "Θύρα",
@@ -7682,7 +8024,45 @@
     "tab_logs": "Αρχεία καταγραφής",
     "tab_files": "Αρχεία",
     "password": "Κωδικός κρυπτογράφησης",
-    "env_prod_official": "Επίσημη Παραγωγή"
+    "env_prod_official": "Επίσημη Παραγωγή",
+    "confirm_restart_container": "Επανεκκίνηση του container {name};",
+    "confirm_restart_all_containers": "Είστε βέβαιοι ότι θέλετε να επανεκκινήσετε όλα τα containers του έργου;",
+    "confirm_reset_ai_rules": "Θέλετε να επαναφέρετε και τις 6 οδηγίες AI στις επίσημες προεπιλογές;",
+    "confirm_reset_ai_skills": "Θέλετε να επαναφέρετε όλες τις δεξιότητες AI στον επίσημο κατάλογο;",
+    "confirm_revoke_api_key": "Είστε βέβαιοι ότι θέλετε να ανακαλέσετε αυτό το κλειδί API; Οποιοδήποτε συνδεδεμένο SaaS δεν θα μπορεί πλέον να επικυρωθεί.",
+    "state_copied": "Αντιγράφηκε!",
+    "alert_terminal_copied": "Η έξοδος τερματικού αντιγράφηκε!",
+    "alert_no_error_report": "Δεν υπάρχει διαθέσιμη αναφορά σφάλματος.",
+    "alert_no_commit_to_promote": "Δεν υπάρχει ενεργό commit στις Δοκιμές προς προώθηση.",
+    "alert_no_previous_version": "Δεν έχει καταγραφεί προηγούμενη έκδοση για αυτό το περιβάλλον.",
+    "btn_restore_env": "Επαναφορά ({env})",
+    "containers_none_active": "Δεν βρέθηκαν ενεργά containers για αυτό το έργο.",
+    "containers_none_filtered": "Δεν βρέθηκαν containers με τα επιλεγμένα φίλτρα.",
+    "btn_confirm": "Επιβεβαίωση",
+    "btn_ok": "OK",
+    "btn_delete": "Διαγραφή",
+    "btn_revoke": "Ανάκληση",
+    "wow_title_confirm": "Απαιτείται Επιβεβαίωση",
+    "wow_title_alert": "Ειδοποίηση Συστήματος",
+    "wow_title_prompt": "Εισαγωγή Δεδομένων",
+    "confirm_delete_skill": "Είστε βέβαιοι ότι θέλετε να διαγράψετε τη δεξιότητα \"{name}\";",
+    "confirm_clear_build_cache": "Θέλετε να διαγράψετε τα παλιά αντικείμενα δόμησης (.build_cache); Αυτό θα ελευθερώσει χώρο.",
+    "confirm_docker_optimize": "Θέλετε να βελτιστοποιήσετε τις εικόνες και την cache του Docker; Θα εκτελεστεί prune.",
+    "confirm_db_backup": "Δημιουργία νέου {mode} αντιγράφου ασφαλείας βάσης δεδομένων ({env});",
+    "confirm_db_restore": "⚠️ ΠΡΟΣΟΧΗ: Θέλετε να επαναφέρετε το αντίγραφο '{filename}' στο {env}; Τα τρέχοντα δεδομένα θα αντικατασταθούν.",
+    "confirm_delete_storage": "Είστε βέβαιοι ότι θέλετε να διαγράψετε το '{name}';",
+    "prompt_bucket_name": "Όνομα νέου κάδου:",
+    "prompt_folder_name": "Όνομα νέου φακέλου:",
+    "prompt_skill_url": "Επικολλήστε το URL του αρχείου SKILL.md στο GitHub:",
+    "alert_api_key_saved": "Το κλειδί API αποθηκεύτηκε στη συνεδρία!",
+    "alert_project_id_copied": "Το ID \"{id}\" αντιγράφηκε!",
+    "alert_skill_name_required": "Παρακαλώ εισαγάγετε το όνομα της δεξιότητας.",
+    "alert_select_sql": "Επιλέξτε ένα αρχείο .sql",
+    "alert_select_zip": "Επιλέξτε ένα έγκυρο αρχείο .zip.",
+    "alert_backup_created": "Το αντίγραφο ασφαλείας δημιουργήθηκε με επιτυχία! Αρχείο: {filename}",
+    "alert_db_restored": "Η επαναφορά της βάσης δεδομένων ολοκληρώθηκε με επιτυχία στο {env}!",
+    "alert_zip_restore_success": "🎉 Η επαναφορά ολοκληρώθηκε με επιτυχία! Επαναφέρθηκαν {count} αρχεία.",
+    "app_title_full": "Deployment Center — Καθολική Διαχείριση Υποδομών & Αναπτύξεων"
   },
   "pl": {
     "wz_zip_label": "Początkowy Kod Źródłowy (Plik .ZIP)",
@@ -8321,7 +8701,45 @@
     "tab_logs": "Dzienniki",
     "tab_files": "Pliki",
     "password": "Hasło szyfrowania",
-    "env_prod_official": "Oficjalna Produkcja"
+    "env_prod_official": "Oficjalna Produkcja",
+    "confirm_restart_container": "Zrestartować kontener {name}?",
+    "confirm_restart_all_containers": "Czy na pewno chcesz zrestartować wszystkie kontenery projektu?",
+    "confirm_reset_ai_rules": "Czy chcesz przywrócić wszystkie 6 dyrektyw AI do oficjalnych wartości domyślnych?",
+    "confirm_reset_ai_skills": "Czy chcesz przywrócić wszystkie umiejętności AI do oficjalnego katalogu domyślnego?",
+    "confirm_revoke_api_key": "Czy na pewno chcesz unieważnić ten klucz API? Wszystkie połączone usługi SaaS utracą możliwość uwierzytelniania.",
+    "state_copied": "Skopiowano!",
+    "alert_terminal_copied": "Wynik terminala został skopiowany!",
+    "alert_no_error_report": "Brak dostępnego raportu o błędach.",
+    "alert_no_commit_to_promote": "Brak aktywnego commita w środowisku testowym do promowania.",
+    "alert_no_previous_version": "Brak wcześniejszej wersji zarejestrowanej dla tego środowiska.",
+    "btn_restore_env": "Przywróć ({env})",
+    "containers_none_active": "Nie znaleziono aktywnych kontenerów dla tego projektu.",
+    "containers_none_filtered": "Nie znaleziono kontenerów spełniających wybrane filtry.",
+    "btn_confirm": "Potwierdź",
+    "btn_ok": "OK",
+    "btn_delete": "Usuń",
+    "btn_revoke": "Unieważnij",
+    "wow_title_confirm": "Wymagane Potwierdzenie",
+    "wow_title_alert": "Powiadomienie Systemowe",
+    "wow_title_prompt": "Wprowadzanie Danych",
+    "confirm_delete_skill": "Czy na pewno chcesz usunąć umiejętność \"{name}\"?",
+    "confirm_clear_build_cache": "Czy chcesz usunąć stare artefakty kompilacji (.build_cache)? Zwolni to miejsce na dysku.",
+    "confirm_docker_optimize": "Czy chcesz zoptymalizować obrazy i pamięć podręczną Dockera? Wykona to polecenia prune.",
+    "confirm_db_backup": "Utworzyć nową kopię zapasową {mode} bazy danych ({env})?",
+    "confirm_db_restore": "⚠️ UWAGA: Czy na pewno chcesz przywrócić kopię '{filename}' w środowisku {env}? Bieżące dane zostaną zastąpione.",
+    "confirm_delete_storage": "Czy na pewno chcesz usunąć '{name}'?",
+    "prompt_bucket_name": "Nazwa nowego zasobnika (bucket):",
+    "prompt_folder_name": "Nazwa nowego folderu:",
+    "prompt_skill_url": "Wklej adres URL pliku SKILL.md z GitHuba:",
+    "alert_api_key_saved": "Klucz API został zapisany w sesji!",
+    "alert_project_id_copied": "ID \"{id}\" skopiowane!",
+    "alert_skill_name_required": "Wprowadź nazwę umiejętności.",
+    "alert_select_sql": "Wybierz plik .sql",
+    "alert_select_zip": "Wybierz prawidłowy plik .zip.",
+    "alert_backup_created": "Kopia zapasowa została utworzona! Plik: {filename}",
+    "alert_db_restored": "Przywracanie bazy danych zakończone pomyślnie w {env}!",
+    "alert_zip_restore_success": "🎉 Przywracanie zakończone pomyślnie! Przywrócono {count} plików.",
+    "app_title_full": "Deployment Center — Uniwersalne Zarządzanie Infrastrukturą i Wdrożeniami"
   },
   "ru": {
     "wz_zip_label": "Исходный Код (.ZIP Файл)",
@@ -8960,7 +9378,45 @@
     "tab_logs": "Логи",
     "tab_files": "Файлы",
     "password": "Пароль шифрования",
-    "env_prod_official": "Официальный Прод"
+    "env_prod_official": "Официальный Прод",
+    "confirm_restart_container": "Перезапустить контейнер {name}?",
+    "confirm_restart_all_containers": "Вы уверены, что хотите перезапустить все контейнеры проекта?",
+    "confirm_reset_ai_rules": "Восстановить все 6 директив ИИ до официальных значений по умолчанию?",
+    "confirm_reset_ai_skills": "Восстановить все навыки ИИ до официального каталога по умолчанию?",
+    "confirm_revoke_api_key": "Вы уверены, что хотите отозвать этот API-ключ? Все подключенные SaaS-сервисы больше не смогут аутентифицироваться.",
+    "state_copied": "Скопировано!",
+    "alert_terminal_copied": "Вывод терминала скопирован!",
+    "alert_no_error_report": "Отчет об ошибке недоступен.",
+    "alert_no_commit_to_promote": "Нет активного коммита в Тестах для продвижения.",
+    "alert_no_previous_version": "Для этого окружения не найдено предыдущей версии.",
+    "btn_restore_env": "Восстановить ({env})",
+    "containers_none_active": "Активных контейнеров для этого проекта не найдено.",
+    "containers_none_filtered": "Контейнеры с выбранными фильтрами не найдены.",
+    "btn_confirm": "Подтвердить",
+    "btn_ok": "OK",
+    "btn_delete": "Удалить",
+    "btn_revoke": "Отозвать",
+    "wow_title_confirm": "Требуется Подтверждение",
+    "wow_title_alert": "Системное Уведомление",
+    "wow_title_prompt": "Ввод Данных",
+    "confirm_delete_skill": "Вы уверены, что хотите удалить навык \"{name}\"?",
+    "confirm_clear_build_cache": "Удалить старые артефакты сборки (.build_cache)? Это освободит дисковое пространство.",
+    "confirm_docker_optimize": "Запустить оптимизацию образов и кэша Docker? Это выполнит `docker image prune` и `docker builder prune`.",
+    "confirm_db_backup": "Создать новую резервную копию {mode} базы данных ({env})?",
+    "confirm_db_restore": "⚠️ ВНИМАНИЕ: Вы уверены, что хотите восстановить резервную копию '{filename}' в {env}? Текущие данные будут заменены.",
+    "confirm_delete_storage": "Вы уверены, что хотите удалить '{name}'?",
+    "prompt_bucket_name": "Имя нового бакета:",
+    "prompt_folder_name": "Имя новой папки:",
+    "prompt_skill_url": "Вставьте URL-адрес файла SKILL.md на GitHub:",
+    "alert_api_key_saved": "API-ключ сохранен в сессии!",
+    "alert_project_id_copied": "ID \"{id}\" скопирован!",
+    "alert_skill_name_required": "Пожалуйста, введите название навыка.",
+    "alert_select_sql": "Пожалуйста, выберите файл .sql",
+    "alert_select_zip": "Пожалуйста, выберите корректный .zip файл.",
+    "alert_backup_created": "Резервная копия успешно создана! Файл: {filename}",
+    "alert_db_restored": "Восстановление базы данных успешно завершено в {env}!",
+    "alert_zip_restore_success": "🎉 Восстановление успешно завершено! Восстановлено файлов: {count}.",
+    "app_title_full": "Deployment Center — Универсальное Управление Инфраструктурой и Развертыванием"
   },
   "zh": {
     "wz_zip_label": "初始源代码（.ZIP 文件）",
@@ -9599,7 +10055,45 @@
     "tab_logs": "日志",
     "tab_files": "文件",
     "password": "加密密码",
-    "env_prod_official": "正式生产环境"
+    "env_prod_official": "正式生产环境",
+    "confirm_restart_container": "是否重启容器 {name}？",
+    "confirm_restart_all_containers": "确定要重启项目的所有容器吗？",
+    "confirm_reset_ai_rules": "是否将全部 6 条 AI 指令恢复为官方默认值？",
+    "confirm_reset_ai_skills": "是否将所有 AI 技能恢复为官方默认目录？",
+    "confirm_revoke_api_key": "确定要吊销此 API 密钥吗？任何已连接的 SaaS 将无法继续进行身份验证。",
+    "state_copied": "已复制！",
+    "alert_terminal_copied": "终端输出已复制！",
+    "alert_no_error_report": "暂无可用错误报告。",
+    "alert_no_commit_to_promote": "测试环境中没有可供晋级的活动提交。",
+    "alert_no_previous_version": "该环境未记录先前的版本。",
+    "btn_restore_env": "恢复 ({env})",
+    "containers_none_active": "未找到该项目的活动容器。",
+    "containers_none_filtered": "未找到符合所选筛选条件的容器。",
+    "btn_confirm": "确认",
+    "btn_ok": "确定",
+    "btn_delete": "删除",
+    "btn_revoke": "吊销",
+    "wow_title_confirm": "需要确认",
+    "wow_title_alert": "系统提示",
+    "wow_title_prompt": "输入数据",
+    "confirm_delete_skill": "确定要删除技能 \"{name}\" 吗？",
+    "confirm_clear_build_cache": "是否删除旧的构建构件 (.build_cache)？这将释放磁盘空间。",
+    "confirm_docker_optimize": "是否执行 Docker 镜像和缓存优化？这将运行 `docker image prune` 和 `docker builder prune`。",
+    "confirm_db_backup": "是否创建新的数据库 {mode} 备份 ({env})？",
+    "confirm_db_restore": "⚠️ 警告：确定要在 {env} 环境中恢复备份 '{filename}' 吗？当前数据将被覆盖。",
+    "confirm_delete_storage": "确定要删除 '{name}' 吗？",
+    "prompt_bucket_name": "新建存储桶名称：",
+    "prompt_folder_name": "新建文件夹名称：",
+    "prompt_skill_url": "粘贴 GitHub 上的 SKILL.md 文件网址：",
+    "alert_api_key_saved": "API 密钥已保存至当前会话！",
+    "alert_project_id_copied": "ID \"{id}\" 已复制！",
+    "alert_skill_name_required": "请输入技能名称。",
+    "alert_select_sql": "请选择一个 .sql 文件",
+    "alert_select_zip": "请选择一个有效的 .zip 文件。",
+    "alert_backup_created": "备份创建成功！文件：{filename}",
+    "alert_db_restored": "在 {env} 环境中的数据库恢复成功！",
+    "alert_zip_restore_success": "🎉 恢复成功！已恢复 {count} 个文件。",
+    "app_title_full": "Deployment Center — 通用基础设施与部署管理平台"
   },
   "ja": {
     "wz_zip_label": "初期ソースコード (.ZIP ファイル)",
@@ -10238,7 +10732,45 @@
     "tab_logs": "ログ",
     "tab_files": "ファイル",
     "password": "暗号化パスワード",
-    "env_prod_official": "本番環境"
+    "env_prod_official": "本番環境",
+    "confirm_restart_container": "コンテナ {name} を再起動しますか？",
+    "confirm_restart_all_containers": "プロジェクトのすべてのコンテナを再起動してもよろしいですか？",
+    "confirm_reset_ai_rules": "すべての 6 つの AI 指示を公式デフォルト値に復元しますか？",
+    "confirm_reset_ai_skills": "すべての AI スキルを公式デフォルトカタログに復元しますか？",
+    "confirm_revoke_api_key": "この API キーを取り消してもよろしいですか？接続されているすべての SaaS が認証できなくなります。",
+    "state_copied": "コピーしました！",
+    "alert_terminal_copied": "ターミナル出力をコピーしました！",
+    "alert_no_error_report": "エラーレポートはありません。",
+    "alert_no_commit_to_promote": "プロモート可能なアクティブなコミットがテスト環境にありません。",
+    "alert_no_previous_version": "この環境の以前のバージョンは記録されていません。",
+    "btn_restore_env": "復元 ({env})",
+    "containers_none_active": "このプロジェクトのアクティブなコンテナは見つかりませんでした。",
+    "containers_none_filtered": "選択したフィルターに一致するコンテナは見つかりませんでした。",
+    "btn_confirm": "確認",
+    "btn_ok": "OK",
+    "btn_delete": "削除",
+    "btn_revoke": "取り消す",
+    "wow_title_confirm": "確認が必要です",
+    "wow_title_alert": "システム通知",
+    "wow_title_prompt": "データ入力",
+    "confirm_delete_skill": "スキル「{name}」を削除してもよろしいですか？",
+    "confirm_clear_build_cache": "古いビルドアーティファクト (.build_cache) を削除しますか？これによりディスク容量が解放されます。",
+    "confirm_docker_optimize": "Docker イメージとビルドキャッシュを最適化しますか？`docker image prune` と `docker builder prune` が実行されます。",
+    "confirm_db_backup": "データベースの新しい {mode} バックアップ ({env}) を作成しますか？",
+    "confirm_db_restore": "⚠️ 警告：バックアップ「{filename}」を {env} に復元してもよろしいですか？現在のデータは上書きされます。",
+    "confirm_delete_storage": "「{name}」を削除してもよろしいですか？",
+    "prompt_bucket_name": "新規バケット名：",
+    "prompt_folder_name": "新規フォルダ名：",
+    "prompt_skill_url": "GitHub の SKILL.md ファイルの URL を貼り付けてください：",
+    "alert_api_key_saved": "API キーがセッションに保存されました！",
+    "alert_project_id_copied": "ID「{id}」をコピーしました！",
+    "alert_skill_name_required": "スキルの名前を入力してください。",
+    "alert_select_sql": ".sql ファイルを選択してください",
+    "alert_select_zip": "有効な .zip ファイルを選択してください。",
+    "alert_backup_created": "バックアップが正常に作成されました！ファイル：{filename}",
+    "alert_db_restored": "{env} でのデータベース復元が正常に完了しました！",
+    "alert_zip_restore_success": "🎉 復元が正常に完了しました！{count} 個のファイルを復元しました。",
+    "app_title_full": "Deployment Center — ユニバーサル インフラストラクチャ＆デプロイ管理"
   },
   "sv": {
     "wz_zip_label": "Ursprunglig Källkod (.ZIP-fil)",
@@ -10877,7 +11409,45 @@
     "tab_logs": "Loggar",
     "tab_files": "Filer",
     "password": "Krypteringslösenord",
-    "env_prod_official": "Officiell Produktion"
+    "env_prod_official": "Officiell Produktion",
+    "confirm_restart_container": "Starta om behållare {name}?",
+    "confirm_restart_all_containers": "Är du säker på att du vill starta om alla projektbehållare?",
+    "confirm_reset_ai_rules": "Vill du återställa alla 6 AI-direktiv till sina officiella standardvärden?",
+    "confirm_reset_ai_skills": "Vill du återställa alla AI-färdigheter till den officiella standardkatalogen?",
+    "confirm_revoke_api_key": "Är du säker på att du vill återkalla denna API-nyckel? Alla anslutna SaaS-tjänster kommer inte längre att kunna autentisera sig.",
+    "state_copied": "Kopierat!",
+    "alert_terminal_copied": "Terminalutdata kopierad!",
+    "alert_no_error_report": "Ingen felrapport tillgänglig.",
+    "alert_no_commit_to_promote": "Ingen aktiv commit i testmiljön att befordra.",
+    "alert_no_previous_version": "Ingen tidigare version registrerad för denna miljö.",
+    "btn_restore_env": "Återställ ({env})",
+    "containers_none_active": "Inga aktiva behållare hittades för detta projekt.",
+    "containers_none_filtered": "Inga behållare matchar de valda filtren.",
+    "btn_confirm": "Bekräfta",
+    "btn_ok": "OK",
+    "btn_delete": "Ta bort",
+    "btn_revoke": "Återkalla",
+    "wow_title_confirm": "Bekräftelse Krävs",
+    "wow_title_alert": "Systemmeddelande",
+    "wow_title_prompt": "Datainmatning",
+    "confirm_delete_skill": "Är du säker på att du vill ta bort färdigheten \"{name}\"?",
+    "confirm_clear_build_cache": "Vill du ta bort gamla byggartefakter (.build_cache)? Detta frigör diskutrymme.",
+    "confirm_docker_optimize": "Vill du optimera Docker-avbildningar och cache? Detta kör `docker image prune` och `docker builder prune`.",
+    "confirm_db_backup": "Skapa ny {mode}-databasbackup ({env})?",
+    "confirm_db_restore": "⚠️ VARNING: Är du säker på att du vill återställa '{filename}' till {env}? Befintliga data kommer att ersättas.",
+    "confirm_delete_storage": "Är du säker på att du vill ta bort '{name}'?",
+    "prompt_bucket_name": "Namn på ny bucket:",
+    "prompt_folder_name": "Namn på ny mapp:",
+    "prompt_skill_url": "Klistra in webbadressen till filen SKILL.md på GitHub:",
+    "alert_api_key_saved": "API-nyckeln har sparats i sessionen!",
+    "alert_project_id_copied": "ID \"{id}\" har kopierats!",
+    "alert_skill_name_required": "Ange ett namn på färdigheten.",
+    "alert_select_sql": "Välj en .sql-fil",
+    "alert_select_zip": "Välj en giltig .zip-fil.",
+    "alert_backup_created": "Säkerhetskopia skapad! Fil: {filename}",
+    "alert_db_restored": "Databasåterställning slutförd i {env}!",
+    "alert_zip_restore_success": "🎉 Återställning klar! {count} fil(er) återställda.",
+    "app_title_full": "Deployment Center — Universell Infrastruktur- och Distributionshantering"
   },
   "ro": {
     "wz_zip_label": "Cod Sursă Inițial (Fișier .ZIP)",
@@ -11272,7 +11842,7 @@
     "service_auth": "Autentificare",
     "service_system": "Sistem",
     "internal_ports": "Porturi interne",
-    "btn_restart": "Repornește",
+    "btn_restart": "Repornire",
     "btn_logs": "Jurnale",
     "cmd_update_server": "Actualizează serverul",
     "cmd_update_server_sub": "Script de producție",
@@ -11293,7 +11863,7 @@
     "th_file": "Fișier",
     "th_date": "Dată",
     "btn_restore": "Restaurează",
-    "btn_download": "Descarcă",
+    "btn_download": "Descărcare",
     "no_backups_found": "Nu au fost generate încă fișiere de backup.",
     "btn_clear_search": "Șterge căutarea",
     "btn_clear_filters": "Șterge filtrele",
@@ -11331,7 +11901,7 @@
     "confirm_deploy_prod": "Confirmă Publicarea în Producție",
     "confirm_deploy_prod_sub": "Site-ul oficial ({port}) va fi actualizat la această versiune.",
     "btn_start_deploy": "Începe Publicarea",
-    "btn_cancel": "Anulează",
+    "btn_cancel": "Anulare",
     "btn_publishing": "Se publică...",
     "status_deploy_failed": "Implementare Eșuată",
     "port_label": "Port",
@@ -11516,7 +12086,45 @@
     "tab_logs": "Jurnale",
     "tab_files": "Fișiere",
     "password": "Parolă de criptare",
-    "env_prod_official": "Producția Oficială"
+    "env_prod_official": "Producția Oficială",
+    "confirm_restart_container": "Reporniți containerul {name}?",
+    "confirm_restart_all_containers": "Sigur doriți să reporniți toate containerele proiectului?",
+    "confirm_reset_ai_rules": "Doriți să restaurați toate cele 6 directive AI la valorile implicite oficiale?",
+    "confirm_reset_ai_skills": "Doriți să restaurați toate abilitățile AI la catalogul oficial implicit?",
+    "confirm_revoke_api_key": "Sigur doriți să revocați această cheie API? Orice SaaS conectat nu se va mai putea autentifica.",
+    "state_copied": "Copiat!",
+    "alert_terminal_copied": "Ieșirea terminalului a fost copiată!",
+    "alert_no_error_report": "Nu este disponibil niciun raport de eroare.",
+    "alert_no_commit_to_promote": "Niciun commit activ în Testare de promovat.",
+    "alert_no_previous_version": "Nicio versiune anterioară înregistrată pentru acest mediu.",
+    "btn_restore_env": "Restaurare ({env})",
+    "containers_none_active": "Nu s-au găsit containere active pentru acest proiect.",
+    "containers_none_filtered": "Nu s-au găsit containere cu filtrele selectate.",
+    "btn_confirm": "Confirmare",
+    "btn_ok": "OK",
+    "btn_delete": "Șterge",
+    "btn_revoke": "Revocare",
+    "wow_title_confirm": "Confirmare Necesară",
+    "wow_title_alert": "Notificare Sistem",
+    "wow_title_prompt": "Introducere Date",
+    "confirm_delete_skill": "Sigur doriți să ștergeți abilitatea \"{name}\"?",
+    "confirm_clear_build_cache": "Doriți să ștergeți artefactele vechi de compilare (.build_cache)? Acest lucru va elibera spațiu.",
+    "confirm_docker_optimize": "Doriți să optimizați imaginile și cache-ul Docker? Se va rula `docker image prune` și `docker builder prune`.",
+    "confirm_db_backup": "Creați o nouă copie de rezervă {mode} a bazei de date ({env})?",
+    "confirm_db_restore": "⚠️ ATENȚIE: Sigur doriți să restaurați copia '{filename}' în {env}? Datele actuale vor fi înlocuite.",
+    "confirm_delete_storage": "Sigur doriți să ștergeți '{name}'?",
+    "prompt_bucket_name": "Numele noului bucket:",
+    "prompt_folder_name": "Numele noului dosar:",
+    "prompt_skill_url": "Lipiți adresa URL a fișierului SKILL.md de pe GitHub:",
+    "alert_api_key_saved": "Cheia API a fost salvată în sesiune!",
+    "alert_project_id_copied": "ID-ul \"{id}\" a fost copiat!",
+    "alert_skill_name_required": "Vă rugăm să introduceți numele abilității.",
+    "alert_select_sql": "Selectați un fișier .sql",
+    "alert_select_zip": "Vă rugăm să selectați un fișier .zip valid.",
+    "alert_backup_created": "Copie de rezervă creată cu succes! Fișier: {filename}",
+    "alert_db_restored": "Restaurarea bazei de date a fost finalizată cu succes în {env}!",
+    "alert_zip_restore_success": "🎉 Restaurare finalizată cu succes! S-au restaurat {count} fișier(e).",
+    "app_title_full": "Deployment Center — Gestionare Universală a Infrastructurii și Implementărilor"
   },
   "mo": {
     "wz_zip_label": "Cod Sursă Inițial (Fișier .ZIP)",
@@ -11911,7 +12519,7 @@
     "service_auth": "Autentificare",
     "service_system": "Sistem",
     "internal_ports": "Porturi interne",
-    "btn_restart": "Repornește",
+    "btn_restart": "Repornire",
     "btn_logs": "Jurnale",
     "cmd_update_server": "Actualizează serverul",
     "cmd_update_server_sub": "Script de producție",
@@ -11932,7 +12540,7 @@
     "th_file": "Fișier",
     "th_date": "Dată",
     "btn_restore": "Restaurează",
-    "btn_download": "Descarcă",
+    "btn_download": "Descărcare",
     "no_backups_found": "Nu au fost generate încă fișiere de backup.",
     "btn_clear_search": "Șterge căutarea",
     "btn_clear_filters": "Șterge filtrele",
@@ -11970,7 +12578,7 @@
     "confirm_deploy_prod": "Confirmă Publicarea în Producție",
     "confirm_deploy_prod_sub": "Site-ul oficial ({port}) va fi actualizat la această versiune.",
     "btn_start_deploy": "Începe Publicarea",
-    "btn_cancel": "Anulează",
+    "btn_cancel": "Anulare",
     "btn_publishing": "Se publică...",
     "status_deploy_failed": "Implementare Eșuată",
     "port_label": "Port",
@@ -12155,7 +12763,45 @@
     "tab_logs": "Jurnale",
     "tab_files": "Fișiere",
     "password": "Parolă de criptare",
-    "env_prod_official": "Producția Oficială"
+    "env_prod_official": "Producția Oficială",
+    "confirm_restart_container": "Reporniți containerul {name}?",
+    "confirm_restart_all_containers": "Sigur doriți să reporniți toate containerele proiectului?",
+    "confirm_reset_ai_rules": "Doriți să restaurați toate cele 6 directive AI la valorile implicite oficiale?",
+    "confirm_reset_ai_skills": "Doriți să restaurați toate abilitățile AI la catalogul oficial implicit?",
+    "confirm_revoke_api_key": "Sigur doriți să revocați această cheie API? Orice SaaS conectat nu se va mai putea autentifica.",
+    "state_copied": "Copiat!",
+    "alert_terminal_copied": "Ieșirea terminalului a fost copiată!",
+    "alert_no_error_report": "Nu este disponibil niciun raport de eroare.",
+    "alert_no_commit_to_promote": "Niciun commit activ în Testare de promovat.",
+    "alert_no_previous_version": "Nicio versiune anterioară înregistrată pentru acest mediu.",
+    "btn_restore_env": "Restaurare ({env})",
+    "containers_none_active": "Nu s-au găsit containere active pentru acest proiect.",
+    "containers_none_filtered": "Nu s-au găsit containere cu filtrele selectate.",
+    "btn_confirm": "Confirmare",
+    "btn_ok": "OK",
+    "btn_delete": "Șterge",
+    "btn_revoke": "Revocare",
+    "wow_title_confirm": "Confirmare Necesară",
+    "wow_title_alert": "Notificare Sistem",
+    "wow_title_prompt": "Introducere Date",
+    "confirm_delete_skill": "Sigur doriți să ștergeți abilitatea \"{name}\"?",
+    "confirm_clear_build_cache": "Doriți să ștergeți artefactele vechi de compilare (.build_cache)? Acest lucru va elibera spațiu.",
+    "confirm_docker_optimize": "Doriți să optimizați imaginile și cache-ul Docker? Se va rula `docker image prune` și `docker builder prune`.",
+    "confirm_db_backup": "Creați o nouă copie de rezervă {mode} a bazei de date ({env})?",
+    "confirm_db_restore": "⚠️ ATENȚIE: Sigur doriți să restaurați copia '{filename}' în {env}? Datele actuale vor fi înlocuite.",
+    "confirm_delete_storage": "Sigur doriți să ștergeți '{name}'?",
+    "prompt_bucket_name": "Numele noului bucket:",
+    "prompt_folder_name": "Numele noului dosar:",
+    "prompt_skill_url": "Lipiți adresa URL a fișierului SKILL.md de pe GitHub:",
+    "alert_api_key_saved": "Cheia API a fost salvată în sesiune!",
+    "alert_project_id_copied": "ID-ul \"{id}\" a fost copiat!",
+    "alert_skill_name_required": "Vă rugăm să introduceți numele abilității.",
+    "alert_select_sql": "Selectați un fișier .sql",
+    "alert_select_zip": "Vă rugăm să selectați un fișier .zip valid.",
+    "alert_backup_created": "Copie de rezervă creată cu succes! Fișier: {filename}",
+    "alert_db_restored": "Restaurarea bazei de date a fost finalizată cu succes în {env}!",
+    "alert_zip_restore_success": "🎉 Restaurare finalizată cu succes! S-au restaurat {count} fișier(e).",
+    "app_title_full": "Deployment Center — Gestionare Universală a Infrastructurii și Implementărilor"
   },
   "es": {
     "wz_zip_label": "Código Fuente Inicial (Archivo .ZIP)",
@@ -12769,7 +13415,45 @@
     "tab_logs": "Logs",
     "tab_files": "Archivos",
     "password": "Contraseña de Encriptación",
-    "env_prod_official": "Producción Oficial"
+    "env_prod_official": "Producción Oficial",
+    "confirm_restart_container": "¿Reiniciar el contenedor {name}?",
+    "confirm_restart_all_containers": "¿Está seguro de que desea reiniciar todos los contenedores del proyecto?",
+    "confirm_reset_ai_rules": "¿Desea restaurar las 6 directivas de IA a sus valores oficiales por defecto?",
+    "confirm_reset_ai_skills": "¿Desea restaurar todas las skills de IA al catálogo oficial por defecto?",
+    "confirm_revoke_api_key": "¿Seguro que desea revocar esta clave de API? Cualquier SaaS conectado dejará de poder autenticarse.",
+    "state_copied": "¡Copiado!",
+    "alert_terminal_copied": "¡Salida de terminal copiada!",
+    "alert_no_error_report": "No hay informe de error disponible.",
+    "alert_no_commit_to_promote": "No hay ningún commit activo en Pruebas para promocionar.",
+    "alert_no_previous_version": "No hay versión anterior registrada para este entorno.",
+    "btn_restore_env": "Restaurar ({env})",
+    "containers_none_active": "No se encontraron contenedores activos para este proyecto.",
+    "containers_none_filtered": "No se encontraron contenedores con los filtros seleccionados.",
+    "btn_confirm": "Confirmar",
+    "btn_ok": "OK",
+    "btn_delete": "Eliminar",
+    "btn_revoke": "Revocar",
+    "wow_title_confirm": "Confirmación Requerida",
+    "wow_title_alert": "Aviso del Sistema",
+    "wow_title_prompt": "Entrada de Datos",
+    "confirm_delete_skill": "¿Seguro que desea eliminar la skill \"{name}\"?",
+    "confirm_clear_build_cache": "¿Desea eliminar los artefactos de compilación antiguos (.build_cache)? Esto liberará espacio en disco.",
+    "confirm_docker_optimize": "¿Desea optimizar imágenes y caché de Docker? Esto ejecuta `docker image prune` y `docker builder prune`.",
+    "confirm_db_backup": "¿Crear nueva copia de seguridad {mode} de la base de datos ({env})?",
+    "confirm_db_restore": "⚠️ ATENCIÓN: ¿Seguro que desea restaurar la copia '{filename}' en {env}? Los datos actuales serán reemplazados.",
+    "confirm_delete_storage": "¿Seguro que desea eliminar '{name}'?",
+    "prompt_bucket_name": "Nombre del nuevo Bucket:",
+    "prompt_folder_name": "Nombre de la nueva carpeta:",
+    "prompt_skill_url": "Pegue la URL del archivo SKILL.md en GitHub:",
+    "alert_api_key_saved": "¡Clave de API memorizada en la sesión!",
+    "alert_project_id_copied": "¡ID \"{id}\" copiado!",
+    "alert_skill_name_required": "Por favor introduzca el nombre de la Skill.",
+    "alert_select_sql": "Seleccione un archivo .sql",
+    "alert_select_zip": "Por favor seleccione un archivo .zip válido.",
+    "alert_backup_created": "¡Copia de seguridad creada con éxito! Archivo: {filename}",
+    "alert_db_restored": "¡Restauración de la base de datos completada con éxito en {env}!",
+    "alert_zip_restore_success": "🎉 ¡Restauración completada con éxito! Se restauraron {count} archivo(s).",
+    "app_title_full": "Deployment Center — Gestión Universal de Infraestructura y Despliegues"
   },
   "fr": {
     "wz_zip_label": "Code Source Initial (Fichier .ZIP)",
@@ -13383,7 +14067,45 @@
     "tab_logs": "Logs",
     "tab_files": "Fichiers",
     "password": "Mot de passe de chiffrement",
-    "env_prod_official": "Production Officielle"
+    "env_prod_official": "Production Officielle",
+    "confirm_restart_container": "Redémarrer le conteneur {name} ?",
+    "confirm_restart_all_containers": "Êtes-vous sûr de vouloir redémarrer tous les conteneurs du projet ?",
+    "confirm_reset_ai_rules": "Voulez-vous restaurer les 6 directives d'IA à leurs valeurs par défaut officielles ?",
+    "confirm_reset_ai_skills": "Voulez-vous restaurer toutes les compétences IA au catalogue officiel ?",
+    "confirm_revoke_api_key": "Êtes-vous sûr de vouloir révoquer cette clé API ? Tout SaaS connecté ne pourra plus s'authentifier.",
+    "state_copied": "Copié !",
+    "alert_terminal_copied": "Sortie du terminal copiée !",
+    "alert_no_error_report": "Aucun rapport d'erreur disponible.",
+    "alert_no_commit_to_promote": "Aucun commit actif en Test à promouvoir.",
+    "alert_no_previous_version": "Aucune version précédente enregistrée pour cet environnement.",
+    "btn_restore_env": "Restaurer ({env})",
+    "containers_none_active": "Aucun conteneur actif trouvé pour ce projet.",
+    "containers_none_filtered": "Aucun conteneur trouvé avec les filtres sélectionnés.",
+    "btn_confirm": "Confirmer",
+    "btn_ok": "OK",
+    "btn_delete": "Supprimer",
+    "btn_revoke": "Révoquer",
+    "wow_title_confirm": "Confirmation Requise",
+    "wow_title_alert": "Avis du Système",
+    "wow_title_prompt": "Saisie de Données",
+    "confirm_delete_skill": "Êtes-vous sûr de vouloir supprimer la compétence \"{name}\" ?",
+    "confirm_clear_build_cache": "Voulez-vous supprimer les anciens artefacts de compilation (.build_cache) ? Cela libérera de l'espace disque.",
+    "confirm_docker_optimize": "Voulez-vous optimiser les images et le cache Docker ? Cela exécute `docker image prune` et `docker builder prune`.",
+    "confirm_db_backup": "Créer une nouvelle sauvegarde {mode} de la base de données ({env}) ?",
+    "confirm_db_restore": "⚠️ ATTENTION : Voulez-vous restaurer la sauvegarde '{filename}' dans {env} ? Les données actuelles seront remplacées.",
+    "confirm_delete_storage": "Êtes-vous sûr de vouloir supprimer '{name}' ?",
+    "prompt_bucket_name": "Nom du nouveau Bucket :",
+    "prompt_folder_name": "Nom du nouveau dossier :",
+    "prompt_skill_url": "Collez l'URL du fichier SKILL.md sur GitHub :",
+    "alert_api_key_saved": "Clé API enregistrée dans la session !",
+    "alert_project_id_copied": "ID \"{id}\" copié !",
+    "alert_skill_name_required": "Veuillez saisir le nom de la compétence.",
+    "alert_select_sql": "Veuillez sélectionner un fichier .sql",
+    "alert_select_zip": "Veuillez sélectionner un fichier .zip valide.",
+    "alert_backup_created": "Sauvegarde créée avec succès ! Fichier : {filename}",
+    "alert_db_restored": "Restauration de la base de données terminée avec succès sur {env} !",
+    "alert_zip_restore_success": "🎉 Restauration terminée avec succès ! {count} fichier(s) restauré(s).",
+    "app_title_full": "Deployment Center — Gestion Universelle d'Infrastructure et Déploiements"
   },
   "cs": {
     "wz_zip_label": "Počáteční Zdrojový Kód (Soubor .ZIP)",
@@ -14022,7 +14744,45 @@
     "tab_logs": "Protokoly",
     "tab_files": "Soubory",
     "password": "Šifrovací heslo",
-    "env_prod_official": "Oficiální Produkce"
+    "env_prod_official": "Oficiální Produkce",
+    "confirm_restart_container": "Restartovat kontejner {name}?",
+    "confirm_restart_all_containers": "Opravdu chcete restartovat všechny kontejnery projektu?",
+    "confirm_reset_ai_rules": "Chcete obnovit všech 6 směrnic AI na oficiální výchozí hodnoty?",
+    "confirm_reset_ai_skills": "Chcete obnovit všechny dovednosti AI do oficiálního výchozího katalogu?",
+    "confirm_revoke_api_key": "Opravdu chcete odvolat tento klíč API? Všechny připojené služby SaaS se již nebudou moci ověřit.",
+    "state_copied": "Zkopírováno!",
+    "alert_terminal_copied": "Výstup terminálu byl zkopírován!",
+    "alert_no_error_report": "Není k dispozici žádná zpráva o chybě.",
+    "alert_no_commit_to_promote": "V testovacím prostředí není žádný aktivní commit k povýšení.",
+    "alert_no_previous_version": "Pro toto prostředí není zaznamenána žádná předchozí verze.",
+    "btn_restore_env": "Obnovit ({env})",
+    "containers_none_active": "Pro tento projekt nebyly nalezeny žádné aktivní kontejnery.",
+    "containers_none_filtered": "Nebyly nalezeny žádné kontejnery odpovídající vybraným filtrům.",
+    "btn_confirm": "Potvrdit",
+    "btn_ok": "OK",
+    "btn_delete": "Smazat",
+    "btn_revoke": "Odvolat",
+    "wow_title_confirm": "Vyžadováno Potvrzení",
+    "wow_title_alert": "Systémové Oznámení",
+    "wow_title_prompt": "Zadání Dat",
+    "confirm_delete_skill": "Opravdu chcete smazat dovednost \"{name}\"?",
+    "confirm_clear_build_cache": "Chcete smazat staré artefakty sestavení (.build_cache)? Tím se uvolní místo na disku.",
+    "confirm_docker_optimize": "Chcete optimalizovat obrazy a mezipaměť Dockeru? Tím se spustí `docker image prune` a `docker builder prune`.",
+    "confirm_db_backup": "Vytvořit novou {mode} zálohu databáze ({env})?",
+    "confirm_db_restore": "⚠️ VAROVÁNÍ: Opravdu chcete obnovit zálohu '{filename}' do {env}? Aktuální data budou nahrazena.",
+    "confirm_delete_storage": "Opravdu chcete smazat '{name}'?",
+    "prompt_bucket_name": "Název nového bucketu:",
+    "prompt_folder_name": "Název nové složky:",
+    "prompt_skill_url": "Vložte adresu URL souboru SKILL.md na GitHubu:",
+    "alert_api_key_saved": "Klíč API byl uložen do relace!",
+    "alert_project_id_copied": "ID \"{id}\" zkopírováno!",
+    "alert_skill_name_required": "Zadejte prosím název dovednosti.",
+    "alert_select_sql": "Vyberte soubor .sql",
+    "alert_select_zip": "Vyberte prosím platný soubor .zip.",
+    "alert_backup_created": "Záloha byla úspěšně vytvořena! Soubor: {filename}",
+    "alert_db_restored": "Obnova databáze byla úspěšně dokončena v {env}!",
+    "alert_zip_restore_success": "🎉 Obnova byla úspěšně dokončena! Obnoveno souborů: {count}.",
+    "app_title_full": "Deployment Center — Univerzální Správa Infrastruktury a Nasazení"
   },
   "hr": {
     "wz_zip_label": "Početni Izvorni Kod (.ZIP Datoteka)",
@@ -14661,7 +15421,45 @@
     "tab_logs": "Zapisnici",
     "tab_files": "Datoteke",
     "password": "Lozinka za šifriranje",
-    "env_prod_official": "Službena Produkcija"
+    "env_prod_official": "Službena Produkcija",
+    "confirm_restart_container": "Ponovno pokrenuti kontejner {name}?",
+    "confirm_restart_all_containers": "Jeste li sigurni da želite ponovno pokrenuti sve kontejnere projekta?",
+    "confirm_reset_ai_rules": "Želite li vratiti svih 6 AI smjernica na službene zadane vrijednosti?",
+    "confirm_reset_ai_skills": "Želite li vratiti sve AI vještine u službeni zadani katalog?",
+    "confirm_revoke_api_key": "Jeste li sigurni da želite opozvati ovaj API ključ? Sve povezane SaaS usluge više se neće moći autentificirati.",
+    "state_copied": "Kopirano!",
+    "alert_terminal_copied": "Izlaz terminala je kopiran!",
+    "alert_no_error_report": "Nema dostupnog izvješća o pogrešci.",
+    "alert_no_commit_to_promote": "Nema aktivnog commita u testnom okruženju za promicanje.",
+    "alert_no_previous_version": "Nema prethodne verzije zabilježene za ovo okruženje.",
+    "btn_restore_env": "Vrati ({env})",
+    "containers_none_active": "Nema aktivnih kontejnera pronađenih za ovaj projekt.",
+    "containers_none_filtered": "Nema pronađenih kontejnera s odabranim filtrima.",
+    "btn_confirm": "Potvrdi",
+    "btn_ok": "OK",
+    "btn_delete": "Obriši",
+    "btn_revoke": "Opozovi",
+    "wow_title_confirm": "Potrebna Potvrda",
+    "wow_title_alert": "Obavijest Sustava",
+    "wow_title_prompt": "Unos Podataka",
+    "confirm_delete_skill": "Jeste li sigurni da želite obrisati vještinu \"{name}\"?",
+    "confirm_clear_build_cache": "Želite li obrisati stare artefakte izgradnje (.build_cache)? To će osloboditi prostor.",
+    "confirm_docker_optimize": "Želite li optimizirati Docker slike i predmemoriju? To pokreće `docker image prune` i `docker builder prune`.",
+    "confirm_db_backup": "Stvoriti novu {mode} sigurnosnu kopiju baze podataka ({env})?",
+    "confirm_db_restore": "⚠️ UPOZORENJE: Jeste li sigurni da želite vratiti kopiju '{filename}' u {env}? Trenutni podaci bit će zamijenjeni.",
+    "confirm_delete_storage": "Jeste li sigurni da želite obrisati '{name}'?",
+    "prompt_bucket_name": "Naziv novog bucketa:",
+    "prompt_folder_name": "Naziv nove mape:",
+    "prompt_skill_url": "Zalijepite URL datoteke SKILL.md na GitHubu:",
+    "alert_api_key_saved": "API ključ je spremljen u sesiju!",
+    "alert_project_id_copied": "ID \"{id}\" je kopiran!",
+    "alert_skill_name_required": "Unesite naziv vještine.",
+    "alert_select_sql": "Odaberite .sql datoteku",
+    "alert_select_zip": "Odaberite valjanu .zip datoteku.",
+    "alert_backup_created": "Sigurnosna kopija je uspješno stvorena! Datoteka: {filename}",
+    "alert_db_restored": "Vraćanje baze podataka uspješno je završeno u {env}!",
+    "alert_zip_restore_success": "🎉 Vraćanje uspješno završeno! Vraćeno datoteka: {count}.",
+    "app_title_full": "Deployment Center — Univerzalno Upravljanje Infrastrukturom i Implementacijama"
   },
   "da": {
     "wz_zip_label": "Indledende Kildekode (.ZIP Fil)",
@@ -15300,7 +16098,45 @@
     "tab_logs": "Logfiler",
     "tab_files": "Filer",
     "password": "Krypteringsadgangskode",
-    "env_prod_official": "Officiel Produktion"
+    "env_prod_official": "Officiel Produktion",
+    "confirm_restart_container": "Genstart container {name}?",
+    "confirm_restart_all_containers": "Er du sikker på, at du vil genstarte alle projektcontainere?",
+    "confirm_reset_ai_rules": "Vil du gendanne alle 6 AI-direktiver til de officielle standardværdier?",
+    "confirm_reset_ai_skills": "Vil du gendanne alle AI-kompetencer til det officielle standardkatalog?",
+    "confirm_revoke_api_key": "Er du sikker på, at du vil tilbagekalde denne API-nøgle? Forbundne SaaS-tjenester vil ikke længere kunne godkende sig.",
+    "state_copied": "Kopieret!",
+    "alert_terminal_copied": "Terminaloutput kopieret!",
+    "alert_no_error_report": "Ingen fejlrapport tilgængelig.",
+    "alert_no_commit_to_promote": "Ingen aktiv commit i testmiljøet til forfremmelse.",
+    "alert_no_previous_version": "Ingen tidligere version registreret for dette miljø.",
+    "btn_restore_env": "Gendan ({env})",
+    "containers_none_active": "Ingen aktive containere fundet for dette projekt.",
+    "containers_none_filtered": "Ingen containere fundet med de valgte filtre.",
+    "btn_confirm": "Bekræft",
+    "btn_ok": "OK",
+    "btn_delete": "Slet",
+    "btn_revoke": "Tilbagekald",
+    "wow_title_confirm": "Bekræftelse Påkrævet",
+    "wow_title_alert": "Systemmeddelelse",
+    "wow_title_prompt": "Dataindtastning",
+    "confirm_delete_skill": "Er du sikker på, at du vil slette færdigheden \"{name}\"?",
+    "confirm_clear_build_cache": "Vil du slette gamle byggeartefakter (.build_cache)? Dette vil frigøre diskplads.",
+    "confirm_docker_optimize": "Vil du optimere Docker-images og cache? Dette kører `docker image prune` og `docker builder prune`.",
+    "confirm_db_backup": "Opret ny {mode} database-sikkerhedskopi ({env})?",
+    "confirm_db_restore": "⚠️ ADVARSEL: Er du sikker på, at du vil gendanne '{filename}' til {env}? Nuværende data overskrives.",
+    "confirm_delete_storage": "Er du sikker på, at du vil slette '{name}'?",
+    "prompt_bucket_name": "Navn på ny bucket:",
+    "prompt_folder_name": "Navn på ny mappe:",
+    "prompt_skill_url": "Indsæt webadressen på filen SKILL.md på GitHub:",
+    "alert_api_key_saved": "API-nøglen er gemt i sessionen!",
+    "alert_project_id_copied": "ID \"{id}\" kopieret!",
+    "alert_skill_name_required": "Indtast venligst et navn på færdigheden.",
+    "alert_select_sql": "Vælg en .sql-fil",
+    "alert_select_zip": "Vælg venligst en gyldig .zip-fil.",
+    "alert_backup_created": "Sikkerhedskopi oprettet! Fil: {filename}",
+    "alert_db_restored": "Gendannelse af database fuldført i {env}!",
+    "alert_zip_restore_success": "🎉 Gendannelse fuldført! {count} fil(er) gendannet.",
+    "app_title_full": "Deployment Center — Universel Infrastruktur- og Implementeringsstyring"
   },
   "sk": {
     "wz_zip_label": "Počiatočný Zdrojový Kód (Súbor .ZIP)",
@@ -15939,7 +16775,45 @@
     "tab_logs": "Protokoly",
     "tab_files": "Súbory",
     "password": "Šifrovacie heslo",
-    "env_prod_official": "Oficiálna Produkcia"
+    "env_prod_official": "Oficiálna Produkcia",
+    "confirm_restart_container": "Reštartovať kontajner {name}?",
+    "confirm_restart_all_containers": "Naozaj chcete reštartovať všetky kontajnery projektu?",
+    "confirm_reset_ai_rules": "Chcete obnoviť všetkých 6 smerníc AI na oficiálne predvolené hodnoty?",
+    "confirm_reset_ai_skills": "Chcete obnoviť všetky zručnosti AI do oficiálneho predvoleného katalógu?",
+    "confirm_revoke_api_key": "Naozaj chcete odvolať tento kľúč API? Akékoľvek pripojené služby SaaS sa už nebudú môcť overiť.",
+    "state_copied": "Skopírované!",
+    "alert_terminal_copied": "Výstup terminálu bol skopírovaný!",
+    "alert_no_error_report": "Nie je k dispozícii žiadna správa o chybe.",
+    "alert_no_commit_to_promote": "V testovacom prostredí nie je žiadny aktívny commit na povýšenie.",
+    "alert_no_previous_version": "Pre toto prostredie nie je zaznamenaná žiadna predchádzajúca verzia.",
+    "btn_restore_env": "Obnoviť ({env})",
+    "containers_none_active": "Pre tento projekt sa nenašli žiadne aktívne kontajnery.",
+    "containers_none_filtered": "Nenašli sa žiadne kontajnery zodpovedajúce vybraným filtrom.",
+    "btn_confirm": "Potvrdiť",
+    "btn_ok": "OK",
+    "btn_delete": "Zmazať",
+    "btn_revoke": "Odvolať",
+    "wow_title_confirm": "Vyžaduje sa Potvrdenie",
+    "wow_title_alert": "Systémové Oznámenie",
+    "wow_title_prompt": "Zadanie Údajov",
+    "confirm_delete_skill": "Naozaj chcete zmazať zručnosť \"{name}\"?",
+    "confirm_clear_build_cache": "Chcete zmazať staré artefakty zostavenia (.build_cache)? Tým sa uvoľní miesto.",
+    "confirm_docker_optimize": "Chcete optimalizovať obrazy a medzipamäť Dockeru? Spustí sa `docker image prune` a `docker builder prune`.",
+    "confirm_db_backup": "Vytvoriť novú {mode} zálohu databázy ({env})?",
+    "confirm_db_restore": "⚠️ UPOZORNENIE: Naozaj chcete obnoviť zálohu '{filename}' do {env}? Aktuálne údaje budú nahradené.",
+    "confirm_delete_storage": "Naozaj chcete zmazať '{name}'?",
+    "prompt_bucket_name": "Názov nového bucketu:",
+    "prompt_folder_name": "Názov nového priečinka:",
+    "prompt_skill_url": "Vložte URL adresu súboru SKILL.md na GitHube:",
+    "alert_api_key_saved": "Kľúč API bol uložený do relácie!",
+    "alert_project_id_copied": "ID \"{id}\" skopírované!",
+    "alert_skill_name_required": "Zadajte prosím názov zručnosti.",
+    "alert_select_sql": "Vyberte súbor .sql",
+    "alert_select_zip": "Vyberte prosím platný súbor .zip.",
+    "alert_backup_created": "Záloha bola úspešne vytvorená! Súbor: {filename}",
+    "alert_db_restored": "Obnova databázy bola úspešne dokončená v {env}!",
+    "alert_zip_restore_success": "🎉 Obnova bola úspešne dokončená! Obnovených súborov: {count}.",
+    "app_title_full": "Deployment Center — Univerzálna Správa Infraštruktúry a Nasadení"
   },
   "sl": {
     "wz_zip_label": "Začetna Izvorna Koda (.ZIP Datoteka)",
@@ -16334,7 +17208,7 @@
     "service_auth": "Avtentikacija",
     "service_system": "Sistem",
     "internal_ports": "Notranja vrata",
-    "btn_restart": "Ponovno zaženi",
+    "btn_restart": "Znova zaženi",
     "btn_logs": "Dnevniki",
     "cmd_update_server": "Posodobi strežnik",
     "cmd_update_server_sub": "Produkcijski skript",
@@ -16578,7 +17452,45 @@
     "tab_logs": "Dnevniki",
     "tab_files": "Datoteke",
     "password": "Šifrirno geslo",
-    "env_prod_official": "Uradna Produkcija"
+    "env_prod_official": "Uradna Produkcija",
+    "confirm_restart_container": "Znova zagnati vsebnik {name}?",
+    "confirm_restart_all_containers": "Ali ste prepričani, da želite znova zagnati vse vsebnike projekta?",
+    "confirm_reset_ai_rules": "Ali želite obnoviti vseh 6 direktiv UI na uradne privzete vrednosti?",
+    "confirm_reset_ai_skills": "Ali želite obnoviti vse veščine UI na uradni privzeti katalog?",
+    "confirm_revoke_api_key": "Ali ste prepričani, da želite preklicati ta ključ API? Vse povezane storitve SaaS se ne bodo več mogle overiti.",
+    "state_copied": "Kopirano!",
+    "alert_terminal_copied": "Izhod terminala je bil kopiran!",
+    "alert_no_error_report": "Poročilo o napaki ni na voljo.",
+    "alert_no_commit_to_promote": "V testnem okolju ni aktivnega commita za napredovanje.",
+    "alert_no_previous_version": "Za to okolje ni zabeležene prejšnje različice.",
+    "btn_restore_env": "Obnovi ({env})",
+    "containers_none_active": "Za ta projekt ni bilo najdenih aktivnih vsebnikov.",
+    "containers_none_filtered": "Noben vsebnik ne ustreza izbranim filtrom.",
+    "btn_confirm": "Potrdi",
+    "btn_ok": "V redu",
+    "btn_delete": "Izbriši",
+    "btn_revoke": "Prekliči",
+    "wow_title_confirm": "Zahtevana Potrditev",
+    "wow_title_alert": "Sistemsko Obvestilo",
+    "wow_title_prompt": "Vnos Podatkov",
+    "confirm_delete_skill": "Ali ste prepričani, da želite izbrisati veščino \"{name}\"?",
+    "confirm_clear_build_cache": "Ali želite izbrisati stare artefakte gradnje (.build_cache)? To bo sprostilo prostor.",
+    "confirm_docker_optimize": "Ali želite optimizirati slike Docker in predpomnilnik? To zažene `docker image prune` in `docker builder prune`.",
+    "confirm_db_backup": "Ustvariti novo {mode} varnostno kopijo zbirke podatkov ({env})?",
+    "confirm_db_restore": "⚠️ OPOZORILO: Ali ste prepričani, da želite obnoviti varnostno kopijo '{filename}' v {env}? Trenutni podatki bodo zamenjani.",
+    "confirm_delete_storage": "Ali ste prepričani, da želite izbrisati '{name}'?",
+    "prompt_bucket_name": "Ime novega vedra (bucket):",
+    "prompt_folder_name": "Ime nove mape:",
+    "prompt_skill_url": "Prilepite URL datoteke SKILL.md na GitHubu:",
+    "alert_api_key_saved": "Ključ API je shranjen v seji!",
+    "alert_project_id_copied": "ID \"{id}\" kopiran!",
+    "alert_skill_name_required": "Vnesite ime veščine.",
+    "alert_select_sql": "Izberite datoteko .sql",
+    "alert_select_zip": "Izberite veljavno datoteko .zip.",
+    "alert_backup_created": "Varnostna kopija je bila uspešno ustvarjena! Datoteka: {filename}",
+    "alert_db_restored": "Obnovitev baze podatkov uspešno končana v {env}!",
+    "alert_zip_restore_success": "🎉 Obnovitev uspešno končana! Obnovljenih datotek: {count}.",
+    "app_title_full": "Deployment Center — Univerzalno Upravljanje Infrastrukture in Nameščanja"
   },
   "et": {
     "wz_zip_label": "Algne Lähtekood (.ZIP Fail)",
@@ -17217,7 +18129,45 @@
     "tab_logs": "Logid",
     "tab_files": "Failid",
     "password": "Krüptimise parool",
-    "env_prod_official": "Ametlik Toodang"
+    "env_prod_official": "Ametlik Toodang",
+    "confirm_restart_container": "Kas taaskäivitada konteiner {name}?",
+    "confirm_restart_all_containers": "Kas olete kindel, et soovite taaskäivitada kõik projekti konteinerid?",
+    "confirm_reset_ai_rules": "Kas soovite taastada kõik 6 tehisintellekti direktiivi ametlikele vaikeväärtustele?",
+    "confirm_reset_ai_skills": "Kas soovite taastada kõik AI-oskused ametlikku vaikekataloogi?",
+    "confirm_revoke_api_key": "Kas olete kindel, et soovite selle API-võtme tühistada? Ühendatud SaaS-teenused ei saa enam autentida.",
+    "state_copied": "Kopeeritud!",
+    "alert_terminal_copied": "Terminali väljund on kopeeritud!",
+    "alert_no_error_report": "Veateadet pole saadaval.",
+    "alert_no_commit_to_promote": "Testkeskkonnas pole edutamiseks aktiivset commiti.",
+    "alert_no_previous_version": "Selle keskkonna jaoks pole eelmist versiooni salvestatud.",
+    "btn_restore_env": "Taasta ({env})",
+    "containers_none_active": "Selle projekti jaoks ei leitud aktiivseid konteinereid.",
+    "containers_none_filtered": "Valitud filtritele vastavaid konteinereid ei leitud.",
+    "btn_confirm": "Kinnita",
+    "btn_ok": "OK",
+    "btn_delete": "Kustuta",
+    "btn_revoke": "Tühista",
+    "wow_title_confirm": "Kinnitamine Vajalik",
+    "wow_title_alert": "Süsteemi Teavitus",
+    "wow_title_prompt": "Andmesisestus",
+    "confirm_delete_skill": "Kas olete kindel, et soovite oskuse \"{name}\" kustutada?",
+    "confirm_clear_build_cache": "Kas soovite vanad ehitusartefaktid (.build_cache) kustutada? See vabastab kettaruumi.",
+    "confirm_docker_optimize": "Kas soovite optimeerida Dockeri pilte ja vahemälu? See käivitab puhastuskäsud.",
+    "confirm_db_backup": "Kas luua uus {mode} andmebaasi varukoopia ({env})?",
+    "confirm_db_restore": "⚠️ HOIATUS: Kas olete kindel, et soovite varukoopia '{filename}' taastada keskkonda {env}? Praegused andmed asendatakse.",
+    "confirm_delete_storage": "Kas olete kindel, et soovite '{name}' kustutada?",
+    "prompt_bucket_name": "Uue salvestusüksuse (bucket) nimi:",
+    "prompt_folder_name": "Uue kausta nimi:",
+    "prompt_skill_url": "Kleepige faili SKILL.md URL GitHubist:",
+    "alert_api_key_saved": "API-võti on seanssi salvestatud!",
+    "alert_project_id_copied": "ID \"{id}\" kopeeritud!",
+    "alert_skill_name_required": "Sisestage oskuse nimi.",
+    "alert_select_sql": "Palun valige .sql fail",
+    "alert_select_zip": "Palun valige kehtiv .zip fail.",
+    "alert_backup_created": "Varukoopia edukalt loodud! Fail: {filename}",
+    "alert_db_restored": "Andmebaasi taastamine edukalt lõpule viidud keskkonnas {env}!",
+    "alert_zip_restore_success": "🎉 Taastamine edukalt lõpule viidud! Taastati {count} faili.",
+    "app_title_full": "Deployment Center — Universaalne Taristu ja Juurutamise Haldus"
   },
   "fi": {
     "wz_zip_label": "Alkuperäinen Lähdekoodi (.ZIP-tiedosto)",
@@ -17856,7 +18806,45 @@
     "tab_logs": "Lokit",
     "tab_files": "Tiedostot",
     "password": "Salaussalasana",
-    "env_prod_official": "Virallinen Tuotanto"
+    "env_prod_official": "Virallinen Tuotanto",
+    "confirm_restart_container": "Käynnistetäänkö kontti {name} uudelleen?",
+    "confirm_restart_all_containers": "Haluatko varmasti käynnistää uudelleen kaikki projektin kontit?",
+    "confirm_reset_ai_rules": "Haluatko palauttaa kaikki 6 tekoälydirektiiviä virallisiin oletusarvoihin?",
+    "confirm_reset_ai_skills": "Haluatko palauttaa kaikki tekoälytaidot viralliseen oletusluetteloon?",
+    "confirm_revoke_api_key": "Haluatko varmasti kumota tämän API-avaimen? Yhdistetyt SaaS-palvelut eivät voi enää todentaa.",
+    "state_copied": "Kopioitu!",
+    "alert_terminal_copied": "Päätteen tuloste kopioitu!",
+    "alert_no_error_report": "Virheraporttia ei ole saatavilla.",
+    "alert_no_commit_to_promote": "Testiympäristössä ei ole aktiivista committia edistettäväksi.",
+    "alert_no_previous_version": "Tälle ympäristölle ei ole tallennettu aiempaa versiota.",
+    "btn_restore_env": "Palauta ({env})",
+    "containers_none_active": "Tälle projektille ei löytynyt aktiivisia kontteja.",
+    "containers_none_filtered": "Valituilla suodattimilla ei löytynyt kontteja.",
+    "btn_confirm": "Vahvista",
+    "btn_ok": "OK",
+    "btn_delete": "Poista",
+    "btn_revoke": "Kumoaminen",
+    "wow_title_confirm": "Vahvistus Vaaditaan",
+    "wow_title_alert": "Järjestelmäilmoitus",
+    "wow_title_prompt": "Tietojen Syöttö",
+    "confirm_delete_skill": "Haluatko varmasti poistaa taidon \"{name}\"?",
+    "confirm_clear_build_cache": "Haluatko poistaa vanhat koontiartefaktit (.build_cache)? Tämä vapauttaa levytilaa.",
+    "confirm_docker_optimize": "Haluatko optimoida Docker-kuvat ja välimuistin? Tämä suorittaa prune-komennot.",
+    "confirm_db_backup": "Luodaanko uusi {mode} tietokannan varmuuskopio ({env})?",
+    "confirm_db_restore": "⚠️ VAROITUS: Haluatko varmasti palauttaa varmuuskopion '{filename}' ympäristöön {env}? Nykyiset tiedot korvataan.",
+    "confirm_delete_storage": "Haluatko varmasti poistaa kohteen '{name}'?",
+    "prompt_bucket_name": "Uuden säilön (bucket) nimi:",
+    "prompt_folder_name": "Uuden kansion nimi:",
+    "prompt_skill_url": "Liitä SKILL.md-tiedoston URL GitHubista:",
+    "alert_api_key_saved": "API-avain tallennettu istuntoon!",
+    "alert_project_id_copied": "Tunnus \"{id}\" kopioitu!",
+    "alert_skill_name_required": "Syötä taidon nimi.",
+    "alert_select_sql": "Valitse .sql-tiedosto",
+    "alert_select_zip": "Valitse kelvollinen .zip-tiedosto.",
+    "alert_backup_created": "Varmuuskopio luotu onnistuneesti! Tiedosto: {filename}",
+    "alert_db_restored": "Tietokannan palautus suoritettu onnistuneesti ympäristössä {env}!",
+    "alert_zip_restore_success": "🎉 Palautus suoritettu onnistuneesti! Palautettu {count} tiedostoa.",
+    "app_title_full": "Deployment Center — Yleismaailmallinen Infrastruktuurin ja Käyttöönoton Hallinta"
   },
   "hu": {
     "wz_zip_label": "Kezdeti Forráskód (.ZIP Fájl)",
@@ -18495,7 +19483,45 @@
     "tab_logs": "Naplók",
     "tab_files": "Fájlok",
     "password": "Titkosítási jelszó",
-    "env_prod_official": "Hivatalos Éles Környezet"
+    "env_prod_official": "Hivatalos Éles Környezet",
+    "confirm_restart_container": "Újraindítja a(z) {name} konténert?",
+    "confirm_restart_all_containers": "Biztosan újraindítja a projekt összes konténerét?",
+    "confirm_reset_ai_rules": "Vissza kívánja állítani mind a 6 AI-irányelvet a hivatalos alapértékekre?",
+    "confirm_reset_ai_skills": "Vissza kívánja állítani az összes AI-készséget a hivatalos alapértelmezett katalógusra?",
+    "confirm_revoke_api_key": "Biztosan vissza akarja vonni ezt az API-kulcsot? A csatlakoztatott SaaS-szolgáltatások a továbbiakban nem tudnak hitelesíteni.",
+    "state_copied": "Másolva!",
+    "alert_terminal_copied": "Terminál kimenet másolva!",
+    "alert_no_error_report": "Nem áll rendelkezésre hibajelentés.",
+    "alert_no_commit_to_promote": "Nincs aktív commit a tesztkörnyezetben az előléptetéshez.",
+    "alert_no_previous_version": "Ehhez a környezethez nincs korábbi verzió rögzítve.",
+    "btn_restore_env": "Visszaállítás ({env})",
+    "containers_none_active": "Nem találhatók aktív konténerek ehhez a projekthez.",
+    "containers_none_filtered": "A kiválasztott szűrőknek megfelelő konténerek nem találhatók.",
+    "btn_confirm": "Megerősítés",
+    "btn_ok": "OK",
+    "btn_delete": "Törlés",
+    "btn_revoke": "Visszavonás",
+    "wow_title_confirm": "Megerősítés Szükséges",
+    "wow_title_alert": "Rendszer Értesítés",
+    "wow_title_prompt": "Adatbevitel",
+    "confirm_delete_skill": "Biztosan törölni szeretné a(z) \"{name}\" készséget?",
+    "confirm_clear_build_cache": "Törli a régi build-artefaktumokat (.build_cache)? Ezzel lemezterület szabadul fel.",
+    "confirm_docker_optimize": "Optimalizálja a Docker-lemezképeket és a gyorsítótárat? Ez lefutattja a prune parancsokat.",
+    "confirm_db_backup": "Létrehozza a(z) ({env}) adatbázis új {mode} biztonsági mentését?",
+    "confirm_db_restore": "⚠️ FIGYELEM: Biztosan visszaállítja a(z) '{filename}' mentést a(z) {env} környezetbe? A jelenlegi adatok felülíródnak.",
+    "confirm_delete_storage": "Biztosan törölni szeretné a(z) '{name}' elemet?",
+    "prompt_bucket_name": "Új bucket neve:",
+    "prompt_folder_name": "Új mappa neve:",
+    "prompt_skill_url": "Illessze be a GitHubon található SKILL.md fájl URL-jét:",
+    "alert_api_key_saved": "Az API-kulcs elmentve a munkamenetbe!",
+    "alert_project_id_copied": "A(z) \"{id}\" azonosító másolva!",
+    "alert_skill_name_required": "Adja meg a készség nevét.",
+    "alert_select_sql": "Válasszon egy .sql fájlt",
+    "alert_select_zip": "Válasszon egy érvényes .zip fájlt.",
+    "alert_backup_created": "A biztonsági mentés sikeresen elkészült! Fájl: {filename}",
+    "alert_db_restored": "Az adatbázis visszaállítása sikeresen befejeződött a(z) {env} környezetben!",
+    "alert_zip_restore_success": "🎉 A visszaállítás sikeres! {count} fájl visszaállítva.",
+    "app_title_full": "Deployment Center — Univerzális Infrastruktúra- és Telepítéskezelés"
   },
   "lv": {
     "wz_zip_label": "Sākotnējais Pirmkods (.ZIP Fails)",
@@ -19134,7 +20160,45 @@
     "tab_logs": "Žurnāli",
     "tab_files": "Faili",
     "password": "Šifrēšanas parole",
-    "env_prod_official": "Oficiālā Produkcija"
+    "env_prod_official": "Oficiālā Produkcija",
+    "confirm_restart_container": "Restartēt konteineru {name}?",
+    "confirm_restart_all_containers": "Vai tiešām vēlaties restartēt visus projekta konteinerus?",
+    "confirm_reset_ai_rules": "Vai vēlaties atjaunot visas 6 AI direktīvas uz oficiālajām noklusējuma vērtībām?",
+    "confirm_reset_ai_skills": "Vai vēlaties atjaunot visas AI prasmes uz oficiālo noklusējuma katalogu?",
+    "confirm_revoke_api_key": "Vai tiešām vēlaties atsaukt šo API atslēgu? Jebkurš pievienotais SaaS pakalpojums vairs nevarēs autentificēties.",
+    "state_copied": "Nokopēts!",
+    "alert_terminal_copied": "Termināļa izvade nokopēta!",
+    "alert_no_error_report": "Kļūdu ziņojums nav pieejams.",
+    "alert_no_commit_to_promote": "Testēšanas vidē nav aktīva commita veicināšanai.",
+    "alert_no_previous_version": "Šai videi nav reģistrēta iepriekšējā versija.",
+    "btn_restore_env": "Atjaunot ({env})",
+    "containers_none_active": "Šim projektam nav atrasti aktīvi konteineri.",
+    "containers_none_filtered": "Nav atrasti konteineri ar atlasītajiem filtriem.",
+    "btn_confirm": "Apstiprināt",
+    "btn_ok": "Labi",
+    "btn_delete": "Dzēst",
+    "btn_revoke": "Atsaukt",
+    "wow_title_confirm": "Nepieciešams Apstiprinājums",
+    "wow_title_alert": "Sistēmas Paziņojums",
+    "wow_title_prompt": "Datu Ievade",
+    "confirm_delete_skill": "Vai tiešām vēlaties dzēst prasmi \"{name}\"?",
+    "confirm_clear_build_cache": "Vai vēlaties dzēst vecos veidošanas artefaktus (.build_cache)? Tas atbrīvos vietu.",
+    "confirm_docker_optimize": "Vai vēlaties optimizēt Docker attēlus un kešatmiņu? Tiks izpildītas prune komandas.",
+    "confirm_db_backup": "Izveidot jaunu {mode} datubāzes dublējumu ({env})?",
+    "confirm_db_restore": "⚠️ UZMANĪBU: Vai tiešām vēlaties atjaunot dublējumu '{filename}' vidē {env}? Pašreizējie dati tiks aizstāti.",
+    "confirm_delete_storage": "Vai tiešām vēlaties dzēst '{name}'?",
+    "prompt_bucket_name": "Jaunā bucketa nosaukums:",
+    "prompt_folder_name": "Jaunās mapes nosaukums:",
+    "prompt_skill_url": "Ielīmējiet faila SKILL.md URL no GitHub:",
+    "alert_api_key_saved": "API atslēga saglabāta sesijā!",
+    "alert_project_id_copied": "ID \"{id}\" nokopēts!",
+    "alert_skill_name_required": "Lūdzu, ievadiet prasmes nosaukumu.",
+    "alert_select_sql": "Lūdzu, atlasiet .sql failu",
+    "alert_select_zip": "Lūdzu, atlasiet derīgu .zip failu.",
+    "alert_backup_created": "Dublējums veiksmīgi izveidots! Fails: {filename}",
+    "alert_db_restored": "Datubāzes atjaunošana veiksmīgi pabeigta vidē {env}!",
+    "alert_zip_restore_success": "🎉 Atjaunošana veiksmīgi pabeigta! Atjaunoti {count} faili.",
+    "app_title_full": "Deployment Center — Universāla Infrastruktūras un Izvietošanas Pārvaldība"
   },
   "lt": {
     "wz_zip_label": "Pradinis Pirminis Kodas (.ZIP Failas)",
@@ -19773,7 +20837,45 @@
     "tab_logs": "Žurnalai",
     "tab_files": "Failai",
     "password": "Šifravimo slaptažodis",
-    "env_prod_official": "Oficiali Produkcija"
+    "env_prod_official": "Oficiali Produkcija",
+    "confirm_restart_container": "Iš naujo paleisti konteinerį {name}?",
+    "confirm_restart_all_containers": "Ar tikrai norite iš naujo paleisti visus projekto konteinerius?",
+    "confirm_reset_ai_rules": "Ar norite atkurti visas 6 DI direktyvas į oficialias numatytąsias reikšmes?",
+    "confirm_reset_ai_skills": "Ar norite atkurti visus DI įgūdžius į oficialų numatytąjį katalogą?",
+    "confirm_revoke_api_key": "Ar tikrai norite atšaukti šį API raktą? Bet kokia prijungta SaaS paslauga nebegalės autentifikuotis.",
+    "state_copied": "Nukopijuota!",
+    "alert_terminal_copied": "Terminalo išvestis nukopijuota!",
+    "alert_no_error_report": "Klaidų ataskaitos nėra.",
+    "alert_no_commit_to_promote": "Bandymų aplinkoje nėra aktyvaus commito paaukštinimui.",
+    "alert_no_previous_version": "Šiai aplinkai nėra užregistruotos ankstesnės versijos.",
+    "btn_restore_env": "Atkurti ({env})",
+    "containers_none_active": "Šiam projektui aktyvių konteinerių nerasta.",
+    "containers_none_filtered": "Pagal pasirinktus filtrus konteinerių nerasta.",
+    "btn_confirm": "Patvirtinti",
+    "btn_ok": "Gerai",
+    "btn_delete": "Ištrinti",
+    "btn_revoke": "Atšaukti",
+    "wow_title_confirm": "Reikalingas Patvirtinimas",
+    "wow_title_alert": "Sistemos Pranešimas",
+    "wow_title_prompt": "Duomenų Įvedimas",
+    "confirm_delete_skill": "Ar tikrai norite ištrinti įgūdį \"{name}\"?",
+    "confirm_clear_build_cache": "Ar norite ištrinti senus kūrimo artefaktus (.build_cache)? Tai atlaisvins vietos.",
+    "confirm_docker_optimize": "Ar norite optimizuoti Docker atvaizdus ir talpyklą? Bus paleistos prune komandos.",
+    "confirm_db_backup": "Sukurti naują {mode} duomenų bazės atsarginę kopiją ({env})?",
+    "confirm_db_restore": "⚠️ DĖMESIO: Ar tikrai norite atkurti atsarginę kopiją '{filename}' aplinkoje {env}? Esami duomenys bus pakeisti.",
+    "confirm_delete_storage": "Ar tikrai norite ištrinti '{name}'?",
+    "prompt_bucket_name": "Naujo bucketo pavadinimas:",
+    "prompt_folder_name": "Naujo aplanko pavadinimas:",
+    "prompt_skill_url": "Įklijuokite failo SKILL.md URL iš GitHub:",
+    "alert_api_key_saved": "API raktas išsaugotas sesijoje!",
+    "alert_project_id_copied": "ID \"{id}\" nukopijuotas!",
+    "alert_skill_name_required": "Įveskite įgūdžio pavadinimą.",
+    "alert_select_sql": "Pasirinkite .sql failą",
+    "alert_select_zip": "Pasirinkite galiojantį .zip failą.",
+    "alert_backup_created": "Atsarginė kopija sėkmingai sukurta! Failas: {filename}",
+    "alert_db_restored": "Duomenų bazės atkūrimas sėkmingai baigtas aplinkoje {env}!",
+    "alert_zip_restore_success": "🎉 Atkūrimas sėkmingai baigtas! Atkurta failų: {count}.",
+    "app_title_full": "Deployment Center — Visuotinė Infrastruktūros ir Diegimo Valdymo Sistema"
   },
   "mt": {
     "wz_zip_label": "Kodiċi Sors Inizjali (Fajl .ZIP)",
@@ -20412,7 +21514,45 @@
     "tab_logs": "Zkuk",
     "tab_files": "Fajls",
     "password": "Password tal-kriptaġġ",
-    "env_prod_official": "Produzzjoni Uffiċjali"
+    "env_prod_official": "Produzzjoni Uffiċjali",
+    "confirm_restart_container": "Erġa' ibda l-kontenitur {name}?",
+    "confirm_restart_all_containers": "Żgur li trid terġa' tibda l-kontenituri kollha tal-proġett?",
+    "confirm_reset_ai_rules": "Trid tirrestawra s-6 direttivi tal-IA kollha għall-valuri awtomatiċi uffiċjali?",
+    "confirm_reset_ai_skills": "Trid tirrestawra l-ħiliet kollha tal-IA fil-katalgu awtomatiku uffiċjali?",
+    "confirm_revoke_api_key": "Żgur li trid tirrevoka din iċ-ċavetta API? Kwalunkwe SaaS konness mhux se jkun jista' jawtentika aktar.",
+    "state_copied": "Ikkupjat!",
+    "alert_terminal_copied": "L-output tat-terminal ġie kkupjat!",
+    "alert_no_error_report": "L-ebda rapport ta' żball disponibbli.",
+    "alert_no_commit_to_promote": "L-ebda commit attiv fl-Ittestjar biex tippromwovi.",
+    "alert_no_previous_version": "L-ebda verżjoni preċedenti rreġistrata għal dan l-ambjent.",
+    "btn_restore_env": "Irrestawra ({env})",
+    "containers_none_active": "L-ebda kontenitur attiv ma nstab għal dan il-proġett.",
+    "containers_none_filtered": "L-ebda kontenitur ma nstab bil-filtri magħżula.",
+    "btn_confirm": "Ikkonferma",
+    "btn_ok": "OK",
+    "btn_delete": "Ħassar",
+    "btn_revoke": "Irrevoka",
+    "wow_title_confirm": "Konferma Meħtieġa",
+    "wow_title_alert": "Avviż tas-Sistema",
+    "wow_title_prompt": "Dħul ta' Dejta",
+    "confirm_delete_skill": "Żgur li trid tħassar il-ħila \"{name}\"?",
+    "confirm_clear_build_cache": "Trid tħassar l-artefatti tal-bini qodma (.build_cache)? Dan se jillibera spazju.",
+    "confirm_docker_optimize": "Trid tottimizza l-immaġini u l-cache ta' Docker? Dan iħaddem kmandi prune.",
+    "confirm_db_backup": "Oħloq backup ġdid {mode} tad-database ({env})?",
+    "confirm_db_restore": "⚠️ TWISSIJA: Żgur li trid tirrestawra l-backup '{filename}' f'dan l-ambjent {env}? Id-dejta attwali se tinbidel.",
+    "confirm_delete_storage": "Żgur li trid tħassar '{name}'?",
+    "prompt_bucket_name": "Isem tal-bucket il-ġdid:",
+    "prompt_folder_name": "Isem tal-fowlder il-ġdid:",
+    "prompt_skill_url": "Ippejstja l-URL tal-fajl SKILL.md minn GitHub:",
+    "alert_api_key_saved": "Iċ-ċavetta API ġiet salvata fis-sessjoni!",
+    "alert_project_id_copied": "ID \"{id}\" ikkupjat!",
+    "alert_skill_name_required": "Jekk jogħġbok daħħal l-isem tal-ħila.",
+    "alert_select_sql": "Agħżel fajl .sql",
+    "alert_select_zip": "Agħżel fajl .zip validu.",
+    "alert_backup_created": "Backup maħluq b'suċċess! Fajl: {filename}",
+    "alert_db_restored": "Ir-restawr tad-database tlesta b'suċċess f'{env}!",
+    "alert_zip_restore_success": "🎉 Ir-restawr tlesta b'suċċess! Ġew restawrati {count} fajls.",
+    "app_title_full": "Deployment Center — Ġestjoni Universali tal-Infrastruttura u l-Iskjerament"
   },
   "la": {
     "wz_zip_label": "Primarius Codex Fontis (Fasciculus .ZIP)",
@@ -20807,7 +21947,7 @@
     "service_auth": "Authenticatio",
     "service_system": "Systema",
     "internal_ports": "Portae internae",
-    "btn_restart": "Reinitiare",
+    "btn_restart": "Denuo inire",
     "btn_logs": "Acta",
     "cmd_update_server": "Servitorium renovare",
     "cmd_update_server_sub": "Scriptum productionis",
@@ -21051,7 +22191,45 @@
     "tab_logs": "Acta",
     "tab_files": "Fasciculi",
     "password": "Tessera cryptographica",
-    "env_prod_official": "Productio Publica"
+    "env_prod_official": "Productio Publica",
+    "confirm_restart_container": "Visne receptaculum {name} denuo inire?",
+    "confirm_restart_all_containers": "Certusne es te velle omnia receptacula incepti denuo inire?",
+    "confirm_reset_ai_rules": "Visne omnia 6 praecepta intellegentiae artificialis ad valores publicos restituere?",
+    "confirm_reset_ai_skills": "Visne omnes facultates intellegentiae artificialis ad indicem publicum restituere?",
+    "confirm_revoke_api_key": "Certusne es te velle hanc clavem API revocare? Omnia ministeria SaaS coniuncta authentica fieri non poterunt.",
+    "state_copied": "Descriptum!",
+    "alert_terminal_copied": "Exitus terminalis descriptus est!",
+    "alert_no_error_report": "Nullus relatus erroris praesto est.",
+    "alert_no_commit_to_promote": "Nullum activum mandatum in probatione ad promovendum adest.",
+    "alert_no_previous_version": "Nulla editio prior in hoc ambitu perscripta est.",
+    "btn_restore_env": "Restituere ({env})",
+    "containers_none_active": "Nulla receptacula activa in hoc incepto inventa sunt.",
+    "containers_none_filtered": "Nulla receptacula inventa sunt quae filtris electis respondeant.",
+    "btn_confirm": "Confirmare",
+    "btn_ok": "Placet",
+    "btn_delete": "Delere",
+    "btn_revoke": "Revocare",
+    "wow_title_confirm": "Confirmatio Postulatur",
+    "wow_title_alert": "Monitio Systematis",
+    "wow_title_prompt": "Data Inducere",
+    "confirm_delete_skill": "Certusne es te velle facultatem \"{name}\" delere?",
+    "confirm_clear_build_cache": "Visne vetera aedificationis monumenta (.build_cache) delere? Hoc spatium liberabit.",
+    "confirm_docker_optimize": "Visne imagines et thesauros Docker optimizare? Hoc mandata purgandi peraget.",
+    "confirm_db_backup": "Visne novum exemplum {mode} datorum ({env}) parare?",
+    "confirm_db_restore": "⚠️ MONITIO: Certusne es te velle exemplum '{filename}' in {env} restituere? Dati praesentes delebuntur.",
+    "confirm_delete_storage": "Certusne es te velle '{name}' delere?",
+    "prompt_bucket_name": "Nomen novi receptaculi (bucket):",
+    "prompt_folder_name": "Nomen novi scapi:",
+    "prompt_skill_url": "Conglutina vinculum fili SKILL.md in GitHub:",
+    "alert_api_key_saved": "Clavis API in sessione servata est!",
+    "alert_project_id_copied": "ID \"{id}\" descriptum est!",
+    "alert_skill_name_required": "Quaeso nomen facultatis scribe.",
+    "alert_select_sql": "Elige fasciculum .sql",
+    "alert_select_zip": "Quaeso elige fasciculum .zip idoneum.",
+    "alert_backup_created": "Exemplum datorum feliciter creatum est! Fasciculus: {filename}",
+    "alert_db_restored": "Restitutio datorum feliciter peracta est in {env}!",
+    "alert_zip_restore_success": "🎉 Restitutio feliciter confecta est! {count} fasciculi restituti sunt.",
+    "app_title_full": "Deployment Center — Universalis Administratio Structurae et Exsecutionis"
   }
 };
 
@@ -21221,12 +22399,254 @@
       "status_active_stg": "status_active_staging"
     };
 
-    function t(key, fallback = '') {
+    function t(key, fallback = '', params = null) {
+      if (typeof fallback === 'object' && fallback !== null) {
+        params = fallback;
+        fallback = '';
+      }
       const canonicalKey = I18N_ALIASES[key] || key;
-      const val = (I18N[currentLang] && I18N[currentLang][canonicalKey]) || (I18N['pt-PT'] && I18N['pt-PT'][canonicalKey]);
-      if (val !== undefined && val !== '') return val;
-      return fallback || '';
+      let val = (I18N[currentLang] && I18N[currentLang][canonicalKey]) || (I18N['pt-PT'] && I18N['pt-PT'][canonicalKey]);
+      if (val === undefined || val === '') val = fallback || '';
+      if (params && typeof params === 'object') {
+        for (const [k, v] of Object.entries(params)) {
+          val = val.replaceAll('{' + k + '}', v);
+        }
+      }
+      return val;
     }
+
+    
+    // ===================================================================
+    // WOW AUDIO & SENSORY FEEDBACK MICRO-ENGINE
+    // ===================================================================
+    function playWowSound(kind = 'open') {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        const now = ctx.currentTime;
+        
+        if (kind === 'success') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, now); // D5
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.14); // A5
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+          osc.start(now);
+          osc.stop(now + 0.22);
+        } else if (kind === 'danger' || kind === 'warning') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.linearRampToValueAtTime(200, now + 0.16);
+          gain.gain.setValueAtTime(0.09, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        } else {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, now); // A4
+          osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.09); // E5
+          gain.gain.setValueAtTime(0.05, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        }
+      } catch (e) {
+        // Silently ignore if audio context is blocked
+      }
+    }
+
+    // ===================================================================
+    // WOW PROMISE-BASED POPUP ENGINE (Alert, Confirm, Prompt)
+    // ===================================================================
+    let _wowPopupResolver = null;
+    let _wowPopupIsPrompt = false;
+
+    function appAlert(optionsOrMessage, title = '', type = 'info') {
+      return new Promise((resolve) => {
+        let opts = typeof optionsOrMessage === 'object' && optionsOrMessage !== null
+          ? optionsOrMessage
+          : { message: String(optionsOrMessage), title, type };
+
+        _setupWowPopup({
+          title: opts.title || t('wow_title_alert', 'Aviso do Sistema'),
+          message: opts.message || '',
+          type: opts.type || 'info',
+          confirmText: opts.confirmText || t('btn_ok', 'OK'),
+          cancelText: null,
+          isPrompt: false
+        }, resolve);
+      });
+    }
+
+    function appConfirm(optionsOrMessage) {
+      return new Promise((resolve) => {
+        let opts = typeof optionsOrMessage === 'object' && optionsOrMessage !== null
+          ? optionsOrMessage
+          : { message: String(optionsOrMessage) };
+
+        _setupWowPopup({
+          title: opts.title || t('wow_title_confirm', 'Confirmação Necessária'),
+          message: opts.message || '',
+          type: opts.type || 'warning',
+          confirmText: opts.confirmText || t('btn_confirm', 'Confirmar'),
+          cancelText: opts.cancelText || t('btn_cancel', 'Cancelar'),
+          isPrompt: false
+        }, resolve);
+      });
+    }
+
+    function appPrompt(optionsOrMessage) {
+      return new Promise((resolve) => {
+        let opts = typeof optionsOrMessage === 'object' && optionsOrMessage !== null
+          ? optionsOrMessage
+          : { message: String(optionsOrMessage) };
+
+        _setupWowPopup({
+          title: opts.title || t('wow_title_prompt', 'Introdução de Dados'),
+          message: opts.message || '',
+          type: opts.type === 'password' ? 'password' : 'input',
+          confirmText: opts.confirmText || t('btn_confirm', 'Confirmar'),
+          cancelText: opts.cancelText || t('btn_cancel', 'Cancelar'),
+          placeholder: opts.placeholder || '',
+          defaultValue: opts.defaultValue || '',
+          isPrompt: true
+        }, resolve);
+      });
+    }
+
+    function _setupWowPopup(cfg, resolve) {
+      _wowPopupResolver = resolve;
+      _wowPopupIsPrompt = Boolean(cfg.isPrompt);
+
+      const modal = document.getElementById('wow-popup-modal');
+      const card = document.getElementById('wow-popup-card');
+      const ambientGlow = document.getElementById('wow-ambient-glow');
+      const iconBox = document.getElementById('wow-icon-box');
+      const icon = document.getElementById('wow-icon');
+      const badge = document.getElementById('wow-badge');
+      const titleEl = document.getElementById('wow-title');
+      const msgEl = document.getElementById('wow-message');
+      const inputContainer = document.getElementById('wow-input-container');
+      const inputField = document.getElementById('wow-input-field');
+      const btnCancel = document.getElementById('wow-btn-cancel');
+      const btnConfirm = document.getElementById('wow-btn-confirm');
+
+      titleEl.textContent = cfg.title;
+      msgEl.innerHTML = (cfg.message || '').replace(/\n/g, '<br>');
+
+      // Type themes
+      const tType = cfg.type || 'info';
+      if (tType === 'danger') {
+        ambientGlow.className = 'absolute w-80 h-80 rounded-full blur-3xl opacity-35 pointer-events-none transition-all duration-500 bg-rose-600';
+        iconBox.className = 'p-3.5 rounded-2xl shrink-0 transition-transform duration-300 bg-rose-500/10 text-rose-400 border border-rose-500/30 glow-rose';
+        icon.setAttribute('data-lucide', 'alert-triangle');
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border border-rose-500/30 bg-rose-500/10 text-rose-400';
+        badge.textContent = 'PERIGO / SEGURANÇA';
+        btnConfirm.className = 'px-5 py-2.5 rounded-xl text-white text-xs font-bold transition shadow-lg active:scale-95 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 shadow-rose-600/30';
+      } else if (tType === 'warning') {
+        ambientGlow.className = 'absolute w-80 h-80 rounded-full blur-3xl opacity-35 pointer-events-none transition-all duration-500 bg-amber-500';
+        iconBox.className = 'p-3.5 rounded-2xl shrink-0 transition-transform duration-300 bg-amber-500/10 text-amber-400 border border-amber-500/30 glow-amber';
+        icon.setAttribute('data-lucide', 'alert-circle');
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border border-amber-500/30 bg-amber-500/10 text-amber-400';
+        badge.textContent = 'ATENÇÃO';
+        btnConfirm.className = 'px-5 py-2.5 rounded-xl text-white text-xs font-bold transition shadow-lg active:scale-95 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 shadow-amber-600/30';
+      } else if (tType === 'success') {
+        ambientGlow.className = 'absolute w-80 h-80 rounded-full blur-3xl opacity-35 pointer-events-none transition-all duration-500 bg-emerald-500';
+        iconBox.className = 'p-3.5 rounded-2xl shrink-0 transition-transform duration-300 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 glow-emerald';
+        icon.setAttribute('data-lucide', 'check-circle-2');
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border border-emerald-500/30 bg-emerald-500/10 text-emerald-400';
+        badge.textContent = 'SUCESSO';
+        btnConfirm.className = 'px-5 py-2.5 rounded-xl text-white text-xs font-bold transition shadow-lg active:scale-95 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-600/30';
+      } else {
+        ambientGlow.className = 'absolute w-80 h-80 rounded-full blur-3xl opacity-35 pointer-events-none transition-all duration-500 bg-indigo-500';
+        iconBox.className = 'p-3.5 rounded-2xl shrink-0 transition-transform duration-300 bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 glow-indigo';
+        icon.setAttribute('data-lucide', cfg.isPrompt ? 'edit-3' : 'info');
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border border-indigo-500/30 bg-indigo-500/10 text-indigo-400';
+        badge.textContent = cfg.isPrompt ? 'ENTRADA' : 'INFORMAÇÃO';
+        btnConfirm.className = 'px-5 py-2.5 rounded-xl text-white text-xs font-bold transition shadow-lg active:scale-95 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:brightness-110 shadow-indigo-600/30';
+      }
+
+      btnConfirm.textContent = cfg.confirmText || t('btn_confirm', 'Confirmar');
+
+      if (cfg.cancelText) {
+        btnCancel.classList.remove('hidden');
+        btnCancel.textContent = cfg.cancelText;
+      } else {
+        btnCancel.classList.add('hidden');
+      }
+
+      if (cfg.isPrompt) {
+        inputContainer.classList.remove('hidden');
+        inputField.type = tType === 'password' ? 'password' : 'text';
+        inputField.placeholder = cfg.placeholder || '';
+        inputField.value = cfg.defaultValue || '';
+        setTimeout(() => {
+          inputField.focus();
+          inputField.select();
+        }, 50);
+      } else {
+        inputContainer.classList.add('hidden');
+      }
+
+      playWowSound(tType === 'danger' || tType === 'warning' ? 'danger' : (tType === 'success' ? 'success' : 'open'));
+
+      modal.classList.remove('hidden');
+      card.classList.remove('animate-wow-out');
+      card.classList.add('animate-wow-in');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function dismissWowPopup(val = null) {
+      const modal = document.getElementById('wow-popup-modal');
+      const card = document.getElementById('wow-popup-card');
+      if (!modal || modal.classList.contains('hidden')) return;
+
+      card.classList.remove('animate-wow-in');
+      card.classList.add('animate-wow-out');
+      await new Promise(r => setTimeout(r, 160));
+      modal.classList.add('hidden');
+      card.classList.remove('animate-wow-out');
+
+      if (typeof _wowPopupResolver === 'function') {
+        const res = _wowPopupResolver;
+        _wowPopupResolver = null;
+        res(val);
+      }
+    }
+
+    function confirmWowPopup() {
+      if (_wowPopupIsPrompt) {
+        const inputField = document.getElementById('wow-input-field');
+        const val = inputField.value.trim();
+        dismissWowPopup(val);
+      } else {
+        dismissWowPopup(true);
+      }
+    }
+
+    // Input Enter submits prompt
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputField = document.getElementById('wow-input-field');
+      if (inputField) {
+        inputField.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            confirmWowPopup();
+          }
+        });
+      }
+    });
+
+    // Window.alert fallback hook
+    window.alert = function(msg) {
+      return appAlert(msg);
+    };
+
 
     function setLanguage(lang) {
       if (!I18N[lang]) lang = 'pt-PT';
@@ -21246,6 +22666,8 @@
     }
 
     function applyTranslations() {
+      const pageTitle = t('app_title_full');
+      if (pageTitle) document.title = pageTitle;
       document.querySelectorAll('[data-i18n]').forEach((el) => {
         const key = el.getAttribute('data-i18n');
         el.textContent = t(key);
@@ -21435,6 +22857,7 @@
     let activeNotificationPayload = null;
 
     function showAppNotification({ type = 'info', title, message, subtitle, errorDetails, logs, onConfirm }) {
+      playWowSound(type === 'error' ? 'danger' : (type === 'success' ? 'success' : 'open'));
       activeNotificationPayload = {
         date: new Date().toISOString(),
         type,
@@ -21680,7 +23103,7 @@
       const content = document.getElementById('skill-editor-textarea').value;
 
       if (!name) {
-        return alert('Por favor introduza o nome da Skill.');
+        return appAlert({ title: t('wow_title_alert'), message: t('alert_skill_name_required'), type: 'warning' });
       }
 
       btn.disabled = true;
@@ -21718,7 +23141,13 @@
 
     async function deleteCurrentSkill() {
       if (!currentEditingSkillId) return;
-      if (!confirm(`Tem a certeza de que deseja apagar a skill "${currentEditingSkillId}"?`)) return;
+      const confirmed = await appConfirm({
+        title: t('wow_title_confirm'),
+        message: t('confirm_delete_skill', { name: currentEditingSkillId }),
+        type: 'danger',
+        confirmText: t('btn_delete')
+      });
+      if (!confirmed) return;
 
       try {
         const res = await fetch(`/api/skills/${currentEditingSkillId}`, { method: 'DELETE' });
@@ -21733,12 +23162,16 @@
           });
         }
       } catch (e) {
-        alert('Erro ao apagar: ' + e.message);
+        appAlert({ title: t('wow_title_alert'), message: (t('alert_delete_error') || 'Erro ao apagar: ') + e.message, type: 'danger' });
       }
     }
 
     async function promptImportSkillFromUrl() {
-      const url = prompt('Cole o URL do ficheiro SKILL.md no GitHub:\nExemplo: https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/code-polish/SKILL.md');
+      const url = await appPrompt({
+        title: t('prompt_import_skill_title', 'Importar Skill do GitHub'),
+        message: t('prompt_skill_url'),
+        placeholder: 'https://github.com/.../SKILL.md'
+      });
       if (!url || !url.trim()) return;
 
       showAppNotification({
@@ -21779,7 +23212,13 @@
     }
 
     async function resetSkillsToDefault() {
-      if (!confirm('Deseja restaurar todas as skills de IA para o catálogo padrão oficial?')) return;
+      const confirmed = await appConfirm({
+        title: t('wow_title_confirm'),
+        message: t('confirm_reset_ai_skills'),
+        type: 'warning',
+        confirmText: t('btn_restore')
+      });
+      if (!confirmed) return;
       try {
         const res = await fetch('/api/skills/reset', { method: 'POST' });
         const data = await res.json();
@@ -21792,7 +23231,7 @@
           });
         }
       } catch (e) {
-        alert('Erro ao restaurar: ' + e.message);
+        appAlert({ title: t('wow_title_alert'), message: (t('alert_restore_error') || 'Erro ao restaurar: ') + e.message, type: 'danger' });
       }
     }
 
@@ -21900,7 +23339,13 @@
     }
 
     async function resetRuleTemplatesToDefault() {
-      if (!confirm('Deseja restaurar todas as 6 diretivas de IA para os valores padrão oficiais?')) return;
+      const confirmed = await appConfirm({
+        title: t('wow_title_confirm'),
+        message: t('confirm_reset_ai_rules'),
+        type: 'warning',
+        confirmText: t('btn_restore')
+      });
+      if (!confirmed) return;
       try {
         const res = await fetch('/api/rules/reset', { method: 'POST' });
         const data = await res.json();
@@ -21914,7 +23359,7 @@
           });
         }
       } catch (e) {
-        alert('Erro ao restaurar: ' + e.message);
+        appAlert({ title: t('wow_title_alert'), message: (t('alert_restore_error') || 'Erro ao restaurar: ') + e.message, type: 'danger' });
       }
     }
 
@@ -22265,7 +23710,7 @@
       if (!files || files.length === 0) return;
       const file = files[0];
       if (!file.name.toLowerCase().endsWith('.zip')) {
-        alert('Por favor selecione um ficheiro .zip válido.');
+        appAlert({ title: t('wow_title_alert'), message: t('alert_select_zip'), type: 'warning' });
         return;
       }
       wizardSourceZipFile = file;
@@ -22885,7 +24330,7 @@
       const rawContent = (contentText?.value || '').trim();
 
       if (!rawContent) {
-        alert('Por favor, escreva ou cole o conteúdo do ficheiro.');
+        appAlert({ title: t('wow_title_alert'), message: t('alert_empty_file_content', 'Por favor, escreva ou cole o conteúdo do ficheiro.'), type: 'warning' });
         return;
       }
 
@@ -23209,7 +24654,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
         }
         showToast('Prompt de arranque copiado para a área de transferência!');
       }).catch(() => {
-        alert('Prompt:\n\n' + text);
+        appAlert({ title: 'AI Directive Prompt', message: text, type: 'info' });
       });
     }
 
@@ -24038,12 +25483,12 @@ Vamos começar a implementar o primeiro módulo do plano.`;
         const data = await res.json();
         if (data.ok) {
           await loadProjects();
-          alert(`Auto-descoberta concluída!\nForam detetados e carregados ${data.count} projeto(s) no servidor host.`);
+          appAlert({ title: t('state_success', 'Sucesso'), message: `Auto-descoberta concluída! Foram detetados ${data.count} projeto(s).`, type: 'success' });
         } else {
-          alert('Erro na auto-descoberta: ' + (data.error || 'Falha desconhecida'));
+          appAlert({ title: t('wow_title_alert'), message: 'Erro na auto-descoberta: ' + (data.error || 'Falha desconhecida'), type: 'danger' });
         }
       } catch (e) {
-        alert('Falha na comunicação com o servidor: ' + e.message);
+        appAlert({ title: t('wow_title_alert'), message: 'Falha na comunicação com o servidor: ' + e.message, type: 'danger' });
       }
     }
 
@@ -24922,7 +26367,7 @@ document.getElementById('deploy-modal-date').textContent = `🕒 ${new Date(comm
     }
 
     function downloadDeployErrorReport() {
-      if (!lastDeployErrorPayload) return alert("Nenhum relatório de erro disponível.");
+      if (!lastDeployErrorPayload) return appAlert({ title: t('wow_title_alert'), message: t('alert_no_error_report'), type: 'info' });
       
       const p = lastDeployErrorPayload;
       const reportText = `================================================================================
@@ -24964,7 +26409,7 @@ Fim do Relatório
     // ===================================================================
     function openPromoteModal() {
       if (!globalStatus?.state?.staging?.commit) {
-        return alert("Nenhum commit ativo em Testes para promover.");
+        return appAlert({ title: t('wow_title_alert'), message: t('alert_no_commit_to_promote'), type: 'warning' });
       }
       const stg = globalStatus.state.staging;
       openDeployModal(stg.commit, 'production', true, false);
@@ -24973,7 +26418,7 @@ Fim do Relatório
     function openRollbackModal(env) {
       rollbackTargetEnv = env;
       const prev = env === 'production' ? globalStatus?.state?.previousProduction : globalStatus?.state?.previousStaging;
-      if (!prev || !prev.commit) return alert("Sem versão anterior registada para este ambiente.");
+      if (!prev || !prev.commit) return appAlert({ title: t('wow_title_alert'), message: t('alert_no_previous_version'), type: 'warning' });
 
       openDeployModal(prev.commit, env, false, true);
     }
@@ -24987,13 +26432,63 @@ Fim do Relatório
       }
     }
   
-    function closeModal(id) {
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      playWowSound('open');
+      el.classList.remove('hidden');
+      const card = el.querySelector('.glass-card') || el.firstElementChild;
+      if (card) {
+        card.classList.remove('animate-wow-out');
+        card.classList.add('animate-wow-in');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function closeModal(id) {
       if (id === 'deploy-action-modal' && isDeployInProgress) {
         return; // Impedir encerramento acidental durante o processo de deploy
       }
       const el = document.getElementById(id);
-      if (el) el.classList.add('hidden');
+      if (!el) return;
+      const card = el.querySelector('.glass-card') || el.firstElementChild;
+      if (card) {
+        card.classList.remove('animate-wow-in');
+        card.classList.add('animate-wow-out');
+        await new Promise(r => setTimeout(r, 160));
+      }
+      el.classList.add('hidden');
+      if (card) card.classList.remove('animate-wow-out');
     }
+
+    // Global Light-Dismiss & Escape handling
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const wowModal = document.getElementById('wow-popup-modal');
+        if (wowModal && !wowModal.classList.contains('hidden')) {
+          dismissWowPopup(null);
+          return;
+        }
+        const openModals = Array.from(document.querySelectorAll('[id$="-modal"]:not(.hidden), [id^="modal-"]:not(.hidden)'));
+        if (openModals.length > 0) {
+          const topModal = openModals[openModals.length - 1];
+          if (topModal.id !== 'deploy-action-modal' || !isDeployInProgress) {
+            closeModal(topModal.id);
+          }
+        }
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (e.target && e.target.classList && e.target.classList.contains('fixed') && e.target.id && e.target.id.includes('modal')) {
+        if (e.target.id === 'deploy-action-modal' && isDeployInProgress) return;
+        if (e.target.id === 'wow-popup-modal') {
+          dismissWowPopup(null);
+          return;
+        }
+        closeModal(e.target.id);
+      }
+    });
 
     // ===================================================================
     // PRÉ-VISUALIZAÇÃO DE SITES
@@ -25221,7 +26716,13 @@ function localizeDockerStatus(status) {
     }
 
     async function restartContainer(name) {
-      if (!confirm(`Reiniciar o contentor ${name}?`)) return;
+      const confirmed = await appConfirm({
+        title: t('wow_title_confirm'),
+        message: t('confirm_restart_container', { name }),
+        type: 'warning',
+        confirmText: t('btn_restart')
+      });
+      if (!confirmed) return;
       try {
         await fetch('/api/container/restart', {
           method: 'POST',
@@ -25233,7 +26734,13 @@ function localizeDockerStatus(status) {
     }
 
     async function restartAllContainers() {
-      if (!confirm("Tem a certeza de que deseja reiniciar todos os contentores do projeto?")) return;
+      const confirmed = await appConfirm({
+        title: t('wow_title_confirm'),
+        message: t('confirm_restart_all_containers'),
+        type: 'danger',
+        confirmText: t('btn_restart')
+      });
+      if (!confirmed) return;
       try {
         await fetch('/api/containers/restart-all', {
           method: 'POST',
@@ -25390,7 +26897,7 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
     function copyTerminalOutput() {
       const text = document.getElementById('terminal-screen').innerText;
       navigator.clipboard.writeText(text);
-      alert("Output do terminal copiado!");
+      appAlert({ title: t('state_copied'), message: t('alert_terminal_copied'), type: 'success' });
     }
 
     // ===================================================================
@@ -25561,7 +27068,7 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
     function copyGlobalTerminalOutput() {
       const text = document.getElementById('global-terminal-screen').innerText;
       navigator.clipboard.writeText(text);
-      alert("Output do terminal copiado!");
+      appAlert({ title: t('state_copied'), message: t('alert_terminal_copied'), type: 'success' });
     }
 
     // ===================================================================
@@ -25974,9 +27481,13 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
       const purgeBtn = document.getElementById('purge-builds-btn');
       const originalText = purgeBtn ? purgeBtn.innerHTML : '';
 
-      if (!confirm('Deseja eliminar os artefactos de compilação antigos (.build_cache)?\\n\\nIsto libertará espaço em disco. Se precisar de voltar a um commit antigo, os outputs serão reconstruídos automaticamente sob demanda.')) {
-        return;
-      }
+      const confirmed = await appConfirm({
+        title: t('wow_title_confirm'),
+        message: t('confirm_clear_build_cache'),
+        type: 'warning',
+        confirmText: t('btn_delete')
+      });
+      if (!confirmed) return;
 
       if (purgeBtn) {
         purgeBtn.disabled = true;
@@ -25998,10 +27509,10 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
           });
           loadStorageOptimizationStats();
         } else {
-          alert('Erro ao limpar compilações: ' + (data.error || 'Falha desconhecida'));
+          appAlert({ title: t('wow_title_alert'), message: 'Erro ao limpar compilações: ' + (data.error || 'Falha'), type: 'danger' });
         }
       } catch (e) {
-        alert('Erro de comunicação: ' + e.message);
+        appAlert({ title: t('wow_title_alert'), message: 'Erro de comunicação: ' + e.message, type: 'danger' });
       } finally {
         if (purgeBtn) {
           purgeBtn.disabled = false;
@@ -26015,9 +27526,13 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
       const btn = document.getElementById('docker-prune-btn');
       const originalText = btn ? btn.innerHTML : '';
 
-      if (!confirm('Deseja executar a otimização de imagens e cache de compilação do Docker?\\n\\nIsto executa `docker image prune` e `docker builder prune` em imagens suspensas sem afetar contentores ou volumes em execução.')) {
-        return;
-      }
+      const confirmed = await appConfirm({
+        title: t('wow_title_confirm'),
+        message: t('confirm_docker_optimize'),
+        type: 'warning',
+        confirmText: t('btn_confirm')
+      });
+      if (!confirmed) return;
 
       if (btn) {
         btn.disabled = true;
@@ -26039,10 +27554,10 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
           });
           loadStorageOptimizationStats();
         } else {
-          alert('Erro ao otimizar Docker: ' + (data.error || 'Falha desconhecida'));
+          appAlert({ title: t('wow_title_alert'), message: 'Erro ao otimizar Docker: ' + (data.error || 'Falha'), type: 'danger' });
         }
       } catch (e) {
-        alert('Erro de comunicação: ' + e.message);
+        appAlert({ title: t('wow_title_alert'), message: 'Erro de comunicação: ' + e.message, type: 'danger' });
       } finally {
         if (btn) {
           btn.disabled = false;
@@ -26282,10 +27797,10 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
           });
           loadProjectEnv();
         } else {
-          alert('Erro ao gravar variáveis: ' + (data.error || 'Falha desconhecida'));
+          appAlert({ title: t('wow_title_alert'), message: 'Erro ao gravar variáveis: ' + (data.error || 'Falha'), type: 'danger' });
         }
       } catch (e) {
-        alert('Erro de comunicação: ' + e.message);
+        appAlert({ title: t('wow_title_alert'), message: 'Erro de comunicação: ' + e.message, type: 'danger' });
       } finally {
         if (saveBtn) {
           saveBtn.disabled = false;
@@ -26726,7 +28241,7 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
           loadStorageBuckets();
         }
       } catch (e) {
-        alert((t('storage_delete_error') || 'Erro ao eliminar: ') + e.message);
+        appAlert({ title: t('wow_title_alert'), message: (t('storage_delete_error') || 'Erro ao eliminar: ') + e.message, type: 'danger' });
       } finally {
         btn.disabled = false;
         btn.innerHTML = `<i data-lucide="trash-2" class="w-4 h-4"></i> ${t('btn_delete_permanently') || 'Eliminar Permanentemente'}`;
@@ -26762,7 +28277,7 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
 
     function triggerFileUpload(isFolder) {
       if (currentBucketId === '_all_') {
-        return alert(t('storage_select_bucket_alert') || "Selecione um bucket específico na lista antes de enviar ficheiros ou pastas.");
+        return appAlert({ title: t('wow_title_alert'), message: t('storage_select_bucket_alert') || 'Selecione um bucket específico antes de enviar ficheiros.', type: 'warning' });
       }
       if (isFolder) {
         document.getElementById('folder-upload-input').click();
@@ -26807,7 +28322,7 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
       }
 
       if (currentBucketId === '_all_') {
-        return alert("Selecione um bucket específico antes de arrastar ficheiros normais.");
+        return appAlert({ title: t('wow_title_alert'), message: 'Selecione um bucket específico antes de arrastar ficheiros.', type: 'warning' });
       }
 
       const filesPayload = [];
@@ -26837,7 +28352,7 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
     }
 
     async function uploadFilesToStorage(filesPayload) {
-      if (!currentBucketId || currentBucketId === '_all_') return alert("Selecione um bucket antes de fazer upload.");
+      if (!currentBucketId || currentBucketId === '_all_') return appAlert({ title: t('wow_title_alert'), message: 'Selecione um bucket antes de fazer upload.', type: 'warning' });
       
       const container = document.getElementById('storage-files-container');
       const originalHtml = container.innerHTML;
@@ -26858,20 +28373,26 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
         });
         const data = await res.json();
         if (data.ok) {
-          alert(`✅ ${data.message}`);
+          appAlert({ title: t('state_success', 'Sucesso'), message: data.message, type: 'success' });
           loadStorageFiles(currentBucketId, currentStoragePath);
         } else {
-          alert('Erro no upload: ' + (data.error || 'Falha'));
+          appAlert({ title: t('wow_title_alert'), message: 'Erro no upload: ' + (data.error || 'Falha'), type: 'danger' });
           container.innerHTML = originalHtml;
         }
       } catch (e) {
-        alert('Falha: ' + e.message);
+        appAlert({ title: t('wow_title_alert'), message: 'Falha: ' + e.message, type: 'danger' });
         container.innerHTML = originalHtml;
       }
     }
 
     async function deleteStorageFile(bucketId, name) {
-      if (!confirm(`Tem a certeza de que deseja eliminar '${name}'?`)) return;
+      const confirmed = await appConfirm({
+        title: t('wow_title_confirm'),
+        message: t('confirm_delete_storage', { name }),
+        type: 'danger',
+        confirmText: t('btn_delete')
+      });
+      if (!confirmed) return;
       try {
         await fetch('/api/storage/delete', {
           method: 'DELETE',
@@ -26882,9 +28403,9 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
       } catch (e) {}
     }
 
-    function openCreateFolderModal() {
+    async function openCreateFolderModal() {
       if (currentBucketId === '_all_') {
-        const bucketName = prompt("Nome do novo Bucket:");
+        const bucketName = await appPrompt({ title: t('wow_title_prompt'), message: t('prompt_bucket_name'), placeholder: 'ex: assets' });
         if (!bucketName) return;
         fetch('/api/storage/create-folder', {
           method: 'POST',
@@ -26899,7 +28420,7 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
         return;
       }
 
-      const folderName = prompt("Nome da nova pasta:");
+      const folderName = await appPrompt({ title: t('wow_title_prompt'), message: t('prompt_folder_name'), placeholder: 'ex: documents' });
       if (!folderName) return;
 
       fetch('/api/storage/create-folder', {
@@ -26944,7 +28465,7 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
 
     async function processZipFileForRestore(file) {
       if (!window.JSZip) {
-        return alert("A carregar biblioteca de descompressão ZIP... Tente novamente em 2 segundos.");
+        return appAlert({ title: t('wow_title_alert'), message: 'A carregar biblioteca ZIP... Tente novamente em 2 segundos.', type: 'info' });
       }
 
       document.getElementById('storage-zip-select-label').textContent = `Ficheiro: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
@@ -26989,7 +28510,7 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
         btn.classList.remove('opacity-50', 'cursor-not-allowed');
 
       } catch (err) {
-        alert("Erro ao ler arquivo ZIP: " + err.message);
+        appAlert({ title: t('wow_title_alert'), message: 'Erro ao ler arquivo ZIP: ' + err.message, type: 'danger' });
       }
     }
 
@@ -27048,7 +28569,7 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
         } catch (e) {}
       }
 
-      alert(`🎉 Restauro concluído com sucesso!\nForam processados e repostos ${totalRestored} ficheiro(s).`);
+      appAlert({ title: t('state_success', 'Sucesso'), message: t('alert_zip_restore_success', { count: totalRestored }), type: 'success' });
       closeModal('restore-storage-zip-modal');
       loadStorageBuckets();
       fetchDbStats();
@@ -27076,7 +28597,14 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
     }
 
     async function createDbBackup(schemaOnly) {
-      if (!confirm(`Criar novo backup ${schemaOnly ? 'apenas de Schema' : 'Completo'} da base de dados (${currentDbEnv})?`)) return;
+      const mode = schemaOnly ? t('db_schema_only', 'apenas de Schema') : t('db_full', 'Completo');
+      const confirmed = await appConfirm({
+        title: t('wow_title_confirm'),
+        message: t('confirm_db_backup', { mode, env: currentDbEnv }),
+        type: 'info',
+        confirmText: t('btn_confirm')
+      });
+      if (!confirmed) return;
       try {
         const res = await fetch('/api/db/backup', {
           method: 'POST',
@@ -27085,14 +28613,14 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
         });
         const data = await res.json();
         if (data.ok) {
-          alert(`✅ Backup criado com sucesso!\nFicheiro: ${data.filename}\nTamanho: ${data.sizeFormatted}\nAmbiente: ${data.environment || currentDbEnv}`);
+          appAlert({ title: t('state_success', 'Sucesso'), message: t('alert_backup_created', { filename: data.filename }), type: 'success' });
           fetchDbBackups();
           fetchDbStats();
         } else {
-          alert('Erro ao criar backup: ' + data.error);
+          appAlert({ title: t('wow_title_alert'), message: 'Erro ao criar backup: ' + data.error, type: 'danger' });
         }
       } catch (e) {
-        alert('Falha: ' + e.message);
+        appAlert({ title: t('wow_title_alert'), message: 'Falha: ' + e.message, type: 'danger' });
       }
     }
 
@@ -27134,7 +28662,13 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
     }
 
     async function restoreDbBackup(filename) {
-      if (!confirm(`⚠️ ATENÇÃO: Tem a certeza de que deseja restaurar o backup '${filename}' no ambiente ${currentDbEnv.toUpperCase()}?\nOs dados atuais desse ambiente serão substituídos.`)) return;
+      const confirmed = await appConfirm({
+        title: t('wow_title_confirm'),
+        message: t('confirm_db_restore', { filename, env: currentDbEnv.toUpperCase() }),
+        type: 'danger',
+        confirmText: t('btn_restore')
+      });
+      if (!confirmed) return;
       try {
         const res = await fetch('/api/db/restore', {
           method: 'POST',
@@ -27143,14 +28677,14 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
         });
         const data = await res.json();
         if (data.ok) {
-          alert(`✅ Restauro da base de dados concluído com sucesso no ambiente ${currentDbEnv}!`);
+          appAlert({ title: t('state_success', 'Sucesso'), message: t('alert_db_restored', { env: currentDbEnv }), type: 'success' });
           fetchDbStats();
           fetchDbTables();
         } else {
-          alert('Erro no restauro: ' + (data.error || 'Falha'));
+          appAlert({ title: t('wow_title_alert'), message: 'Erro no restauro: ' + (data.error || 'Falha'), type: 'danger' });
         }
       } catch (e) {
-        alert('Falha na ligação: ' + e.message);
+        appAlert({ title: t('wow_title_alert'), message: 'Falha na ligação: ' + e.message, type: 'danger' });
       }
     }
 
@@ -27160,7 +28694,7 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
 
     async function confirmSqlUploadRestore() {
       const input = document.getElementById('sql-upload-file');
-      if (!input.files || input.files.length === 0) return alert("Selecione um ficheiro .sql");
+      if (!input.files || input.files.length === 0) return appAlert({ title: t('wow_title_alert'), message: t('alert_select_sql'), type: 'warning' });
 
       const file = input.files[0];
       const text = await file.text();
@@ -27177,14 +28711,14 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
         const data = await res.json();
         if (data.ok) {
           closeModal('restore-sql-modal');
-          alert(`✅ Restauro SQL concluído com sucesso em ${currentDbEnv}!`);
+          appAlert({ title: t('state_success', 'Sucesso'), message: t('alert_db_restored', { env: currentDbEnv }), type: 'success' });
           fetchDbStats();
           fetchDbTables();
         } else {
-          alert("Erro: " + (data.error || 'Falha'));
+          appAlert({ title: t('wow_title_alert'), message: 'Erro: ' + (data.error || 'Falha'), type: 'danger' });
         }
       } catch (e) {
-        alert("Falha: " + e.message);
+        appAlert({ title: t('wow_title_alert'), message: 'Falha: ' + e.message, type: 'danger' });
       } finally {
         btn.disabled = false;
         btn.textContent = "Executar Restauro";
@@ -27447,11 +28981,23 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
       } catch (e) {}
     }
 
-    function openCreateUserModal() {
-      const username = prompt("Nome de utilizador:");
+    async function openCreateUserModal() {
+      const username = await appPrompt({
+        title: t('wow_title_prompt'),
+        message: t('prompt_username', 'Nome de utilizador:'),
+        placeholder: 'ex: admin'
+      });
       if (!username) return;
-      const name = prompt("Nome completo:");
-      const password = prompt("Palavra-passe:");
+      const name = await appPrompt({
+        title: t('wow_title_prompt'),
+        message: t('prompt_fullname', 'Nome completo:'),
+        placeholder: 'ex: Administrador'
+      });
+      const password = await appPrompt({
+        title: t('wow_title_prompt'),
+        message: t('prompt_password', 'Palavra-passe:'),
+        type: 'password'
+      });
       if (!password) return;
 
       fetch('/api/users', {
@@ -27461,11 +29007,23 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
       }).then(() => fetchUsers());
     }
 
-    function openNewProjectModal() {
-      const name = prompt("Nome do Projeto (ex: Novo Projeto):");
+    async function openNewProjectModal() {
+      const name = await appPrompt({
+        title: t('wow_title_prompt'),
+        message: t('prompt_proj_name', 'Nome do Projeto (ex: Novo Projeto):'),
+        placeholder: 'Meu Novo Projeto'
+      });
       if (!name) return;
-      const repoOwner = prompt("GitHub Owner / Organização (ex: DavidFFerreira):", "DavidFFerreira");
-      const repoName = prompt("GitHub Repositório (ex: Meu_Projeto):");
+      const repoOwner = await appPrompt({
+        title: t('wow_title_prompt'),
+        message: t('prompt_proj_owner', 'GitHub Owner / Organização:'),
+        defaultValue: 'DavidFFerreira'
+      });
+      const repoName = await appPrompt({
+        title: t('wow_title_prompt'),
+        message: t('prompt_proj_repo', 'GitHub Repositório:'),
+        placeholder: 'ex: Meu_Projeto'
+      });
       if (!repoName) return;
       const id = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
 
@@ -27904,16 +29462,22 @@ data: {"status":"ready","done":true,"completed_at":"2026-09-06T13:45:30.000Z"}`
           loadApiKeys();
           showAppNotification({ type: 'success', title: 'Chave Gerada', message: 'Copie e guarde a chave de API agora.' });
         } else {
-          alert(data.error || 'Erro ao gerar chave');
+          appAlert({ title: t('wow_title_alert'), message: data.error || 'Erro ao gerar chave', type: 'danger' });
         }
       } catch (e) {
-        alert('Erro: ' + e.message);
+        appAlert({ title: t('wow_title_alert'), message: 'Erro: ' + e.message, type: 'danger' });
       }
       if (window.lucide) lucide.createIcons();
     }
 
     async function deleteApiKey(id) {
-      if (!confirm('Tem a certeza que deseja revogar esta chave de API? Qualquer SaaS conectado deixará de conseguir autenticar-se.')) return;
+      const confirmed = await appConfirm({
+        title: t('wow_title_confirm'),
+        message: t('confirm_revoke_api_key'),
+        type: 'danger',
+        confirmText: t('btn_revoke')
+      });
+      if (!confirmed) return;
       try {
         const resp = await fetch(`/api/v1/keys/${id}`, { method: 'DELETE' });
         const data = await resp.json();
@@ -27922,7 +29486,7 @@ data: {"status":"ready","done":true,"completed_at":"2026-09-06T13:45:30.000Z"}`
           showAppNotification({ type: 'success', title: 'Chave Revogada', message: 'A chave de API foi invalidada com sucesso.' });
         }
       } catch (e) {
-        alert('Erro: ' + e.message);
+        appAlert({ title: t('wow_title_alert'), message: 'Erro: ' + e.message, type: 'danger' });
       }
     }
 

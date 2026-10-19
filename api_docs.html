@@ -33,6 +33,18 @@
     pre code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
+  
+    @keyframes wow-modal-in {
+      0% { opacity: 0; transform: scale(0.92) translateY(12px); filter: blur(6px); }
+      60% { transform: scale(1.02) translateY(-2px); filter: blur(0); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes wow-modal-out {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.94) translateY(8px); filter: blur(4px); }
+    }
+    .animate-wow-in { animation: wow-modal-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-wow-out { animation: wow-modal-out 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-200">
@@ -9262,7 +9274,7 @@
       if (input && input.value.trim()) {
         localStorage.setItem('dc_temp_api_key', input.value.trim());
         updateSnippetDisplay();
-        alert('Chave de API memorizada na sessão!');
+        showDocsToast('Chave de API memorizada na sessão!', 'success');
       }
     }
 
@@ -9318,7 +9330,7 @@
     function copyActiveId() {
       if (!selectedProjectId) return;
       navigator.clipboard.writeText(selectedProjectId);
-      alert(`ID "${selectedProjectId}" copiado!`);
+      showDocsToast(`ID "${selectedProjectId}" copiado!`, 'success');
     }
 
     function onSelectedProjectChange(val) {
@@ -9403,6 +9415,55 @@
     fetchProjectsList();
     switchDocTab('projects_list');
     lucide.createIcons();
+  
+    function playDocsWowSound(kind = 'success') {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        const now = ctx.currentTime;
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+        gain.gain.setValueAtTime(0.06, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      } catch (e) {}
+    }
+
+    function showDocsToast(msg, type = 'success') {
+      playDocsWowSound(type);
+      const toast = document.getElementById('docs-toast');
+      const msgEl = document.getElementById('docs-toast-msg');
+      if (!toast || !msgEl) return;
+      msgEl.textContent = msg;
+      toast.classList.remove('hidden');
+      toast.classList.remove('animate-wow-out');
+      toast.classList.add('animate-wow-in');
+      if (window.lucide) lucide.createIcons();
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.classList.remove('animate-wow-in');
+        toast.classList.add('animate-wow-out');
+        setTimeout(() => toast.classList.add('hidden'), 200);
+      }, 2500);
+    }
+
   </script>
+
+  <!-- Toast WOW Notifications -->
+  <div id="docs-toast" class="fixed bottom-6 right-6 z-50 hidden flex items-center gap-3 px-5 py-3 rounded-2xl glass-card border border-emerald-500/30 text-white shadow-2xl transition-all duration-300">
+    <div id="docs-toast-icon" class="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
+      <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+    </div>
+    <div>
+      <div id="docs-toast-msg" class="text-xs font-bold"></div>
+    </div>
+  </div>
 </body>
 </html>
