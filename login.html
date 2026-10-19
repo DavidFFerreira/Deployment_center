@@ -55,11 +55,35 @@
     <!-- Seletor de Idioma -->
     <div class="flex items-center gap-1.5">
       <i data-lucide="globe" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
-      <select id="lang-selector" onchange="setLanguage(this.value)" class="bg-transparent font-bold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer">
-        <option value="pt-PT" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇵🇹 PT</option>
-        <option value="en" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇬🇧 EN</option>
-        <option value="fr" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇫🇷 FR</option>
-        <option value="es" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇪🇸 ES</option>
+      <select id="lang-selector" onchange="setLanguage(this.value)" class="bg-transparent font-bold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer max-w-[130px] sm:max-w-none truncate">
+        <option value="pt-PT" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇵🇹 PT (Português)</option>
+        <option value="en" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇬🇧 EN (English)</option>
+        <option value="es" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇪🇸 ES (Español)</option>
+        <option value="fr" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇫🇷 FR (Français)</option>
+        <option value="it" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇮🇹 IT (Italiano)</option>
+        <option value="de" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇩🇪 DE (Deutsch)</option>
+        <option value="de-AT" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇦🇹 AT (Deutsch-AT)</option>
+        <option value="nl" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇳🇱 NL (Nederlands)</option>
+        <option value="el" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇬🇷 EL (Ελληνικά)</option>
+        <option value="pl" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇵🇱 PL (Polski)</option>
+        <option value="ru" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇷🇺 RU (Русский)</option>
+        <option value="zh" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇨🇳 ZH (中文)</option>
+        <option value="ja" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇯🇵 JA (日本語)</option>
+        <option value="sv" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇸🇪 SV (Svenska)</option>
+        <option value="ro" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇷🇴 RO (Română)</option>
+        <option value="mo" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇲🇩 MO (Moldovenească)</option>
+        <option value="cs" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇨🇿 CS (Čeština)</option>
+        <option value="hr" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇭🇷 HR (Hrvatski)</option>
+        <option value="da" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇩🇰 DA (Dansk)</option>
+        <option value="sk" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇸🇰 SK (Slovenčina)</option>
+        <option value="sl" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇸🇮 SL (Slovenščina)</option>
+        <option value="et" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇪🇪 ET (Eesti)</option>
+        <option value="fi" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇫🇮 FI (Suomi)</option>
+        <option value="hu" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇭🇺 HU (Magyar)</option>
+        <option value="lv" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇱🇻 LV (Latviešu)</option>
+        <option value="lt" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇱🇹 LT (Lietuvių)</option>
+        <option value="mt" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇲🇹 MT (Malti)</option>
+        <option value="la" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🏛️ LA (Latina)</option>
       </select>
     </div>
 
@@ -202,98 +226,630 @@
 
   <script>
     // ===================================================================
-    // DICIONÁRIO MULTILÍNGUE (i18n)
+    // DICIONÁRIO MULTILÍNGUE (i18n) - 28 IDIOMAS
     // ===================================================================
     const LOGIN_I18N = {
-      'pt-PT': {
-        tagline: "Painel Universal de Infraestrutura, Deploys e Stacks",
-        error_credentials: "Credenciais incorretas. Por favor verifique o utilizador e a palavra-passe.",
-        username_label: "Nome de Utilizador",
-        password_label: "Palavra-passe",
-        btn_login: "Entrar no Deployment Center",
-        restricted_access: "Acesso Restrito aos Administradores de Infraestrutura",
-        rights_reserved: "Todos os direitos reservados.",
-        terms_link: "Termos e Condições",
-        repo_link: "Repositório GitHub",
-        legal_disclaimer: "Software Proprietário · Proibida a redistribuição ou comercialização não autorizada (Convenção de Berna & CDADC).",
-        terms_modal_title: "Termos e Condições de Utilização",
-        terms_legal_notice: "Aviso Legal: O presente software, a sua arquitetura de micro-serviços, orquestrador de contentores Docker, scripts de instalação e interface web são propriedade intelectual exclusiva de David Ferreira.",
-        terms_sec1_title: "1. Titularidade e Direitos de Autor",
-        terms_sec1_text: "Todo o código-fonte, templates de Docker Compose, scripts shell (install.sh, update.sh) e documentação são protegidos internacionalmente pela Convenção de Berna, pelo Tratado de Direito de Autor da OMPI (WCT) e pelas Diretivas Europeias de Proteção de Software.",
-        terms_sec2_title: "2. Proibição de Partilha, Venda ou Redistribuição",
-        terms_sec2_text: "É estritamente proibido partilhar, sublicenciar, comercializar, alugar, publicar em repositórios abertos ou redistribuir este repositório ou qualquer parte dele sem a autorização prévia, explícita e por escrito do criador David Ferreira.",
-        terms_sec3_title: "3. Consequências Legais e Judiciais",
-        terms_sec3_text: "Qualquer utilização não autorizada constitui infração grave e crime de usurpação de direitos de autor, sujeita a procedimento judicial civil e criminal com pedido de indemnização por perdas e danos nas jurisdições competentes.",
-        btn_close: "Compreendi e Aceito"
-      },
-      'en': {
-        tagline: "Universal Infrastructure, Deployments & Stack Platform",
-        error_credentials: "Invalid credentials. Please verify username and password.",
-        username_label: "Username",
-        password_label: "Password",
-        btn_login: "Sign In to Deployment Center",
-        restricted_access: "Restricted Access to Infrastructure Administrators",
-        rights_reserved: "All rights reserved.",
-        terms_link: "Terms & Conditions",
-        repo_link: "GitHub Repository",
-        legal_disclaimer: "Proprietary Software · Unauthorized redistribution or resale strictly prohibited (Berne Convention & CDADC).",
-        terms_modal_title: "Terms and Conditions of Use",
-        terms_legal_notice: "Legal Notice: This software, microservice architecture, Docker orchestrator, scripts and web interface are exclusive intellectual property of David Ferreira.",
-        terms_sec1_title: "1. Ownership & Copyright",
-        terms_sec1_text: "All source code, Docker Compose templates, scripts (install.sh, update.sh) and documentation are protected internationally by the Berne Convention, WIPO Copyright Treaty and European Directives.",
-        terms_sec2_title: "2. Prohibition of Sharing, Resale or Redistribution",
-        terms_sec2_text: "Sharing, sublicensing, selling, renting or redistributing this repository or any derivative parts is strictly prohibited without prior written authorization from David Ferreira.",
-        terms_sec3_title: "3. Legal & Judicial Consequences",
-        terms_sec3_text: "Any unauthorized reproduction or distribution constitutes copyright infringement and criminal usurpation subject to prosecution and civil damages.",
-        btn_close: "I Understand & Accept"
-      },
-      'fr': {
-        tagline: "Plateforme Universelle d'Infrastructure, Déploiements & Stacks",
-        error_credentials: "Identifiants invalides. Veuillez vérifier le nom d'utilisateur et le mot de passe.",
-        username_label: "Nom d'utilisateur",
-        password_label: "Mot de passe",
-        btn_login: "Connexion au Deployment Center",
-        restricted_access: "Accès restreint aux administrateurs d'infrastructure",
-        rights_reserved: "Tous droits réservés.",
-        terms_link: "Conditions Générales",
-        repo_link: "Dépôt GitHub",
-        legal_disclaimer: "Logiciel propriétaire · Toute redistribution ou vente non autorisée est strictement interdite (Convention de Berne & CDADC).",
-        terms_modal_title: "Conditions Générales d'Utilisation",
-        terms_legal_notice: "Mentions légales : Ce logiciel, son architecture, ses orchestrateurs Docker et son interface web sont la propriété intellectuelle exclusive de David Ferreira.",
-        terms_sec1_title: "1. Propriété et Droits d'Auteur",
-        terms_sec1_text: "L'ensemble du code source, modèles Docker et scripts sont protégés internationalement par la Convention de Berne et le Traité de l'OMPI.",
-        terms_sec2_title: "2. Interdiction de Partage ou Revente",
-        terms_sec2_text: "Il est strictement interdit de partager, revendre ou redistribuer ce dépôt sans autorisation écrite préalable de David Ferreira.",
-        terms_sec3_title: "3. Conséquences Juridiques",
-        terms_sec3_text: "Toute utilisation non autorisée constitue une contrefaçon passible de poursuites judiciaires et d'indemnisations civiles.",
-        btn_close: "J'ai compris et j'accepte"
-      },
-      'es': {
-        tagline: "Panel Universal de Infraestructura, Despliegues y Stacks",
-        error_credentials: "Credenciales incorrectas. Por favor verifique el usuario y la contraseña.",
-        username_label: "Nombre de Usuario",
-        password_label: "Contraseña",
-        btn_login: "Iniciar Sesión en Deployment Center",
-        restricted_access: "Acceso Restringido a Administradores de Infraestructura",
-        rights_reserved: "Todos los derechos reservados.",
-        terms_link: "Términos y Condiciones",
-        repo_link: "Repositorio GitHub",
-        legal_disclaimer: "Software Propietario · Prohibida la redistribución o comercialización no autorizada (Convenio de Berna y CDADC).",
-        terms_modal_title: "Términos y Condiciones de Uso",
-        terms_legal_notice: "Aviso Legal: Este software, su arquitectura, orquestador Docker e interfaz web son propiedad intelectual exclusiva de David Ferreira.",
-        terms_sec1_title: "1. Titularidad y Derechos de Autor",
-        terms_sec1_text: "Todo el código fuente, plantillas Docker y scripts están protegidos internacionalmente por el Convenio de Berna y la OMPI.",
-        terms_sec2_title: "2. Prohibición de Compartir o Revender",
-        terms_sec2_text: "Está estrictamente prohibido compartir, vender o redistribuir este repositorio sin autorización previa por escrito de David Ferreira.",
-        terms_sec3_title: "3. Consecuencias Legales",
-        terms_sec3_text: "Cualquier uso no autorizado constituye un delito de usurpación de derechos de autor con responsabilidad civil y penal.",
-        btn_close: "He entendido y acepto"
+  "pt-PT": {
+    "tagline": "Painel Universal de Infraestrutura, Deploys e Stacks",
+    "error_credentials": "Credenciais incorretas. Por favor verifique o utilizador e a palavra-passe.",
+    "username_label": "Nome de Utilizador",
+    "password_label": "Palavra-passe",
+    "btn_login": "Entrar no Deployment Center",
+    "restricted_access": "Acesso Restrito aos Administradores de Infraestrutura",
+    "rights_reserved": "Todos os direitos reservados.",
+    "terms_link": "Termos e Condições",
+    "repo_link": "Repositório GitHub",
+    "legal_disclaimer": "Software Proprietário · Proibida a redistribuição ou comercialização não autorizada (Convenção de Berna & CDADC).",
+    "terms_modal_title": "Termos e Condições de Utilização",
+    "terms_legal_notice": "Aviso Legal: O presente software, a sua arquitetura de micro-serviços, orquestrador de contentores Docker, scripts de instalação e interface web são propriedade intelectual exclusiva de David Ferreira.",
+    "terms_sec1_title": "1. Titularidade e Direitos de Autor",
+    "terms_sec1_text": "Todo o código-fonte, templates de Docker Compose, scripts shell (install.sh, update.sh) e documentação são protegidos internacionalmente pela Convenção de Berna, pelo Tratado de Direito de Autor da OMPI (WCT) e pelas Diretivas Europeias de Proteção de Software.",
+    "terms_sec2_title": "2. Proibição de Partilha, Venda ou Redistribuição",
+    "terms_sec2_text": "É estritamente proibido partilhar, sublicenciar, comercializar, alugar, publicar em repositórios abertos ou redistribuir este repositório ou qualquer parte dele sem a autorização prévia, explícita e por escrito do criador David Ferreira.",
+    "terms_sec3_title": "3. Consequências Legais e Judiciais",
+    "terms_sec3_text": "Qualquer utilização não autorizada constitui infração grave e crime de usurpação de direitos de autor, sujeita a procedimento judicial civil e criminal com pedido de indemnização por perdas e danos nas jurisdições competentes.",
+    "btn_close": "Compreendi e Aceito"
+  },
+  "en": {
+    "tagline": "Universal Infrastructure, Deployments & Stack Platform",
+    "error_credentials": "Invalid credentials. Please verify username and password.",
+    "username_label": "Username",
+    "password_label": "Password",
+    "btn_login": "Sign In to Deployment Center",
+    "restricted_access": "Restricted Access to Infrastructure Administrators",
+    "rights_reserved": "All rights reserved.",
+    "terms_link": "Terms & Conditions",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Proprietary Software · Unauthorized redistribution or resale strictly prohibited (Berne Convention & CDADC).",
+    "terms_modal_title": "Terms and Conditions of Use",
+    "terms_legal_notice": "Legal Notice: This software, microservice architecture, Docker orchestrator, scripts and web interface are exclusive intellectual property of David Ferreira.",
+    "terms_sec1_title": "1. Ownership & Copyright",
+    "terms_sec1_text": "All source code, Docker Compose templates, scripts (install.sh, update.sh) and documentation are protected internationally by the Berne Convention, WIPO Copyright Treaty and European Directives.",
+    "terms_sec2_title": "2. Prohibition of Sharing, Resale or Redistribution",
+    "terms_sec2_text": "Sharing, sublicensing, selling, renting or redistributing this repository or any derivative parts is strictly prohibited without prior written authorization from David Ferreira.",
+    "terms_sec3_title": "3. Legal & Judicial Consequences",
+    "terms_sec3_text": "Any unauthorized reproduction or distribution constitutes copyright infringement and criminal usurpation subject to prosecution and civil damages.",
+    "btn_close": "I Understand & Accept"
+  },
+  "it": {
+    "tagline": "Pannello Universale di Infrastruttura, Deploy e Stack",
+    "error_credentials": "Credenziali errate. Controlla il nome utente e la password.",
+    "username_label": "Nome Utente",
+    "password_label": "Password",
+    "btn_login": "Accedi al Deployment Center",
+    "restricted_access": "Accesso Limitato agli Amministratori di Infrastruttura",
+    "rights_reserved": "Tutti i diritti riservati.",
+    "terms_link": "Termini e Condizioni",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Software Proprietario · Convenzione di Berna e CDADC",
+    "terms_modal_title": "Termini e Condizioni / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Chiudi"
+  },
+  "de": {
+    "tagline": "Universelles Dashboard für Infrastruktur, Deployments & Stacks",
+    "error_credentials": "Falsche Anmeldedaten. Bitte überprüfen Sie Benutzername und Passwort.",
+    "username_label": "Benutzername",
+    "password_label": "Passwort",
+    "btn_login": "Im Deployment Center anmelden",
+    "restricted_access": "Eingeschränkter Zugriff für Infrastruktur-Administratoren",
+    "rights_reserved": "Alle Rechte vorbehalten.",
+    "terms_link": "Nutzungsbedingungen",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Proprietäre Software · Berner Übereinkunft & CDADC",
+    "terms_modal_title": "Nutzungsbedingungen / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Schließen"
+  },
+  "de-AT": {
+    "tagline": "Universelles Dashboard für Infrastruktur, Deployments & Stacks",
+    "error_credentials": "Falsche Anmeldedaten. Bitte überprüfen Sie Benutzername und Passwort.",
+    "username_label": "Benutzername",
+    "password_label": "Passwort",
+    "btn_login": "Im Deployment Center anmelden",
+    "restricted_access": "Eingeschränkter Zugriff für Infrastruktur-Administratoren",
+    "rights_reserved": "Alle Rechte vorbehalten.",
+    "terms_link": "Nutzungsbedingungen",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Proprietäre Software · Berner Übereinkunft & CDADC",
+    "terms_modal_title": "Nutzungsbedingungen / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Schließen"
+  },
+  "nl": {
+    "tagline": "Universeel Dashboard voor Infrastructuur, Implementaties & Stacks",
+    "error_credentials": "Onjuiste inloggegevens. Controleer uw gebruikersnaam en wachtwoord.",
+    "username_label": "Gebruikersnaam",
+    "password_label": "Wachtwoord",
+    "btn_login": "Inloggen bij Deployment Center",
+    "restricted_access": "Beperkte Toegang voor Infrastructuurbeheerders",
+    "rights_reserved": "Alle rechten voorbehouden.",
+    "terms_link": "Algemene Voorwaarden",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Eigendomssoftware · Berner Conventie & CDADC",
+    "terms_modal_title": "Algemene Voorwaarden / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Sluiten"
+  },
+  "el": {
+    "tagline": "Καθολικός Πίνακας Ελέγχου Υποδομών, Αναπτύξεων & Stacks",
+    "error_credentials": "Λανθασμένα διαπιστευτήρια. Ελέγξτε το όνομα χρήστη και τον κωδικό πρόσβασης.",
+    "username_label": "Όνομα Χρήστη",
+    "password_label": "Κωδικός Πρόσβασης",
+    "btn_login": "Σύνδεση στο Deployment Center",
+    "restricted_access": "Περιορισμένη Πρόσβαση σε Διαχειριστές Υποδομής",
+    "rights_reserved": "Όλα τα δικαιώματα διατηρούνται.",
+    "terms_link": "Όροι και Προϋποθέσεις",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Ιδιόκτητο Λογισμικό · Σύμβαση της Βέρνης & CDADC",
+    "terms_modal_title": "Όροι και Προϋποθέσεις / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Κλείσιμο"
+  },
+  "pl": {
+    "tagline": "Uniwersalny Panel Infrastruktury, Wdrożeń i Stosów",
+    "error_credentials": "Nieprawidłowe dane logowania. Sprawdź nazwę użytkownika i hasło.",
+    "username_label": "Nazwa Użytkownika",
+    "password_label": "Hasło",
+    "btn_login": "Zaloguj do Deployment Center",
+    "restricted_access": "Dostęp Ograniczony do Administratorów Infrastruktury",
+    "rights_reserved": "Wszelkie prawa zastrzeżone.",
+    "terms_link": "Regulamin i Warunki",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Oprogramowanie Zastrzeżone · Konwencja Berneńska i CDADC",
+    "terms_modal_title": "Regulamin i Warunki / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Zamknij"
+  },
+  "ru": {
+    "tagline": "Универсальная Панель Инфраструктуры, Деплоев и Стеков",
+    "error_credentials": "Неверные учетные данные. Проверьте имя пользователя и пароль.",
+    "username_label": "Имя пользователя",
+    "password_label": "Пароль",
+    "btn_login": "Войти в Deployment Center",
+    "restricted_access": "Ограниченный Доступ для Администраторов Инфраструктуры",
+    "rights_reserved": "Все права защищены.",
+    "terms_link": "Условия Использования",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Проприетарное ПО · Бернская конвенция и CDADC",
+    "terms_modal_title": "Условия Использования / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Закрыть"
+  },
+  "zh": {
+    "tagline": "通用基础设施、部署与技术栈控制台",
+    "error_credentials": "凭据错误，请检查用户名和密码。",
+    "username_label": "用户名",
+    "password_label": "密码",
+    "btn_login": "登录控制台",
+    "restricted_access": "仅限基础设施管理员访问",
+    "rights_reserved": "版权所有，保留一切权利。",
+    "terms_link": "使用条款与协议",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "专有软件 · 伯尔尼公约与 CDADC",
+    "terms_modal_title": "使用条款与协议 / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "关闭"
+  },
+  "ja": {
+    "tagline": "インフラ、デプロイ、スタック統合ダッシュボード",
+    "error_credentials": "認証情報が正しくありません。ユーザー名とパスワードをご確認ください。",
+    "username_label": "ユーザー名",
+    "password_label": "パスワード",
+    "btn_login": "ログイン",
+    "restricted_access": "インフラ管理者専用アクセス",
+    "rights_reserved": "All rights reserved.",
+    "terms_link": "利用規約",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "プロプライエタリ・ソフトウェア · ベルヌ条約 & CDADC",
+    "terms_modal_title": "利用規約 / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "閉じる"
+  },
+  "sv": {
+    "tagline": "Universell Kontrollpanel för Infrastruktur, Driftsättning & Stackar",
+    "error_credentials": "Felaktiga inloggningsuppgifter. Kontrollera användarnamn och lösenord.",
+    "username_label": "Användarnamn",
+    "password_label": "Lösenord",
+    "btn_login": "Logga in på Deployment Center",
+    "restricted_access": "Begränsad Åtkomst för Infrastrukturadministratörer",
+    "rights_reserved": "Alla rättigheter förbehållna.",
+    "terms_link": "Villkor & Bestämmelser",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Proprietär programvara · Bernkonventionen & CDADC",
+    "terms_modal_title": "Villkor & Bestämmelser / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Stäng"
+  },
+  "ro": {
+    "tagline": "Panou Universal de Infrastructură, Implementări & Stacks",
+    "error_credentials": "Date de autentificare incorecte. Verificați utilizatorul și parola.",
+    "username_label": "Nume de Utilizator",
+    "password_label": "Parolă",
+    "btn_login": "Autentificare în Deployment Center",
+    "restricted_access": "Acces Restricționat pentru Administratorii de Infrastructură",
+    "rights_reserved": "Toate drepturile rezervate.",
+    "terms_link": "Termeni și Condiții",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Software Proprietar · Convenția de la Berna & CDADC",
+    "terms_modal_title": "Termeni și Condiții / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Închide"
+  },
+  "mo": {
+    "tagline": "Panou Universal de Infrastructură, Implementări & Stacks",
+    "error_credentials": "Date de autentificare incorecte. Verificați utilizatorul și parola.",
+    "username_label": "Nume de Utilizator",
+    "password_label": "Parolă",
+    "btn_login": "Autentificare în Deployment Center",
+    "restricted_access": "Acces Restricționat pentru Administratorii de Infrastructură",
+    "rights_reserved": "Toate drepturile rezervate.",
+    "terms_link": "Termeni și Condiții",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Software Proprietar · Convenția de la Berna & CDADC",
+    "terms_modal_title": "Termeni și Condiții / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Închide"
+  },
+  "es": {
+    "tagline": "Panel Universal de Infraestructura, Despliegues y Stacks",
+    "error_credentials": "Credenciales incorrectas. Por favor verifique el usuario y la contraseña.",
+    "username_label": "Nombre de Usuario",
+    "password_label": "Contraseña",
+    "btn_login": "Iniciar Sesión en Deployment Center",
+    "restricted_access": "Acceso Restringido a Administradores de Infraestructura",
+    "rights_reserved": "Todos los derechos reservados.",
+    "terms_link": "Términos y Condiciones",
+    "repo_link": "Repositorio GitHub",
+    "legal_disclaimer": "Software Propietario · Prohibida la redistribución o comercialización no autorizada (Convenio de Berna y CDADC).",
+    "terms_modal_title": "Términos y Condiciones de Uso",
+    "terms_legal_notice": "Aviso Legal: Este software, su arquitectura, orquestador Docker e interfaz web son propiedad intelectual exclusiva de David Ferreira.",
+    "terms_sec1_title": "1. Titularidad y Derechos de Autor",
+    "terms_sec1_text": "Todo el código fuente, plantillas Docker y scripts están protegidos internacionalmente por el Convenio de Berna y la OMPI.",
+    "terms_sec2_title": "2. Prohibición de Compartir o Revender",
+    "terms_sec2_text": "Está estrictamente prohibido compartir, vender o redistribuir este repositorio sin autorización previa por escrito de David Ferreira.",
+    "terms_sec3_title": "3. Consecuencias Legales",
+    "terms_sec3_text": "Cualquier uso no autorizado constituye un delito de usurpación de derechos de autor con responsabilidad civil y penal.",
+    "btn_close": "He entendido y acepto"
+  },
+  "fr": {
+    "tagline": "Plateforme Universelle d'Infrastructure, Déploiements & Stacks",
+    "error_credentials": "Identifiants invalides. Veuillez vérifier le nom d'utilisateur et le mot de passe.",
+    "username_label": "Nom d'utilisateur",
+    "password_label": "Mot de passe",
+    "btn_login": "Connexion au Deployment Center",
+    "restricted_access": "Accès restreint aux administrateurs d'infrastructure",
+    "rights_reserved": "Tous droits réservés.",
+    "terms_link": "Conditions Générales",
+    "repo_link": "Dépôt GitHub",
+    "legal_disclaimer": "Logiciel propriétaire · Toute redistribution ou vente non autorisée est strictement interdite (Convention de Berne & CDADC).",
+    "terms_modal_title": "Conditions Générales d'Utilisation",
+    "terms_legal_notice": "Mentions légales : Ce logiciel, son architecture, ses orchestrateurs Docker et son interface web sont la propriété intellectuelle exclusive de David Ferreira.",
+    "terms_sec1_title": "1. Propriété et Droits d'Auteur",
+    "terms_sec1_text": "L'ensemble du code source, modèles Docker et scripts sont protégés internationalement par la Convention de Berne et le Traité de l'OMPI.",
+    "terms_sec2_title": "2. Interdiction de Partage ou Revente",
+    "terms_sec2_text": "Il est strictement interdit de partager, revendre ou redistribuer ce dépôt sans autorisation écrite préalable de David Ferreira.",
+    "terms_sec3_title": "3. Conséquences Juridiques",
+    "terms_sec3_text": "Toute utilisation non autorisée constitue une contrefaçon passible de poursuites judiciaires et d'indemnisations civiles.",
+    "btn_close": "J'ai compris et j'accepte"
+  },
+  "cs": {
+    "tagline": "Univerzální Panel Infrastruktury, Nasazení a Stacků",
+    "error_credentials": "Nesprávné přihlašovací údaje. Zkontrolujte uživatelské jméno a heslo.",
+    "username_label": "Uživatelské Jméno",
+    "password_label": "Heslo",
+    "btn_login": "Přihlásit se do Deployment Center",
+    "restricted_access": "Přístup Vyhrazen Správcům Infrastruktury",
+    "rights_reserved": "Všechna práva vyhrazena.",
+    "terms_link": "Podmínky a Ujednání",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Proprietární Software · Bernská Úmluva a CDADC",
+    "terms_modal_title": "Podmínky a Ujednání / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Zavřít"
+  },
+  "hr": {
+    "tagline": "Univerzalna Upravljačka Ploča Infrastrukture, Deploja i Stackova",
+    "error_credentials": "Netočne vjerodajnice. Provjerite korisničko ime i lozinku.",
+    "username_label": "Korisničko Ime",
+    "password_label": "Lozinka",
+    "btn_login": "Prijavi se u Deployment Center",
+    "restricted_access": "Pristup Ograničen na Administratore Infrastrukture",
+    "rights_reserved": "Sva prava pridržana.",
+    "terms_link": "Uvjeti i Odredbe",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Vlasnički Softver · Bernska Konvencija i CDADC",
+    "terms_modal_title": "Uvjeti i Odredbe / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Zatvori"
+  },
+  "da": {
+    "tagline": "Universelt Dashboard til Infrastruktur, Udrulninger og Stakke",
+    "error_credentials": "Forkerte legitimationsoplysninger. Tjek venligst brugernavn og adgangskode.",
+    "username_label": "Brugernavn",
+    "password_label": "Adgangskode",
+    "btn_login": "Log ind på Deployment Center",
+    "restricted_access": "Adgang Forbeholdt Infrastrukturadministratorer",
+    "rights_reserved": "Alle rettigheder forbeholdes.",
+    "terms_link": "Vilkår og Betingelser",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Proprietær Software · Bernerkonventionen og CDADC",
+    "terms_modal_title": "Vilkår og Betingelser / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Luk"
+  },
+  "sk": {
+    "tagline": "Univerzálny Panel Infraštruktúry, Nasadení a Stackov",
+    "error_credentials": "Nesprávne prihlasovacie údaje. Skontrolujte používateľské meno a heslo.",
+    "username_label": "Používateľské Meno",
+    "password_label": "Heslo",
+    "btn_login": "Prihlásiť sa do Deployment Center",
+    "restricted_access": "Prístup Vyhradený pre Správcov Infraštruktúry",
+    "rights_reserved": "Všetky práva vyhradené.",
+    "terms_link": "Podmienky a Dohody",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Proprietárny Softvér · Bernský Dohovor a CDADC",
+    "terms_modal_title": "Podmienky a Dohody / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Zavrieť"
+  },
+  "sl": {
+    "tagline": "Univerzalna Nadzorna Plošča Infrastrukture, Namestitev in Skladov",
+    "error_credentials": "Napačne poverilnice. Preverite uporabniško ime in geslo.",
+    "username_label": "Uporabniško Ime",
+    "password_label": "Geslo",
+    "btn_login": "Prijava v Deployment Center",
+    "restricted_access": "Dostop Omejen na Skrbnike Infrastrukture",
+    "rights_reserved": "Vse pravice pridržane.",
+    "terms_link": "Pogoji Uporabe",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Lastniška Programska Oprema · Bernska Konvencija in CDADC",
+    "terms_modal_title": "Pogoji Uporabe / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Zapri"
+  },
+  "et": {
+    "tagline": "Universaalne Taristu, Juurutuste ja Pinude Armatuurlaud",
+    "error_credentials": "Vale sisselogimisteave. Kontrollige kasutajanime ja parooli.",
+    "username_label": "Kasutajanimi",
+    "password_label": "Parool",
+    "btn_login": "Logi sisse Deployment Centerisse",
+    "restricted_access": "Juurdepääs Piiratud Taristu Administraatoritele",
+    "rights_reserved": "Kõik õigused kaitstud.",
+    "terms_link": "Tingimused ja Nõuded",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Omandiõigusega Tarkvara · Berni Konventsioon ja CDADC",
+    "terms_modal_title": "Tingimused ja Nõuded / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Sule"
+  },
+  "fi": {
+    "tagline": "Yleinen Infrastruktuurin, Julkaisujen ja Pinojen Kojelauta",
+    "error_credentials": "Virheelliset kirjautumistiedot. Tarkista käyttäjätunnus ja salasana.",
+    "username_label": "Käyttäjätunnus",
+    "password_label": "Salasana",
+    "btn_login": "Kirjaudu Deployment Centeriin",
+    "restricted_access": "Pääsy Rajattu Infrastruktuurin Ylläpitäjille",
+    "rights_reserved": "Kaikki oikeudet pidätetään.",
+    "terms_link": "Käyttöehdot",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Omistusoikeudellinen Ohjelmisto · Bernin Sopimus ja CDADC",
+    "terms_modal_title": "Käyttöehdot / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Sulje"
+  },
+  "hu": {
+    "tagline": "Univerzális Infrastruktúra, Telepítési és Stack Vezérlőpult",
+    "error_credentials": "Helytelen hitelesítési adatok. Kérjük, ellenőrizze a felhasználónevet és a jelszót.",
+    "username_label": "Felhasználónév",
+    "password_label": "Jelszó",
+    "btn_login": "Bejelentkezés a Deployment Centerbe",
+    "restricted_access": "Hozzáférés Kizárólag Infrastruktúra Adminisztrátoroknak",
+    "rights_reserved": "Minden jog fenntartva.",
+    "terms_link": "Feltételek és Kikötések",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Szabadalmaztatott Szoftver · Berni Egyezmény és CDADC",
+    "terms_modal_title": "Feltételek és Kikötések / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Bezárás"
+  },
+  "lv": {
+    "tagline": "Universālais Infrastruktūras, Izvietošanas un Steku Panelis",
+    "error_credentials": "Nepareizi akreditācijas dati. Lūdzu, pārbaudiet lietotājvārdu un paroli.",
+    "username_label": "Lietotājvārds",
+    "password_label": "Parole",
+    "btn_login": "Pieteikties Deployment Center",
+    "restricted_access": "Piekļuve Tikai Infrastruktūras Administratoriem",
+    "rights_reserved": "Visas tiesības aizsargātas.",
+    "terms_link": "Noteikumi un Nosacījumi",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Patentēta Programmatūra · Bernes Konvencija un CDADC",
+    "terms_modal_title": "Noteikumi un Nosacījumi / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Aizvērt"
+  },
+  "lt": {
+    "tagline": "Universali Infrastruktūros, Diegimų ir Stekų Valdymo Pultas",
+    "error_credentials": "Neteisingi prisijungimo duomenys. Patikrinkite vartotojo vardą ir slaptažodį.",
+    "username_label": "Vartotojo Vardas",
+    "password_label": "Slaptažodis",
+    "btn_login": "Prisijungti prie Deployment Center",
+    "restricted_access": "Prieiga Ribojama Infrastruktūros Administratoriams",
+    "rights_reserved": "Visos teisės saugomos.",
+    "terms_link": "Sąlygos ir Nuostatos",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Nuosavybinė Programinė Įranga · Berno Konvencija ir CDADC",
+    "terms_modal_title": "Sąlygos ir Nuostatos / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Uždaryti"
+  },
+  "mt": {
+    "tagline": "Daxxbord Universali tal-Infrastruttura, Deploys u Stacks",
+    "error_credentials": "Kredenzjali mhux korretti. Jekk jogħġbok iċċekkja l-isem tal-utent u l-password.",
+    "username_label": "Isem tal-Utent",
+    "password_label": "Password",
+    "btn_login": "Idħol fid-Deployment Center",
+    "restricted_access": "Aċċess Ristrett għall-Amministraturi tal-Infrastruttura",
+    "rights_reserved": "Id-drittijiet kollha riżervati.",
+    "terms_link": "Termini u Kundizzjonijiet",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Softwer Proprjetarju · Konvenzjoni ta' Bern u CDADC",
+    "terms_modal_title": "Termini u Kundizzjonijiet / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Agħlaq"
+  },
+  "la": {
+    "tagline": "Tabula Universalis Structurae, Distributionum et Struum",
+    "error_credentials": "Falsa testimonia. Quaeso confirma nomen usoris et tesseram.",
+    "username_label": "Nomen Usoris",
+    "password_label": "Tessera",
+    "btn_login": "Ingredere in Deployment Center",
+    "restricted_access": "Aditus Tantum Administratoribus Structurae Permissus",
+    "rights_reserved": "Omnia iura reservata.",
+    "terms_link": "Termini et Condiciones",
+    "repo_link": "GitHub Repository",
+    "legal_disclaimer": "Programma Proprium · Conventio Bernensis et CDADC",
+    "terms_modal_title": "Termini et Condiciones / Legal",
+    "terms_legal_notice": "Legal Notice: Proprietary Software David Ferreira (Berne Convention & CDADC).",
+    "terms_sec1_title": "1. Copyright & Ownership",
+    "terms_sec1_text": "All source code, Docker templates, and scripts are protected by international copyright laws.",
+    "terms_sec2_title": "2. Redistribution Prohibited",
+    "terms_sec2_text": "Unauthorized sharing, resale, or sublicensing is strictly prohibited.",
+    "terms_sec3_title": "3. Legal Consequences",
+    "terms_sec3_text": "Violations are subject to civil liability and criminal prosecution.",
+    "btn_close": "Claude"
+  }
+};
+
+    // Deteção Automática do Idioma do Navegador
+    function detectBrowserLanguage() {
+      const saved = localStorage.getItem('deploy_lang');
+      if (saved && LOGIN_I18N[saved]) return saved;
+
+      const browserLangs = navigator.languages || [navigator.language || 'pt-PT'];
+      const supported = Object.keys(LOGIN_I18N);
+
+      for (let rawLang of browserLangs) {
+        if (!rawLang) continue;
+        const l = rawLang.toLowerCase();
+
+        if (l === 'pt-pt' || l === 'pt-br' || l.startsWith('pt')) return 'pt-PT';
+        if (l === 'de-at') return 'de-AT';
+        if (l === 'ro-md' || l === 'mo') return 'mo';
+        if (l === 'zh-cn' || l === 'zh-tw' || l === 'zh-hk' || l.startsWith('zh')) return 'zh';
+
+        const exact = supported.find(s => s.toLowerCase() === l);
+        if (exact) return exact;
+
+        const primary = l.split('-')[0];
+        const prefixMatch = supported.find(s => s.toLowerCase() === primary);
+        if (prefixMatch) return prefixMatch;
       }
-    };
+
+      return 'pt-PT';
+    }
 
     // Estado de Tema e Idioma com Persistência
     let currentTheme = localStorage.getItem('deploy_theme') || 'dark';
-    let currentLang = localStorage.getItem('deploy_lang') || 'pt-PT';
+    let currentLang = detectBrowserLanguage();
 
     function applyTheme(theme) {
       currentTheme = theme;
@@ -320,7 +876,8 @@
       if (!LOGIN_I18N[lang]) lang = 'pt-PT';
       currentLang = lang;
       localStorage.setItem('deploy_lang', lang);
-      document.getElementById('lang-selector').value = lang;
+      const selector = document.getElementById('lang-selector');
+      if (selector) selector.value = lang;
       applyTranslations();
     }
 
@@ -331,6 +888,14 @@
         if (dict[key]) {
           el.textContent = dict[key];
         }
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (dict[key]) el.setAttribute('placeholder', dict[key]);
+      });
+      document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+        const key = el.getAttribute('data-i18n-title');
+        if (dict[key]) el.setAttribute('title', dict[key]);
       });
     }
 
