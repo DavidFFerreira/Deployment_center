@@ -53,37 +53,53 @@
   <!-- ===================================================================== -->
   <div class="fixed top-4 right-4 z-30 flex items-center gap-2 bg-white/80 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-800 px-3 py-1.5 rounded-2xl shadow-lg glass-card text-xs">
     <!-- Seletor de Idioma -->
-    <div class="flex items-center gap-1.5">
-      <i data-lucide="globe" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
-      <select id="lang-selector" onchange="setLanguage(this.value)" class="bg-transparent font-bold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer max-w-[130px] sm:max-w-none truncate">
-        <option value="pt-PT" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇵🇹 PT (Português)</option>
-        <option value="en" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇬🇧 EN (English)</option>
-        <option value="es" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇪🇸 ES (Español)</option>
-        <option value="fr" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇫🇷 FR (Français)</option>
-        <option value="it" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇮🇹 IT (Italiano)</option>
-        <option value="de" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇩🇪 DE (Deutsch)</option>
-        <option value="de-AT" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇦🇹 AT (Deutsch-AT)</option>
-        <option value="nl" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇳🇱 NL (Nederlands)</option>
-        <option value="el" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇬🇷 EL (Ελληνικά)</option>
-        <option value="pl" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇵🇱 PL (Polski)</option>
-        <option value="ru" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇷🇺 RU (Русский)</option>
-        <option value="zh" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇨🇳 ZH (中文)</option>
-        <option value="ja" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇯🇵 JA (日本語)</option>
-        <option value="sv" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇸🇪 SV (Svenska)</option>
-        <option value="ro" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇷🇴 RO (Română)</option>
-        <option value="mo" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇲🇩 MO (Moldovenească)</option>
-        <option value="cs" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇨🇿 CS (Čeština)</option>
-        <option value="hr" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇭🇷 HR (Hrvatski)</option>
-        <option value="da" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇩🇰 DA (Dansk)</option>
-        <option value="sk" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇸🇰 SK (Slovenčina)</option>
-        <option value="sl" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇸🇮 SL (Slovenščina)</option>
-        <option value="et" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇪🇪 ET (Eesti)</option>
-        <option value="fi" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇫🇮 FI (Suomi)</option>
-        <option value="hu" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇭🇺 HU (Magyar)</option>
-        <option value="lv" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇱🇻 LV (Latviešu)</option>
-        <option value="lt" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇱🇹 LT (Lietuvių)</option>
-        <option value="mt" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🇲🇹 MT (Malti)</option>
-        <option value="la" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">🏛️ LA (Latina)</option>
+    <!-- Seletor de Idioma com Bandeiras dos Países -->
+    <div class="relative inline-block text-left" id="lang-picker-container">
+      <button type="button" onclick="toggleLangMenu(event)" id="lang-picker-btn" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-100 transition shadow-sm cursor-pointer select-none" title="Escolher Idioma / Choose Language">
+        <span id="lang-active-flag" class="flex items-center shrink-0"></span>
+        <span id="lang-active-code" class="font-bold tracking-wide">PT</span>
+        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+      </button>
+
+      <!-- Dropdown com todas as 28 Bandeiras dos Países -->
+      <div id="lang-dropdown-menu" class="hidden absolute right-0 mt-2 w-64 max-h-80 overflow-y-auto rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-50 p-1.5 space-y-0.5 text-xs focus:outline-none glass-card overscroll-contain">
+        <div class="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-1 flex items-center justify-between">
+          <span>Idioma / Language</span>
+          <span class="text-[9px] font-mono text-slate-400">28 Países</span>
+        </div>
+        <div class="space-y-0.5" id="lang-options-list"></div>
+      </div>
+
+      <!-- Select nativo invisível para testes e acessibilidade -->
+      <select id="lang-selector" onchange="setLanguage(this.value)" class="hidden">
+        <option value="pt-PT">Português</option>
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="fr">Français</option>
+        <option value="it">Italiano</option>
+        <option value="de">Deutsch</option>
+        <option value="de-AT">Deutsch (AT)</option>
+        <option value="nl">Nederlands</option>
+        <option value="el">Ελληνικά</option>
+        <option value="pl">Polski</option>
+        <option value="ru">Русский</option>
+        <option value="zh">中文</option>
+        <option value="ja">日本語</option>
+        <option value="sv">Svenska</option>
+        <option value="ro">Română</option>
+        <option value="mo">Moldovenească</option>
+        <option value="cs">Čeština</option>
+        <option value="hr">Hrvatski</option>
+        <option value="da">Dansk</option>
+        <option value="sk">Slovenčina</option>
+        <option value="sl">Slovenščina</option>
+        <option value="et">Eesti</option>
+        <option value="fi">Suomi</option>
+        <option value="hu">Magyar</option>
+        <option value="lv">Latviešu</option>
+        <option value="lt">Lietuvių</option>
+        <option value="mt">Malti</option>
+        <option value="la">Latina</option>
       </select>
     </div>
 
@@ -879,6 +895,7 @@
       const selector = document.getElementById('lang-selector');
       if (selector) selector.value = lang;
       applyTranslations();
+      updateLangPickerUI();
     }
 
     function applyTranslations() {
@@ -913,8 +930,83 @@
       document.getElementById('error-alert').classList.remove('hidden');
     }
 
+    // Dicionário de Bandeiras Vetoriais SVG & Metadados
+    const COUNTRY_FLAGS = {"pt-PT":"<svg viewBox=\"0 0 600 400\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"240\" height=\"400\" fill=\"#046A38\"/>\n    <rect x=\"240\" width=\"360\" height=\"400\" fill=\"#DA291C\"/>\n    <circle cx=\"240\" cy=\"200\" r=\"80\" fill=\"#FFC400\" stroke=\"#000\" stroke-width=\"2\"/>\n    <path d=\"M240 140 v120 a60 60 0 0 0 60 -60 a60 60 0 0 0 -60 -60\" fill=\"#DA291C\"/>\n    <rect x=\"220\" y=\"155\" width=\"40\" height=\"50\" fill=\"#fff\" rx=\"5\"/>\n    <circle cx=\"240\" cy=\"175\" r=\"8\" fill=\"#002B7F\"/>\n  </svg>","en":"<svg viewBox=\"0 0 60 30\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <clipPath id=\"s\"><path d=\"M0,0 v30 h60 v-30 z\"/></clipPath>\n    <clipPath id=\"t\"><path d=\"M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z\"/></clipPath>\n    <g clip-path=\"url(#s)\">\n      <path d=\"M0,0 v30 h60 v-30 z\" fill=\"#012169\"/>\n      <path d=\"M0,0 L60,30 M60,0 L0,30\" stroke=\"#fff\" stroke-width=\"6\"/>\n      <path d=\"M0,0 L60,30 M60,0 L0,30\" clip-path=\"url(#t)\" stroke=\"#C8102E\" stroke-width=\"4\"/>\n      <path d=\"M30,0 v30 M0,15 h60\" stroke=\"#fff\" stroke-width=\"10\"/>\n      <path d=\"M30,0 v30 M0,15 h60\" stroke=\"#C8102E\" stroke-width=\"6\"/>\n    </g>\n  </svg>","es":"<svg viewBox=\"0 0 750 500\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"750\" height=\"500\" fill=\"#AA151B\"/>\n    <rect y=\"125\" width=\"750\" height=\"250\" fill=\"#F1BF00\"/>\n    <circle cx=\"200\" cy=\"250\" r=\"45\" fill=\"#AA151B\"/>\n    <circle cx=\"200\" cy=\"250\" r=\"35\" fill=\"#F1BF00\"/>\n    <path d=\"M190 230 h20 v40 h-20 z\" fill=\"#AA151B\"/>\n  </svg>","fr":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"300\" height=\"600\" fill=\"#002654\"/>\n    <rect x=\"300\" width=\"300\" height=\"600\" fill=\"#FFFFFF\"/>\n    <rect x=\"600\" width=\"300\" height=\"600\" fill=\"#CE1126\"/>\n  </svg>","it":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"300\" height=\"600\" fill=\"#009246\"/>\n    <rect x=\"300\" width=\"300\" height=\"600\" fill=\"#FFFFFF\"/>\n    <rect x=\"600\" width=\"300\" height=\"600\" fill=\"#CE2B37\"/>\n  </svg>","de":"<svg viewBox=\"0 0 5 3\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect id=\"black\" width=\"5\" height=\"1\" y=\"0\" fill=\"#000\"/>\n    <rect id=\"red\" width=\"5\" height=\"1\" y=\"1\" fill=\"#DD0000\"/>\n    <rect id=\"gold\" width=\"5\" height=\"1\" y=\"2\" fill=\"#FFCE00\"/>\n  </svg>","de-AT":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"900\" height=\"600\" fill=\"#C8102E\"/>\n    <rect y=\"200\" width=\"900\" height=\"200\" fill=\"#FFFFFF\"/>\n  </svg>","nl":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"900\" height=\"200\" fill=\"#AE1C28\"/>\n    <rect y=\"200\" width=\"900\" height=\"200\" fill=\"#FFFFFF\"/>\n    <rect y=\"400\" width=\"900\" height=\"200\" fill=\"#21468B\"/>\n  </svg>","el":"<svg viewBox=\"0 0 27 18\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect fill=\"#0D5EAF\" width=\"27\" height=\"18\"/>\n    <path fill=\"none\" stroke=\"#FFF\" stroke-width=\"2\" d=\"M0,3h27M0,7h27M0,11h27M0,15h27\"/>\n    <rect fill=\"#0D5EAF\" width=\"10\" height=\"10\"/>\n    <path fill=\"none\" stroke=\"#FFF\" stroke-width=\"2\" d=\"M5,0v10M0,5h10\"/>\n  </svg>","pl":"<svg viewBox=\"0 0 16 10\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"16\" height=\"5\" fill=\"#FFFFFF\"/>\n    <rect y=\"5\" width=\"16\" height=\"5\" fill=\"#DC143C\"/>\n  </svg>","ru":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"900\" height=\"200\" fill=\"#FFFFFF\"/>\n    <rect y=\"200\" width=\"900\" height=\"200\" fill=\"#0039A6\"/>\n    <rect y=\"400\" width=\"900\" height=\"200\" fill=\"#D52B1E\"/>\n  </svg>","zh":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"900\" height=\"600\" fill=\"#DE2910\"/>\n    <polygon points=\"150,50 179,141 97,85 203,85 121,141\" fill=\"#FFDE00\"/>\n    <polygon points=\"300,40 307,63 287,49 313,49 293,63\" fill=\"#FFDE00\"/>\n    <polygon points=\"360,90 367,113 347,99 373,99 353,113\" fill=\"#FFDE00\"/>\n    <polygon points=\"360,170 367,193 347,179 373,179 353,193\" fill=\"#FFDE00\"/>\n    <polygon points=\"300,220 307,243 287,229 313,229 293,243\" fill=\"#FFDE00\"/>\n  </svg>","ja":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"900\" height=\"600\" fill=\"#FFFFFF\"/>\n    <circle cx=\"450\" cy=\"300\" r=\"180\" fill=\"#BC002D\"/>\n  </svg>","sv":"<svg viewBox=\"0 0 16 10\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"16\" height=\"10\" fill=\"#006AA7\"/>\n    <rect x=\"5\" width=\"2\" height=\"10\" fill=\"#FECC00\"/>\n    <rect y=\"4\" width=\"16\" height=\"2\" fill=\"#FECC00\"/>\n  </svg>","ro":"<svg viewBox=\"0 0 3 2\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"1\" height=\"2\" fill=\"#002B7F\"/>\n    <rect x=\"1\" width=\"1\" height=\"2\" fill=\"#FCD116\"/>\n    <rect x=\"2\" width=\"1\" height=\"2\" fill=\"#CE1126\"/>\n  </svg>","mo":"<svg viewBox=\"0 0 3 2\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"1\" height=\"2\" fill=\"#002B7F\"/>\n    <rect x=\"1\" width=\"1\" height=\"2\" fill=\"#FCD116\"/>\n    <rect x=\"2\" width=\"1\" height=\"2\" fill=\"#CC092F\"/>\n    <circle cx=\"1.5\" cy=\"1\" r=\"0.25\" fill=\"#8B4513\"/>\n    <rect x=\"1.4\" y=\"0.8\" width=\"0.2\" height=\"0.4\" fill=\"#AA151B\"/>\n  </svg>","cs":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"900\" height=\"300\" fill=\"#FFFFFF\"/>\n    <rect y=\"300\" width=\"900\" height=\"300\" fill=\"#D7141A\"/>\n    <polygon points=\"0,0 450,300 0,600\" fill=\"#11457E\"/>\n  </svg>","hr":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"900\" height=\"200\" fill=\"#FF0000\"/>\n    <rect y=\"200\" width=\"900\" height=\"200\" fill=\"#FFFFFF\"/>\n    <rect y=\"400\" width=\"900\" height=\"200\" fill=\"#0000FF\"/>\n    <rect x=\"380\" y=\"160\" width=\"140\" height=\"160\" fill=\"#FFFFFF\" stroke=\"#000\" stroke-width=\"2\"/>\n    <rect x=\"380\" y=\"160\" width=\"28\" height=\"32\" fill=\"#FF0000\"/>\n    <rect x=\"436\" y=\"160\" width=\"28\" height=\"32\" fill=\"#FF0000\"/>\n    <rect x=\"492\" y=\"160\" width=\"28\" height=\"32\" fill=\"#FF0000\"/>\n    <rect x=\"408\" y=\"192\" width=\"28\" height=\"32\" fill=\"#FF0000\"/>\n    <rect x=\"464\" y=\"192\" width=\"28\" height=\"32\" fill=\"#FF0000\"/>\n  </svg>","da":"<svg viewBox=\"0 0 37 28\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"37\" height=\"28\" fill=\"#C60C30\"/>\n    <rect x=\"12\" width=\"4\" height=\"28\" fill=\"#FFFFFF\"/>\n    <rect y=\"12\" width=\"37\" height=\"4\" fill=\"#FFFFFF\"/>\n  </svg>","sk":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"900\" height=\"200\" fill=\"#FFFFFF\"/>\n    <rect y=\"200\" width=\"900\" height=\"200\" fill=\"#0B4EA2\"/>\n    <rect y=\"400\" width=\"900\" height=\"200\" fill=\"#EE1C25\"/>\n    <rect x=\"160\" y=\"150\" width=\"140\" height=\"180\" fill=\"#EE1C25\" rx=\"20\"/>\n    <path d=\"M230 170 v140 M200 200 h60 M210 240 h40\" stroke=\"#FFFFFF\" stroke-width=\"12\"/>\n  </svg>","sl":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"900\" height=\"200\" fill=\"#FFFFFF\"/>\n    <rect y=\"200\" width=\"900\" height=\"200\" fill=\"#005CE6\"/>\n    <rect y=\"400\" width=\"900\" height=\"200\" fill=\"#ED1C24\"/>\n    <path d=\"M160 120 h100 v80 a50 50 0 0 1 -100 0 z\" fill=\"#005CE6\" stroke=\"#FFFFFF\" stroke-width=\"8\"/>\n    <polygon points=\"180,180 210,140 240,180\" fill=\"#FFFFFF\"/>\n  </svg>","et":"<svg viewBox=\"0 0 990 630\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"990\" height=\"210\" fill=\"#0072CE\"/>\n    <rect y=\"210\" width=\"990\" height=\"210\" fill=\"#000000\"/>\n    <rect y=\"420\" width=\"990\" height=\"210\" fill=\"#FFFFFF\"/>\n  </svg>","fi":"<svg viewBox=\"0 0 18 11\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"18\" height=\"11\" fill=\"#FFFFFF\"/>\n    <rect x=\"5\" width=\"3\" height=\"11\" fill=\"#002F6C\"/>\n    <rect y=\"4\" width=\"18\" height=\"3\" fill=\"#002F6C\"/>\n  </svg>","hu":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"900\" height=\"200\" fill=\"#CE2939\"/>\n    <rect y=\"200\" width=\"900\" height=\"200\" fill=\"#FFFFFF\"/>\n    <rect y=\"400\" width=\"900\" height=\"200\" fill=\"#477050\"/>\n  </svg>","lv":"<svg viewBox=\"0 0 10 5\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"10\" height=\"2\" fill=\"#9E3039\"/>\n    <rect y=\"2\" width=\"10\" height=\"1\" fill=\"#FFFFFF\"/>\n    <rect y=\"3\" width=\"10\" height=\"2\" fill=\"#9E3039\"/>\n  </svg>","lt":"<svg viewBox=\"0 0 5 3\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"5\" height=\"1\" fill=\"#FDB913\"/>\n    <rect y=\"1\" width=\"5\" height=\"1\" fill=\"#006A44\"/>\n    <rect y=\"2\" width=\"5\" height=\"1\" fill=\"#C1272D\"/>\n  </svg>","mt":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"450\" height=\"600\" fill=\"#FFFFFF\"/>\n    <rect x=\"450\" width=\"450\" height=\"600\" fill=\"#CF142B\"/>\n    <path d=\"M50 50 h60 v60 h-60 z\" fill=\"#808080\" opacity=\"0.3\"/>\n    <path d=\"M70 40 h20 v80 h-20 z M40 70 h80 v20 h-80 z\" fill=\"#808080\"/>\n  </svg>","la":"<svg viewBox=\"0 0 900 600\" class=\"w-5 h-3.5 rounded-sm shadow-sm inline-block shrink-0 object-cover border border-slate-300/40\">\n    <rect width=\"450\" height=\"600\" fill=\"#FFE000\"/>\n    <rect x=\"450\" width=\"450\" height=\"600\" fill=\"#FFFFFF\"/>\n    <circle cx=\"675\" cy=\"300\" r=\"100\" fill=\"none\" stroke=\"#DA291C\" stroke-width=\"8\"/>\n    <path d=\"M635 260 L715 340 M715 260 L635 340\" stroke=\"#DA291C\" stroke-width=\"10\"/>\n    <circle cx=\"675\" cy=\"240\" r=\"25\" fill=\"#FFE000\" stroke=\"#DA291C\" stroke-width=\"6\"/>\n  </svg>"};
+    const COUNTRY_LANGS = [{"code":"pt-PT","name":"Português","short":"PT"},{"code":"en","name":"English","short":"EN"},{"code":"es","name":"Español","short":"ES"},{"code":"fr","name":"Français","short":"FR"},{"code":"it","name":"Italiano","short":"IT"},{"code":"de","name":"Deutsch","short":"DE"},{"code":"de-AT","name":"Deutsch (AT)","short":"AT"},{"code":"nl","name":"Nederlands","short":"NL"},{"code":"el","name":"Ελληνικά","short":"EL"},{"code":"pl","name":"Polski","short":"PL"},{"code":"ru","name":"Русский","short":"RU"},{"code":"zh","name":"中文","short":"ZH"},{"code":"ja","name":"日本語","short":"JA"},{"code":"sv","name":"Svenska","short":"SV"},{"code":"ro","name":"Română","short":"RO"},{"code":"mo","name":"Moldovenească","short":"MO"},{"code":"cs","name":"Čeština","short":"CS"},{"code":"hr","name":"Hrvatski","short":"HR"},{"code":"da","name":"Dansk","short":"DA"},{"code":"sk","name":"Slovenčina","short":"SK"},{"code":"sl","name":"Slovenščina","short":"SL"},{"code":"et","name":"Eesti","short":"ET"},{"code":"fi","name":"Suomi","short":"FI"},{"code":"hu","name":"Magyar","short":"HU"},{"code":"lv","name":"Latviešu","short":"LV"},{"code":"lt","name":"Lietuvių","short":"LT"},{"code":"mt","name":"Malti","short":"MT"},{"code":"la","name":"Latina","short":"LA"}];
+
+    function toggleLangMenu(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('lang-dropdown-menu');
+      if (menu) {
+        menu.classList.toggle('hidden');
+        if (!menu.classList.contains('hidden')) {
+          renderLangMenuOptions();
+        }
+      }
+    }
+
+    function closeLangMenu() {
+      const menu = document.getElementById('lang-dropdown-menu');
+      if (menu) menu.classList.add('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('lang-picker-container');
+      if (container && !container.contains(e.target)) {
+        closeLangMenu();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLangMenu();
+    });
+
+    function renderLangMenuOptions() {
+      const list = document.getElementById('lang-options-list');
+      if (!list) return;
+
+      list.innerHTML = COUNTRY_LANGS.map((item) => {
+        const isActive = item.code === currentLang;
+        const flagSvg = COUNTRY_FLAGS[item.code] || '';
+        return `
+          <button type="button" onclick="selectLang('${item.code}')" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition group cursor-pointer ${isActive ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'}">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="shrink-0 flex items-center">${flagSvg}</span>
+              <span class="truncate text-xs font-semibold">${item.name}</span>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0 ml-2">
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold">${item.short}</span>
+              ${isActive ? '<i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400"></i>' : ''}
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function updateLangPickerUI() {
+      const flagEl = document.getElementById('lang-active-flag');
+      const codeEl = document.getElementById('lang-active-code');
+      const item = COUNTRY_LANGS.find(l => l.code === currentLang) || COUNTRY_LANGS[0];
+
+      if (flagEl) flagEl.innerHTML = COUNTRY_FLAGS[currentLang] || COUNTRY_FLAGS['pt-PT'] || '';
+      if (codeEl) codeEl.textContent = item.short;
+      
+      const menu = document.getElementById('lang-dropdown-menu');
+      if (menu && !menu.classList.contains('hidden')) {
+        renderLangMenuOptions();
+      }
+    }
+
+    function selectLang(code) {
+      closeLangMenu();
+      setLanguage(code);
+    }
+
     applyTheme(currentTheme);
     setLanguage(currentLang);
+    updateLangPickerUI();
     lucide.createIcons();
   </script>
 </body>

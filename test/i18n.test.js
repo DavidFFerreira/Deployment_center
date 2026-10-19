@@ -143,3 +143,26 @@ test('i18n: browser autodetection handles all 28 locales and variations', () => 
     );
   }
 });
+
+test('i18n: vector country flags exist for all 28 languages in index.html and login.html', () => {
+  const indexHtml = fs.readFileSync('index.html', 'utf8');
+  const loginHtml = fs.readFileSync('login.html', 'utf8');
+
+  assert.ok(indexHtml.includes('id="lang-picker-container"'), 'index.html has lang-picker-container');
+  assert.ok(indexHtml.includes('id="lang-dropdown-menu"'), 'index.html has lang-dropdown-menu');
+  assert.ok(indexHtml.includes('const COUNTRY_FLAGS ='), 'index.html has COUNTRY_FLAGS');
+
+  assert.ok(loginHtml.includes('id="lang-picker-container"'), 'login.html has lang-picker-container');
+  assert.ok(loginHtml.includes('id="lang-dropdown-menu"'), 'login.html has lang-dropdown-menu');
+  assert.ok(loginHtml.includes('const COUNTRY_FLAGS ='), 'login.html has COUNTRY_FLAGS');
+
+  const match = indexHtml.match(/const COUNTRY_FLAGS = (\{[\s\S]*?\});/);
+  assert.ok(match, 'COUNTRY_FLAGS object found in index.html');
+  const flags = JSON.parse(match[1]);
+
+  for (const code of ALL_28_CODES) {
+    assert.ok(flags[code], `COUNTRY_FLAGS missing vector flag for ${code}`);
+    assert.ok(flags[code].includes('<svg'), `COUNTRY_FLAGS[${code}] must be an SVG vector`);
+  }
+});
+
