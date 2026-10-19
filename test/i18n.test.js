@@ -35,7 +35,7 @@ test('i18n: index.html contains all 28 languages with 100% dictionary completene
   }
 
   const baseKeys = Object.keys(i18n['pt-PT']);
-  assert.ok(baseKeys.length >= 160, `Base pt-PT must have >= 160 keys (found ${baseKeys.length})`);
+  assert.ok(baseKeys.length >= 280, `Base pt-PT must have >= 280 keys (found ${baseKeys.length})`);
 
   for (const code of ALL_28_CODES) {
     const langKeys = Object.keys(i18n[code]);
@@ -46,6 +46,16 @@ test('i18n: index.html contains all 28 languages with 100% dictionary completene
       );
     }
   }
+
+  // Check critical modal translation keys exist in HTML
+  assert.ok(html.includes('data-i18n="terms_modal_title"'), 'terms_modal_title data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="terms_sec1_title"'), 'terms_sec1_title data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="terms_btn_close"'), 'terms_btn_close data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="set_modal_title"'), 'set_modal_title data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="set_tab_projects"'), 'set_tab_projects data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="wz_modal_title"'), 'wz_modal_title data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="wz_step1_label"'), 'wz_step1_label data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="wz_port_prefix_label"'), 'wz_port_prefix_label data-i18n present in index.html');
 });
 
 test('i18n: login.html contains all 28 languages and selector options', () => {
@@ -165,4 +175,34 @@ test('i18n: vector country flags exist for all 28 languages in index.html and lo
     assert.ok(flags[code].includes('<svg'), `COUNTRY_FLAGS[${code}] must be an SVG vector`);
   }
 });
+
+test('i18n: api_docs.html contains all 28 languages, vector flags and options', () => {
+  const apiHtml = fs.readFileSync('api_docs.html', 'utf8');
+
+  for (const code of ALL_28_CODES) {
+    assert.match(
+      apiHtml,
+      new RegExp(`<option value="${code}"`),
+      `api_docs.html missing <option value="${code}"> in lang-selector`
+    );
+  }
+
+  assert.ok(apiHtml.includes('id="lang-picker-container"'), 'api_docs.html has lang-picker-container');
+  assert.ok(apiHtml.includes('id="lang-dropdown-menu"'), 'api_docs.html has lang-dropdown-menu');
+  assert.ok(apiHtml.includes('const COUNTRY_FLAGS ='), 'api_docs.html has COUNTRY_FLAGS');
+
+  const match = apiHtml.match(/const API_I18N = (\{[\s\S]*?\n\s*\};)/);
+  assert.ok(match, 'API_I18N object found in api_docs.html');
+
+  const apiI18n = new Function(`return ${match[1].replace(/;$/, '')}`)();
+  const langs = Object.keys(apiI18n);
+  assert.equal(langs.length, 28, 'API_I18N must have exactly 28 languages');
+
+  for (const code of ALL_28_CODES) {
+    assert.ok(apiI18n[code], `Language ${code} must exist in API_I18N`);
+    assert.ok(apiI18n[code].portal_subtitle, `Language ${code} missing portal_subtitle in API_I18N`);
+    assert.ok(apiI18n[code].btn_dashboard, `Language ${code} missing btn_dashboard in API_I18N`);
+  }
+});
+
 
