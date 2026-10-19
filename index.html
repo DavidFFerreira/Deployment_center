@@ -214,7 +214,7 @@
 
       <!-- Ações de Utilizador Direitas em Mobile (Tema, Terminal, Atualizar, Definições, Logout) -->
       <div class="flex md:hidden items-center gap-1 shrink-0">
-        <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-indigo-500 transition" title="Alternar Tema" data-i18n-title="toggle_theme_title" data-i18n-title="toggle_theme_title" data-i18n-title="tt_toggle_theme">
+        <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-200/70 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-indigo-500 transition" title="Alternar Tema" data-i18n-title="toggle_theme_title" data-i18n-title="toggle_theme_title" data-i18n-title="toggle_theme_title" data-i18n-title="tt_toggle_theme">
           <i data-lucide="moon" id="theme-icon-mobile" class="w-4 h-4"></i>
         </button>
         <button onclick="openGlobalTerminalModal()" class="p-2 rounded-xl bg-slate-900 border border-slate-700 text-emerald-400 hover:text-emerald-300 transition" title="Terminal">
@@ -343,7 +343,7 @@
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 flex-wrap">
             <h1 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate" id="main-project-name">Carregando Projeto...</h1>
-            <button onclick="copyActiveProjectId(event)" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-mono font-semibold bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/20 transition cursor-pointer shrink-0" title="Clique para copiar o ID do Projeto" data-i18n-title="copy_proj_id_title" data-i18n-title="copy_proj_id_title">
+            <button onclick="copyActiveProjectId(event)" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-mono font-semibold bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/20 transition cursor-pointer shrink-0" title="Clique para copiar o ID do Projeto" data-i18n-title="copy_proj_id_title" data-i18n-title="copy_proj_id_title" data-i18n-title="copy_proj_id_title">
               <i data-lucide="tag" class="w-3 h-3 text-purple-500"></i>
               <span>ID: <strong id="main-project-id-badge" class="font-bold">...</strong></span>
               <i data-lucide="copy" class="w-3 h-3 text-purple-400"></i>
@@ -1169,7 +1169,7 @@
             <h3 class="font-bold text-base flex items-center gap-2 text-cyan-600 dark:text-cyan-400">
               <i data-lucide="key-round" class="w-5 h-5"></i> <span data-i18n="env_title">Gestão Segura de Variáveis de Ambiente (.env)</span>
             </h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400"><span data-i18n="env_protected_desc"><span data-i18n="env_protected_desc">Edição protegida de segredos, tokens e chaves de API com mascaramento visual e permissões 0600.</span></span></p>
+            <p class="text-xs text-slate-500 dark:text-slate-400"><span data-i18n="env_protected_desc"><span data-i18n="env_protected_desc"><span data-i18n="env_protected_desc">Edição protegida de segredos, tokens e chaves de API com mascaramento visual e permissões 0600.</span></span></span></p>
           </div>
 
           <!-- Ações e Sub-abas (.env) -->
@@ -1646,7 +1646,7 @@
               <span data-i18n="sql_migrations_detected_title">Migrações SQL Detetadas nesta Versão</span>
             </div>
             <p class="text-[11px] text-slate-600 dark:text-slate-300">
-              <span data-i18n="sql_migrations_detected_desc"><span data-i18n="sql_migrations_detected_desc">Esta publicação inclui ficheiros SQL que serão aplicados automaticamente na base de dados:</span></span>
+              <span data-i18n="sql_migrations_detected_desc"><span data-i18n="sql_migrations_detected_desc"><span data-i18n="sql_migrations_detected_desc">Esta publicação inclui ficheiros SQL que serão aplicados automaticamente na base de dados:</span></span></span>
             </p>
             <div id="deploy-modal-migration-files" class="font-mono text-[10px] space-y-0.5 max-h-24 overflow-y-auto pl-1"></div>
           </div>
@@ -1963,7 +1963,7 @@
             </div>
             <div class="flex items-center gap-2">
               <input type="text" id="vault-apps-dir" placeholder="/mnt/Disco1/apps" class="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs font-mono focus:outline-none focus:border-indigo-500">
-              <button onclick="openFolderBrowser('vault-apps-dir')" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-300 flex items-center gap-1" title="Explorar Pastas do Servidor" data-i18n-title="btn_browse_folders" data-i18n-title="btn_browse_folders">
+              <button onclick="openFolderBrowser('vault-apps-dir')" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-300 flex items-center gap-1" title="Explorar Pastas do Servidor" data-i18n-title="btn_browse_folders" data-i18n-title="btn_browse_folders" data-i18n-title="btn_browse_folders">
                 <i data-lucide="folder" class="w-4 h-4"></i> Explorar
               </button>
             </div>
@@ -1973,7 +1973,7 @@
           <!-- Password Mestre PostgreSQL / Supabase -->
           <div class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
             <label class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-              <i data-lucide="key" class="w-4 h-4 text-emerald-400"></i> <span data-i18n="vault_db_master_pass_label"><span data-i18n="vault_db_master_pass_label">Password Mestre PostgreSQL / Base de Dados *</span></span>
+              <i data-lucide="key" class="w-4 h-4 text-emerald-400"></i> <span data-i18n="vault_db_master_pass_label"><span data-i18n="vault_db_master_pass_label"><span data-i18n="vault_db_master_pass_label">Password Mestre PostgreSQL / Base de Dados *</span></span></span>
             </label>
             <p class="text-[11px] text-slate-500 dark:text-slate-400">
               <span data-i18n="vault_db_master_pass_desc">Password utilizada para criar o superutilizador postgres e o utilizador de autenticação em todas as stacks de novos projetos.</span>
@@ -3858,7 +3858,14 @@
     "confirm_purge_build_cache": "Limpeza de artefactos de compilação antigos (.build_cache). O código-fonte no Git permanece intacto e os outputs são reconstruídos automaticamente sob demanda.",
     "step_compiling": "A compilar aplicação...",
     "step_applying_sql": "A aplicar migrações SQL...",
-    "step_deploy_success": "Publicação concluída com sucesso!"
+    "step_deploy_success": "Publicação concluída com sucesso!",
+    "status_active_prod": "PRODUÇÃO",
+    "status_active_staging": "TESTES",
+    "no_record": "Nenhum registo",
+    "type_deploy": "Deploy",
+    "modified_files_heading": "Ficheiros Modificados",
+    "badge_type_deploy": "PUBLICAÇÃO",
+    "badge_type_rollback": "REVERSÃO"
   },
   "en": {
     "wz_zip_label": "Initial Source Code (.ZIP File)",
@@ -4380,7 +4387,14 @@
     "confirm_purge_build_cache": "Cleaning up old build artifacts (.build_cache). Git source code remains intact and outputs are rebuilt automatically on demand.",
     "step_compiling": "Compiling application...",
     "step_applying_sql": "Applying SQL migrations...",
-    "step_deploy_success": "Deployment completed successfully!"
+    "step_deploy_success": "Deployment completed successfully!",
+    "status_active_prod": "PRODUCTION",
+    "status_active_staging": "STAGING",
+    "no_record": "No record",
+    "type_deploy": "Deploy",
+    "modified_files_heading": "Modified Files",
+    "badge_type_deploy": "DEPLOY",
+    "badge_type_rollback": "ROLLBACK"
   },
   "it": {
     "wz_zip_label": "Codice Sorgente Iniziale (File .ZIP)",
@@ -4902,7 +4916,14 @@
     "confirm_purge_build_cache": "Pulizia dei vecchi artefatti di compilazione (.build_cache). Il codice sorgente in Git rimane intatto e gli output vengono ricostruiti automaticamente su richiesta.",
     "step_compiling": "Compilazione dell'applicazione...",
     "step_applying_sql": "Applicazione migrazioni SQL...",
-    "step_deploy_success": "Pubblicazione completata con successo!"
+    "step_deploy_success": "Pubblicazione completata con successo!",
+    "status_active_prod": "PRODUZIONE",
+    "status_active_staging": "COLLAUDO",
+    "no_record": "Nessun record",
+    "type_deploy": "Deploy",
+    "modified_files_heading": "File Modificati",
+    "badge_type_deploy": "DEPLOY",
+    "badge_type_rollback": "ROLLBACK"
   },
   "de": {
     "wz_zip_label": "Initialer Quellcode (.ZIP-Datei)",
@@ -5424,7 +5445,14 @@
     "confirm_purge_build_cache": "Bereinigung alter Build-Artefakte (.build_cache). Der Git-Quellcode bleibt intakt und Outputs werden bei Bedarf automatisch neu erstellt.",
     "step_compiling": "Anwendung wird kompiliert...",
     "step_applying_sql": "SQL-Migrationen werden angewendet...",
-    "step_deploy_success": "Bereitstellung erfolgreich abgeschlossen!"
+    "step_deploy_success": "Bereitstellung erfolgreich abgeschlossen!",
+    "status_active_prod": "PRODUKTION",
+    "status_active_staging": "STAGING",
+    "no_record": "Kein Eintrag",
+    "type_deploy": "Bereitstellung",
+    "modified_files_heading": "Geänderte Dateien",
+    "badge_type_deploy": "BEREITSTELLUNG",
+    "badge_type_rollback": "ROLLBACK"
   },
   "de-AT": {
     "wz_zip_label": "Initialer Quellcode (.ZIP-Datei)",
@@ -5946,7 +5974,14 @@
     "confirm_purge_build_cache": "Bereinigung alter Build-Artefakte (.build_cache). Der Git-Quellcode bleibt intakt und Outputs werden bei Bedarf automatisch neu erstellt.",
     "step_compiling": "Anwendung wird kompiliert...",
     "step_applying_sql": "SQL-Migrationen werden angewendet...",
-    "step_deploy_success": "Bereitstellung erfolgreich abgeschlossen!"
+    "step_deploy_success": "Bereitstellung erfolgreich abgeschlossen!",
+    "status_active_prod": "PRODUKTION",
+    "status_active_staging": "STAGING",
+    "no_record": "Kein Eintrag",
+    "type_deploy": "Bereitstellung",
+    "modified_files_heading": "Geänderte Dateien",
+    "badge_type_deploy": "BEREITSTELLUNG",
+    "badge_type_rollback": "ROLLBACK"
   },
   "nl": {
     "wz_zip_label": "Initiële Broncode (.ZIP-bestand)",
@@ -6493,7 +6528,14 @@
     "confirm_purge_build_cache": "Oude build-artefacten opruimen (.build_cache). Git-broncode blijft intact en outputs worden op verzoek automatisch opnieuw opgebouwd.",
     "step_compiling": "Applicatie compileren...",
     "step_applying_sql": "SQL-migraties toepassen...",
-    "step_deploy_success": "Implementatie succesvol voltooid!"
+    "step_deploy_success": "Implementatie succesvol voltooid!",
+    "status_active_prod": "PRODUCTIE",
+    "status_active_staging": "STAGING",
+    "no_record": "Geen records",
+    "type_deploy": "Implementatie",
+    "modified_files_heading": "Gewijzigde Bestanden",
+    "badge_type_deploy": "IMPLEMENTATIE",
+    "badge_type_rollback": "ROLLBACK"
   },
   "el": {
     "wz_zip_label": "Αρχικός Πηγαίος Κώδικας (Αρχείο .ZIP)",
@@ -7040,7 +7082,14 @@
     "confirm_purge_build_cache": "Εκκαθάριση παλαιών τεχνουργημάτων δόμησης (.build_cache). Ο πηγαίος κώδικας στο Git παραμένει άθικτος και οι έξοδοι ανακατασκευάζονται αυτόματα κατά παραγγελία.",
     "step_compiling": "Μεταγλώττιση εφαρμογής...",
     "step_applying_sql": "Εφαρμογή μεταναστεύσεων SQL...",
-    "step_deploy_success": "Η ανάπτυξη ολοκληρώθηκε με επιτυχία!"
+    "step_deploy_success": "Η ανάπτυξη ολοκληρώθηκε με επιτυχία!",
+    "status_active_prod": "ΠΑΡΑΓΩΓΗ",
+    "status_active_staging": "ΔΟΚΙΜΗ",
+    "no_record": "Κανένα αρχείο",
+    "type_deploy": "Ανάπτυξη",
+    "modified_files_heading": "Τροποποιημένα Αρχεία",
+    "badge_type_deploy": "ΑΝΑΠΤΥΞΗ",
+    "badge_type_rollback": "ΕΠΑΝΑΦΟΡΑ"
   },
   "pl": {
     "wz_zip_label": "Początkowy Kod Źródłowy (Plik .ZIP)",
@@ -7587,7 +7636,14 @@
     "confirm_purge_build_cache": "Czyszczenie starych artefaktów kompilacji (.build_cache). Kod źródłowy w Git pozostaje nienaruszony, a dane wyjściowe są automatycznie odbudowywane na żądanie.",
     "step_compiling": "Kompilowanie aplikacji...",
     "step_applying_sql": "Stosowanie migracji SQL...",
-    "step_deploy_success": "Publikacja zakończona sukcesem!"
+    "step_deploy_success": "Publikacja zakończona sukcesem!",
+    "status_active_prod": "PRODUKCJA",
+    "status_active_staging": "TESTY",
+    "no_record": "Brak wpisów",
+    "type_deploy": "Wdrożenie",
+    "modified_files_heading": "Zmodyfikowane Pliki",
+    "badge_type_deploy": "WDROŻENIE",
+    "badge_type_rollback": "PRZYWRÓCENIE"
   },
   "ru": {
     "wz_zip_label": "Исходный Код (.ZIP Файл)",
@@ -8134,7 +8190,14 @@
     "confirm_purge_build_cache": "Очистка старых артефактов сборки (.build_cache). Исходный код в Git остается нетронутым, а результаты автоматически пересобираются по запросу.",
     "step_compiling": "Компиляция приложения...",
     "step_applying_sql": "Применение миграций SQL...",
-    "step_deploy_success": "Публикация успешно завершена!"
+    "step_deploy_success": "Публикация успешно завершена!",
+    "status_active_prod": "ПРОДАКШН",
+    "status_active_staging": "ТЕСТЫ",
+    "no_record": "Нет записей",
+    "type_deploy": "Развертывание",
+    "modified_files_heading": "Измененные файлы",
+    "badge_type_deploy": "РАЗВЕРТЫВАНИЕ",
+    "badge_type_rollback": "ОТКАТ"
   },
   "zh": {
     "wz_zip_label": "初始源代码（.ZIP 文件）",
@@ -8681,7 +8744,14 @@
     "confirm_purge_build_cache": "清理旧的构建工件 (.build_cache)。Git 中的源代码保持完好，输出会根据需要自动重建。",
     "step_compiling": "正在编译应用程序...",
     "step_applying_sql": "正在应用 SQL 迁移...",
-    "step_deploy_success": "发布已成功完成！"
+    "step_deploy_success": "发布已成功完成！",
+    "status_active_prod": "生产",
+    "status_active_staging": "测试",
+    "no_record": "无记录",
+    "type_deploy": "部署",
+    "modified_files_heading": "修改的文件",
+    "badge_type_deploy": "部署",
+    "badge_type_rollback": "回滚"
   },
   "ja": {
     "wz_zip_label": "初期ソースコード (.ZIP ファイル)",
@@ -9228,7 +9298,14 @@
     "confirm_purge_build_cache": "古いビルド成果物 (.build_cache) のクリーンアップ。Git のソースコードはそのまま維持され、出力は必要に応じて自動的に再構築されます。",
     "step_compiling": "アプリケーションをコンパイル中...",
     "step_applying_sql": "SQL マイグレーションを適用中...",
-    "step_deploy_success": "公開が正常に完了しました！"
+    "step_deploy_success": "公開が正常に完了しました！",
+    "status_active_prod": "本番",
+    "status_active_staging": "テスト",
+    "no_record": "記録なし",
+    "type_deploy": "デプロイ",
+    "modified_files_heading": "変更されたファイル",
+    "badge_type_deploy": "デプロイ",
+    "badge_type_rollback": "ロールバック"
   },
   "sv": {
     "wz_zip_label": "Ursprunglig Källkod (.ZIP-fil)",
@@ -9775,7 +9852,14 @@
     "confirm_purge_build_cache": "Rensar gamla byggartefakter (.build_cache). Git-källkoden förblir intakt och utdata byggs om automatiskt vid behov.",
     "step_compiling": "Kompilerar applikation...",
     "step_applying_sql": "Tillämpar SQL-migreringar...",
-    "step_deploy_success": "Publiceringen slutfördes framgångsrikt!"
+    "step_deploy_success": "Publiceringen slutfördes framgångsrikt!",
+    "status_active_prod": "PRODUKTION",
+    "status_active_staging": "TEST",
+    "no_record": "Inga poster",
+    "type_deploy": "Distribution",
+    "modified_files_heading": "Ändrade Filer",
+    "badge_type_deploy": "DISTRIBUTION",
+    "badge_type_rollback": "ÅTERSTÄLLNING"
   },
   "ro": {
     "wz_zip_label": "Cod Sursă Inițial (Fișier .ZIP)",
@@ -10322,7 +10406,14 @@
     "confirm_purge_build_cache": "Curățarea artefactelor vechi de compilare (.build_cache). Codul sursă din Git rămâne intact, iar ieșirile sunt reconstruite automat la cerere.",
     "step_compiling": "Se compilează aplicația...",
     "step_applying_sql": "Se aplică migrările SQL...",
-    "step_deploy_success": "Publicarea a fost finalizată cu succes!"
+    "step_deploy_success": "Publicarea a fost finalizată cu succes!",
+    "status_active_prod": "PRODUCȚIE",
+    "status_active_staging": "TESTE",
+    "no_record": "Niciun registru",
+    "type_deploy": "Implementare",
+    "modified_files_heading": "Fișiere Modificate",
+    "badge_type_deploy": "IMPLEMENTARE",
+    "badge_type_rollback": "REVERSIUNE"
   },
   "mo": {
     "wz_zip_label": "Cod Sursă Inițial (Fișier .ZIP)",
@@ -10869,7 +10960,14 @@
     "confirm_purge_build_cache": "Curățarea artefactelor vechi de compilare (.build_cache). Codul sursă din Git rămâne intact, iar ieșirile sunt reconstruite automat la cerere.",
     "step_compiling": "Se compilează aplicația...",
     "step_applying_sql": "Se aplică migrările SQL...",
-    "step_deploy_success": "Publicarea a fost finalizată cu succes!"
+    "step_deploy_success": "Publicarea a fost finalizată cu succes!",
+    "status_active_prod": "PRODUCȚIE",
+    "status_active_staging": "TESTE",
+    "no_record": "Niciun registru",
+    "type_deploy": "Implementare",
+    "modified_files_heading": "Fișiere Modificate",
+    "badge_type_deploy": "IMPLEMENTARE",
+    "badge_type_rollback": "REVERSIUNE"
   },
   "es": {
     "wz_zip_label": "Código Fuente Inicial (Archivo .ZIP)",
@@ -11391,7 +11489,14 @@
     "confirm_purge_build_cache": "Limpieza de artefactos de compilación antiguos (.build_cache). El código fuente en Git permanece intacto y las salidas se reconstruyen automáticamente bajo demanda.",
     "step_compiling": "Compilando aplicación...",
     "step_applying_sql": "Aplicando migraciones SQL...",
-    "step_deploy_success": "¡Publicación completada con éxito!"
+    "step_deploy_success": "¡Publicación completada con éxito!",
+    "status_active_prod": "PRODUCCIÓN",
+    "status_active_staging": "PRUEBAS",
+    "no_record": "Sin registros",
+    "type_deploy": "Despliegue",
+    "modified_files_heading": "Archivos Modificados",
+    "badge_type_deploy": "DESPLIEGUE",
+    "badge_type_rollback": "REVERSIÓN"
   },
   "fr": {
     "wz_zip_label": "Code Source Initial (Fichier .ZIP)",
@@ -11913,7 +12018,14 @@
     "confirm_purge_build_cache": "Nettoyage des anciens artefacts de build (.build_cache). Le code source dans Git reste intact et les sorties sont reconstruites automatiquement à la demande.",
     "step_compiling": "Compilation de l'application...",
     "step_applying_sql": "Application des migrations SQL...",
-    "step_deploy_success": "Publication terminée avec succès !"
+    "step_deploy_success": "Publication terminée avec succès !",
+    "status_active_prod": "PRODUCTION",
+    "status_active_staging": "TESTS",
+    "no_record": "Aucun enregistrement",
+    "type_deploy": "Déploiement",
+    "modified_files_heading": "Fichiers Modifiés",
+    "badge_type_deploy": "DÉPLOIEMENT",
+    "badge_type_rollback": "RETOUR ARRIÈRE"
   },
   "cs": {
     "wz_zip_label": "Počáteční Zdrojový Kód (Soubor .ZIP)",
@@ -12460,7 +12572,14 @@
     "confirm_purge_build_cache": "Čištění starých artefaktů sestavení (.build_cache). Zdrojový kód v Gitu zůstává nedotčen a výstupy jsou automaticky znovu sestaveny na vyžádání.",
     "step_compiling": "Kompilace aplikace...",
     "step_applying_sql": "Aplikace migrací SQL...",
-    "step_deploy_success": "Publikování bylo úspěšně dokončeno!"
+    "step_deploy_success": "Publikování bylo úspěšně dokončeno!",
+    "status_active_prod": "PRODUKCE",
+    "status_active_staging": "TESTOVÁNÍ",
+    "no_record": "Žádný záznam",
+    "type_deploy": "Nasazení",
+    "modified_files_heading": "Upravené Soubory",
+    "badge_type_deploy": "NASAZENÍ",
+    "badge_type_rollback": "NAVRÁCENÍ"
   },
   "hr": {
     "wz_zip_label": "Početni Izvorni Kod (.ZIP Datoteka)",
@@ -13007,7 +13126,14 @@
     "confirm_purge_build_cache": "Čišćenje starih artefakata izgradnje (.build_cache). Izvorni kod u Git-u ostaje netaknut, a izlazi se automatski ponovno grade na zahtjev.",
     "step_compiling": "Kompiliranje aplikacije...",
     "step_applying_sql": "Primjena SQL migracija...",
-    "step_deploy_success": "Objava je uspješno dovršena!"
+    "step_deploy_success": "Objava je uspješno dovršena!",
+    "status_active_prod": "PRODUKCIJA",
+    "status_active_staging": "TESTIRANJE",
+    "no_record": "Nema zapisa",
+    "type_deploy": "Implementacija",
+    "modified_files_heading": "Izmijenjene Datoteke",
+    "badge_type_deploy": "IMPLEMENTACIJA",
+    "badge_type_rollback": "VRAĆANJE"
   },
   "da": {
     "wz_zip_label": "Indledende Kildekode (.ZIP Fil)",
@@ -13554,7 +13680,14 @@
     "confirm_purge_build_cache": "Renser gamle build-artefakter (.build_cache). Git-kildekoden forbliver intakt, og output genopbygges automatisk efter behov.",
     "step_compiling": "Kompilerer applikation...",
     "step_applying_sql": "Anvender SQL-migreringer...",
-    "step_deploy_success": "Udrulningen er fuldført!"
+    "step_deploy_success": "Udrulningen er fuldført!",
+    "status_active_prod": "PRODUKTION",
+    "status_active_staging": "TEST",
+    "no_record": "Ingen registrering",
+    "type_deploy": "Udrulning",
+    "modified_files_heading": "Ændrede Filer",
+    "badge_type_deploy": "UDRULNING",
+    "badge_type_rollback": "TILBAGERULLING"
   },
   "sk": {
     "wz_zip_label": "Počiatočný Zdrojový Kód (Súbor .ZIP)",
@@ -14101,7 +14234,14 @@
     "confirm_purge_build_cache": "Čistenie starých artefaktov zostavenia (.build_cache). Zdrojový kód v Gite zostáva nedotknutý a výstupy sa automaticky znova zostavujú na požiadanie.",
     "step_compiling": "Kompilácia aplikácie...",
     "step_applying_sql": "Aplikácia migrácií SQL...",
-    "step_deploy_success": "Publikovanie bolo úspešne dokončené!"
+    "step_deploy_success": "Publikovanie bolo úspešne dokončené!",
+    "status_active_prod": "PRODUKCIA",
+    "status_active_staging": "TESTOVANIE",
+    "no_record": "Žiadny záznam",
+    "type_deploy": "Nasadenie",
+    "modified_files_heading": "Upravené Súbory",
+    "badge_type_deploy": "NASADENIE",
+    "badge_type_rollback": "VRÁTENIE"
   },
   "sl": {
     "wz_zip_label": "Začetna Izvorna Koda (.ZIP Datoteka)",
@@ -14648,7 +14788,14 @@
     "confirm_purge_build_cache": "Čiščenje starih gradbenih artefaktov (.build_cache). Izvorna koda v Gitu ostane nedotaknjena, izhodi pa se samodejno znova zgradijo na zahtevo.",
     "step_compiling": "Kompiliranje aplikacije...",
     "step_applying_sql": "Uveljavljanje migracij SQL...",
-    "step_deploy_success": "Objava uspešno zaključena!"
+    "step_deploy_success": "Objava uspešno zaključena!",
+    "status_active_prod": "PRODUKCIJA",
+    "status_active_staging": "TESTIRANJE",
+    "no_record": "Ni zapisov",
+    "type_deploy": "Uvajanje",
+    "modified_files_heading": "Spremenjene Datoteke",
+    "badge_type_deploy": "UVAJANJE",
+    "badge_type_rollback": "POVRATNICA"
   },
   "et": {
     "wz_zip_label": "Algne Lähtekood (.ZIP Fail)",
@@ -15195,7 +15342,14 @@
     "confirm_purge_build_cache": "Vanade ehitusjäänuste (.build_cache) puhastamine. Giti lähtekood jääb puutumatuks ja väljundid ehitatakse nõudmisel automaatselt uuesti.",
     "step_compiling": "Rakenduse kompileerimine...",
     "step_applying_sql": "SQL-i migratsioonide rakendamine...",
-    "step_deploy_success": "Avaldamine edukalt lõpule viidud!"
+    "step_deploy_success": "Avaldamine edukalt lõpule viidud!",
+    "status_active_prod": "TOOTMINE",
+    "status_active_staging": "TESTIMINE",
+    "no_record": "Kirjeid pole",
+    "type_deploy": "Juurutamine",
+    "modified_files_heading": "Muudetud Failid",
+    "badge_type_deploy": "JUURUTAMINE",
+    "badge_type_rollback": "TAGASIKÜLG"
   },
   "fi": {
     "wz_zip_label": "Alkuperäinen Lähdekoodi (.ZIP-tiedosto)",
@@ -15742,7 +15896,14 @@
     "confirm_purge_build_cache": "Vanhojen koontiversioiden artefaktien (.build_cache) puhdistaminen. Git-lähdekoodi säilyy koskemattomana ja tulosteet luodaan automaattisesti uudelleen tarpeen mukaan.",
     "step_compiling": "Käännetään sovellusta...",
     "step_applying_sql": "Suoritetaan SQL-migraatioita...",
-    "step_deploy_success": "Julkaisu suoritettu onnistuneesti!"
+    "step_deploy_success": "Julkaisu suoritettu onnistuneesti!",
+    "status_active_prod": "TUOTANTO",
+    "status_active_staging": "TESTAUS",
+    "no_record": "Ei merkintöjä",
+    "type_deploy": "Käyttöönotto",
+    "modified_files_heading": "Muokatut Tiedostot",
+    "badge_type_deploy": "KÄYTTÖÖNOTTO",
+    "badge_type_rollback": "PERUUTUS"
   },
   "hu": {
     "wz_zip_label": "Kezdeti Forráskód (.ZIP Fájl)",
@@ -16289,7 +16450,14 @@
     "confirm_purge_build_cache": "Régi összeállítási műtermékek (.build_cache) törlése. A Git forráskód érintetlen marad, és a kimenetek automatikusan újraépülnek igény szerint.",
     "step_compiling": "Alkalmazás fordítása...",
     "step_applying_sql": "SQL migrációk alkalmazása...",
-    "step_deploy_success": "A közzététel sikeresen befejeződött!"
+    "step_deploy_success": "A közzététel sikeresen befejeződött!",
+    "status_active_prod": "ÉLES",
+    "status_active_staging": "TESZT",
+    "no_record": "Nincs feljegyzés",
+    "type_deploy": "Telepítés",
+    "modified_files_heading": "Módosított Fájlok",
+    "badge_type_deploy": "TELEPÍTÉS",
+    "badge_type_rollback": "VISSZAÁLLÍTÁS"
   },
   "lv": {
     "wz_zip_label": "Sākotnējais Pirmkods (.ZIP Fails)",
@@ -16836,7 +17004,14 @@
     "confirm_purge_build_cache": "Veco būvēšanas artefaktu (.build_cache) tīrīšana. Git pirmkods paliek neskarts, un izvadi tiek automātiski pārbūvēti pēc pieprasījuma.",
     "step_compiling": "Kompilē lietojumprogrammu...",
     "step_applying_sql": "Lieto SQL migrācijas...",
-    "step_deploy_success": "Publicēšana veiksmīgi pabeigta!"
+    "step_deploy_success": "Publicēšana veiksmīgi pabeigta!",
+    "status_active_prod": "RAŽOŠANA",
+    "status_active_staging": "TESTĒŠANA",
+    "no_record": "Nav ierakstu",
+    "type_deploy": "Izvietošana",
+    "modified_files_heading": "Modificētie Faili",
+    "badge_type_deploy": "IZVIETOŠANA",
+    "badge_type_rollback": "ATKĀPŠANĀS"
   },
   "lt": {
     "wz_zip_label": "Pradinis Pirminis Kodas (.ZIP Failas)",
@@ -17383,7 +17558,14 @@
     "confirm_purge_build_cache": "Senų kūrimo artefaktų (.build_cache) valymas. „Git“ šaltinio kodas lieka nepaliestas, o išvestys automatiškai atkuriamos pagal pareikalavimą.",
     "step_compiling": "Kompiliuojama programa...",
     "step_applying_sql": "Taikomos SQL migracijos...",
-    "step_deploy_success": "Publikavimas sėkmingai baigtas!"
+    "step_deploy_success": "Publikavimas sėkmingai baigtas!",
+    "status_active_prod": "GAMYBA",
+    "status_active_staging": "TESTAVIMAS",
+    "no_record": "Nėra įrašų",
+    "type_deploy": "Diegimas",
+    "modified_files_heading": "Pakeisti Failai",
+    "badge_type_deploy": "DIEGIMAS",
+    "badge_type_rollback": "ATŠAUKIMAS"
   },
   "mt": {
     "wz_zip_label": "Kodiċi Sors Inizjali (Fajl .ZIP)",
@@ -17930,7 +18112,14 @@
     "confirm_purge_build_cache": "Tindif ta' artifatti qodma tal-bini (.build_cache). Il-kodiċi sors f'Git jibqa' intatt u l-outputs jerġgħu jinbnew awtomatikament fuq talba.",
     "step_compiling": "Qed jikkompila l-applikazzjoni...",
     "step_applying_sql": "Qed japplika l-migrazzjonijiet SQL...",
-    "step_deploy_success": "Il-pubblikazzjoni tlestiet b'suċċess!"
+    "step_deploy_success": "Il-pubblikazzjoni tlestiet b'suċċess!",
+    "status_active_prod": "PRODUZZJONI",
+    "status_active_staging": "TESTIJIET",
+    "no_record": "L-ebda rekord",
+    "type_deploy": "Skjerament",
+    "modified_files_heading": "Fajls Modifikati",
+    "badge_type_deploy": "SKJERAMENT",
+    "badge_type_rollback": "ROLLBACK"
   },
   "la": {
     "wz_zip_label": "Primarius Codex Fontis (Fasciculus .ZIP)",
@@ -18477,7 +18666,14 @@
     "confirm_purge_build_cache": "Purgatio veterum structurarum (.build_cache). Codex fontis in Git integer manet et effectus automatice reficiuntur.",
     "step_compiling": "Applicatio compilatur...",
     "step_applying_sql": "Migrationes SQL adhibentur...",
-    "step_deploy_success": "Editio prospere perfecta est!"
+    "step_deploy_success": "Editio prospere perfecta est!",
+    "status_active_prod": "CREATIO",
+    "status_active_staging": "PROBATIO",
+    "no_record": "Nullum documentum",
+    "type_deploy": "Pervestigatio",
+    "modified_files_heading": "Fasciculi Mutati",
+    "badge_type_deploy": "PERVESTIGATIO",
+    "badge_type_rollback": "REGRESSUS"
   }
 };
 
@@ -21694,7 +21890,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       document.getElementById('staging-hash').textContent = staging.shortHash || staging.commit?.slice(0, 7) || '-';
       document.getElementById('staging-msg').textContent = staging.message || '-';
       document.getElementById('staging-author').textContent = staging.author || '-';
-      document.getElementById('staging-date').textContent = staging.date ? new Date(staging.date).toLocaleString('pt-PT') : '-';
+      document.getElementById('staging-date').textContent = staging.date ? new Date(staging.date).toLocaleString(currentLang === 'mo' ? 'ro-MD' : (currentLang === 'pt-PT' ? 'pt-PT' : currentLang)) : '-';
 
       const stgPrevBtn = document.getElementById('staging-rollback-btn');
       if (prevStaging && prevStaging.commit) {
@@ -21703,7 +21899,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
         stgPrevBtn.disabled = false;
         stgPrevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
       } else {
-        document.getElementById('staging-prev-hash').textContent = 'Nenhum registo';
+        document.getElementById('staging-prev-hash').textContent = t('no_record') || 'Nenhum registo';
         document.getElementById('staging-prev-msg').textContent = '';
         stgPrevBtn.disabled = true;
         stgPrevBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -21713,7 +21909,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       document.getElementById('prod-hash').textContent = prod.shortHash || prod.commit?.slice(0, 7) || '-';
       document.getElementById('prod-msg').textContent = prod.message || '-';
       document.getElementById('prod-author').textContent = prod.author || '-';
-      document.getElementById('prod-date').textContent = prod.date ? new Date(prod.date).toLocaleString('pt-PT') : '-';
+      document.getElementById('prod-date').textContent = prod.date ? new Date(prod.date).toLocaleString(currentLang === 'mo' ? 'ro-MD' : (currentLang === 'pt-PT' ? 'pt-PT' : currentLang)) : '-';
 
       const prodPrevBtn = document.getElementById('prod-rollback-btn');
       if (prevProd && prevProd.commit) {
@@ -21722,7 +21918,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
         prodPrevBtn.disabled = false;
         prodPrevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
       } else {
-        document.getElementById('prod-prev-hash').textContent = 'Nenhum registo';
+        document.getElementById('prod-prev-hash').textContent = t('no_record') || 'Nenhum registo';
         document.getElementById('prod-prev-msg').textContent = '';
         prodPrevBtn.disabled = true;
         prodPrevBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -22415,10 +22611,10 @@ Fim do Relatório
             <div class="space-y-3">
               <div class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
                 <div class="text-slate-800 dark:text-slate-200 font-semibold">${escapeHtml(data.message)}</div>
-                <div class="text-[11px] text-slate-500">Autor: ${escapeHtml(data.author)} · ${new Date(data.date).toLocaleString('pt-PT')}</div>
+                <div class="text-[11px] text-slate-500">${t('author_label') || 'Autor'}: ${escapeHtml(data.author)} · ${new Date(data.date).toLocaleString(currentLang === 'mo' ? 'ro-MD' : (currentLang === 'pt-PT' ? 'pt-PT' : currentLang))}</div>
               </div>
               <div class="space-y-1">
-                <div class="text-slate-500 dark:text-slate-400 font-bold text-[11px] uppercase">Ficheiros Modificados (${data.files?.length || 0})</div>
+                <div class="text-slate-500 dark:text-slate-400 font-bold text-[11px] uppercase">${t('modified_files_heading') || 'Ficheiros Modificados'} (${data.files?.length || 0})</div>
                 <div class="space-y-1 max-h-48 overflow-y-auto">
                   ${(data.files || []).map((f) => `
                     <div class="px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-900/60 flex items-center justify-between text-[11px]">
@@ -23503,7 +23699,7 @@ Fim do Relatório
               </div>
             </td>
             <td class="p-2.5 text-right">
-              <button onclick="deleteEnvVariableRow(${idx})" class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition" title="Eliminar Variável" data-i18n-title="btn_delete_variable" data-i18n-title="btn_delete_variable">
+              <button onclick="deleteEnvVariableRow(${idx})" class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition" title="Eliminar Variável" data-i18n-title="btn_delete_variable" data-i18n-title="btn_delete_variable" data-i18n-title="btn_delete_variable">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
               </button>
             </td>
@@ -24821,26 +25017,39 @@ Fim do Relatório
       }).then(() => refreshData());
     }
 
+    let lastHistoryData = null;
     function renderHistory(history) {
+      if (history) lastHistoryData = history;
+      const hList = history || lastHistoryData;
       const container = document.getElementById('history-list');
-      if (!history || history.length === 0) {
-        container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Sem registos no histórico.</div>`;
+      if (!hList || hList.length === 0) {
+        container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">${t('no_history_records') || 'Sem registos no histórico.'}</div>`;
         return;
       }
 
-      container.innerHTML = history.map((h) => `
-        <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 shadow-sm">
-          <div class="space-y-0.5 min-w-0 flex-1">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${h.environment === 'production' ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-blue-500/20 text-blue-600 dark:text-blue-400'}">${h.environment === 'production' ? 'PRODUÇÃO' : 'TESTES'}</span>
-              <code class="text-xs font-mono font-bold text-slate-500 dark:text-slate-400">${h.shortHash || h.commit?.slice(0, 7) || '-'}</code>
-              <span class="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">${escapeHtml(h.message || '')}</span>
+      const locale = currentLang === 'mo' ? 'ro-MD' : (currentLang === 'pt-PT' ? 'pt-PT' : currentLang);
+      const authorPrefix = t('author_label') || 'Autor';
+
+      container.innerHTML = hList.map((h) => {
+        const isProd = h.environment === 'production';
+        const envLabel = isProd ? (t('status_active_prod') || 'PRODUÇÃO') : (t('status_active_staging') || 'TESTES');
+        const envClass = isProd ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-blue-500/20 text-blue-600 dark:text-blue-400';
+        const typeBadge = (h.type === 'rollback' ? t('badge_type_rollback') : t('badge_type_deploy')) || (h.type || 'deploy').toUpperCase();
+
+        return `
+          <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 shadow-sm">
+            <div class="space-y-0.5 min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${envClass}">${envLabel}</span>
+                <code class="text-xs font-mono font-bold text-slate-500 dark:text-slate-400">${h.shortHash || h.commit?.slice(0, 7) || '-'}</code>
+                <span class="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">${escapeHtml(h.message || '')}</span>
+              </div>
+              <div class="text-[11px] text-slate-500">${authorPrefix}: ${escapeHtml(h.author || 'admin')} · ${new Date(h.date).toLocaleString(locale)}</div>
             </div>
-            <div class="text-[11px] text-slate-500">Autor: ${escapeHtml(h.author || 'admin')} · ${new Date(h.date).toLocaleString('pt-PT')}</div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 uppercase">${typeBadge}</span>
           </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 uppercase">${h.type || 'deploy'}</span>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function escapeHtml(str) {
