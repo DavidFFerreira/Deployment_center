@@ -56,6 +56,11 @@ test('i18n: index.html contains all 28 languages with 100% dictionary completene
   assert.ok(html.includes('data-i18n="terms_modal_title"'), 'terms_modal_title data-i18n present in index.html');
   assert.ok(html.includes('data-i18n="terms_sec1_title"'), 'terms_sec1_title data-i18n present in index.html');
   assert.ok(html.includes('data-i18n="terms_btn_close"'), 'terms_btn_close data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="terms_lead_dev"'), 'terms_lead_dev data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="terms_github_profile"'), 'terms_github_profile data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="btn_download_error_report"'), 'btn_download_error_report data-i18n present in index.html');
+  assert.ok(!html.slice(0, html.indexOf('<script>')).includes('${t('), 'No raw ${t(...)} template literals in HTML markup');
+  assert.ok(html.includes('function localizeDeployLog('), 'function localizeDeployLog defined in index.html');
   assert.ok(html.includes('data-i18n="set_modal_title"'), 'set_modal_title data-i18n present in index.html');
   assert.ok(html.includes('data-i18n="set_tab_projects"'), 'set_tab_projects data-i18n present in index.html');
   assert.ok(html.includes('data-i18n="wz_modal_title"'), 'wz_modal_title data-i18n present in index.html');
