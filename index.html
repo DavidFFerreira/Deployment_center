@@ -698,19 +698,19 @@
             <div class="flex items-center gap-2 flex-wrap text-xs">
               <!-- Seletor de Contentor -->
               <select id="live-log-container-select" onchange="restartLiveLogs()" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
-                <option value="all">📦 Todos os Contentores</option>
+                <option value="all" data-i18n="all_containers_option">📦 Todos os Contentores</option>
               </select>
 
               <!-- Filtro de Severidade -->
               <select id="live-log-level-select" onchange="restartLiveLogs()" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
-                <option value="all">Todos os Níveis</option>
-                <option value="error">🔴 Apenas Erros</option>
-                <option value="warn">🟡 Avisos & Erros</option>
+                <option value="all" data-i18n="all_levels_option">Todos os Níveis</option>
+                <option value="error" data-i18n="only_errors_option">🔴 Apenas Erros</option>
+                <option value="warn" data-i18n="warn_errors_option">🟡 Avisos & Erros</option>
               </select>
 
               <!-- Pesquisa de Texto -->
               <div class="relative">
-                <input type="text" id="live-log-search-input" oninput="restartLiveLogs()" placeholder="Filtrar texto..." class="px-2.5 py-1.5 pl-7 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 w-36 focus:w-48 transition-all focus:outline-none">
+                <input type="text" id="live-log-search-input" oninput="restartLiveLogs()" placeholder="Filtrar texto..." data-i18n-placeholder="filter_text_placeholder" class="px-2.5 py-1.5 pl-7 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 w-36 focus:w-48 transition-all focus:outline-none">
                 <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2"></i>
               </div>
 
@@ -740,24 +740,24 @@
           <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400" data-i18n="quick_commands">Ações Rápidas de Manutenção</h3>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
             <button onclick="execPredefinedCommand('update_server')" class="p-3 rounded-2xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-left transition group">
-              <div class="text-indigo-600 dark:text-indigo-400 font-bold text-xs flex items-center gap-1.5"><i data-lucide="zap" class="w-4 h-4"></i> Update Servidor</div>
-              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Script de produção</p>
+              <div class="text-indigo-600 dark:text-indigo-400 font-bold text-xs flex items-center gap-1.5"><i data-lucide="zap" class="w-4 h-4"></i> <span data-i18n="cmd_update_server">Update Servidor</span></div>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1" data-i18n="cmd_update_server_sub">Script de produção</p>
             </button>
             <button onclick="execPredefinedCommand('git_pull_reset')" class="p-3 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-left transition">
-              <div class="text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5"><i data-lucide="git-pull-request" class="w-4 h-4 text-blue-500"></i> Git Pull & Reset</div>
-              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Sincronizar com Token</p>
+              <div class="text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5"><i data-lucide="git-pull-request" class="w-4 h-4 text-blue-500"></i> <span data-i18n="cmd_git_pull">Git Pull & Reset</span></div>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1" data-i18n="cmd_git_pull_sub">Sincronizar com Token</p>
             </button>
             <button onclick="execPredefinedCommand('docker_restart_all')" class="p-3 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-left transition">
-              <div class="text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5"><i data-lucide="rotate-cw" class="w-4 h-4 text-amber-500"></i> Restart Stack</div>
-              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Reiniciar serviços</p>
+              <div class="text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5"><i data-lucide="rotate-cw" class="w-4 h-4 text-amber-500"></i> <span data-i18n="cmd_restart_stack">Restart Stack</span></div>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1" data-i18n="cmd_restart_stack_sub">Reiniciar serviços</p>
             </button>
             <button onclick="execPredefinedCommand('docker_prune')" class="p-3 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-left transition">
-              <div class="text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5"><i data-lucide="trash-2" class="w-4 h-4 text-red-500"></i> Docker Prune</div>
-              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Limpar cache órfão</p>
+              <div class="text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5"><i data-lucide="trash-2" class="w-4 h-4 text-red-500"></i> <span data-i18n="cmd_docker_prune">Docker Prune</span></div>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1" data-i18n="cmd_docker_prune_sub">Limpar cache órfão</p>
             </button>
             <button onclick="execPredefinedCommand('docker_stats')" class="p-3 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-left transition">
-              <div class="text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5"><i data-lucide="cpu" class="w-4 h-4 text-purple-500"></i> Docker Stats</div>
-              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Consumo CPU / RAM</p>
+              <div class="text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5"><i data-lucide="cpu" class="w-4 h-4 text-purple-500"></i> <span data-i18n="cmd_docker_stats">Docker Stats</span></div>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1" data-i18n="cmd_docker_stats_sub">Consumo CPU / RAM</p>
             </button>
           </div>
         </div>
@@ -775,22 +775,22 @@
               </span>
             </div>
             <div class="flex items-center gap-3">
-              <button onclick="clearTerminal()" class="hover:text-white text-[11px] flex items-center gap-1"><i data-lucide="trash" class="w-3 h-3"></i> Limpar</button>
-              <button onclick="copyTerminalOutput()" class="hover:text-white text-[11px] flex items-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i> Copiar</button>
+              <button onclick="clearTerminal()" class="hover:text-white text-[11px] flex items-center gap-1"><i data-lucide="trash" class="w-3 h-3"></i> <span data-i18n="clear">Limpar</span></button>
+              <button onclick="copyTerminalOutput()" class="hover:text-white text-[11px] flex items-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i> <span data-i18n="btn_copy">Copiar</span></button>
             </div>
           </div>
           <!-- Ecrã de Saída -->
           <div id="terminal-screen" class="p-4 h-80 overflow-y-auto font-mono text-xs space-y-1 bg-slate-950/95 select-text leading-relaxed text-slate-200">
-            <div class="text-slate-500">Deploy Center Web Console [v3.0]</div>
-            <div class="text-slate-500">Escreva um comando bash e pressione Enter ou clique em Executar.</div>
-            <div class="text-emerald-400 mt-2">Pronto para comandos.</div>
+            <div class="text-slate-500" data-i18n="terminal_welcome_1">Deploy Center Web Console [v3.0]</div>
+            <div class="text-slate-500" data-i18n="terminal_welcome_2">Escreva um comando bash e pressione Enter ou clique em Executar.</div>
+            <div class="text-emerald-400 mt-2" data-i18n="terminal_ready">Pronto para comandos.</div>
           </div>
           <!-- Prompt de Entrada -->
           <div class="p-2.5 bg-slate-900 border-t border-slate-800 flex items-center gap-2">
             <span class="text-emerald-400 font-mono font-bold pl-2">$</span>
-            <input type="text" id="terminal-input" onkeydown="handleTerminalKey(event)" placeholder="Digite um comando bash (ex: docker ps ou curl ...)..." class="flex-1 bg-transparent text-xs font-mono text-white focus:outline-none">
+            <input type="text" id="terminal-input" onkeydown="handleTerminalKey(event)" placeholder="Digite um comando bash (ex: docker ps ou curl ...)..." data-i18n-placeholder="terminal_input_placeholder" class="flex-1 bg-transparent text-xs font-mono text-white focus:outline-none">
             <button onclick="executeTerminalInput()" id="terminal-run-btn" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition">
-              <i data-lucide="play" class="w-3.5 h-3.5"></i> Executar
+              <i data-lucide="play" class="w-3.5 h-3.5"></i> <span data-i18n="btn_execute">Executar</span>
             </button>
           </div>
         </div>
@@ -1699,7 +1699,7 @@
           <div class="p-2.5 rounded-xl bg-slate-950 text-red-400 font-mono text-[11px] whitespace-pre-wrap max-h-32 overflow-y-auto border border-red-500/20" id="deploy-error-details">-</div>
           <div class="flex items-center justify-between pt-1">
             <button onclick="downloadDeployErrorReport()" class="px-3 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-600 dark:text-red-300 text-xs font-bold flex items-center gap-1.5 transition">
-              <i data-lucide="download" class="w-3.5 h-3.5"></i> Descarregar Relatório de Erro (.txt)
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> ${t('btn_download')} Relatório de Erro (.txt)
             </button>
           </div>
         </div>
@@ -3720,7 +3720,56 @@
     "notif_copied_clipboard": "Copiado para a Área de Transferência",
     "notif_content_copied": "Conteúdo copiado com sucesso.",
     "notif_prompt_copied": "Prompt Copiado",
-    "notif_prompt_copied_msg": "Prompt mestre de arranque copiado para a área de transferência."
+    "notif_prompt_copied_msg": "Prompt mestre de arranque copiado para a área de transferência.",
+    "service_web_portal": "Portal Web",
+    "service_auth": "Autenticação",
+    "service_system": "Sistema",
+    "internal_ports": "Portas internas",
+    "btn_restart": "Reiniciar",
+    "btn_logs": "Logs",
+    "cmd_update_server": "Update Servidor",
+    "cmd_update_server_sub": "Script de produção",
+    "cmd_git_pull_sub": "Sincronizar com Token",
+    "cmd_restart_stack_sub": "Reiniciar serviços",
+    "cmd_docker_prune_sub": "Limpar cache órfão",
+    "cmd_docker_stats_sub": "Consumo CPU / RAM",
+    "terminal_welcome_1": "Deploy Center Web Console [v3.0]",
+    "terminal_welcome_2": "Escreva um comando bash e pressione Enter ou clique em Executar.",
+    "terminal_ready": "Pronto para comandos.",
+    "terminal_input_placeholder": "Digite um comando bash (ex: docker ps ou curl ...)...",
+    "btn_execute": "Executar",
+    "all_containers_option": "📦 Todos os Contentores",
+    "all_levels_option": "Todos os Níveis",
+    "only_errors_option": "🔴 Apenas Erros",
+    "warn_errors_option": "🟡 Avisos & Erros",
+    "filter_text_placeholder": "Filtrar texto...",
+    "th_file": "Ficheiro",
+    "th_date": "Data",
+    "btn_restore": "Restaurar",
+    "btn_download": "Descarregar",
+    "no_backups_found": "Nenhum ficheiro de backup gerado ainda.",
+    "empty_folder_notice": "Esta pasta está vazia",
+    "btn_clear_search": "Limpar Pesquisa",
+    "btn_clear_filters": "Limpar Filtros",
+    "no_subfolders_found": "Nenhuma subpasta encontrada neste caminho.",
+    "no_versions_found": "Nenhuma versão encontrada.",
+    "no_containers_found": "Nenhum contentor ativo encontrado para este projeto.",
+    "status_up": "Ativo há",
+    "status_healthy": "saudável",
+    "status_unhealthy": "não saudável",
+    "status_starting": "a iniciar",
+    "status_exited": "Terminado",
+    "time_ago": "atrás",
+    "unit_second": "segundo",
+    "unit_seconds": "segundos",
+    "unit_minute": "minuto",
+    "unit_minutes": "minutos",
+    "unit_hour": "hora",
+    "unit_hours": "horas",
+    "unit_day": "dia",
+    "unit_days": "dias",
+    "author_label": "Autor",
+    "last_login_label": "Último login"
   },
   "en": {
     "wz_zip_label": "Initial Source Code (.ZIP File)",
@@ -4104,7 +4153,56 @@
     "notif_copied_clipboard": "Copied to Clipboard",
     "notif_content_copied": "Content copied successfully.",
     "notif_prompt_copied": "Prompt Copied",
-    "notif_prompt_copied_msg": "Master bootstrap prompt copied to clipboard."
+    "notif_prompt_copied_msg": "Master bootstrap prompt copied to clipboard.",
+    "service_web_portal": "Web Portal",
+    "service_auth": "Authentication",
+    "service_system": "System",
+    "internal_ports": "Internal ports",
+    "btn_restart": "Restart",
+    "btn_logs": "Logs",
+    "cmd_update_server": "Update Server",
+    "cmd_update_server_sub": "Production script",
+    "cmd_git_pull_sub": "Sync with Token",
+    "cmd_restart_stack_sub": "Restart services",
+    "cmd_docker_prune_sub": "Clean orphan cache",
+    "cmd_docker_stats_sub": "CPU / RAM Usage",
+    "terminal_welcome_1": "Deploy Center Web Console [v3.0]",
+    "terminal_welcome_2": "Type a bash command and press Enter or click Run.",
+    "terminal_ready": "Ready for commands.",
+    "terminal_input_placeholder": "Type a bash command (e.g., docker ps or curl ...)...",
+    "btn_execute": "Run",
+    "all_containers_option": "📦 All Containers",
+    "all_levels_option": "All Levels",
+    "only_errors_option": "🔴 Errors Only",
+    "warn_errors_option": "🟡 Warnings & Errors",
+    "filter_text_placeholder": "Filter text...",
+    "th_file": "File",
+    "th_date": "Date",
+    "btn_restore": "Restore",
+    "btn_download": "Download",
+    "no_backups_found": "No backup files generated yet.",
+    "empty_folder_notice": "This folder is empty",
+    "btn_clear_search": "Clear Search",
+    "btn_clear_filters": "Clear Filters",
+    "no_subfolders_found": "No subfolders found in this path.",
+    "no_versions_found": "No versions found.",
+    "no_containers_found": "No active containers found for this project.",
+    "status_up": "Up",
+    "status_healthy": "healthy",
+    "status_unhealthy": "unhealthy",
+    "status_starting": "starting",
+    "status_exited": "Exited",
+    "time_ago": "ago",
+    "unit_second": "second",
+    "unit_seconds": "seconds",
+    "unit_minute": "minute",
+    "unit_minutes": "minutes",
+    "unit_hour": "hour",
+    "unit_hours": "hours",
+    "unit_day": "day",
+    "unit_days": "days",
+    "author_label": "Author",
+    "last_login_label": "Last login"
   },
   "it": {
     "wz_zip_label": "Codice Sorgente Iniziale (File .ZIP)",
@@ -4488,7 +4586,56 @@
     "notif_copied_clipboard": "Copiato negli appunti",
     "notif_content_copied": "Contenuto copiato con successo.",
     "notif_prompt_copied": "Prompt copiato",
-    "notif_prompt_copied_msg": "Prompt principale di avvio copiato negli appunti."
+    "notif_prompt_copied_msg": "Prompt principale di avvio copiato negli appunti.",
+    "service_web_portal": "Portale Web",
+    "service_auth": "Autenticazione",
+    "service_system": "Sistema",
+    "internal_ports": "Porte interne",
+    "btn_restart": "Riavvia",
+    "btn_logs": "Log",
+    "cmd_update_server": "Aggiorna server",
+    "cmd_update_server_sub": "Script di produzione",
+    "cmd_git_pull_sub": "Sincronizza con token",
+    "cmd_restart_stack_sub": "Riavvia servizi",
+    "cmd_docker_prune_sub": "Pulisci cache orfana",
+    "cmd_docker_stats_sub": "Consumo CPU / RAM",
+    "terminal_welcome_1": "Console Web Deploy Center [v3.0]",
+    "terminal_welcome_2": "Digita un comando bash e premi Invio oppure fai clic su Esegui.",
+    "terminal_ready": "Pronto per i comandi.",
+    "terminal_input_placeholder": "Digita un comando bash (es: docker ps o curl ...)...",
+    "btn_execute": "Esegui",
+    "all_containers_option": "📦 Tutti i container",
+    "all_levels_option": "Tutti i livelli",
+    "only_errors_option": "🔴 Solo errori",
+    "warn_errors_option": "🟡 Avvisi ed errori",
+    "filter_text_placeholder": "Filtra testo...",
+    "th_file": "File",
+    "th_date": "Data",
+    "btn_restore": "Ripristina",
+    "btn_download": "Scarica",
+    "no_backups_found": "Nessun file di backup ancora generato.",
+    "empty_folder_notice": "Questa cartella è vuota",
+    "btn_clear_search": "Cancella ricerca",
+    "btn_clear_filters": "Cancella filtri",
+    "no_subfolders_found": "Nessuna sottocartella trovata in questo percorso.",
+    "no_versions_found": "Nessuna versione trovata.",
+    "no_containers_found": "Nessun container attivo trovato per questo progetto.",
+    "status_up": "Attivo da",
+    "status_healthy": "integro",
+    "status_unhealthy": "non integro",
+    "status_starting": "in avvio",
+    "status_exited": "Terminato",
+    "time_ago": "fa",
+    "unit_second": "secondo",
+    "unit_seconds": "secondi",
+    "unit_minute": "minuto",
+    "unit_minutes": "minuti",
+    "unit_hour": "ora",
+    "unit_hours": "ore",
+    "unit_day": "giorno",
+    "unit_days": "giorni",
+    "author_label": "Autore",
+    "last_login_label": "Ultimo accesso"
   },
   "de": {
     "wz_zip_label": "Initialer Quellcode (.ZIP-Datei)",
@@ -4872,7 +5019,56 @@
     "notif_copied_clipboard": "In die Zwischenablage kopiert",
     "notif_content_copied": "Inhalt erfolgreich kopiert.",
     "notif_prompt_copied": "Prompt kopiert",
-    "notif_prompt_copied_msg": "Master-Bootstrap-Prompt in die Zwischenablage kopiert."
+    "notif_prompt_copied_msg": "Master-Bootstrap-Prompt in die Zwischenablage kopiert.",
+    "service_web_portal": "Webportal",
+    "service_auth": "Authentifizierung",
+    "service_system": "System",
+    "internal_ports": "Interne Ports",
+    "btn_restart": "Neustarten",
+    "btn_logs": "Protokolle",
+    "cmd_update_server": "Server aktualisieren",
+    "cmd_update_server_sub": "Produktionsskript",
+    "cmd_git_pull_sub": "Mit Token synchronisieren",
+    "cmd_restart_stack_sub": "Dienste neustarten",
+    "cmd_docker_prune_sub": "Verwaisten Cache bereinigen",
+    "cmd_docker_stats_sub": "CPU- / RAM-Verbrauch",
+    "terminal_welcome_1": "Deploy Center Webkonsole [v3.0]",
+    "terminal_welcome_2": "Geben Sie einen Bash-Befehl ein und drücken Sie Enter oder klicken Sie auf Ausführen.",
+    "terminal_ready": "Bereit für Befehle.",
+    "terminal_input_placeholder": "Geben Sie einen Bash-Befehl ein (z. B. docker ps oder curl ...)...",
+    "btn_execute": "Ausführen",
+    "all_containers_option": "📦 Alle Container",
+    "all_levels_option": "Alle Stufen",
+    "only_errors_option": "🔴 Nur Fehler",
+    "warn_errors_option": "🟡 Warnungen & Fehler",
+    "filter_text_placeholder": "Text filtern...",
+    "th_file": "Datei",
+    "th_date": "Datum",
+    "btn_restore": "Wiederherstellen",
+    "btn_download": "Herunterladen",
+    "no_backups_found": "Noch keine Sicherungsdateien erstellt.",
+    "empty_folder_notice": "Dieser Ordner ist leer",
+    "btn_clear_search": "Suche löschen",
+    "btn_clear_filters": "Filter zurücksetzen",
+    "no_subfolders_found": "Keine Unterordner in diesem Pfad gefunden.",
+    "no_versions_found": "Keine Versionen gefunden.",
+    "no_containers_found": "Keine aktiven Container für dieses Projekt gefunden.",
+    "status_up": "Aktiv seit",
+    "status_healthy": "gesund",
+    "status_unhealthy": "ungesund",
+    "status_starting": "startet",
+    "status_exited": "Beendet",
+    "time_ago": "vor",
+    "unit_second": "Sekunde",
+    "unit_seconds": "Sekunden",
+    "unit_minute": "Minute",
+    "unit_minutes": "Minuten",
+    "unit_hour": "Stunde",
+    "unit_hours": "Stunden",
+    "unit_day": "Tag",
+    "unit_days": "Tage",
+    "author_label": "Autor",
+    "last_login_label": "Letzte Anmeldung"
   },
   "de-AT": {
     "wz_zip_label": "Initialer Quellcode (.ZIP-Datei)",
@@ -5256,7 +5452,56 @@
     "notif_copied_clipboard": "In die Zwischenablage kopiert",
     "notif_content_copied": "Inhalt erfolgreich kopiert.",
     "notif_prompt_copied": "Prompt kopiert",
-    "notif_prompt_copied_msg": "Master-Bootstrap-Prompt in die Zwischenablage kopiert."
+    "notif_prompt_copied_msg": "Master-Bootstrap-Prompt in die Zwischenablage kopiert.",
+    "service_web_portal": "Webportal",
+    "service_auth": "Authentifizierung",
+    "service_system": "System",
+    "internal_ports": "Interne Ports",
+    "btn_restart": "Neustarten",
+    "btn_logs": "Protokolle",
+    "cmd_update_server": "Server aktualisieren",
+    "cmd_update_server_sub": "Produktionsskript",
+    "cmd_git_pull_sub": "Mit Token synchronisieren",
+    "cmd_restart_stack_sub": "Dienste neustarten",
+    "cmd_docker_prune_sub": "Verwaisten Cache bereinigen",
+    "cmd_docker_stats_sub": "CPU- / RAM-Verbrauch",
+    "terminal_welcome_1": "Deploy Center Webkonsole [v3.0]",
+    "terminal_welcome_2": "Geben Sie einen Bash-Befehl ein und drücken Sie Enter oder klicken Sie auf Ausführen.",
+    "terminal_ready": "Bereit für Befehle.",
+    "terminal_input_placeholder": "Geben Sie einen Bash-Befehl ein (z. B. docker ps oder curl ...)...",
+    "btn_execute": "Ausführen",
+    "all_containers_option": "📦 Alle Container",
+    "all_levels_option": "Alle Stufen",
+    "only_errors_option": "🔴 Nur Fehler",
+    "warn_errors_option": "🟡 Warnungen & Fehler",
+    "filter_text_placeholder": "Text filtern...",
+    "th_file": "Datei",
+    "th_date": "Datum",
+    "btn_restore": "Wiederherstellen",
+    "btn_download": "Herunterladen",
+    "no_backups_found": "Noch keine Sicherungsdateien erstellt.",
+    "empty_folder_notice": "Dieser Ordner ist leer",
+    "btn_clear_search": "Suche löschen",
+    "btn_clear_filters": "Filter zurücksetzen",
+    "no_subfolders_found": "Keine Unterordner in diesem Pfad gefunden.",
+    "no_versions_found": "Keine Versionen gefunden.",
+    "no_containers_found": "Keine aktiven Container für dieses Projekt gefunden.",
+    "status_up": "Aktiv seit",
+    "status_healthy": "gesund",
+    "status_unhealthy": "ungesund",
+    "status_starting": "startet",
+    "status_exited": "Beendet",
+    "time_ago": "vor",
+    "unit_second": "Sekunde",
+    "unit_seconds": "Sekunden",
+    "unit_minute": "Minute",
+    "unit_minutes": "Minuten",
+    "unit_hour": "Stunde",
+    "unit_hours": "Stunden",
+    "unit_day": "Tag",
+    "unit_days": "Tage",
+    "author_label": "Autor",
+    "last_login_label": "Letzte Anmeldung"
   },
   "nl": {
     "wz_zip_label": "Initiële Broncode (.ZIP-bestand)",
@@ -5665,7 +5910,56 @@
     "notif_copied_clipboard": "Gekopieerd naar klembord",
     "notif_content_copied": "Inhoud succesvol gekopieerd.",
     "notif_prompt_copied": "Prompt gekopieerd",
-    "notif_prompt_copied_msg": "Master bootstrap-prompt gekopieerd naar klembord."
+    "notif_prompt_copied_msg": "Master bootstrap-prompt gekopieerd naar klembord.",
+    "service_web_portal": "Webportaal",
+    "service_auth": "Authenticatie",
+    "service_system": "Systeem",
+    "internal_ports": "Interne poorten",
+    "btn_restart": "Herstarten",
+    "btn_logs": "Logs",
+    "cmd_update_server": "Server bijwerken",
+    "cmd_update_server_sub": "Productiescript",
+    "cmd_git_pull_sub": "Synchroniseren met token",
+    "cmd_restart_stack_sub": "Services herstarten",
+    "cmd_docker_prune_sub": "Verweesde cache opschonen",
+    "cmd_docker_stats_sub": "CPU / RAM-verbruik",
+    "terminal_welcome_1": "Deploy Center Webconsole [v3.0]",
+    "terminal_welcome_2": "Typ een bash-opdracht en druk op Enter of klik op Uitvoeren.",
+    "terminal_ready": "Klaar voor opdrachten.",
+    "terminal_input_placeholder": "Typ een bash-opdracht (bijv. docker ps of curl ...)...",
+    "btn_execute": "Uitvoeren",
+    "all_containers_option": "📦 Alle containers",
+    "all_levels_option": "Alle niveaus",
+    "only_errors_option": "🔴 Alleen fouten",
+    "warn_errors_option": "🟡 Waarschuwingen & fouten",
+    "filter_text_placeholder": "Tekst filteren...",
+    "th_file": "Bestand",
+    "th_date": "Datum",
+    "btn_restore": "Herstellen",
+    "btn_download": "Downloaden",
+    "no_backups_found": "Nog geen back-upbestanden gegenereerd.",
+    "empty_folder_notice": "Deze map is leeg",
+    "btn_clear_search": "Zoekopdracht wissen",
+    "btn_clear_filters": "Filters wissen",
+    "no_subfolders_found": "Geen submappen gevonden in dit pad.",
+    "no_versions_found": "Geen versies gevonden.",
+    "no_containers_found": "Geen actieve containers gevonden voor dit project.",
+    "status_up": "Actief sinds",
+    "status_healthy": "gezond",
+    "status_unhealthy": "ongezond",
+    "status_starting": "starten",
+    "status_exited": "Gestopt",
+    "time_ago": "geleden",
+    "unit_second": "seconde",
+    "unit_seconds": "seconden",
+    "unit_minute": "minuut",
+    "unit_minutes": "minuten",
+    "unit_hour": "uur",
+    "unit_hours": "uur",
+    "unit_day": "dag",
+    "unit_days": "dagen",
+    "author_label": "Auteur",
+    "last_login_label": "Laatste login"
   },
   "el": {
     "wz_zip_label": "Αρχικός Πηγαίος Κώδικας (Αρχείο .ZIP)",
@@ -6074,7 +6368,56 @@
     "notif_copied_clipboard": "Αντιγράφηκε στο πρόχειρο",
     "notif_content_copied": "Το περιεχόμενο αντιγράφηκε με επιτυχία.",
     "notif_prompt_copied": "Το prompt αντιγράφηκε",
-    "notif_prompt_copied_msg": "Το κύριο prompt εκκίνησης αντιγράφηκε στο πρόχειρο."
+    "notif_prompt_copied_msg": "Το κύριο prompt εκκίνησης αντιγράφηκε στο πρόχειρο.",
+    "service_web_portal": "Διαδικτυακή Πύλη",
+    "service_auth": "Έλεγχος ταυτότητας",
+    "service_system": "Σύστημα",
+    "internal_ports": "Εσωτερικές θύρες",
+    "btn_restart": "Επανεκκίνηση",
+    "btn_logs": "Αρχεία καταγραφής",
+    "cmd_update_server": "Ενημέρωση διακομιστή",
+    "cmd_update_server_sub": "Σενάριο παραγωγής",
+    "cmd_git_pull_sub": "Συγχρονισμός με Token",
+    "cmd_restart_stack_sub": "Επανεκκίνηση υπηρεσιών",
+    "cmd_docker_prune_sub": "Εκκαθάριση ορφανής μνήμης",
+    "cmd_docker_stats_sub": "Χρήση CPU / RAM",
+    "terminal_welcome_1": "Κονσόλα Web Deploy Center [v3.0]",
+    "terminal_welcome_2": "Πληκτρολογήστε μια εντολή bash και πατήστε Enter ή Εκτέλεση.",
+    "terminal_ready": "Έτοιμο για εντολές.",
+    "terminal_input_placeholder": "Πληκτρολογήστε μια εντολή bash (π.χ. docker ps ή curl ...)...",
+    "btn_execute": "Εκτέλεση",
+    "all_containers_option": "📦 Όλα τα κοντέινερ",
+    "all_levels_option": "Όλα τα επίπεδα",
+    "only_errors_option": "🔴 Μόνο σφάλματα",
+    "warn_errors_option": "🟡 Προειδοποιήσεις & Σφάλματα",
+    "filter_text_placeholder": "Φιλτράρισμα κειμένου...",
+    "th_file": "Αρχείο",
+    "th_date": "Ημερομηνία",
+    "btn_restore": "Επαναφορά",
+    "btn_download": "Λήψη",
+    "no_backups_found": "Δεν έχουν δημιουργηθεί αντίγραφα ασφαλείας ακόμα.",
+    "empty_folder_notice": "Αυτός ο φάκελος είναι άδειος",
+    "btn_clear_search": "Εκκαθάριση αναζήτησης",
+    "btn_clear_filters": "Εκκαθάριση φίλτρων",
+    "no_subfolders_found": "Δεν βρέθηκαν υποφάκελοι σε αυτήν τη διαδρομή.",
+    "no_versions_found": "Δεν βρέθηκαν εκδόσεις.",
+    "no_containers_found": "Δεν βρέθηκαν ενεργά κοντέινερ για αυτό το έργο.",
+    "status_up": "Ενεργό εδώ και",
+    "status_healthy": "υγιές",
+    "status_unhealthy": "μη υγιές",
+    "status_starting": "εκκίνηση",
+    "status_exited": "Τερματίστηκε",
+    "time_ago": "πριν",
+    "unit_second": "δευτερόλεπτο",
+    "unit_seconds": "δευτερόλεπτα",
+    "unit_minute": "λεπτό",
+    "unit_minutes": "λεπτά",
+    "unit_hour": "ώρα",
+    "unit_hours": "ώρες",
+    "unit_day": "ημέρα",
+    "unit_days": "ημέρες",
+    "author_label": "Συγγραφέας",
+    "last_login_label": "Τελευταία σύνδεση"
   },
   "pl": {
     "wz_zip_label": "Początkowy Kod Źródłowy (Plik .ZIP)",
@@ -6483,7 +6826,56 @@
     "notif_copied_clipboard": "Skopiowano do schowka",
     "notif_content_copied": "Treść została pomyślnie skopiowana.",
     "notif_prompt_copied": "Prompt skopiowany",
-    "notif_prompt_copied_msg": "Główny prompt startowy skopiowany do schowka."
+    "notif_prompt_copied_msg": "Główny prompt startowy skopiowany do schowka.",
+    "service_web_portal": "Portal internetowy",
+    "service_auth": "Uwierzytelnianie",
+    "service_system": "System",
+    "internal_ports": "Porty wewnętrzne",
+    "btn_restart": "Uruchom ponownie",
+    "btn_logs": "Dzienniki",
+    "cmd_update_server": "Aktualizuj serwer",
+    "cmd_update_server_sub": "Skrypt produkcyjny",
+    "cmd_git_pull_sub": "Synchronizuj z tokenem",
+    "cmd_restart_stack_sub": "Zrestartuj usługi",
+    "cmd_docker_prune_sub": "Wyczyść osieroconą pamięć",
+    "cmd_docker_stats_sub": "Zużycie CPU / RAM",
+    "terminal_welcome_1": "Konsola internetowa Deploy Center [v3.0]",
+    "terminal_welcome_2": "Wpisz polecenie bash i naciśnij Enter lub kliknij Wykonaj.",
+    "terminal_ready": "Gotowy na polecenia.",
+    "terminal_input_placeholder": "Wpisz polecenie bash (np. docker ps lub curl ...)...",
+    "btn_execute": "Uruchom",
+    "all_containers_option": "📦 Wszystkie kontenery",
+    "all_levels_option": "Wszystkie poziomy",
+    "only_errors_option": "🔴 Tylko błędy",
+    "warn_errors_option": "🟡 Ostrzeżenia i błędy",
+    "filter_text_placeholder": "Filtruj tekst...",
+    "th_file": "Plik",
+    "th_date": "Data",
+    "btn_restore": "Przywróć",
+    "btn_download": "Pobierz",
+    "no_backups_found": "Nie wygenerowano jeszcze żadnych kopii zapasowych.",
+    "empty_folder_notice": "Ten folder jest pusty",
+    "btn_clear_search": "Wyczyść wyszukiwanie",
+    "btn_clear_filters": "Wyczyść filtry",
+    "no_subfolders_found": "Nie znaleziono podfolderów w tej ścieżce.",
+    "no_versions_found": "Nie znaleziono wersji.",
+    "no_containers_found": "Nie znaleziono aktywnych kontenerów dla tego projektu.",
+    "status_up": "Aktywny od",
+    "status_healthy": "zdrowy",
+    "status_unhealthy": "niezdrowy",
+    "status_starting": "uruchamianie",
+    "status_exited": "Zakończono",
+    "time_ago": "temu",
+    "unit_second": "sekunda",
+    "unit_seconds": "sekund",
+    "unit_minute": "minuta",
+    "unit_minutes": "minut",
+    "unit_hour": "godzina",
+    "unit_hours": "godzin",
+    "unit_day": "dzień",
+    "unit_days": "dni",
+    "author_label": "Autor",
+    "last_login_label": "Ostatnie logowanie"
   },
   "ru": {
     "wz_zip_label": "Исходный Код (.ZIP Файл)",
@@ -6892,7 +7284,56 @@
     "notif_copied_clipboard": "Скопировано в буфер обмена",
     "notif_content_copied": "Содержимое успешно скопировано.",
     "notif_prompt_copied": "Промпт скопирован",
-    "notif_prompt_copied_msg": "Главный промпт запуска скопирован в буфер обмена."
+    "notif_prompt_copied_msg": "Главный промпт запуска скопирован в буфер обмена.",
+    "service_web_portal": "Веб-портал",
+    "service_auth": "Аутентификация",
+    "service_system": "Система",
+    "internal_ports": "Внутренние порты",
+    "btn_restart": "Перезапустить",
+    "btn_logs": "Логи",
+    "cmd_update_server": "Обновить сервер",
+    "cmd_update_server_sub": "Продакшн скрипт",
+    "cmd_git_pull_sub": "Синхронизация с токеном",
+    "cmd_restart_stack_sub": "Перезапустить службы",
+    "cmd_docker_prune_sub": "Очистить потерянный кэш",
+    "cmd_docker_stats_sub": "Расход CPU / RAM",
+    "terminal_welcome_1": "Веб-консоль Deploy Center [v3.0]",
+    "terminal_welcome_2": "Введите команду bash и нажмите Enter или кнопку «Выполнить».",
+    "terminal_ready": "Готов к командам.",
+    "terminal_input_placeholder": "Введите команду bash (напр. docker ps или curl ...)...",
+    "btn_execute": "Выполнить",
+    "all_containers_option": "📦 Все контейнеры",
+    "all_levels_option": "Все уровни",
+    "only_errors_option": "🔴 Только ошибки",
+    "warn_errors_option": "🟡 Предупреждения и ошибки",
+    "filter_text_placeholder": "Фильтр по тексту...",
+    "th_file": "Файл",
+    "th_date": "Дата",
+    "btn_restore": "Восстановить",
+    "btn_download": "Скачать",
+    "no_backups_found": "Файлы резервных копий еще не созданы.",
+    "empty_folder_notice": "Эта папка пуста",
+    "btn_clear_search": "Очистить поиск",
+    "btn_clear_filters": "Сбросить фильтры",
+    "no_subfolders_found": "В этом пути не найдено подпапок.",
+    "no_versions_found": "Версии не найдены.",
+    "no_containers_found": "Для этого проекта не найдено активных контейнеров.",
+    "status_up": "Работает",
+    "status_healthy": "исправен",
+    "status_unhealthy": "неисправен",
+    "status_starting": "запуск",
+    "status_exited": "Завершен",
+    "time_ago": "назад",
+    "unit_second": "секунда",
+    "unit_seconds": "секунд",
+    "unit_minute": "минута",
+    "unit_minutes": "минут",
+    "unit_hour": "час",
+    "unit_hours": "часов",
+    "unit_day": "день",
+    "unit_days": "дней",
+    "author_label": "Автор",
+    "last_login_label": "Последний вход"
   },
   "zh": {
     "wz_zip_label": "初始源代码（.ZIP 文件）",
@@ -7301,7 +7742,56 @@
     "notif_copied_clipboard": "已复制到剪贴板",
     "notif_content_copied": "内容已成功复制。",
     "notif_prompt_copied": "提示词已复制",
-    "notif_prompt_copied_msg": "主启动提示词已复制到剪贴板。"
+    "notif_prompt_copied_msg": "主启动提示词已复制到剪贴板。",
+    "service_web_portal": "Web 门户",
+    "service_auth": "身份验证",
+    "service_system": "系统",
+    "internal_ports": "内部端口",
+    "btn_restart": "重启",
+    "btn_logs": "日志",
+    "cmd_update_server": "更新服务器",
+    "cmd_update_server_sub": "生产脚本",
+    "cmd_git_pull_sub": "使用 Token 同步",
+    "cmd_restart_stack_sub": "重启服务",
+    "cmd_docker_prune_sub": "清理孤立缓存",
+    "cmd_docker_stats_sub": "CPU / 内存占用",
+    "terminal_welcome_1": "Deploy Center Web 控制台 [v3.0]",
+    "terminal_welcome_2": "输入 bash 命令并按 Enter 或点击运行。",
+    "terminal_ready": "已就绪，等待命令。",
+    "terminal_input_placeholder": "输入 bash 命令（例如：docker ps 或 curl ...）...",
+    "btn_execute": "运行",
+    "all_containers_option": "📦 所有容器",
+    "all_levels_option": "所有级别",
+    "only_errors_option": "🔴 仅限错误",
+    "warn_errors_option": "🟡 警告与错误",
+    "filter_text_placeholder": "过滤文本...",
+    "th_file": "文件",
+    "th_date": "日期",
+    "btn_restore": "恢复",
+    "btn_download": "下载",
+    "no_backups_found": "尚未生成备份文件。",
+    "empty_folder_notice": "此文件夹为空",
+    "btn_clear_search": "清除搜索",
+    "btn_clear_filters": "清除筛选",
+    "no_subfolders_found": "在此路径下未找到子文件夹。",
+    "no_versions_found": "未找到版本。",
+    "no_containers_found": "未找到此项目的活动容器。",
+    "status_up": "运行中",
+    "status_healthy": "健康",
+    "status_unhealthy": "不健康",
+    "status_starting": "启动中",
+    "status_exited": "已退出",
+    "time_ago": "前",
+    "unit_second": "秒",
+    "unit_seconds": "秒",
+    "unit_minute": "分钟",
+    "unit_minutes": "分钟",
+    "unit_hour": "小时",
+    "unit_hours": "小时",
+    "unit_day": "天",
+    "unit_days": "天",
+    "author_label": "作者",
+    "last_login_label": "上次登录"
   },
   "ja": {
     "wz_zip_label": "初期ソースコード (.ZIP ファイル)",
@@ -7710,7 +8200,56 @@
     "notif_copied_clipboard": "クリップボードにコピーしました",
     "notif_content_copied": "コンテンツを正常にコピーしました。",
     "notif_prompt_copied": "プロンプトをコピーしました",
-    "notif_prompt_copied_msg": "マスターブートストラッププロンプトをクリップボードにコピーしました。"
+    "notif_prompt_copied_msg": "マスターブートストラッププロンプトをクリップボードにコピーしました。",
+    "service_web_portal": "Webポータル",
+    "service_auth": "認証",
+    "service_system": "システム",
+    "internal_ports": "内部ポート",
+    "btn_restart": "再起動",
+    "btn_logs": "ログ",
+    "cmd_update_server": "サーバー更新",
+    "cmd_update_server_sub": "本番スクリプト",
+    "cmd_git_pull_sub": "トークンで同期",
+    "cmd_restart_stack_sub": "サービスを再起動",
+    "cmd_docker_prune_sub": "孤立キャッシュを消去",
+    "cmd_docker_stats_sub": "CPU / RAM 使用量",
+    "terminal_welcome_1": "Deploy Center Webコンソール [v3.0]",
+    "terminal_welcome_2": "bashコマンドを入力し、Enterキーを押すか「実行」をクリックしてください。",
+    "terminal_ready": "コマンド受付準備完了。",
+    "terminal_input_placeholder": "bashコマンドを入力（例: docker ps または curl ...）...",
+    "btn_execute": "実行",
+    "all_containers_option": "📦 すべてのコンテナ",
+    "all_levels_option": "すべてのレベル",
+    "only_errors_option": "🔴 エラーのみ",
+    "warn_errors_option": "🟡 警告とエラー",
+    "filter_text_placeholder": "テキストで絞り込み...",
+    "th_file": "ファイル",
+    "th_date": "日付",
+    "btn_restore": "復元",
+    "btn_download": "ダウンロード",
+    "no_backups_found": "バックアップファイルはまだ生成されていません。",
+    "empty_folder_notice": "このフォルダは空です",
+    "btn_clear_search": "検索をクリア",
+    "btn_clear_filters": "フィルターをクリア",
+    "no_subfolders_found": "このパスにサブフォルダが見つかりません。",
+    "no_versions_found": "バージョンが見つかりません。",
+    "no_containers_found": "このプロジェクトのアクティブなコンテナが見つかりません。",
+    "status_up": "稼働中",
+    "status_healthy": "正常",
+    "status_unhealthy": "異常",
+    "status_starting": "起動中",
+    "status_exited": "停止",
+    "time_ago": "前",
+    "unit_second": "秒",
+    "unit_seconds": "秒",
+    "unit_minute": "分",
+    "unit_minutes": "分",
+    "unit_hour": "時間",
+    "unit_hours": "時間",
+    "unit_day": "日",
+    "unit_days": "日",
+    "author_label": "作成者",
+    "last_login_label": "最終ログイン"
   },
   "sv": {
     "wz_zip_label": "Ursprunglig Källkod (.ZIP-fil)",
@@ -8119,7 +8658,56 @@
     "notif_copied_clipboard": "Kopierat till urklipp",
     "notif_content_copied": "Innehållet har kopierats.",
     "notif_prompt_copied": "Prompt kopierad",
-    "notif_prompt_copied_msg": "Master-startprompt kopierad till urklipp."
+    "notif_prompt_copied_msg": "Master-startprompt kopierad till urklipp.",
+    "service_web_portal": "Webbportal",
+    "service_auth": "Autentisering",
+    "service_system": "System",
+    "internal_ports": "Interna portar",
+    "btn_restart": "Starta om",
+    "btn_logs": "Loggar",
+    "cmd_update_server": "Uppdatera server",
+    "cmd_update_server_sub": "Produktionsskript",
+    "cmd_git_pull_sub": "Synkronisera med token",
+    "cmd_restart_stack_sub": "Starta om tjänster",
+    "cmd_docker_prune_sub": "Rensa överbliven cache",
+    "cmd_docker_stats_sub": "CPU / RAM-användning",
+    "terminal_welcome_1": "Deploy Center Webbkonsol [v3.0]",
+    "terminal_welcome_2": "Skriv ett bash-kommando och tryck på Enter eller klicka på Kör.",
+    "terminal_ready": "Redo för kommandon.",
+    "terminal_input_placeholder": "Skriv ett bash-kommando (t.ex. docker ps eller curl ...)...",
+    "btn_execute": "Kör",
+    "all_containers_option": "📦 Alla containrar",
+    "all_levels_option": "Alla nivåer",
+    "only_errors_option": "🔴 Endast fel",
+    "warn_errors_option": "🟡 Varningar och fel",
+    "filter_text_placeholder": "Filtrera text...",
+    "th_file": "Fil",
+    "th_date": "Datum",
+    "btn_restore": "Återställ",
+    "btn_download": "Ladda ner",
+    "no_backups_found": "Inga säkerhetskopior genererade ännu.",
+    "empty_folder_notice": "Denna mapp är tom",
+    "btn_clear_search": "Rensa sökning",
+    "btn_clear_filters": "Rensa filter",
+    "no_subfolders_found": "Inga undermappar hittades i denna sökväg.",
+    "no_versions_found": "Inga versioner hittades.",
+    "no_containers_found": "Inga aktiva containrar hittades för detta projekt.",
+    "status_up": "Uppe i",
+    "status_healthy": "frisk",
+    "status_unhealthy": "inte frisk",
+    "status_starting": "startar",
+    "status_exited": "Avslutad",
+    "time_ago": "sedan",
+    "unit_second": "sekund",
+    "unit_seconds": "sekunder",
+    "unit_minute": "minut",
+    "unit_minutes": "minuter",
+    "unit_hour": "timme",
+    "unit_hours": "timmar",
+    "unit_day": "dag",
+    "unit_days": "dagar",
+    "author_label": "Författare",
+    "last_login_label": "Senaste inloggning"
   },
   "ro": {
     "wz_zip_label": "Cod Sursă Inițial (Fișier .ZIP)",
@@ -8528,7 +9116,56 @@
     "notif_copied_clipboard": "Copiat în clipboard",
     "notif_content_copied": "Conținut copiat cu succes.",
     "notif_prompt_copied": "Prompt copiat",
-    "notif_prompt_copied_msg": "Promptul principal de pornire a fost copiat în clipboard."
+    "notif_prompt_copied_msg": "Promptul principal de pornire a fost copiat în clipboard.",
+    "service_web_portal": "Portal Web",
+    "service_auth": "Autentificare",
+    "service_system": "Sistem",
+    "internal_ports": "Porturi interne",
+    "btn_restart": "Repornește",
+    "btn_logs": "Jurnale",
+    "cmd_update_server": "Actualizează serverul",
+    "cmd_update_server_sub": "Script de producție",
+    "cmd_git_pull_sub": "Sincronizează cu token",
+    "cmd_restart_stack_sub": "Repornește serviciile",
+    "cmd_docker_prune_sub": "Curăță memoria cache orfană",
+    "cmd_docker_stats_sub": "Consum CPU / RAM",
+    "terminal_welcome_1": "Consolă Web Deploy Center [v3.0]",
+    "terminal_welcome_2": "Scrieți o comandă bash și apăsați Enter sau faceți clic pe Execută.",
+    "terminal_ready": "Gata pentru comenzi.",
+    "terminal_input_placeholder": "Scrieți o comandă bash (ex: docker ps sau curl ...)...",
+    "btn_execute": "Execută",
+    "all_containers_option": "📦 Toate containerele",
+    "all_levels_option": "Toate nivelurile",
+    "only_errors_option": "🔴 Doar erori",
+    "warn_errors_option": "🟡 Avertismente și erori",
+    "filter_text_placeholder": "Filtrează textul...",
+    "th_file": "Fișier",
+    "th_date": "Dată",
+    "btn_restore": "Restaurează",
+    "btn_download": "Descarcă",
+    "no_backups_found": "Nu au fost generate încă fișiere de backup.",
+    "empty_folder_notice": "Acest dosar este gol",
+    "btn_clear_search": "Șterge căutarea",
+    "btn_clear_filters": "Șterge filtrele",
+    "no_subfolders_found": "Nu s-au găsit subdosare în această cale.",
+    "no_versions_found": "Nu s-au găsit versiuni.",
+    "no_containers_found": "Nu s-au găsit containere active pentru acest proiect.",
+    "status_up": "Activ de",
+    "status_healthy": "sănătos",
+    "status_unhealthy": "nesănătos",
+    "status_starting": "în pornire",
+    "status_exited": "Oprit",
+    "time_ago": "în urmă",
+    "unit_second": "secundă",
+    "unit_seconds": "secunde",
+    "unit_minute": "minut",
+    "unit_minutes": "minute",
+    "unit_hour": "oră",
+    "unit_hours": "ore",
+    "unit_day": "zi",
+    "unit_days": "zile",
+    "author_label": "Autor",
+    "last_login_label": "Ultima autentificare"
   },
   "mo": {
     "wz_zip_label": "Cod Sursă Inițial (Fișier .ZIP)",
@@ -8937,7 +9574,56 @@
     "notif_copied_clipboard": "Copiat în clipboard",
     "notif_content_copied": "Conținut copiat cu succes.",
     "notif_prompt_copied": "Prompt copiat",
-    "notif_prompt_copied_msg": "Promptul principal de pornire a fost copiat în clipboard."
+    "notif_prompt_copied_msg": "Promptul principal de pornire a fost copiat în clipboard.",
+    "service_web_portal": "Portal Web",
+    "service_auth": "Autentificare",
+    "service_system": "Sistem",
+    "internal_ports": "Porturi interne",
+    "btn_restart": "Repornește",
+    "btn_logs": "Jurnale",
+    "cmd_update_server": "Actualizează serverul",
+    "cmd_update_server_sub": "Script de producție",
+    "cmd_git_pull_sub": "Sincronizează cu token",
+    "cmd_restart_stack_sub": "Repornește serviciile",
+    "cmd_docker_prune_sub": "Curăță memoria cache orfană",
+    "cmd_docker_stats_sub": "Consum CPU / RAM",
+    "terminal_welcome_1": "Consolă Web Deploy Center [v3.0]",
+    "terminal_welcome_2": "Scrieți o comandă bash și apăsați Enter sau faceți clic pe Execută.",
+    "terminal_ready": "Gata pentru comenzi.",
+    "terminal_input_placeholder": "Scrieți o comandă bash (ex: docker ps sau curl ...)...",
+    "btn_execute": "Execută",
+    "all_containers_option": "📦 Toate containerele",
+    "all_levels_option": "Toate nivelurile",
+    "only_errors_option": "🔴 Doar erori",
+    "warn_errors_option": "🟡 Avertismente și erori",
+    "filter_text_placeholder": "Filtrează textul...",
+    "th_file": "Fișier",
+    "th_date": "Dată",
+    "btn_restore": "Restaurează",
+    "btn_download": "Descarcă",
+    "no_backups_found": "Nu au fost generate încă fișiere de backup.",
+    "empty_folder_notice": "Acest dosar este gol",
+    "btn_clear_search": "Șterge căutarea",
+    "btn_clear_filters": "Șterge filtrele",
+    "no_subfolders_found": "Nu s-au găsit subdosare în această cale.",
+    "no_versions_found": "Nu s-au găsit versiuni.",
+    "no_containers_found": "Nu s-au găsit containere active pentru acest proiect.",
+    "status_up": "Activ de",
+    "status_healthy": "sănătos",
+    "status_unhealthy": "nesănătos",
+    "status_starting": "în pornire",
+    "status_exited": "Oprit",
+    "time_ago": "în urmă",
+    "unit_second": "secundă",
+    "unit_seconds": "secunde",
+    "unit_minute": "minut",
+    "unit_minutes": "minute",
+    "unit_hour": "oră",
+    "unit_hours": "ore",
+    "unit_day": "zi",
+    "unit_days": "zile",
+    "author_label": "Autor",
+    "last_login_label": "Ultima autentificare"
   },
   "es": {
     "wz_zip_label": "Código Fuente Inicial (Archivo .ZIP)",
@@ -9321,7 +10007,56 @@
     "notif_copied_clipboard": "Copiado al Portapapeles",
     "notif_content_copied": "Contenido copiado con éxito.",
     "notif_prompt_copied": "Prompt Copiado",
-    "notif_prompt_copied_msg": "Prompt maestro de arranque copiado al portapapeles."
+    "notif_prompt_copied_msg": "Prompt maestro de arranque copiado al portapapeles.",
+    "service_web_portal": "Portal Web",
+    "service_auth": "Autenticación",
+    "service_system": "Sistema",
+    "internal_ports": "Puertos internos",
+    "btn_restart": "Reiniciar",
+    "btn_logs": "Logs",
+    "cmd_update_server": "Actualizar Servidor",
+    "cmd_update_server_sub": "Script de producción",
+    "cmd_git_pull_sub": "Sincronizar con Token",
+    "cmd_restart_stack_sub": "Reiniciar servicios",
+    "cmd_docker_prune_sub": "Limpiar caché huérfana",
+    "cmd_docker_stats_sub": "Consumo CPU / RAM",
+    "terminal_welcome_1": "Deploy Center Consola Web [v3.0]",
+    "terminal_welcome_2": "Escriba un comando bash y presione Enter o haga clic en Ejecutar.",
+    "terminal_ready": "Listo para comandos.",
+    "terminal_input_placeholder": "Escriba un comando bash (ej: docker ps o curl ...)...",
+    "btn_execute": "Ejecutar",
+    "all_containers_option": "📦 Todos los Contenedores",
+    "all_levels_option": "Todos los Niveles",
+    "only_errors_option": "🔴 Solo Errores",
+    "warn_errors_option": "🟡 Avisos y Errores",
+    "filter_text_placeholder": "Filtrar texto...",
+    "th_file": "Archivo",
+    "th_date": "Fecha",
+    "btn_restore": "Restaurar",
+    "btn_download": "Descargar",
+    "no_backups_found": "Aún no se han generado archivos de copia de seguridad.",
+    "empty_folder_notice": "Esta carpeta está vacía",
+    "btn_clear_search": "Limpiar Búsqueda",
+    "btn_clear_filters": "Limpiar Filtros",
+    "no_subfolders_found": "No se encontraron subcarpetas en esta ruta.",
+    "no_versions_found": "No se encontraron versiones.",
+    "no_containers_found": "No se encontraron contenedores activos para este proyecto.",
+    "status_up": "Activo hace",
+    "status_healthy": "saludable",
+    "status_unhealthy": "no saludable",
+    "status_starting": "iniciando",
+    "status_exited": "Finalizado",
+    "time_ago": "hace",
+    "unit_second": "segundo",
+    "unit_seconds": "segundos",
+    "unit_minute": "minuto",
+    "unit_minutes": "minutos",
+    "unit_hour": "hora",
+    "unit_hours": "horas",
+    "unit_day": "día",
+    "unit_days": "días",
+    "author_label": "Autor",
+    "last_login_label": "Último inicio de sesión"
   },
   "fr": {
     "wz_zip_label": "Code Source Initial (Fichier .ZIP)",
@@ -9705,7 +10440,56 @@
     "notif_copied_clipboard": "Copié dans le presse-papiers",
     "notif_content_copied": "Contenu copié avec succès.",
     "notif_prompt_copied": "Prompt copié",
-    "notif_prompt_copied_msg": "Prompt maître de démarrage copié dans le presse-papiers."
+    "notif_prompt_copied_msg": "Prompt maître de démarrage copié dans le presse-papiers.",
+    "service_web_portal": "Portail Web",
+    "service_auth": "Authentification",
+    "service_system": "Système",
+    "internal_ports": "Ports internes",
+    "btn_restart": "Redémarrer",
+    "btn_logs": "Journaux",
+    "cmd_update_server": "Mettre à jour serveur",
+    "cmd_update_server_sub": "Script de production",
+    "cmd_git_pull_sub": "Synchroniser avec Token",
+    "cmd_restart_stack_sub": "Redémarrer les services",
+    "cmd_docker_prune_sub": "Nettoyer le cache orphelin",
+    "cmd_docker_stats_sub": "Utilisation CPU / RAM",
+    "terminal_welcome_1": "Console Web Deploy Center [v3.0]",
+    "terminal_welcome_2": "Tapez une commande bash et appuyez sur Entrée ou cliquez sur Exécuter.",
+    "terminal_ready": "Prêt pour les commandes.",
+    "terminal_input_placeholder": "Tapez une commande bash (ex. : docker ps ou curl ...)...",
+    "btn_execute": "Exécuter",
+    "all_containers_option": "📦 Tous les conteneurs",
+    "all_levels_option": "Tous les niveaux",
+    "only_errors_option": "🔴 Erreurs uniquement",
+    "warn_errors_option": "🟡 Avertissements & Erreurs",
+    "filter_text_placeholder": "Filtrer le texte...",
+    "th_file": "Fichier",
+    "th_date": "Date",
+    "btn_restore": "Restaurer",
+    "btn_download": "Télécharger",
+    "no_backups_found": "Aucun fichier de sauvegarde généré pour le moment.",
+    "empty_folder_notice": "Ce dossier est vide",
+    "btn_clear_search": "Effacer la recherche",
+    "btn_clear_filters": "Effacer les filtres",
+    "no_subfolders_found": "Aucun sous-dossier trouvé dans ce chemin.",
+    "no_versions_found": "Aucune version trouvée.",
+    "no_containers_found": "Aucun conteneur actif trouvé pour ce projet.",
+    "status_up": "Actif depuis",
+    "status_healthy": "sain",
+    "status_unhealthy": "malsain",
+    "status_starting": "démarrage",
+    "status_exited": "Terminé",
+    "time_ago": "il y a",
+    "unit_second": "seconde",
+    "unit_seconds": "secondes",
+    "unit_minute": "minute",
+    "unit_minutes": "minutes",
+    "unit_hour": "heure",
+    "unit_hours": "heures",
+    "unit_day": "jour",
+    "unit_days": "jours",
+    "author_label": "Auteur",
+    "last_login_label": "Dernière connexion"
   },
   "cs": {
     "wz_zip_label": "Počáteční Zdrojový Kód (Soubor .ZIP)",
@@ -10114,7 +10898,56 @@
     "notif_copied_clipboard": "Zkopírováno do schránky",
     "notif_content_copied": "Obsah byl úspěšně zkopírován.",
     "notif_prompt_copied": "Prompt zkopírován",
-    "notif_prompt_copied_msg": "Hlavní spouštěcí prompt byl zkopírován do schránky."
+    "notif_prompt_copied_msg": "Hlavní spouštěcí prompt byl zkopírován do schránky.",
+    "service_web_portal": "Webový portál",
+    "service_auth": "Autentizace",
+    "service_system": "Systém",
+    "internal_ports": "Interní porty",
+    "btn_restart": "Restartovat",
+    "btn_logs": "Protokoly",
+    "cmd_update_server": "Aktualizovat server",
+    "cmd_update_server_sub": "Produkční skript",
+    "cmd_git_pull_sub": "Synchronizovat s tokenem",
+    "cmd_restart_stack_sub": "Restartovat služby",
+    "cmd_docker_prune_sub": "Vyčistit osiřelou mezipaměť",
+    "cmd_docker_stats_sub": "Využití CPU / RAM",
+    "terminal_welcome_1": "Webová konzole Deploy Center [v3.0]",
+    "terminal_welcome_2": "Napište příkaz bash a stiskněte Enter nebo klikněte na Spustit.",
+    "terminal_ready": "Připraveno pro příkazy.",
+    "terminal_input_placeholder": "Napište příkaz bash (např. docker ps nebo curl ...)...",
+    "btn_execute": "Spustit",
+    "all_containers_option": "📦 Všechny kontejnery",
+    "all_levels_option": "Všechny úrovně",
+    "only_errors_option": "🔴 Pouze chyby",
+    "warn_errors_option": "🟡 Varování a chyby",
+    "filter_text_placeholder": "Filtrovat text...",
+    "th_file": "Soubor",
+    "th_date": "Datum",
+    "btn_restore": "Obnovit",
+    "btn_download": "Stáhnout",
+    "no_backups_found": "Dosud nebyly vytvořeny žádné zálohy.",
+    "empty_folder_notice": "Tato složka je prázdná",
+    "btn_clear_search": "Vymazat hledání",
+    "btn_clear_filters": "Vymazat filtry",
+    "no_subfolders_found": "V této cestě nebyly nalezeny žádné podsložky.",
+    "no_versions_found": "Nebyly nalezeny žádné verze.",
+    "no_containers_found": "Pro tento projekt nebyly nalezeny žádné aktivní kontejnery.",
+    "status_up": "Běží",
+    "status_healthy": "v pořádku",
+    "status_unhealthy": "nezdravý",
+    "status_starting": "spouštění",
+    "status_exited": "Ukončeno",
+    "time_ago": "před",
+    "unit_second": "sekunda",
+    "unit_seconds": "sekund",
+    "unit_minute": "minuta",
+    "unit_minutes": "minut",
+    "unit_hour": "hodina",
+    "unit_hours": "hodin",
+    "unit_day": "den",
+    "unit_days": "dní",
+    "author_label": "Autor",
+    "last_login_label": "Poslední přihlášení"
   },
   "hr": {
     "wz_zip_label": "Početni Izvorni Kod (.ZIP Datoteka)",
@@ -10523,7 +11356,56 @@
     "notif_copied_clipboard": "Kopirano u međuspremnik",
     "notif_content_copied": "Sadržaj je uspješno kopiran.",
     "notif_prompt_copied": "Upit kopiran",
-    "notif_prompt_copied_msg": "Glavni početni upit kopiran je u međuspremnik."
+    "notif_prompt_copied_msg": "Glavni početni upit kopiran je u međuspremnik.",
+    "service_web_portal": "Web portal",
+    "service_auth": "Provjera autentičnosti",
+    "service_system": "Sustav",
+    "internal_ports": "Interni priključci",
+    "btn_restart": "Ponovno pokreni",
+    "btn_logs": "Zapisnici",
+    "cmd_update_server": "Ažuriraj poslužitelj",
+    "cmd_update_server_sub": "Produkcijska skripta",
+    "cmd_git_pull_sub": "Sinkroniziraj s tokenom",
+    "cmd_restart_stack_sub": "Ponovno pokreni usluge",
+    "cmd_docker_prune_sub": "Očisti napuštenu predmemoriju",
+    "cmd_docker_stats_sub": "Potrošnja CPU / RAM-a",
+    "terminal_welcome_1": "Web konzola Deploy Center [v3.0]",
+    "terminal_welcome_2": "Upišite bash naredbu i pritisnite Enter ili kliknite Pokreni.",
+    "terminal_ready": "Spremno za naredbe.",
+    "terminal_input_placeholder": "Upišite bash naredbu (npr. docker ps ili curl ...)...",
+    "btn_execute": "Pokreni",
+    "all_containers_option": "📦 Svi spremnici",
+    "all_levels_option": "Sve razine",
+    "only_errors_option": "🔴 Samo pogreške",
+    "warn_errors_option": "🟡 Upozorenja i pogreške",
+    "filter_text_placeholder": "Filtriraj tekst...",
+    "th_file": "Datoteka",
+    "th_date": "Datum",
+    "btn_restore": "Vrati",
+    "btn_download": "Preuzmi",
+    "no_backups_found": "Još nisu generirane sigurnosne kopije.",
+    "empty_folder_notice": "Ova mapa je prazna",
+    "btn_clear_search": "Očisti pretragu",
+    "btn_clear_filters": "Očisti filtre",
+    "no_subfolders_found": "Nisu pronađene podmape na ovoj putanji.",
+    "no_versions_found": "Nisu pronađene verzije.",
+    "no_containers_found": "Nisu pronađeni aktivni spremnici za ovaj projekt.",
+    "status_up": "Radi već",
+    "status_healthy": "ispravno",
+    "status_unhealthy": "neispravno",
+    "status_starting": "pokretanje",
+    "status_exited": "Prekinuto",
+    "time_ago": "prije",
+    "unit_second": "sekunda",
+    "unit_seconds": "sekundi",
+    "unit_minute": "minuta",
+    "unit_minutes": "minuta",
+    "unit_hour": "sat",
+    "unit_hours": "sati",
+    "unit_day": "dan",
+    "unit_days": "dana",
+    "author_label": "Autor",
+    "last_login_label": "Zadnja prijava"
   },
   "da": {
     "wz_zip_label": "Indledende Kildekode (.ZIP Fil)",
@@ -10932,7 +11814,56 @@
     "notif_copied_clipboard": "Kopieret til udklipsholder",
     "notif_content_copied": "Indhold kopieret.",
     "notif_prompt_copied": "Prompt kopieret",
-    "notif_prompt_copied_msg": "Hovedopstartsprompt kopieret til udklipsholder."
+    "notif_prompt_copied_msg": "Hovedopstartsprompt kopieret til udklipsholder.",
+    "service_web_portal": "Webportal",
+    "service_auth": "Godkendelse",
+    "service_system": "System",
+    "internal_ports": "Interne porte",
+    "btn_restart": "Genstart",
+    "btn_logs": "Logs",
+    "cmd_update_server": "Opdater server",
+    "cmd_update_server_sub": "Produktionsscript",
+    "cmd_git_pull_sub": "Synkroniser med token",
+    "cmd_restart_stack_sub": "Genstart tjenester",
+    "cmd_docker_prune_sub": "Ryd forældreløs cache",
+    "cmd_docker_stats_sub": "CPU- / RAM-forbrug",
+    "terminal_welcome_1": "Deploy Center Webkonsol [v3.0]",
+    "terminal_welcome_2": "Indtast en bash-kommando, og tryk på Enter eller klik på Kør.",
+    "terminal_ready": "Klar til kommandoer.",
+    "terminal_input_placeholder": "Indtast en bash-kommando (f.eks. docker ps eller curl ...)...",
+    "btn_execute": "Kør",
+    "all_containers_option": "📦 Alle containere",
+    "all_levels_option": "Alle niveauer",
+    "only_errors_option": "🔴 Kun fejl",
+    "warn_errors_option": "🟡 Advarsler og fejl",
+    "filter_text_placeholder": "Filtrer tekst...",
+    "th_file": "Fil",
+    "th_date": "Dato",
+    "btn_restore": "Gendan",
+    "btn_download": "Download",
+    "no_backups_found": "Ingen sikkerhedskopier oprettet endnu.",
+    "empty_folder_notice": "Denne mappe er tom",
+    "btn_clear_search": "Ryd søgning",
+    "btn_clear_filters": "Ryd filtre",
+    "no_subfolders_found": "Ingen undermapper fundet på denne sti.",
+    "no_versions_found": "Ingen versioner fundet.",
+    "no_containers_found": "Ingen aktive containere fundet til dette projekt.",
+    "status_up": "Oppe i",
+    "status_healthy": "sund",
+    "status_unhealthy": "usund",
+    "status_starting": "starter",
+    "status_exited": "Afsluttet",
+    "time_ago": "siden",
+    "unit_second": "sekund",
+    "unit_seconds": "sekunder",
+    "unit_minute": "minut",
+    "unit_minutes": "minutter",
+    "unit_hour": "time",
+    "unit_hours": "timer",
+    "unit_day": "dag",
+    "unit_days": "dage",
+    "author_label": "Forfatter",
+    "last_login_label": "Sidste login"
   },
   "sk": {
     "wz_zip_label": "Počiatočný Zdrojový Kód (Súbor .ZIP)",
@@ -11341,7 +12272,56 @@
     "notif_copied_clipboard": "Skopírované do schránky",
     "notif_content_copied": "Obsah bol úspešne skopírovaný.",
     "notif_prompt_copied": "Výzva skopírovaná",
-    "notif_prompt_copied_msg": "Hlavná štartovacia výzva bola skopírovaná do schránky."
+    "notif_prompt_copied_msg": "Hlavná štartovacia výzva bola skopírovaná do schránky.",
+    "service_web_portal": "Webový portál",
+    "service_auth": "Autentifikácia",
+    "service_system": "Systém",
+    "internal_ports": "Interné porty",
+    "btn_restart": "Reštartovať",
+    "btn_logs": "Záznamy",
+    "cmd_update_server": "Aktualizovať server",
+    "cmd_update_server_sub": "Produkčný skript",
+    "cmd_git_pull_sub": "Synchronizovať s tokenom",
+    "cmd_restart_stack_sub": "Reštartovať služby",
+    "cmd_docker_prune_sub": "Vyčistiť osirelú medzipamäť",
+    "cmd_docker_stats_sub": "Využitie CPU / RAM",
+    "terminal_welcome_1": "Webová konzola Deploy Center [v3.0]",
+    "terminal_welcome_2": "Zadajte príkaz bash a stlačte Enter alebo kliknite na Spustiť.",
+    "terminal_ready": "Pripravené na príkazy.",
+    "terminal_input_placeholder": "Zadajte príkaz bash (napr. docker ps alebo curl ...)...",
+    "btn_execute": "Spustiť",
+    "all_containers_option": "📦 Všetky kontajnery",
+    "all_levels_option": "Všetky úrovne",
+    "only_errors_option": "🔴 Iba chyby",
+    "warn_errors_option": "🟡 Upozornenia a chyby",
+    "filter_text_placeholder": "Filtrovať text...",
+    "th_file": "Súbor",
+    "th_date": "Dátum",
+    "btn_restore": "Obnoviť",
+    "btn_download": "Stiahnuť",
+    "no_backups_found": "Zatiaľ neboli vytvorené žiadne zálohy.",
+    "empty_folder_notice": "Tento priečinok je prázdny",
+    "btn_clear_search": "Vymazať vyhľadávanie",
+    "btn_clear_filters": "Vymazať filtre",
+    "no_subfolders_found": "V tejto ceste sa nenašli žiadne podpriečinky.",
+    "no_versions_found": "Nenašli sa žiadne verzie.",
+    "no_containers_found": "Pre tento projekt sa nenašli žiadne aktívne kontajnery.",
+    "status_up": "Beží",
+    "status_healthy": "v poriadku",
+    "status_unhealthy": "nezdravý",
+    "status_starting": "spúšťanie",
+    "status_exited": "Ukončené",
+    "time_ago": "pred",
+    "unit_second": "sekunda",
+    "unit_seconds": "sekúnd",
+    "unit_minute": "minúta",
+    "unit_minutes": "minút",
+    "unit_hour": "hodina",
+    "unit_hours": "hodín",
+    "unit_day": "deň",
+    "unit_days": "dní",
+    "author_label": "Autor",
+    "last_login_label": "Posledné prihlásenie"
   },
   "sl": {
     "wz_zip_label": "Začetna Izvorna Koda (.ZIP Datoteka)",
@@ -11750,7 +12730,56 @@
     "notif_copied_clipboard": "Kopirano v odložišče",
     "notif_content_copied": "Vsebina je bila uspešno kopirana.",
     "notif_prompt_copied": "Poziv kopiran",
-    "notif_prompt_copied_msg": "Glavni začetni poziv je kopiran v odložišče."
+    "notif_prompt_copied_msg": "Glavni začetni poziv je kopiran v odložišče.",
+    "service_web_portal": "Spletni portal",
+    "service_auth": "Avtentikacija",
+    "service_system": "Sistem",
+    "internal_ports": "Notranja vrata",
+    "btn_restart": "Ponovno zaženi",
+    "btn_logs": "Dnevniki",
+    "cmd_update_server": "Posodobi strežnik",
+    "cmd_update_server_sub": "Produkcijski skript",
+    "cmd_git_pull_sub": "Sinhroniziraj z žetonom",
+    "cmd_restart_stack_sub": "Ponovno zaženi storitve",
+    "cmd_docker_prune_sub": "Počisti osiroteli predpomnilnik",
+    "cmd_docker_stats_sub": "Poraba CPU / RAM",
+    "terminal_welcome_1": "Spletna konzola Deploy Center [v3.0]",
+    "terminal_welcome_2": "Vnesite ukaz bash in pritisnite Enter ali kliknite Zaženi.",
+    "terminal_ready": "Pripravljeno za ukaze.",
+    "terminal_input_placeholder": "Vnesite ukaz bash (npr. docker ps ali curl ...)...",
+    "btn_execute": "Zaženi",
+    "all_containers_option": "📦 Vsi vsebniki",
+    "all_levels_option": "Vse ravni",
+    "only_errors_option": "🔴 Samo napake",
+    "warn_errors_option": "🟡 Opozorila in napake",
+    "filter_text_placeholder": "Filtriraj besedilo...",
+    "th_file": "Datoteka",
+    "th_date": "Datum",
+    "btn_restore": "Obnovi",
+    "btn_download": "Prenesi",
+    "no_backups_found": "Varnostne kopije še niso bile ustvarjene.",
+    "empty_folder_notice": "Ta mapa je prazna",
+    "btn_clear_search": "Počisti iskanje",
+    "btn_clear_filters": "Počisti filtre",
+    "no_subfolders_found": "V tej poti ni bilo najdenih podmap.",
+    "no_versions_found": "Ni najdenih različic.",
+    "no_containers_found": "Za ta projekt ni bilo najdenih aktivnih vsebnikov.",
+    "status_up": "Aktiven že",
+    "status_healthy": "zdravo",
+    "status_unhealthy": "nezdravo",
+    "status_starting": "zagon",
+    "status_exited": "Ustavljeno",
+    "time_ago": "nazaj",
+    "unit_second": "sekunda",
+    "unit_seconds": "sekund",
+    "unit_minute": "minuta",
+    "unit_minutes": "minut",
+    "unit_hour": "ura",
+    "unit_hours": "ur",
+    "unit_day": "dan",
+    "unit_days": "dni",
+    "author_label": "Avtor",
+    "last_login_label": "Zadnja prijava"
   },
   "et": {
     "wz_zip_label": "Algne Lähtekood (.ZIP Fail)",
@@ -12159,7 +13188,56 @@
     "notif_copied_clipboard": "Kopeeritud lõikelauale",
     "notif_content_copied": "Sisu on edukalt kopeeritud.",
     "notif_prompt_copied": "Viip kopeeritud",
-    "notif_prompt_copied_msg": "Peamine käivitusviip kopeeriti lõikelauale."
+    "notif_prompt_copied_msg": "Peamine käivitusviip kopeeriti lõikelauale.",
+    "service_web_portal": "Veebiportaal",
+    "service_auth": "Autentimine",
+    "service_system": "Süsteem",
+    "internal_ports": "Sisemised pordid",
+    "btn_restart": "Taaskäivita",
+    "btn_logs": "Logid",
+    "cmd_update_server": "Värskenda serverit",
+    "cmd_update_server_sub": "Toodangu skript",
+    "cmd_git_pull_sub": "Sünkrooni märgiga",
+    "cmd_restart_stack_sub": "Taaskäivita teenused",
+    "cmd_docker_prune_sub": "Puhasta orvuks jäänud vahemälu",
+    "cmd_docker_stats_sub": "CPU / RAM kasutus",
+    "terminal_welcome_1": "Deploy Center veebikonsool [v3.0]",
+    "terminal_welcome_2": "Sisestage bashi käsk ja vajutage sisestusklahvi või klõpsake nuppu Käivita.",
+    "terminal_ready": "Käskudeks valmis.",
+    "terminal_input_placeholder": "Sisestage bashi käsk (nt docker ps või curl ...)...",
+    "btn_execute": "Käivita",
+    "all_containers_option": "📦 Kõik konteinerid",
+    "all_levels_option": "Kõik tasemed",
+    "only_errors_option": "🔴 Ainult vead",
+    "warn_errors_option": "🟡 Hoiatused ja vead",
+    "filter_text_placeholder": "Filtreeri teksti...",
+    "th_file": "Fail",
+    "th_date": "Kuupäev",
+    "btn_restore": "Taasta",
+    "btn_download": "Laadi alla",
+    "no_backups_found": "Varukoopiafaile pole veel loodud.",
+    "empty_folder_notice": "See kaust on tühi",
+    "btn_clear_search": "Tühjenda otsing",
+    "btn_clear_filters": "Tühjenda filtrid",
+    "no_subfolders_found": "Sellest teest ei leitud alamkaustu.",
+    "no_versions_found": "Versioone ei leitud.",
+    "no_containers_found": "Selle projekti jaoks ei leitud aktiivseid konteinereid.",
+    "status_up": "Töötab",
+    "status_healthy": "korras",
+    "status_unhealthy": "mitte korras",
+    "status_starting": "käivitub",
+    "status_exited": "Lõpetatud",
+    "time_ago": "tagasi",
+    "unit_second": "sekund",
+    "unit_seconds": "sekundit",
+    "unit_minute": "minut",
+    "unit_minutes": "minutit",
+    "unit_hour": "tund",
+    "unit_hours": "tundi",
+    "unit_day": "päev",
+    "unit_days": "päeva",
+    "author_label": "Autor",
+    "last_login_label": "Viimane sisselogimine"
   },
   "fi": {
     "wz_zip_label": "Alkuperäinen Lähdekoodi (.ZIP-tiedosto)",
@@ -12568,7 +13646,56 @@
     "notif_copied_clipboard": "Kopioitu leikepöydälle",
     "notif_content_copied": "Sisältö kopioitu onnistuneesti.",
     "notif_prompt_copied": "Kehote kopioitu",
-    "notif_prompt_copied_msg": "Pääaloituskehote kopioitu leikepöydälle."
+    "notif_prompt_copied_msg": "Pääaloituskehote kopioitu leikepöydälle.",
+    "service_web_portal": "Verkkoportaali",
+    "service_auth": "Todennus",
+    "service_system": "Järjestelmä",
+    "internal_ports": "Sisäiset portit",
+    "btn_restart": "Käynnistä uudelleen",
+    "btn_logs": "Lokit",
+    "cmd_update_server": "Päivitä palvelin",
+    "cmd_update_server_sub": "Tuotantoskripti",
+    "cmd_git_pull_sub": "Synkronoi tunnuksella",
+    "cmd_restart_stack_sub": "Käynnistä palvelut uudelleen",
+    "cmd_docker_prune_sub": "Puhdista orpo välimuisti",
+    "cmd_docker_stats_sub": "CPU / RAM -käyttö",
+    "terminal_welcome_1": "Deploy Center -verkkokonsoli [v3.0]",
+    "terminal_welcome_2": "Kirjoita bash-komento ja paina Enter tai napsauta Suorita.",
+    "terminal_ready": "Valmis komennoille.",
+    "terminal_input_placeholder": "Kirjoita bash-komento (esim. docker ps tai curl ...)...",
+    "btn_execute": "Suorita",
+    "all_containers_option": "📦 Kaikki kontit",
+    "all_levels_option": "Kaikki tasot",
+    "only_errors_option": "🔴 Vain virheet",
+    "warn_errors_option": "🟡 Varoitukset ja virheet",
+    "filter_text_placeholder": "Suodata tekstiä...",
+    "th_file": "Tiedosto",
+    "th_date": "Päivämäärä",
+    "btn_restore": "Palauta",
+    "btn_download": "Lataa",
+    "no_backups_found": "Varmuuskopiotiedostoja ei ole vielä luotu.",
+    "empty_folder_notice": "Tämä kansio on tyhjä",
+    "btn_clear_search": "Tyhjennä haku",
+    "btn_clear_filters": "Tyhjennä suodattimet",
+    "no_subfolders_found": "Tältä polulta ei löytynyt alikansioita.",
+    "no_versions_found": "Versioita ei löytynyt.",
+    "no_containers_found": "Tälle projektille ei löytynyt aktiivisia kontteja.",
+    "status_up": "Päällä",
+    "status_healthy": "terve",
+    "status_unhealthy": "epäterve",
+    "status_starting": "käynnistyy",
+    "status_exited": "Päättynyt",
+    "time_ago": "sitten",
+    "unit_second": "sekunti",
+    "unit_seconds": "sekuntia",
+    "unit_minute": "minuutti",
+    "unit_minutes": "minuuttia",
+    "unit_hour": "tunti",
+    "unit_hours": "tuntia",
+    "unit_day": "päivä",
+    "unit_days": "päivää",
+    "author_label": "Tekijä",
+    "last_login_label": "Viimeisin kirjautuminen"
   },
   "hu": {
     "wz_zip_label": "Kezdeti Forráskód (.ZIP Fájl)",
@@ -12977,7 +14104,56 @@
     "notif_copied_clipboard": "Vágólapra másolva",
     "notif_content_copied": "Tartalom sikeresen másolva.",
     "notif_prompt_copied": "Prompt lemásolva",
-    "notif_prompt_copied_msg": "A mester indító prompt a vágólapra másolva."
+    "notif_prompt_copied_msg": "A mester indító prompt a vágólapra másolva.",
+    "service_web_portal": "Webportál",
+    "service_auth": "Hitelesítés",
+    "service_system": "Rendszer",
+    "internal_ports": "Belső portok",
+    "btn_restart": "Újraindítás",
+    "btn_logs": "Naplók",
+    "cmd_update_server": "Szerver frissítése",
+    "cmd_update_server_sub": "Éles parancsfájl",
+    "cmd_git_pull_sub": "Szinkronizálás tokennel",
+    "cmd_restart_stack_sub": "Szolgáltatások újraindítása",
+    "cmd_docker_prune_sub": "Árva gyorsítótár ürítése",
+    "cmd_docker_stats_sub": "CPU / RAM használat",
+    "terminal_welcome_1": "Deploy Center Webkonzol [v3.0]",
+    "terminal_welcome_2": "Írjon be egy bash parancsot, majd nyomja meg az Entert vagy kattintson a Futtatás gombra.",
+    "terminal_ready": "Parancsokra kész.",
+    "terminal_input_placeholder": "Írjon be egy bash parancsot (pl. docker ps vagy curl ...)...",
+    "btn_execute": "Futtatás",
+    "all_containers_option": "📦 Összes konténer",
+    "all_levels_option": "Összes szint",
+    "only_errors_option": "🔴 Csak hibák",
+    "warn_errors_option": "🟡 Figyelmeztetések és hibák",
+    "filter_text_placeholder": "Szöveg szűrése...",
+    "th_file": "Fájl",
+    "th_date": "Dátum",
+    "btn_restore": "Visszaállítás",
+    "btn_download": "Letöltés",
+    "no_backups_found": "Még nem jött létre biztonsági mentés.",
+    "empty_folder_notice": "Ez a mappa üres",
+    "btn_clear_search": "Keresés törlése",
+    "btn_clear_filters": "Szűrők törlése",
+    "no_subfolders_found": "Nem találhatók almappák ezen az elérési úton.",
+    "no_versions_found": "Nem található verzió.",
+    "no_containers_found": "Nem találhatók aktív konténerek ehhez a projekthez.",
+    "status_up": "Fut",
+    "status_healthy": "egészséges",
+    "status_unhealthy": "nem egészséges",
+    "status_starting": "indulás",
+    "status_exited": "Kilépve",
+    "time_ago": "ezelőtt",
+    "unit_second": "másodperc",
+    "unit_seconds": "másodperc",
+    "unit_minute": "perc",
+    "unit_minutes": "perc",
+    "unit_hour": "óra",
+    "unit_hours": "óra",
+    "unit_day": "nap",
+    "unit_days": "nap",
+    "author_label": "Szerző",
+    "last_login_label": "Utolsó bejelentkezés"
   },
   "lv": {
     "wz_zip_label": "Sākotnējais Pirmkods (.ZIP Fails)",
@@ -13386,7 +14562,56 @@
     "notif_copied_clipboard": "Kopēts starpliktuvē",
     "notif_content_copied": "Saturs veiksmīgi nokopēts.",
     "notif_prompt_copied": "Uzaicinājums nokopēts",
-    "notif_prompt_copied_msg": "Galvenais starta uzaicinājums nokopēts starpliktuvē."
+    "notif_prompt_copied_msg": "Galvenais starta uzaicinājums nokopēts starpliktuvē.",
+    "service_web_portal": "Tīmekļa portāls",
+    "service_auth": "Autentifikācija",
+    "service_system": "Sistēma",
+    "internal_ports": "Iekšējie porti",
+    "btn_restart": "Restartēt",
+    "btn_logs": "Žurnāli",
+    "cmd_update_server": "Atjaunināt serveri",
+    "cmd_update_server_sub": "Produkcijas skripts",
+    "cmd_git_pull_sub": "Sinhronizēt ar marķieri",
+    "cmd_restart_stack_sub": "Restartēt pakalpojumus",
+    "cmd_docker_prune_sub": "Iztīrīt bāreņu kešatmiņu",
+    "cmd_docker_stats_sub": "CPU / RAM patēriņš",
+    "terminal_welcome_1": "Deploy Center tīmekļa konsole [v3.0]",
+    "terminal_welcome_2": "Ierakstiet bash komandu un nospiediet Enter vai noklikšķiniet uz Palaist.",
+    "terminal_ready": "Gatavs komandām.",
+    "terminal_input_placeholder": "Ierakstiet bash komandu (piem., docker ps vai curl ...)...",
+    "btn_execute": "Palaist",
+    "all_containers_option": "📦 Visi konteineri",
+    "all_levels_option": "Visi līmeņi",
+    "only_errors_option": "🔴 Tikai kļūdas",
+    "warn_errors_option": "🟡 Brīdinājumi un kļūdas",
+    "filter_text_placeholder": "Filtrēt tekstu...",
+    "th_file": "Fails",
+    "th_date": "Datums",
+    "btn_restore": "Atjaunot",
+    "btn_download": "Lejupielādēt",
+    "no_backups_found": "Vēl nav izveidots neviens dublējuma fails.",
+    "empty_folder_notice": "Šī mape ir tukša",
+    "btn_clear_search": "Notīrīt meklēšanu",
+    "btn_clear_filters": "Notīrīt filtrus",
+    "no_subfolders_found": "Šajā ceļā nav atrasta neviena apakšmape.",
+    "no_versions_found": "Nav atrasta neviena versija.",
+    "no_containers_found": "Šim projektam nav atrasts neviens aktīvs konteiners.",
+    "status_up": "Darbojas",
+    "status_healthy": "veselīgs",
+    "status_unhealthy": "neveselīgs",
+    "status_starting": "startējas",
+    "status_exited": "Apturēts",
+    "time_ago": "pirms",
+    "unit_second": "sekunde",
+    "unit_seconds": "sekundes",
+    "unit_minute": "minūte",
+    "unit_minutes": "minūtes",
+    "unit_hour": "stunda",
+    "unit_hours": "stundas",
+    "unit_day": "diena",
+    "unit_days": "dienas",
+    "author_label": "Autors",
+    "last_login_label": "Pēdējā pieteikšanās"
   },
   "lt": {
     "wz_zip_label": "Pradinis Pirminis Kodas (.ZIP Failas)",
@@ -13795,7 +15020,56 @@
     "notif_copied_clipboard": "Nukopijuota į iškarpinę",
     "notif_content_copied": "Turinys sėkmingai nukopijuotas.",
     "notif_prompt_copied": "Užklausa nukopijuota",
-    "notif_prompt_copied_msg": "Pagrindinė paleidimo užklausa nukopijuota į iškarpinę."
+    "notif_prompt_copied_msg": "Pagrindinė paleidimo užklausa nukopijuota į iškarpinę.",
+    "service_web_portal": "Svetainės portalas",
+    "service_auth": "Autentifikavimas",
+    "service_system": "Sistema",
+    "internal_ports": "Vidiniai prievadai",
+    "btn_restart": "Paleisti iš naujo",
+    "btn_logs": "Žurnalai",
+    "cmd_update_server": "Atnaujinti serverį",
+    "cmd_update_server_sub": "Gamybos scenarijus",
+    "cmd_git_pull_sub": "Sinchronizuoti su raktu",
+    "cmd_restart_stack_sub": "Paleisti paslaugas iš naujo",
+    "cmd_docker_prune_sub": "Išvalyti nenaudojamą talpyklą",
+    "cmd_docker_stats_sub": "CPU / RAM naudojimas",
+    "terminal_welcome_1": "„Deploy Center“ internetinė konsolė [v3.0]",
+    "terminal_welcome_2": "Įveskite „bash“ komandą ir paspauskite „Enter“ arba spustelėkite „Vykdyti“.",
+    "terminal_ready": "Paruošta komandoms.",
+    "terminal_input_placeholder": "Įveskite „bash“ komandą (pvz., docker ps arba curl ...)...",
+    "btn_execute": "Vykdyti",
+    "all_containers_option": "📦 Visi konteineriai",
+    "all_levels_option": "Visi lygiai",
+    "only_errors_option": "🔴 Tik klaidos",
+    "warn_errors_option": "🟡 Įspėjimai ir klaidos",
+    "filter_text_placeholder": "Filtruoti tekstą...",
+    "th_file": "Failas",
+    "th_date": "Data",
+    "btn_restore": "Atkurti",
+    "btn_download": "Atsisiųsti",
+    "no_backups_found": "Atsarginių kopijų failų dar nesukurta.",
+    "empty_folder_notice": "Šis aplankas tuščias",
+    "btn_clear_search": "Išvalyti paiešką",
+    "btn_clear_filters": "Išvalyti filtrus",
+    "no_subfolders_found": "Šiame kelyje poaplankių nerasta.",
+    "no_versions_found": "Versijų nerasta.",
+    "no_containers_found": "Šiam projektui nerasta aktyvių konteinerių.",
+    "status_up": "Veikia",
+    "status_healthy": "sveikas",
+    "status_unhealthy": "nesveikas",
+    "status_starting": "paleidžiama",
+    "status_exited": "Baigta",
+    "time_ago": "prieš",
+    "unit_second": "sekundė",
+    "unit_seconds": "sekundžių",
+    "unit_minute": "minutė",
+    "unit_minutes": "minučių",
+    "unit_hour": "valanda",
+    "unit_hours": "valandų",
+    "unit_day": "diena",
+    "unit_days": "dienų",
+    "author_label": "Autorius",
+    "last_login_label": "Paskutinis prisijungimas"
   },
   "mt": {
     "wz_zip_label": "Kodiċi Sors Inizjali (Fajl .ZIP)",
@@ -14204,7 +15478,56 @@
     "notif_copied_clipboard": "Ikkupjat fil-Clipboard",
     "notif_content_copied": "Kontenut ikkupjat b'suċċess.",
     "notif_prompt_copied": "Prompt Ikkupjat",
-    "notif_prompt_copied_msg": "Prompt ewlieni tal-bidu kkopjat fil-clipboard."
+    "notif_prompt_copied_msg": "Prompt ewlieni tal-bidu kkopjat fil-clipboard.",
+    "service_web_portal": "Portal tal-Web",
+    "service_auth": "Awtentikazzjoni",
+    "service_system": "Sistema",
+    "internal_ports": "Portijiet interni",
+    "btn_restart": "Erġa' ibda",
+    "btn_logs": "Logs",
+    "cmd_update_server": "Aġġorna s-Server",
+    "cmd_update_server_sub": "Skript tal-produzzjoni",
+    "cmd_git_pull_sub": "Sinkronizza bit-Token",
+    "cmd_restart_stack_sub": "Erġa' ibda s-servizzi",
+    "cmd_docker_prune_sub": "Naddaf il-cache orfni",
+    "cmd_docker_stats_sub": "Użu ta' CPU / RAM",
+    "terminal_welcome_1": "Konsol tal-Web Deploy Center [v3.0]",
+    "terminal_welcome_2": "Ikteb kmand bash u agħfas Enter jew ikklikkja Mexxi.",
+    "terminal_ready": "Lest għall-kmandi.",
+    "terminal_input_placeholder": "Ikteb kmand bash (eż: docker ps jew curl ...)...",
+    "btn_execute": "Ħaddem",
+    "all_containers_option": "📦 Il-Kontenituri Kollha",
+    "all_levels_option": "Il-Livelli Kollha",
+    "only_errors_option": "🔴 Żbalji Biss",
+    "warn_errors_option": "🟡 Twissijiet u Żbalji",
+    "filter_text_placeholder": "Iffiltra t-test...",
+    "th_file": "Fajl",
+    "th_date": "Data",
+    "btn_restore": "Irrestawra",
+    "btn_download": "Niżżel",
+    "no_backups_found": "L-ebda fajl ta' backup ma ġie ġġenerat s'issa.",
+    "empty_folder_notice": "Dan il-folder huwa vojt",
+    "btn_clear_search": "Naddaf it-Tfittxija",
+    "btn_clear_filters": "Naddaf il-Filtri",
+    "no_subfolders_found": "L-ebda subfolder ma nstab f'din il-mogħdija.",
+    "no_versions_found": "L-ebda verżjoni ma nstabet.",
+    "no_containers_found": "L-ebda kontenitur attiv ma nstab għal dan il-proġett.",
+    "status_up": "Attiv minn",
+    "status_healthy": "b'saħħtu",
+    "status_unhealthy": "mhux tajjeb",
+    "status_starting": "jibda",
+    "status_exited": "Waqaf",
+    "time_ago": "ilu",
+    "unit_second": "sekonda",
+    "unit_seconds": "sekondi",
+    "unit_minute": "minuta",
+    "unit_minutes": "minuti",
+    "unit_hour": "siegħa",
+    "unit_hours": "sigħat",
+    "unit_day": "ġurnata",
+    "unit_days": "jiem",
+    "author_label": "Awtur",
+    "last_login_label": "L-aħħar login"
   },
   "la": {
     "wz_zip_label": "Primarius Codex Fontis (Fasciculus .ZIP)",
@@ -14613,11 +15936,59 @@
     "notif_copied_clipboard": "In capsam transcriptum",
     "notif_content_copied": "Materia feliciter transcripta.",
     "notif_prompt_copied": "Mandatum transcriptum",
-    "notif_prompt_copied_msg": "Mandatum primarium initii in capsam transcriptum."
+    "notif_prompt_copied_msg": "Mandatum primarium initii in capsam transcriptum.",
+    "service_web_portal": "Porta Interretialis",
+    "service_auth": "Authenticatio",
+    "service_system": "Systema",
+    "internal_ports": "Portae internae",
+    "btn_restart": "Reinitiare",
+    "btn_logs": "Acta",
+    "cmd_update_server": "Servitorium renovare",
+    "cmd_update_server_sub": "Scriptum productionis",
+    "cmd_git_pull_sub": "Cum signo synchronizare",
+    "cmd_restart_stack_sub": "Ministeria reinitiare",
+    "cmd_docker_prune_sub": "Purgare memoriam orbam",
+    "cmd_docker_stats_sub": "Usus CPU / RAM",
+    "terminal_welcome_1": "Consola Interretialis Deploy Center [v3.0]",
+    "terminal_welcome_2": "Scribe mandatum bash et preme Enter vel Exsequi.",
+    "terminal_ready": "Paratus ad mandata.",
+    "terminal_input_placeholder": "Scribe mandatum bash (ex: docker ps vel curl ...)...",
+    "btn_execute": "Exsequi",
+    "all_containers_option": "📦 Omnia Receptacula",
+    "all_levels_option": "Omnes Gradus",
+    "only_errors_option": "🔴 Tantum Errores",
+    "warn_errors_option": "🟡 Monitiones et Errores",
+    "filter_text_placeholder": "Filtrum textus...",
+    "th_file": "Fasciculus",
+    "th_date": "Dies",
+    "btn_restore": "Restaurare",
+    "btn_download": "Depromere",
+    "no_backups_found": "Nulli fasciculi auxiliarii adhuc generati sunt.",
+    "empty_folder_notice": "Hoc scrinium vacuum est",
+    "btn_clear_search": "Purgare inquisitionem",
+    "btn_clear_filters": "Purgare filtra",
+    "no_subfolders_found": "Nulla subscrinia in hac semita inventa sunt.",
+    "no_versions_found": "Nullae versiones inventae sunt.",
+    "no_containers_found": "Nulla receptacula activa pro hoc incepto inventa sunt.",
+    "status_up": "Actum est",
+    "status_healthy": "saluber",
+    "status_unhealthy": "insaluber",
+    "status_starting": "incipiens",
+    "status_exited": "Exiit",
+    "time_ago": "antea",
+    "unit_second": "secundum",
+    "unit_seconds": "secunda",
+    "unit_minute": "minuta",
+    "unit_minutes": "minutae",
+    "unit_hour": "hora",
+    "unit_hours": "horae",
+    "unit_day": "dies",
+    "unit_days": "dies",
+    "author_label": "Auctor",
+    "last_login_label": "Ultimus accessus"
   }
 };
 
-    // Dete????o Autom??tica do Idioma do Navegador
     function detectBrowserLanguage() {
       const saved = localStorage.getItem('deploy_lang');
       if (saved && I18N[saved]) return saved;
@@ -14754,6 +16125,9 @@
       if (typeof renderStorageFiles === 'function') renderStorageFiles();
       if (typeof renderDbTables === 'function') renderDbTables();
       updateLangPickerUI();
+      if (typeof filterCommits === 'function') filterCommits();
+      if (typeof renderContainersList === 'function') renderContainersList();
+      if (typeof fetchDbBackups === 'function') fetchDbBackups();
       const ruleStatus = document.getElementById('rule-save-status'); if (ruleStatus && ruleStatus.textContent.includes('Pronto')) ruleStatus.textContent = t('status_ready_to_edit');
       const skillStatus = document.getElementById('skill-save-status'); if (skillStatus && skillStatus.textContent.includes('Pronto')) skillStatus.textContent = t('status_ready_to_edit');
     }
@@ -17910,7 +19284,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
 
       const container = document.getElementById('commits-list');
       if (filtered.length === 0) {
-        container.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs">Nenhuma versão encontrada.</div>`;
+        container.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs">${t('no_versions_found')}</div>`;
         return;
       }
 
@@ -17923,7 +19297,8 @@ Vamos começar a implementar o primeiro módulo do plano.`;
       const groups = {};
       filtered.forEach((c) => {
         const d = new Date(c.date);
-        const monthYear = isNaN(d) ? 'Outras Versões' : d.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
+        const locale = currentLang === 'mo' ? 'ro-MD' : (currentLang === 'pt-PT' ? 'pt-PT' : currentLang);
+        const monthYear = isNaN(d) ? t('other_versions') : d.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
         const capitalizedMonth = monthYear.charAt(0).toUpperCase() + monthYear.slice(1);
         if (!groups[capitalizedMonth]) groups[capitalizedMonth] = [];
         groups[capitalizedMonth].push(c);
@@ -17961,25 +19336,25 @@ Vamos começar a implementar o primeiro módulo do plano.`;
                         
                         <!-- Badge de Outputs Prontos vs Regenerável -->
                         ${c.has_outputs ? `
-                          <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold text-[10px] border border-emerald-500/20 flex items-center gap-1 shrink-0" title="Outputs compilados prontos em cache local">
-                            <i data-lucide="check-circle-2" class="w-3 h-3"></i> Outputs Prontos
+                          <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold text-[10px] border border-emerald-500/20 flex items-center gap-1 shrink-0" title="${t('tt_cached_builds')}">
+                            <i data-lucide="check-circle-2" class="w-3 h-3"></i> ${t('outputs_ready')}
                           </span>
                         ` : `
-                          <span class="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold text-[10px] border border-amber-500/20 flex items-center gap-1 shrink-0" title="Outputs ausentes ou limpos para economizar espaço. O Deployment Center irá compilá-los automaticamente sob demanda ao fazer deploy.">
-                            <i data-lucide="zap" class="w-3 h-3"></i> Regenerável
+                          <span class="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold text-[10px] border border-amber-500/20 flex items-center gap-1 shrink-0" title="${t('tt_clean_builds')}">
+                            <i data-lucide="zap" class="w-3 h-3"></i> ${t('regenerable')}
                           </span>
                         `}
 
                         <!-- Badges de Estado Visíveis no Próprio Commit -->
                         ${isProd ? `
                           <span class="px-2.5 py-0.5 rounded-full bg-emerald-500 text-white font-extrabold text-[10px] shadow-sm flex items-center gap-1 shrink-0">
-                            <i data-lucide="shield-check" class="w-3 h-3"></i> PRODUÇÃO
+                            <i data-lucide="shield-check" class="w-3 h-3"></i> ${t('status_active_prod') || 'PRODUÇÃO'}
                           </span>
                         ` : ''}
 
                         ${isStaging ? `
                           <span class="px-2.5 py-0.5 rounded-full bg-blue-500 text-white font-extrabold text-[10px] shadow-sm flex items-center gap-1 shrink-0">
-                            <i data-lucide="flask-conical" class="w-3 h-3"></i> TESTES
+                            <i data-lucide="flask-conical" class="w-3 h-3"></i> ${t('status_active_stg') || 'TESTES'}
                           </span>
                         ` : ''}
                       </div>
@@ -17992,7 +19367,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
                       <!-- Linha 3: Autor e Data -->
                       <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-3 flex-wrap">
                         <span class="inline-flex items-center gap-1">👤 ${escapeHtml(c.author)}</span>
-                        <span class="inline-flex items-center gap-1">🕒 ${new Date(c.date).toLocaleString('pt-PT')}</span>
+                        <span class="inline-flex items-center gap-1">🕒 ${new Date(c.date).toLocaleString(currentLang === 'mo' ? 'ro-MD' : (currentLang === 'pt-PT' ? 'pt-PT' : currentLang))}</span>
                       </div>
                     </div>
 
@@ -18002,10 +19377,10 @@ Vamos começar a implementar o primeiro módulo do plano.`;
                         <i data-lucide="info" class="w-4 h-4"></i>
                       </button>
                       <button onclick="openDeployModal('${c.hash}', 'staging')" class="flex-1 sm:flex-initial px-3.5 py-2 sm:py-1.5 rounded-xl ${isStaging ? 'bg-blue-600 text-white font-extrabold shadow-sm' : 'bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-bold border border-blue-500/20'} text-xs transition flex items-center justify-center gap-1.5 active:scale-95">
-                        <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i> Testes
+                        <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i> ${t('th_port_staging_label')}
                       </button>
                       <button onclick="openDeployModal('${c.hash}', 'production')" class="flex-1 sm:flex-initial px-3.5 py-2 sm:py-1.5 rounded-xl ${isProd ? 'bg-emerald-600 text-white font-extrabold shadow-sm' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20'} text-xs transition flex items-center justify-center gap-1.5 active:scale-95">
-                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Produção
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> ${t('th_port_prod_label')}
                       </button>
                     </div>
                   </div>
@@ -18602,6 +19977,28 @@ Fim do Relatório
       } catch (e) {}
     }
 
+    
+    function localizeDockerStatus(status) {
+      if (!status) return '';
+      let s = String(status);
+      s = s.replace(/\bUp\b/g, t('status_up') || 'Up');
+      s = s.replace(/\(healthy\)/gi, `(${t('status_healthy') || 'healthy'})`);
+      s = s.replace(/\(unhealthy\)/gi, `(${t('status_unhealthy') || 'unhealthy'})`);
+      s = s.replace(/\(health:\s*starting\)/gi, `(${t('status_starting') || 'starting'})`);
+      s = s.replace(/\bExited\b/gi, t('status_exited') || 'Exited');
+      s = s.replace(/\bRestarting\b/gi, t('status_restarting') || 'Restarting');
+      s = s.replace(/\bago\b/gi, t('time_ago') || 'ago');
+      s = s.replace(/\bseconds\b/gi, t('unit_seconds') || 'seconds');
+      s = s.replace(/\bsecond\b/gi, t('unit_second') || 'second');
+      s = s.replace(/\bminutes\b/gi, t('unit_minutes') || 'minutes');
+      s = s.replace(/\bminute\b/gi, t('unit_minute') || 'minute');
+      s = s.replace(/\bhours\b/gi, t('unit_hours') || 'hours');
+      s = s.replace(/\bhour\b/gi, t('unit_hour') || 'hour');
+      s = s.replace(/\bdays\b/gi, t('unit_days') || 'days');
+      s = s.replace(/\bday\b/gi, t('unit_day') || 'day');
+      return s;
+    }
+  
     function renderContainersList() {
       const container = document.getElementById('containers-list');
       if (!container) return;
@@ -18617,14 +20014,14 @@ Fim do Relatório
         container.innerHTML = list.map((c) => {
           const isStg = c.name.includes('-staging') || c.name.includes('_staging');
           const isProd = c.name.includes('-prod') || c.name.includes('_prod');
-          const envLabel = isStg ? 'Testes' : (isProd ? 'Prod' : '');
+          const envLabel = isStg ? t('th_port_staging_label') : (isProd ? t('th_port_prod_label') : '');
           const envColor = isStg 
             ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20' 
             : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
 
           let serviceBadge = '';
           if (c.name.includes('-portal-') || c.name.endsWith('-portal') || c.name.includes('-portal')) {
-            serviceBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${envColor} border flex items-center gap-1">🌐 Portal Web (${envLabel || 'App'})</span>`;
+            serviceBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${envColor} border flex items-center gap-1">🌐 ${t('service_web_portal')} (${envLabel || 'App'})</span>`;
           } else if (c.name.includes('-studio-') || c.name.endsWith('-studio')) {
             serviceBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 flex items-center gap-1">📊 Studio (${envLabel || 'DB UI'})</span>`;
           } else if (c.name.includes('-postgres-') || c.name.endsWith('-postgres')) {
@@ -18656,13 +20053,13 @@ Fim do Relatório
                 </div>
                 <div class="flex items-center gap-1.5 flex-wrap justify-end">
                   ${serviceBadge}
-                  <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${c.state === 'running' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}">${c.status}</span>
+                  <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${c.state === 'running' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}">${localizeDockerStatus(c.status)}</span>
                 </div>
               </div>
-              <div class="text-[11px] text-slate-500 font-mono truncate">${c.ports || 'Portas internas'}</div>
+              <div class="text-[11px] text-slate-500 font-mono truncate">${c.ports || t('internal_ports')}</div>
               <div class="flex items-center justify-end gap-2 pt-1">
-                <button onclick="fetchLogs('${c.name}', 'Logs: ${c.name}')" class="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold flex items-center gap-1 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 transition"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Logs</button>
-                <button onclick="restartContainer('${c.name}')" class="px-2.5 py-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-500 text-[11px] font-bold flex items-center gap-1 hover:bg-amber-500/20 active:scale-95 transition"><i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Reiniciar</button>
+                <button onclick="fetchLogs('${c.name}', 'Logs: ${c.name}')" class="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold flex items-center gap-1 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 transition"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> ${t('btn_logs')}</button>
+                <button onclick="restartContainer('${c.name}')" class="px-2.5 py-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-500 text-[11px] font-bold flex items-center gap-1 hover:bg-amber-500/20 active:scale-95 transition"><i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> ${t('btn_restart')}</button>
               </div>
             </div>
           `;
@@ -20548,10 +21945,10 @@ Fim do Relatório
             <table class="w-full text-left text-xs font-mono">
               <thead class="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
                 <tr>
-                  <th class="p-3">Ficheiro</th>
-                  <th class="p-3">Tamanho</th>
-                  <th class="p-3">Data</th>
-                  <th class="p-3 text-right">Ações</th>
+                  <th class="p-3">${t('th_file')}</th>
+                  <th class="p-3">${t('th_size')}</th>
+                  <th class="p-3">${t('th_date')}</th>
+                  <th class="p-3 text-right">${t('th_actions')}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
