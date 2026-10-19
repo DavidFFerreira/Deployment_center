@@ -35,7 +35,7 @@ test('i18n: index.html contains all 28 languages with 100% dictionary completene
   }
 
   const baseKeys = Object.keys(i18n['pt-PT']);
-  assert.ok(baseKeys.length >= 280, `Base pt-PT must have >= 280 keys (found ${baseKeys.length})`);
+  assert.ok(baseKeys.length >= 320, `Base pt-PT must have >= 320 keys (found ${baseKeys.length})`);
 
   for (const code of ALL_28_CODES) {
     const langKeys = Object.keys(i18n[code]);
@@ -47,6 +47,11 @@ test('i18n: index.html contains all 28 languages with 100% dictionary completene
     }
   }
 
+  // Critical navigation functions
+  assert.ok(html.includes('function switchTab('), 'function switchTab defined in index.html');
+  assert.ok(html.includes('function applyTheme('), 'function applyTheme defined in index.html');
+  assert.ok(html.includes('function toggleTheme('), 'function toggleTheme defined in index.html');
+
   // Check critical modal translation keys exist in HTML
   assert.ok(html.includes('data-i18n="terms_modal_title"'), 'terms_modal_title data-i18n present in index.html');
   assert.ok(html.includes('data-i18n="terms_sec1_title"'), 'terms_sec1_title data-i18n present in index.html');
@@ -56,6 +61,12 @@ test('i18n: index.html contains all 28 languages with 100% dictionary completene
   assert.ok(html.includes('data-i18n="wz_modal_title"'), 'wz_modal_title data-i18n present in index.html');
   assert.ok(html.includes('data-i18n="wz_step1_label"'), 'wz_step1_label data-i18n present in index.html');
   assert.ok(html.includes('data-i18n="wz_port_prefix_label"'), 'wz_port_prefix_label data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="header_tagline"'), 'header_tagline data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="lang_menu_title"'), 'lang_menu_title data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="lang_menu_count"'), 'lang_menu_count data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n-title="tt_global_settings"'), 'tt_global_settings data-i18n-title present in index.html');
+  assert.ok(html.includes('data-i18n="api_gen_key_title"'), 'api_gen_key_title data-i18n present in index.html');
+  assert.ok(html.includes('data-i18n="mcp_title"'), 'mcp_title data-i18n present in index.html');
 });
 
 test('i18n: login.html contains all 28 languages and selector options', () => {
