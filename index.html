@@ -342,7 +342,7 @@
         </div>
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 flex-wrap">
-            <h1 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate" id="main-project-name">Carregando Projeto...</h1>
+            <h1 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate" id="main-project-name" data-i18n="loading_project">Carregando Projeto...</h1>
             <button onclick="copyActiveProjectId(event)" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-mono font-semibold bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/20 transition cursor-pointer shrink-0" title="Clique para copiar o ID do Projeto" data-i18n-title="copy_proj_id_title" data-i18n-title="copy_proj_id_title" data-i18n-title="copy_proj_id_title">
               <i data-lucide="tag" class="w-3 h-3 text-purple-500"></i>
               <span>ID: <strong id="main-project-id-badge" class="font-bold">...</strong></span>
@@ -398,10 +398,10 @@
           <div class="p-3.5 rounded-2xl bg-blue-500/5 dark:bg-blue-500/10 border border-blue-500/20 space-y-1.5">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold text-blue-600 dark:text-blue-300" data-i18n="active_version">Versão Ativa:</span>
-              <span id="staging-health-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">A verificar...</span>
+              <span id="staging-health-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400" data-i18n="checking">A verificar...</span>
             </div>
             <div class="flex items-center gap-2">
-              <code class="px-2 py-0.5 rounded bg-blue-500/20 text-sm font-bold font-mono text-blue-600 dark:text-blue-300" id="staging-hash">Carregando...</code>
+              <code class="px-2 py-0.5 rounded bg-blue-500/20 text-sm font-bold font-mono text-blue-600 dark:text-blue-300" id="staging-hash" data-i18n="loading_label">Carregando...</code>
               <p class="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate flex-1" id="staging-msg">-</p>
             </div>
             <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between" id="staging-date-author">
@@ -488,10 +488,10 @@
           <div class="p-3.5 rounded-2xl bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 space-y-1.5">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-300" data-i18n="active_version">Versão Ativa:</span>
-              <span id="prod-health-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">A verificar...</span>
+              <span id="prod-health-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400" data-i18n="checking">A verificar...</span>
             </div>
             <div class="flex items-center gap-2">
-              <code class="px-2 py-0.5 rounded bg-emerald-500/20 text-sm font-bold font-mono text-emerald-600 dark:text-emerald-300" id="prod-hash">Carregando...</code>
+              <code class="px-2 py-0.5 rounded bg-emerald-500/20 text-sm font-bold font-mono text-emerald-600 dark:text-emerald-300" id="prod-hash" data-i18n="loading_label">Carregando...</code>
               <p class="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate flex-1" id="prod-msg">-</p>
             </div>
             <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between" id="prod-date-author">
@@ -684,7 +684,7 @@
           </button>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="containers-list">
-          <div class="text-center py-12 text-slate-500 text-sm col-span-2">A carregar contentores...</div>
+          <div class="text-center py-12 text-slate-500 text-sm col-span-2" data-i18n="loading_containers">A carregar contentores...</div>
         </div>
 
         <!-- Live Log Streamer dos Contentores com Filtros -->
@@ -819,7 +819,7 @@
             </div>
 
             <select id="storage-bucket-select" onchange="loadStorageFiles(this.value, '')" class="text-xs font-bold rounded-xl px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none shadow-sm">
-              <option value="">A carregar buckets...</option>
+              <option value="" data-i18n="loading_buckets">A carregar buckets...</option>
             </select>
             
             <!-- Ações de Ficheiros -->
@@ -1011,7 +1011,7 @@
           </div>
           <!-- Tabela de Backups Disponíveis -->
           <div class="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900/40" id="db-backups-table">
-            <div class="text-center py-8 text-slate-500 text-xs">A carregar lista de backups...</div>
+            <div class="text-center py-8 text-slate-500 text-xs" data-i18n="loading_backups">A carregar lista de backups...</div>
           </div>
         </div>
 
@@ -1065,7 +1065,7 @@
           </div>
 
           <div class="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-x-auto bg-white dark:bg-slate-900/40" id="db-tables-list">
-            <div class="text-center py-8 text-slate-500 text-xs">A carregar tabelas...</div>
+            <div class="text-center py-8 text-slate-500 text-xs" data-i18n="loading_tables">A carregar tabelas...</div>
           </div>
         </div>
       </div>
@@ -1219,7 +1219,7 @@
                 </tr>
               </thead>
               <tbody id="env-table-body" class="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
-                <tr><td colspan="3" class="text-center py-8 text-slate-400 font-sans">A carregar variáveis...</td></tr>
+                <tr><td colspan="3" class="text-center py-8 text-slate-400 font-sans" data-i18n="loading_variables">A carregar variáveis...</td></tr>
               </tbody>
             </table>
           </div>
@@ -1372,7 +1372,7 @@
           <div class="space-y-2">
             <h5 class="font-bold text-xs text-slate-700 dark:text-slate-300 uppercase tracking-wider">Chaves Ativas Registadas</h5>
             <div id="api-keys-list-container" class="space-y-2">
-              <div class="p-4 rounded-xl text-center text-xs text-slate-500">A carregar chaves...</div>
+              <div class="p-4 rounded-xl text-center text-xs text-slate-500" data-i18n="loading_keys">A carregar chaves...</div>
             </div>
           </div>
         </div>
@@ -1662,7 +1662,7 @@
               <i data-lucide="chevron-down" id="deploy-modal-files-chevron" class="w-4 h-4 transition-transform duration-200"></i>
             </button>
             <div id="deploy-modal-files-list-container" class="hidden mt-2 space-y-1 max-h-40 overflow-y-auto p-2 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[11px]">
-              <div class="text-slate-500 text-center py-2">A obter lista de ficheiros...</div>
+              <div class="text-slate-500 text-center py-2" data-i18n="loading_files_list">A obter lista de ficheiros...</div>
             </div>
           </div>
         </div>
@@ -1773,14 +1773,14 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3 pt-1">
           <!-- Coluna 1: Lista das 6 Regras -->
           <div class="md:col-span-4 space-y-1.5" id="rules-selector-list">
-            <div class="text-xs text-slate-500 py-4 text-center">A carregar regras...</div>
+            <div class="text-xs text-slate-500 py-4 text-center" data-i18n="loading_rules">A carregar regras...</div>
           </div>
 
           <!-- Coluna 2: Editor de Texto da Regra Selecionada -->
           <div class="md:col-span-8 space-y-2.5 flex flex-col">
             <div class="p-3 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
               <div class="flex items-center justify-between">
-                <span class="font-extrabold text-xs text-purple-600 dark:text-purple-400" id="rule-active-title">A carregar...</span>
+                <span class="font-extrabold text-xs text-purple-600 dark:text-purple-400" id="rule-active-title" data-i18n="loading_label">A carregar...</span>
                 <span class="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 font-mono text-[10px] font-bold" id="rule-active-file">arquivo.md</span>
               </div>
               <p class="text-[11px] text-slate-500" id="rule-active-desc">-</p>
@@ -1838,7 +1838,7 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3 pt-1">
           <!-- Coluna 1: Lista das Skills Cadastradas -->
           <div class="md:col-span-4 space-y-1.5 max-h-[55vh] overflow-y-auto pr-1" id="skills-selector-list">
-            <div class="text-xs text-slate-500 py-4 text-center">A carregar skills...</div>
+            <div class="text-xs text-slate-500 py-4 text-center" data-i18n="loading_skills">A carregar skills...</div>
           </div>
 
           <!-- Coluna 2: Editor de SKILL.md -->
@@ -1901,7 +1901,7 @@
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="settings-projects-list">
-          <div class="text-center py-6 text-slate-500 text-xs col-span-2">A carregar projetos...</div>
+          <div class="text-center py-6 text-slate-500 text-xs col-span-2" data-i18n="loading_projects">A carregar projetos...</div>
         </div>
       </div>
 
@@ -1914,7 +1914,7 @@
           </button>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="settings-users-list">
-          <div class="text-center py-6 text-slate-500 text-xs col-span-2">A carregar gestores...</div>
+          <div class="text-center py-6 text-slate-500 text-xs col-span-2" data-i18n="loading_users">A carregar gestores...</div>
         </div>
       </div>
 
@@ -2088,7 +2088,7 @@
         <button onclick="closeModal('commit-modal')" class="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <div class="space-y-3 overflow-y-auto flex-1 pr-1 text-xs" id="modal-commit-body">
-        <div class="text-slate-500">A carregar detalhes...</div>
+        <div class="text-slate-500" data-i18n="loading_details">A carregar detalhes...</div>
       </div>
     </div>
   </div>
@@ -2100,7 +2100,7 @@
         <h3 class="font-bold text-sm flex items-center gap-2 text-slate-900 dark:text-white" id="logs-modal-title">Logs do Contentor</h3>
         <button onclick="closeModal('logs-modal')" class="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-      <pre class="p-4 rounded-2xl bg-slate-950 text-slate-300 font-mono text-xs overflow-y-auto flex-1 max-h-[60vh] select-text" id="logs-modal-content">A carregar logs...</pre>
+      <pre class="p-4 rounded-2xl bg-slate-950 text-slate-300 font-mono text-xs overflow-y-auto flex-1 max-h-[60vh] select-text" id="logs-modal-content" data-i18n="loading_logs">A carregar logs...</pre>
     </div>
   </div>
 
@@ -2600,7 +2600,7 @@
             </div>
             <p class="text-[11px] text-slate-500" data-i18n="wz_ai_skills_desc">As skills selecionadas serão gravadas no repositório GitHub e na pasta do servidor para instruir as IAs.</p>
             <div id="wz-skills-list-container" class="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-1">
-              <div class="text-xs text-slate-500 py-2">A carregar skills...</div>
+              <div class="text-xs text-slate-500 py-2" data-i18n="loading_skills">A carregar skills...</div>
             </div>
           </div>
 
@@ -3203,7 +3203,7 @@
       </div>
 
       <div class="flex-1 overflow-y-auto space-y-1 max-h-60 rounded-2xl border border-slate-200 dark:border-slate-800 p-2" id="fb-folder-list">
-        <div class="text-center py-8 text-slate-500 text-xs">A carregar pastas...</div>
+        <div class="text-center py-8 text-slate-500 text-xs" data-i18n="loading_folders">A carregar pastas...</div>
       </div>
 
       <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
@@ -3960,7 +3960,22 @@
     "storage_confirm_delete_folder_desc": "Todos os ficheiros e subpastas dentro do caminho {path} no bucket {bucket} serão permanentemente apagados.",
     "storage_confirm_delete_bucket_q": "Deseja eliminar o bucket {name}?",
     "storage_confirm_delete_bucket_desc": "Esta operação apagará o bucket e todos os seus ficheiros e pastas de forma irreversível.",
-    "storage_no_items_matching": "Nenhum ficheiro ou pasta corresponde a \"{query}\"."
+    "storage_no_items_matching": "Nenhum ficheiro ou pasta corresponde a \"{query}\".",
+    "loading_project": "Carregando Projeto...",
+    "loading_containers": "A carregar contentores...",
+    "loading_buckets": "A carregar buckets...",
+    "loading_backups": "A carregar lista de backups...",
+    "loading_tables": "A carregar tabelas...",
+    "loading_variables": "A carregar variáveis...",
+    "loading_keys": "A carregar chaves...",
+    "loading_files_list": "A obter lista de ficheiros...",
+    "loading_rules": "A carregar regras...",
+    "loading_skills": "A carregar skills...",
+    "loading_users": "A carregar gestores...",
+    "loading_details": "A carregar detalhes...",
+    "loading_folders": "A carregar pastas...",
+    "modal_commit_error": "Falha ao obter detalhes:",
+    "zip_validating_badge": "A processar e a validar conteúdo do ZIP no servidor..."
   },
   "en": {
     "wz_zip_label": "Initial Source Code (.ZIP File)",
@@ -4586,7 +4601,22 @@
     "storage_confirm_delete_folder_desc": "All files and subfolders within {path} in bucket {bucket} will be permanently removed.",
     "storage_confirm_delete_bucket_q": "Are you sure you want to delete bucket {name}?",
     "storage_confirm_delete_bucket_desc": "This operation will permanently delete the bucket and all its files and folders.",
-    "storage_no_items_matching": "No files or folders match \"{query}\"."
+    "storage_no_items_matching": "No files or folders match \"{query}\".",
+    "loading_project": "Loading Project...",
+    "loading_containers": "Loading containers...",
+    "loading_buckets": "Loading buckets...",
+    "loading_backups": "Loading backups list...",
+    "loading_tables": "Loading tables...",
+    "loading_variables": "Loading variables...",
+    "loading_keys": "Loading keys...",
+    "loading_files_list": "Fetching files list...",
+    "loading_rules": "Loading rules...",
+    "loading_skills": "Loading skills...",
+    "loading_users": "Loading managers...",
+    "loading_details": "Loading details...",
+    "loading_folders": "Loading folders...",
+    "modal_commit_error": "Failed to fetch details:",
+    "zip_validating_badge": "Processing and validating ZIP content on server..."
   },
   "it": {
     "wz_zip_label": "Codice Sorgente Iniziale (File .ZIP)",
@@ -5212,7 +5242,22 @@
     "storage_confirm_delete_folder_desc": "Tutti i file e le sottocartelle nel percorso {path} del bucket {bucket} verranno eliminati definitivamente.",
     "storage_confirm_delete_bucket_q": "Desideri eliminare il bucket {name}?",
     "storage_confirm_delete_bucket_desc": "Questa operazione eliminerà definitivamente il bucket e tutti i suoi file e cartelle.",
-    "storage_no_items_matching": "Nessun file o cartella corrisponde a \"{query}\"."
+    "storage_no_items_matching": "Nessun file o cartella corrisponde a \"{query}\".",
+    "loading_project": "Caricamento Progetto...",
+    "loading_containers": "Caricamento container...",
+    "loading_buckets": "Caricamento bucket...",
+    "loading_backups": "Caricamento elenco backup...",
+    "loading_tables": "Caricamento tabelle...",
+    "loading_variables": "Caricamento variabili...",
+    "loading_keys": "Caricamento chiavi...",
+    "loading_files_list": "Recupero elenco file...",
+    "loading_rules": "Caricamento regole...",
+    "loading_skills": "Caricamento skill...",
+    "loading_users": "Caricamento gestori...",
+    "loading_details": "Caricamento dettagli...",
+    "loading_folders": "Caricamento cartelle...",
+    "modal_commit_error": "Impossibile recuperare i dettagli:",
+    "zip_validating_badge": "Elaborazione e convalida del contenuto ZIP sul server..."
   },
   "de": {
     "wz_zip_label": "Initialer Quellcode (.ZIP-Datei)",
@@ -5838,7 +5883,22 @@
     "storage_confirm_delete_folder_desc": "Alle Dateien und Unterordner im Pfad {path} im Bucket {bucket} werden unwiderruflich gelöscht.",
     "storage_confirm_delete_bucket_q": "Möchten Sie den Bucket {name} wirklich löschen?",
     "storage_confirm_delete_bucket_desc": "Dieser Vorgang löscht den Bucket und alle enthaltenen Dateien und Ordner unwiderruflich.",
-    "storage_no_items_matching": "Keine Dateien oder Ordner entsprechen \"{query}\"."
+    "storage_no_items_matching": "Keine Dateien oder Ordner entsprechen \"{query}\".",
+    "loading_project": "Projekt wird geladen...",
+    "loading_containers": "Container werden geladen...",
+    "loading_buckets": "Buckets werden geladen...",
+    "loading_backups": "Backup-Liste wird geladen...",
+    "loading_tables": "Tabellen werden geladen...",
+    "loading_variables": "Variablen werden geladen...",
+    "loading_keys": "Schlüssel werden geladen...",
+    "loading_files_list": "Dateiliste wird abgerufen...",
+    "loading_rules": "Regeln werden geladen...",
+    "loading_skills": "Skills werden geladen...",
+    "loading_users": "Verwalter werden geladen...",
+    "loading_details": "Details werden geladen...",
+    "loading_folders": "Ordner werden geladen...",
+    "modal_commit_error": "Details konnten nicht abgerufen werden:",
+    "zip_validating_badge": "ZIP-Inhalt wird auf dem Server verarbeitet und validiert..."
   },
   "de-AT": {
     "wz_zip_label": "Initialer Quellcode (.ZIP-Datei)",
@@ -6464,7 +6524,22 @@
     "storage_confirm_delete_folder_desc": "Alle Dateien und Unterordner im Pfad {path} im Bucket {bucket} werden unwiderruflich gelöscht.",
     "storage_confirm_delete_bucket_q": "Möchten Sie den Bucket {name} wirklich löschen?",
     "storage_confirm_delete_bucket_desc": "Dieser Vorgang löscht den Bucket und alle enthaltenen Dateien und Ordner unwiderruflich.",
-    "storage_no_items_matching": "Keine Dateien oder Ordner entsprechen \"{query}\"."
+    "storage_no_items_matching": "Keine Dateien oder Ordner entsprechen \"{query}\".",
+    "loading_project": "Projekt wird geladen...",
+    "loading_containers": "Container werden geladen...",
+    "loading_buckets": "Buckets werden geladen...",
+    "loading_backups": "Backup-Liste wird geladen...",
+    "loading_tables": "Tabellen werden geladen...",
+    "loading_variables": "Variablen werden geladen...",
+    "loading_keys": "Schlüssel werden geladen...",
+    "loading_files_list": "Dateiliste wird abgerufen...",
+    "loading_rules": "Regeln werden geladen...",
+    "loading_skills": "Skills werden geladen...",
+    "loading_users": "Verwalter werden geladen...",
+    "loading_details": "Details werden geladen...",
+    "loading_folders": "Ordner werden geladen...",
+    "modal_commit_error": "Details konnten nicht abgerufen werden:",
+    "zip_validating_badge": "ZIP-Inhalt wird auf dem Server verarbeitet und validiert..."
   },
   "nl": {
     "wz_zip_label": "Initiële Broncode (.ZIP-bestand)",
@@ -7115,7 +7190,22 @@
     "storage_confirm_delete_folder_desc": "Alle bestanden en submappen in {path} in bucket {bucket} worden permanent verwijderd.",
     "storage_confirm_delete_bucket_q": "Wilt u de bucket {name} verwijderen?",
     "storage_confirm_delete_bucket_desc": "Hiermee worden de bucket en alle bijbehorende bestanden en mappen onherroepelijk verwijderd.",
-    "storage_no_items_matching": "Geen bestanden of mappen komen overeen met \"{query}\"."
+    "storage_no_items_matching": "Geen bestanden of mappen komen overeen met \"{query}\".",
+    "loading_project": "Project laden...",
+    "loading_containers": "Containers laden...",
+    "loading_buckets": "Buckets laden...",
+    "loading_backups": "Back-uplijst laden...",
+    "loading_tables": "Tabellen laden...",
+    "loading_variables": "Variabelen laden...",
+    "loading_keys": "Sleutels laden...",
+    "loading_files_list": "Bestandenlijst ophalen...",
+    "loading_rules": "Regels laden...",
+    "loading_skills": "Skills laden...",
+    "loading_users": "Beheerders laden...",
+    "loading_details": "Details laden...",
+    "loading_folders": "Mappen laden...",
+    "modal_commit_error": "Kan details niet ophalen:",
+    "zip_validating_badge": "ZIP-inhoud verwerken en valideren op server..."
   },
   "el": {
     "wz_zip_label": "Αρχικός Πηγαίος Κώδικας (Αρχείο .ZIP)",
@@ -7766,7 +7856,22 @@
     "storage_confirm_delete_folder_desc": "Όλα τα αρχεία και οι υποφάκελοι στη διαδρομή {path} του bucket {bucket} θα διαγραφούν οριστικά.",
     "storage_confirm_delete_bucket_q": "Θέλετε να διαγράψετε το bucket {name};",
     "storage_confirm_delete_bucket_desc": "Αυτή η ενέργεια θα διαγράψει οριστικά το bucket και όλα τα αρχεία και τους φακέλους του.",
-    "storage_no_items_matching": "Κανένα αρχείο ή φάκελος δεν αντιστοιχεί στο \"{query}\"."
+    "storage_no_items_matching": "Κανένα αρχείο ή φάκελος δεν αντιστοιχεί στο \"{query}\".",
+    "loading_project": "Φόρτωση έργου...",
+    "loading_containers": "Φόρτωση containers...",
+    "loading_buckets": "Φόρτωση buckets...",
+    "loading_backups": "Φόρτωση λίστας αντιγράφων...",
+    "loading_tables": "Φόρτωση πινάκων...",
+    "loading_variables": "Φόρτωση μεταβλητών...",
+    "loading_keys": "Φόρτωση κλειδιών...",
+    "loading_files_list": "Λήψη λίστας αρχείων...",
+    "loading_rules": "Φόρτωση κανόνων...",
+    "loading_skills": "Φόρτωση δεξιοτήτων...",
+    "loading_users": "Φόρτωση διαχειριστών...",
+    "loading_details": "Φόρτωση λεπτομερειών...",
+    "loading_folders": "Φόρτωση φακέλων...",
+    "modal_commit_error": "Αποτυχία ανάκτησης λεπτομερειών:",
+    "zip_validating_badge": "Επεξεργασία και επαλήθευση περιεχομένου ZIP στον διακομιστή..."
   },
   "pl": {
     "wz_zip_label": "Początkowy Kod Źródłowy (Plik .ZIP)",
@@ -8417,7 +8522,22 @@
     "storage_confirm_delete_folder_desc": "Wszystkie pliki i podfoldery w ścieżce {path} w zasobniku {bucket} zostaną trwale usunięte.",
     "storage_confirm_delete_bucket_q": "Czy na pewno chcesz usunąć zasobnik {name}?",
     "storage_confirm_delete_bucket_desc": "Ta operacja nieodwracalnie usunie zasobnik oraz wszystkie jego pliki i foldery.",
-    "storage_no_items_matching": "Żadne pliki ani foldery nie pasują do \"{query}\"."
+    "storage_no_items_matching": "Żadne pliki ani foldery nie pasują do \"{query}\".",
+    "loading_project": "Ładowanie projektu...",
+    "loading_containers": "Ładowanie kontenerów...",
+    "loading_buckets": "Ładowanie zasobników...",
+    "loading_backups": "Ładowanie listy kopii...",
+    "loading_tables": "Ładowanie tabel...",
+    "loading_variables": "Ładowanie zmiennych...",
+    "loading_keys": "Ładowanie kluczy...",
+    "loading_files_list": "Pobieranie listy plików...",
+    "loading_rules": "Ładowanie reguł...",
+    "loading_skills": "Ładowanie umiejętności...",
+    "loading_users": "Ładowanie menedżerów...",
+    "loading_details": "Ładowanie szczegółów...",
+    "loading_folders": "Ładowanie folderów...",
+    "modal_commit_error": "Nie udało się pobrać szczegółów:",
+    "zip_validating_badge": "Przetwarzanie i walidacja zawartości ZIP na serwerze..."
   },
   "ru": {
     "wz_zip_label": "Исходный Код (.ZIP Файл)",
@@ -9068,7 +9188,22 @@
     "storage_confirm_delete_folder_desc": "Все файлы и подпапки по пути {path} в бакете {bucket} будут безвозвратно удалены.",
     "storage_confirm_delete_bucket_q": "Вы действительно хотите удалить бакет {name}?",
     "storage_confirm_delete_bucket_desc": "Эта операция безвозвратно удалит бакет со всеми его файлами и папками.",
-    "storage_no_items_matching": "Нет файлов или папок, соответствующих \"{query}\"."
+    "storage_no_items_matching": "Нет файлов или папок, соответствующих \"{query}\".",
+    "loading_project": "Загрузка проекта...",
+    "loading_containers": "Загрузка контейнеров...",
+    "loading_buckets": "Загрузка бакетов...",
+    "loading_backups": "Загрузка списка копий...",
+    "loading_tables": "Загрузка таблиц...",
+    "loading_variables": "Загрузка переменных...",
+    "loading_keys": "Загрузка ключей...",
+    "loading_files_list": "Получение списка файлов...",
+    "loading_rules": "Загрузка правил...",
+    "loading_skills": "Загрузка навыков...",
+    "loading_users": "Загрузка администраторов...",
+    "loading_details": "Загрузка деталей...",
+    "loading_folders": "Загрузка папок...",
+    "modal_commit_error": "Не удалось получить данные:",
+    "zip_validating_badge": "Обработка и проверка содержимого ZIP на сервере..."
   },
   "zh": {
     "wz_zip_label": "初始源代码（.ZIP 文件）",
@@ -9719,7 +9854,22 @@
     "storage_confirm_delete_folder_desc": "存储桶 {bucket} 中路径 {path} 下的所有文件和子文件夹都将被永久删除。",
     "storage_confirm_delete_bucket_q": "确定要删除存储桶 {name} 吗？",
     "storage_confirm_delete_bucket_desc": "此操作将不可逆地彻底删除该存储桶及其所有文件和文件夹。",
-    "storage_no_items_matching": "没有与 \"{query}\" 匹配的文件或文件夹。"
+    "storage_no_items_matching": "没有与 \"{query}\" 匹配的文件或文件夹。",
+    "loading_project": "正在加载项目...",
+    "loading_containers": "正在加载容器...",
+    "loading_buckets": "正在加载存储桶...",
+    "loading_backups": "正在加载备份列表...",
+    "loading_tables": "正在加载数据表...",
+    "loading_variables": "正在加载变量...",
+    "loading_keys": "正在加载密钥...",
+    "loading_files_list": "正在获取文件列表...",
+    "loading_rules": "正在加载规则...",
+    "loading_skills": "正在加载技能...",
+    "loading_users": "正在加载管理员...",
+    "loading_details": "正在加载详情...",
+    "loading_folders": "正在加载文件夹...",
+    "modal_commit_error": "获取详情失败：",
+    "zip_validating_badge": "正在服务器上处理并验证 ZIP 内容..."
   },
   "ja": {
     "wz_zip_label": "初期ソースコード (.ZIP ファイル)",
@@ -10370,7 +10520,22 @@
     "storage_confirm_delete_folder_desc": "バケット {bucket} のパス {path} 内のすべてのファイルおよびサブフォルダーが完全に削除されます。",
     "storage_confirm_delete_bucket_q": "バケット {name} を削除してもよろしいですか？",
     "storage_confirm_delete_bucket_desc": "この操作により、バケットとそのすべてのファイルおよびフォルダーが元に戻せない形で完全に削除されます。",
-    "storage_no_items_matching": "\"{query}\" に一致するファイルまたはフォルダーはありません。"
+    "storage_no_items_matching": "\"{query}\" に一致するファイルまたはフォルダーはありません。",
+    "loading_project": "プロジェクトを読み込み中...",
+    "loading_containers": "コンテナを読み込み中...",
+    "loading_buckets": "バケットを読み込み中...",
+    "loading_backups": "バックアップ一覧を読み込み中...",
+    "loading_tables": "テーブルを読み込み中...",
+    "loading_variables": "変数を読み込み中...",
+    "loading_keys": "キーを読み込み中...",
+    "loading_files_list": "ファイル一覧を取得中...",
+    "loading_rules": "ルールを読み込み中...",
+    "loading_skills": "スキルを読み込み中...",
+    "loading_users": "管理者を読み込み中...",
+    "loading_details": "詳細を読み込み中...",
+    "loading_folders": "フォルダーを読み込み中...",
+    "modal_commit_error": "詳細の取得に失敗しました：",
+    "zip_validating_badge": "サーバー上でZIPコンテンツを検証中..."
   },
   "sv": {
     "wz_zip_label": "Ursprunglig Källkod (.ZIP-fil)",
@@ -11021,7 +11186,22 @@
     "storage_confirm_delete_folder_desc": "Alla filer och undermappar under {path} i bucketen {bucket} kommer att raderas permanent.",
     "storage_confirm_delete_bucket_q": "Vill du ta bort bucketen {name}?",
     "storage_confirm_delete_bucket_desc": "Denna åtgärd raderar bucketen och alla dess filer och mappar oåterkalleligt.",
-    "storage_no_items_matching": "Inga filer eller mappar matchar \"{query}\"."
+    "storage_no_items_matching": "Inga filer eller mappar matchar \"{query}\".",
+    "loading_project": "Laddar projekt...",
+    "loading_containers": "Laddar containrar...",
+    "loading_buckets": "Laddar buckets...",
+    "loading_backups": "Laddar säkerhetskopior...",
+    "loading_tables": "Laddar tabeller...",
+    "loading_variables": "Laddar variabler...",
+    "loading_keys": "Laddar nycklar...",
+    "loading_files_list": "Hämtar fillista...",
+    "loading_rules": "Laddar regler...",
+    "loading_skills": "Laddar färdigheter...",
+    "loading_users": "Laddar administratörer...",
+    "loading_details": "Laddar detaljer...",
+    "loading_folders": "Laddar mappar...",
+    "modal_commit_error": "Kunde inte hämta detaljer:",
+    "zip_validating_badge": "Bearbetar och validerar ZIP-innehåll på servern..."
   },
   "ro": {
     "wz_zip_label": "Cod Sursă Inițial (Fișier .ZIP)",
@@ -11672,7 +11852,22 @@
     "storage_confirm_delete_folder_desc": "Toate fișierele și subfolderele din calea {path} din bucketul {bucket} vor fi șterse definitiv.",
     "storage_confirm_delete_bucket_q": "Doriți să ștergeți bucketul {name}?",
     "storage_confirm_delete_bucket_desc": "Această operațiune va șterge ireversibil bucketul și toate fișierele și folderele sale.",
-    "storage_no_items_matching": "Niciun fișier sau folder nu se potrivește cu \"{query}\"."
+    "storage_no_items_matching": "Niciun fișier sau folder nu se potrivește cu \"{query}\".",
+    "loading_project": "Se încarcă proiectul...",
+    "loading_containers": "Se încarcă containerele...",
+    "loading_buckets": "Se încarcă bucketurile...",
+    "loading_backups": "Se încarcă lista de copii de rezervă...",
+    "loading_tables": "Se încarcă tabelele...",
+    "loading_variables": "Se încarcă variabilele...",
+    "loading_keys": "Se încarcă cheile...",
+    "loading_files_list": "Se obține lista de fișiere...",
+    "loading_rules": "Se încarcă regulile...",
+    "loading_skills": "Se încarcă abilitățile...",
+    "loading_users": "Se încarcă administratorii...",
+    "loading_details": "Se încarcă detaliile...",
+    "loading_folders": "Se încarcă folderele...",
+    "modal_commit_error": "Eroare la obținerea detaliilor:",
+    "zip_validating_badge": "Se procesează și se validează conținutul ZIP pe server..."
   },
   "mo": {
     "wz_zip_label": "Cod Sursă Inițial (Fișier .ZIP)",
@@ -12323,7 +12518,22 @@
     "storage_confirm_delete_folder_desc": "Toate fișierele și subfolderele din calea {path} din bucketul {bucket} vor fi șterse definitiv.",
     "storage_confirm_delete_bucket_q": "Doriți să ștergeți bucketul {name}?",
     "storage_confirm_delete_bucket_desc": "Această operațiune va șterge ireversibil bucketul și toate fișierele și folderele sale.",
-    "storage_no_items_matching": "Niciun fișier sau folder nu se potrivește cu \"{query}\"."
+    "storage_no_items_matching": "Niciun fișier sau folder nu se potrivește cu \"{query}\".",
+    "loading_project": "Se încarcă proiectul...",
+    "loading_containers": "Se încarcă containerele...",
+    "loading_buckets": "Se încarcă bucketurile...",
+    "loading_backups": "Se încarcă lista de copii de rezervă...",
+    "loading_tables": "Se încarcă tabelele...",
+    "loading_variables": "Se încarcă variabilele...",
+    "loading_keys": "Se încarcă cheile...",
+    "loading_files_list": "Se obține lista de fișiere...",
+    "loading_rules": "Se încarcă regulile...",
+    "loading_skills": "Se încarcă abilitățile...",
+    "loading_users": "Se încarcă administratorii...",
+    "loading_details": "Se încarcă detaliile...",
+    "loading_folders": "Se încarcă folderele...",
+    "modal_commit_error": "Eroare la obținerea detaliilor:",
+    "zip_validating_badge": "Se procesează și se validează conținutul ZIP pe server..."
   },
   "es": {
     "wz_zip_label": "Código Fuente Inicial (Archivo .ZIP)",
@@ -12949,7 +13159,22 @@
     "storage_confirm_delete_folder_desc": "Todos los archivos y subcarpetas dentro de {path} en el bucket {bucket} se eliminarán de forma permanente.",
     "storage_confirm_delete_bucket_q": "¿Desea eliminar el bucket {name}?",
     "storage_confirm_delete_bucket_desc": "Esta operación eliminará el bucket y todos sus archivos y carpetas de forma irreversible.",
-    "storage_no_items_matching": "Ningún archivo o carpeta coincide con \"{query}\"."
+    "storage_no_items_matching": "Ningún archivo o carpeta coincide con \"{query}\".",
+    "loading_project": "Cargando Proyecto...",
+    "loading_containers": "Cargando contenedores...",
+    "loading_buckets": "Cargando buckets...",
+    "loading_backups": "Cargando lista de copias de seguridad...",
+    "loading_tables": "Cargando tablas...",
+    "loading_variables": "Cargando variables...",
+    "loading_keys": "Cargando claves...",
+    "loading_files_list": "Obteniendo lista de archivos...",
+    "loading_rules": "Cargando reglas...",
+    "loading_skills": "Cargando skills...",
+    "loading_users": "Cargando administradores...",
+    "loading_details": "Cargando detalles...",
+    "loading_folders": "Cargando carpetas...",
+    "modal_commit_error": "Error al obtener detalles:",
+    "zip_validating_badge": "Procesando y validando contenido del ZIP en el servidor..."
   },
   "fr": {
     "wz_zip_label": "Code Source Initial (Fichier .ZIP)",
@@ -13575,7 +13800,22 @@
     "storage_confirm_delete_folder_desc": "Tous les fichiers et sous-dossiers dans {path} du bucket {bucket} seront définitivement supprimés.",
     "storage_confirm_delete_bucket_q": "Voulez-vous supprimer le bucket {name} ?",
     "storage_confirm_delete_bucket_desc": "Cette opération supprimera définitivement le bucket ainsi que tous ses fichiers et dossiers.",
-    "storage_no_items_matching": "Aucun fichier ou dossier ne correspond à \"{query}\"."
+    "storage_no_items_matching": "Aucun fichier ou dossier ne correspond à \"{query}\".",
+    "loading_project": "Chargement du Projet...",
+    "loading_containers": "Chargement des conteneurs...",
+    "loading_buckets": "Chargement des buckets...",
+    "loading_backups": "Chargement de la liste des sauvegardes...",
+    "loading_tables": "Chargement des tables...",
+    "loading_variables": "Chargement des variables...",
+    "loading_keys": "Chargement des clés...",
+    "loading_files_list": "Récupération de la liste des fichiers...",
+    "loading_rules": "Chargement des règles...",
+    "loading_skills": "Chargement des compétences...",
+    "loading_users": "Chargement des gestionnaires...",
+    "loading_details": "Chargement des détails...",
+    "loading_folders": "Chargement des dossiers...",
+    "modal_commit_error": "Échec de la récupération des détails :",
+    "zip_validating_badge": "Traitement et validation du contenu ZIP sur le serveur..."
   },
   "cs": {
     "wz_zip_label": "Počáteční Zdrojový Kód (Soubor .ZIP)",
@@ -14226,7 +14466,22 @@
     "storage_confirm_delete_folder_desc": "Všechny soubory a podsložky v cestě {path} v bucketu {bucket} budou trvale smazány.",
     "storage_confirm_delete_bucket_q": "Opravdu chcete smazat bucket {name}?",
     "storage_confirm_delete_bucket_desc": "Tato operace nevratně smaže bucket a všechny jeho soubory a složky.",
-    "storage_no_items_matching": "Žádné soubory ani složky neodpovídají \"{query}\"."
+    "storage_no_items_matching": "Žádné soubory ani složky neodpovídají \"{query}\".",
+    "loading_project": "Načítání projektu...",
+    "loading_containers": "Načítání kontejnerů...",
+    "loading_buckets": "Načítání bucketů...",
+    "loading_backups": "Načítání seznamu záloh...",
+    "loading_tables": "Načítání tabulek...",
+    "loading_variables": "Načítání proměnných...",
+    "loading_keys": "Načítání klíčů...",
+    "loading_files_list": "Získávání seznamu souborů...",
+    "loading_rules": "Načítání pravidel...",
+    "loading_skills": "Načítání dovedností...",
+    "loading_users": "Načítání správců...",
+    "loading_details": "Načítání podrobností...",
+    "loading_folders": "Načítání složek...",
+    "modal_commit_error": "Nepodařilo se načíst podrobnosti:",
+    "zip_validating_badge": "Zpracování a ověřování obsahu ZIP na serveru..."
   },
   "hr": {
     "wz_zip_label": "Početni Izvorni Kod (.ZIP Datoteka)",
@@ -14877,7 +15132,22 @@
     "storage_confirm_delete_folder_desc": "Sve datoteke i podmape unutar staze {path} u bucketu {bucket} bit će trajno izbrisane.",
     "storage_confirm_delete_bucket_q": "Želite li izbrisati bucket {name}?",
     "storage_confirm_delete_bucket_desc": "Ova će radnja nepovratno izbrisati bucket i sve njegove datoteke i mape.",
-    "storage_no_items_matching": "Nijedna datoteka ili mapa ne odgovara \"{query}\"."
+    "storage_no_items_matching": "Nijedna datoteka ili mapa ne odgovara \"{query}\".",
+    "loading_project": "Učitavanje projekta...",
+    "loading_containers": "Učitavanje kontejnera...",
+    "loading_buckets": "Učitavanje bucketa...",
+    "loading_backups": "Učitavanje popisa sigurnosnih kopija...",
+    "loading_tables": "Učitavanje tablica...",
+    "loading_variables": "Učitavanje varijabli...",
+    "loading_keys": "Učitavanje ključeva...",
+    "loading_files_list": "Dohvaćanje popisa datoteka...",
+    "loading_rules": "Učitavanje pravila...",
+    "loading_skills": "Učitavanje vještina...",
+    "loading_users": "Učitavanje administratora...",
+    "loading_details": "Učitavanje pojedinosti...",
+    "loading_folders": "Učitavanje mapa...",
+    "modal_commit_error": "Dohvaćanje pojedinosti nije uspjelo:",
+    "zip_validating_badge": "Obrada i provjera ZIP sadržaja na poslužitelju..."
   },
   "da": {
     "wz_zip_label": "Indledende Kildekode (.ZIP Fil)",
@@ -15528,7 +15798,22 @@
     "storage_confirm_delete_folder_desc": "Alle filer og undermapper under stien {path} i bucketen {bucket} vil blive slettet permanent.",
     "storage_confirm_delete_bucket_q": "Vil du slette bucketen {name}?",
     "storage_confirm_delete_bucket_desc": "Denne handling vil uigenkaldeligt slette bucketen og alle dens filer og mapper.",
-    "storage_no_items_matching": "Ingen filer eller mapper matcher \"{query}\"."
+    "storage_no_items_matching": "Ingen filer eller mapper matcher \"{query}\".",
+    "loading_project": "Indlæser projekt...",
+    "loading_containers": "Indlæser containere...",
+    "loading_buckets": "Indlæser buckets...",
+    "loading_backups": "Indlæser backupliste...",
+    "loading_tables": "Indlæser tabeller...",
+    "loading_variables": "Indlæser variabler...",
+    "loading_keys": "Indlæser nøgler...",
+    "loading_files_list": "Henter filliste...",
+    "loading_rules": "Indlæser regler...",
+    "loading_skills": "Indlæser kompetencer...",
+    "loading_users": "Indlæser administratorer...",
+    "loading_details": "Indlæser detaljer...",
+    "loading_folders": "Indlæser mapper...",
+    "modal_commit_error": "Kunne ikke hente detaljer:",
+    "zip_validating_badge": "Behandler og validerer ZIP-indhold på serveren..."
   },
   "sk": {
     "wz_zip_label": "Počiatočný Zdrojový Kód (Súbor .ZIP)",
@@ -16179,7 +16464,22 @@
     "storage_confirm_delete_folder_desc": "Všetky súbory a podpriečinky v ceste {path} v buckete {bucket} budú natrvalo odstránené.",
     "storage_confirm_delete_bucket_q": "Naozaj chcete odstrániť bucket {name}?",
     "storage_confirm_delete_bucket_desc": "Táto operácia nenávratne vymaže bucket a všetky jeho súbory a priečinky.",
-    "storage_no_items_matching": "Žiadne súbory ani priečinky nezodpovedajú \"{query}\"."
+    "storage_no_items_matching": "Žiadne súbory ani priečinky nezodpovedajú \"{query}\".",
+    "loading_project": "Načítava sa projekt...",
+    "loading_containers": "Načítavajú sa kontajnery...",
+    "loading_buckets": "Načítavajú sa buckety...",
+    "loading_backups": "Načítava sa zoznam záloh...",
+    "loading_tables": "Načítavajú sa tabuľky...",
+    "loading_variables": "Načítavajú sa premenné...",
+    "loading_keys": "Načítavajú sa kľúče...",
+    "loading_files_list": "Získava sa zoznam súborov...",
+    "loading_rules": "Načítavajú sa pravidlá...",
+    "loading_skills": "Načítavajú sa zručnosti...",
+    "loading_users": "Načítavajú sa správcovia...",
+    "loading_details": "Načítavajú sa podrobnosti...",
+    "loading_folders": "Načítavajú sa priečinky...",
+    "modal_commit_error": "Nepodarilo sa načítať podrobnosti:",
+    "zip_validating_badge": "Spracovanie a overovanie obsahu ZIP na serveri..."
   },
   "sl": {
     "wz_zip_label": "Začetna Izvorna Koda (.ZIP Datoteka)",
@@ -16830,7 +17130,22 @@
     "storage_confirm_delete_folder_desc": "Vse datoteke in podmape na poti {path} v bucketu {bucket} bodo trajno izbrisane.",
     "storage_confirm_delete_bucket_q": "Ali želite izbrisati bucket {name}?",
     "storage_confirm_delete_bucket_desc": "To dejanje bo nepovratno izbrisalo bucket ter vse njegove datoteke in mape.",
-    "storage_no_items_matching": "Nobena datoteka ali mapa se ne ujema z \"{query}\"."
+    "storage_no_items_matching": "Nobena datoteka ali mapa se ne ujema z \"{query}\".",
+    "loading_project": "Nalaganje projekta...",
+    "loading_containers": "Nalaganje vsebnikov...",
+    "loading_buckets": "Nalaganje bucketov...",
+    "loading_backups": "Nalaganje varnostnih kopij...",
+    "loading_tables": "Nalaganje tabel...",
+    "loading_variables": "Nalaganje spremenljivk...",
+    "loading_keys": "Nalaganje ključev...",
+    "loading_files_list": "Pridobivanje seznama datotek...",
+    "loading_rules": "Nalaganje pravil...",
+    "loading_skills": "Nalaganje veščin...",
+    "loading_users": "Nalaganje skrbnikov...",
+    "loading_details": "Nalaganje podrobnosti...",
+    "loading_folders": "Nalaganje map...",
+    "modal_commit_error": "Podrobnosti ni bilo mogoče pridobiti:",
+    "zip_validating_badge": "Obdelava in preverjanje vsebine ZIP na strežniku..."
   },
   "et": {
     "wz_zip_label": "Algne Lähtekood (.ZIP Fail)",
@@ -17481,7 +17796,22 @@
     "storage_confirm_delete_folder_desc": "Kõik failid ja alamkaustad teekonnal {path} bucketis {bucket} kustutatakse jäädavalt.",
     "storage_confirm_delete_bucket_q": "Kas soovite bucketi {name} kustutada?",
     "storage_confirm_delete_bucket_desc": "See toiming kustutab pöördumatult bucketi ja kõik selle failid ning kaustad.",
-    "storage_no_items_matching": "Ükski fail ega kaust ei vasta otsingule \"{query}\"."
+    "storage_no_items_matching": "Ükski fail ega kaust ei vasta otsingule \"{query}\".",
+    "loading_project": "Projekti laadimine...",
+    "loading_containers": "Konteinerite laadimine...",
+    "loading_buckets": "Bucketite laadimine...",
+    "loading_backups": "Varukoopiate nimekirja laadimine...",
+    "loading_tables": "Tabelite laadimine...",
+    "loading_variables": "Muutujate laadimine...",
+    "loading_keys": "Võtmete laadimine...",
+    "loading_files_list": "Failide nimekirja hankimine...",
+    "loading_rules": "Reeglite laadimine...",
+    "loading_skills": "Oskuste laadimine...",
+    "loading_users": "Haldurite laadimine...",
+    "loading_details": "Üksikasjade laadimine...",
+    "loading_folders": "Kaustade laadimine...",
+    "modal_commit_error": "Üksikasjade hankimine ebaõnnestus:",
+    "zip_validating_badge": "ZIP-faili sisu töötlemine ja kinnitamine serveris..."
   },
   "fi": {
     "wz_zip_label": "Alkuperäinen Lähdekoodi (.ZIP-tiedosto)",
@@ -18132,7 +18462,22 @@
     "storage_confirm_delete_folder_desc": "Kaikki tiedostot ja alikansiot polussa {path} bucketissa {bucket} poistetaan pysyvästi.",
     "storage_confirm_delete_bucket_q": "Haluatko varmasti poistaa bucketin {name}?",
     "storage_confirm_delete_bucket_desc": "Tämä toiminto poistaa peruuttamattomasti bucketin ja kaikki sen tiedostot ja kansiot.",
-    "storage_no_items_matching": "Yksikään tiedosto tai kansio ei vastaa hakua \"{query}\"."
+    "storage_no_items_matching": "Yksikään tiedosto tai kansio ei vastaa hakua \"{query}\".",
+    "loading_project": "Ladataan projektia...",
+    "loading_containers": "Ladataan kontteja...",
+    "loading_buckets": "Ladataan bucketeja...",
+    "loading_backups": "Ladataan varmuuskopioita...",
+    "loading_tables": "Ladataan tauluja...",
+    "loading_variables": "Ladataan muuttujia...",
+    "loading_keys": "Ladataan avaimia...",
+    "loading_files_list": "Haetaan tiedostoluetteloa...",
+    "loading_rules": "Ladataan sääntöjä...",
+    "loading_skills": "Ladataan taitoja...",
+    "loading_users": "Ladataan ylläpitäjiä...",
+    "loading_details": "Ladataan tietoja...",
+    "loading_folders": "Ladataan kansioita...",
+    "modal_commit_error": "Tietojen haku epäonnistui:",
+    "zip_validating_badge": "Käsitellään ja vahvistetaan ZIP-sisältöä palvelimella..."
   },
   "hu": {
     "wz_zip_label": "Kezdeti Forráskód (.ZIP Fájl)",
@@ -18783,7 +19128,22 @@
     "storage_confirm_delete_folder_desc": "A(z) {bucket} bucket {path} útvonalán található összes fájl és almappa véglegesen törlődik.",
     "storage_confirm_delete_bucket_q": "Biztosan törölni kívánja a(z) {name} bucketet?",
     "storage_confirm_delete_bucket_desc": "Ez a művelet visszavonhatatlanul törli a bucketet és annak összes fájlját és mappáját.",
-    "storage_no_items_matching": "Egyetlen fájl vagy mappa sem egyezik a(z) \"{query}\" kifejezéssel."
+    "storage_no_items_matching": "Egyetlen fájl vagy mappa sem egyezik a(z) \"{query}\" kifejezéssel.",
+    "loading_project": "Projekt betöltése...",
+    "loading_containers": "Konténerek betöltése...",
+    "loading_buckets": "Bucketek betöltése...",
+    "loading_backups": "Biztonsági másolatok betöltése...",
+    "loading_tables": "Táblák betöltése...",
+    "loading_variables": "Változók betöltése...",
+    "loading_keys": "Kulcsok betöltése...",
+    "loading_files_list": "Fájllista lekérése...",
+    "loading_rules": "Szabályok betöltése...",
+    "loading_skills": "Készségek betöltése...",
+    "loading_users": "Kezelők betöltése...",
+    "loading_details": "Részletek betöltése...",
+    "loading_folders": "Mappák betöltése...",
+    "modal_commit_error": "Nem sikerült lekérni a részleteket:",
+    "zip_validating_badge": "ZIP tartalom feldolgozása és érvényesítése a szerveren..."
   },
   "lv": {
     "wz_zip_label": "Sākotnējais Pirmkods (.ZIP Fails)",
@@ -19434,7 +19794,22 @@
     "storage_confirm_delete_folder_desc": "Visi faili un apakšmapes ceļā {path} bucketā {bucket} tiks neatgriezeniski dzēsti.",
     "storage_confirm_delete_bucket_q": "Vai tiešām vēlaties dzēst bucketu {name}?",
     "storage_confirm_delete_bucket_desc": "Šī darbība neatgriezeniski izdzēsīs bucketu un visus tā failus un mapes.",
-    "storage_no_items_matching": "Neviens fails vai mape neatbilst \"{query}\"."
+    "storage_no_items_matching": "Neviens fails vai mape neatbilst \"{query}\".",
+    "loading_project": "Notiek projekta ielāde...",
+    "loading_containers": "Notiek konteineru ielāde...",
+    "loading_buckets": "Notiek bucketu ielāde...",
+    "loading_backups": "Notiek dublējumu ielāde...",
+    "loading_tables": "Notiek tabulu ielāde...",
+    "loading_variables": "Notiek mainīgo ielāde...",
+    "loading_keys": "Notiek atslēgu ielāde...",
+    "loading_files_list": "Failu saraksta iegūšana...",
+    "loading_rules": "Notiek noteikumu ielāde...",
+    "loading_skills": "Notiek prasmju ielāde...",
+    "loading_users": "Notiek pārvaldnieku ielāde...",
+    "loading_details": "Notiek detaļu ielāde...",
+    "loading_folders": "Notiek mapju ielāde...",
+    "modal_commit_error": "Neizdevās iegūt informāciju:",
+    "zip_validating_badge": "ZIP satura apstrāde un pārbaude serverī..."
   },
   "lt": {
     "wz_zip_label": "Pradinis Pirminis Kodas (.ZIP Failas)",
@@ -20085,7 +20460,22 @@
     "storage_confirm_delete_folder_desc": "Visi failai ir poaplankiai kelyje {path} buckete {bucket} bus visam laikui ištrinti.",
     "storage_confirm_delete_bucket_q": "Ar tikrai norite ištrinti bucketą {name}?",
     "storage_confirm_delete_bucket_desc": "Šis veiksmas negrįžtamai ištrins bucketą ir visus jo failus bei aplankus.",
-    "storage_no_items_matching": "Jokių failų ar aplankų, atitinkančių „{query}“, nerasta."
+    "storage_no_items_matching": "Jokių failų ar aplankų, atitinkančių „{query}“, nerasta.",
+    "loading_project": "Įkeliamas projektas...",
+    "loading_containers": "Įkeliami konteineriai...",
+    "loading_buckets": "Įkeliami bucketai...",
+    "loading_backups": "Įkeliamas atsarginių kopijų sąrašas...",
+    "loading_tables": "Įkeliamos lentelės...",
+    "loading_variables": "Įkeliami kintamieji...",
+    "loading_keys": "Įkeliami raktai...",
+    "loading_files_list": "Gaunamas failų sąrašas...",
+    "loading_rules": "Įkeliamos taisyklės...",
+    "loading_skills": "Įkeliami įgūdžiai...",
+    "loading_users": "Įkeliami valdytojai...",
+    "loading_details": "Įkeliama informacija...",
+    "loading_folders": "Įkeliami aplankai...",
+    "modal_commit_error": "Nepavyko gauti informacijos:",
+    "zip_validating_badge": "Apdorojamas ir tikrinamas ZIP turinys serveryje..."
   },
   "mt": {
     "wz_zip_label": "Kodiċi Sors Inizjali (Fajl .ZIP)",
@@ -20736,7 +21126,22 @@
     "storage_confirm_delete_folder_desc": "Il-fajls u s-subfowlders kollha fil-passaġġ {path} fil-bucket {bucket} se jitħassru b'mod permanenti.",
     "storage_confirm_delete_bucket_q": "Trid tħassar il-bucket {name}?",
     "storage_confirm_delete_bucket_desc": "Din l-operazzjoni se tħassar b'mod irriversibbli l-bucket u l-fajls u l-fowlders kollha tiegħu.",
-    "storage_no_items_matching": "L-ebda fajl jew fowlder ma jaqbel ma' \"{query}\"."
+    "storage_no_items_matching": "L-ebda fajl jew fowlder ma jaqbel ma' \"{query}\".",
+    "loading_project": "Qed jitgħabba l-proġett...",
+    "loading_containers": "Qed jitgħabbew il-kontenituri...",
+    "loading_buckets": "Qed jitgħabbew il-buckets...",
+    "loading_backups": "Qed titgħabba l-lista tal-backups...",
+    "loading_tables": "Qed jitgħabbew it-tabelli...",
+    "loading_variables": "Qed jitgħabbew il-varjabbli...",
+    "loading_keys": "Qed jitgħabbew iċ-ċwievet...",
+    "loading_files_list": "Qed tinġieb il-lista tal-fajls...",
+    "loading_rules": "Qed jitgħabbew ir-regoli...",
+    "loading_skills": "Qed jitgħabbew il-ħiliet...",
+    "loading_users": "Qed jitgħabbew il-maniġers...",
+    "loading_details": "Qed jitgħabbew id-dettalji...",
+    "loading_folders": "Qed jitgħabbew il-fowlders...",
+    "modal_commit_error": "Ma rnexxiex jinkisbu d-dettalji:",
+    "zip_validating_badge": "Qed jiġi pproċessat u vvalidat il-kontenut taż-ZIP fuq is-server..."
   },
   "la": {
     "wz_zip_label": "Primarius Codex Fontis (Fasciculus .ZIP)",
@@ -21387,7 +21792,22 @@
     "storage_confirm_delete_folder_desc": "Omnes fasciculi et subcapsae intra tramitem {path} in situla {bucket} in perpetuum delebuntur.",
     "storage_confirm_delete_bucket_q": "Visne certus delere situlam {name}?",
     "storage_confirm_delete_bucket_desc": "Hoc actum situlam atque omnes fasciculos capsasque eius sine reversione delebit.",
-    "storage_no_items_matching": "Nulli fasciculi vel capsae cum \"{query}\" congruunt."
+    "storage_no_items_matching": "Nulli fasciculi vel capsae cum \"{query}\" congruunt.",
+    "loading_project": "Inceptum oneratur...",
+    "loading_containers": "Continentes onerantur...",
+    "loading_buckets": "Situlae onerantur...",
+    "loading_backups": "Index exemplarium oneratur...",
+    "loading_tables": "Tabulae onerantur...",
+    "loading_variables": "Variabilia onerantur...",
+    "loading_keys": "Claves onerantur...",
+    "loading_files_list": "Index fasciculorum petitur...",
+    "loading_rules": "Regulae onerantur...",
+    "loading_skills": "Facultates onerantur...",
+    "loading_users": "Curatores onerantur...",
+    "loading_details": "Singula onerantur...",
+    "loading_folders": "Capsae onerantur...",
+    "modal_commit_error": "Singula obtineri non potuerunt:",
+    "zip_validating_badge": "Argumentum ZIP in moderatro tractatur ac probatur..."
   }
 };
 
@@ -22365,7 +22785,7 @@
       if (!container) return;
 
       if (!projectsList || projectsList.length === 0) {
-        container.innerHTML = '<div class="text-center py-6 text-slate-500 text-xs col-span-2">A carregar projetos...</div>';
+        container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs col-span-2">${t('loading_projects') || 'A carregar projetos...'}</div>`;
         await loadProjects();
       }
 
@@ -22617,7 +23037,7 @@
           if (pText) pText.textContent = `${formatBytes(evt.loaded)} / ${formatBytes(evt.total)}`;
           if (pct === 100) {
             if (pBadge) {
-              pBadge.textContent = 'A processar e a validar conteúdo do ZIP no servidor...';
+              pBadge.textContent = t('zip_validating_badge') || 'A processar e a validar conteúdo do ZIP no servidor...';
               pBadge.className = 'font-medium text-indigo-500 animate-pulse';
             }
           }
@@ -24263,7 +24683,7 @@ Vamos começar a implementar o primeiro módulo do plano.`;
     async function loadFolderBrowser(targetPath) {
       const listEl = document.getElementById('fb-folder-list');
       const pathEl = document.getElementById('fb-current-path');
-      listEl.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">A carregar pastas...</div>`;
+      listEl.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">${t('loading_folders') || 'A carregar pastas...'}</div>`;
 
       try {
         const res = await fetch(`/api/system/fs-browse?path=${encodeURIComponent(targetPath)}`);
@@ -24897,7 +25317,7 @@ document.getElementById('deploy-modal-date').textContent = `🕒 ${new Date(comm
       filesContainer.classList.add('hidden');
       filesChevron.style.transform = 'rotate(0deg)';
       document.getElementById('deploy-modal-files-btn-label').textContent = t('btn_view_modified_files');
-      filesContainer.innerHTML = '<div class="text-slate-500 text-center py-2">A obter lista de ficheiros...</div>';
+      filesContainer.innerHTML = `<div class="text-slate-500 text-center py-2">${t('loading_files_list') || 'A obter lista de ficheiros...'}</div>`;
 
       // Resetar Consola de Logs e Cards de Status
       document.getElementById('deploy-logs-container').classList.add('hidden');
@@ -25314,8 +25734,8 @@ Fim do Relatório
 
     async function viewCommitDetail(hash) {
       document.getElementById('modal-commit-hash').textContent = hash.slice(0, 7);
-      document.getElementById('modal-commit-title').textContent = 'A carregar...';
-      document.getElementById('modal-commit-body').innerHTML = '<div class="text-slate-500 py-6 text-center">A obter dados do commit...</div>';
+      document.getElementById('modal-commit-title').textContent = t('modal_loading_commit_title') || t('loading_label') || 'A carregar...';
+      document.getElementById('modal-commit-body').innerHTML = `<div class="text-slate-500 py-6 text-center">${t('modal_fetching_commit_body') || 'A obter dados do commit...'}</div>`;
       document.getElementById('commit-modal').classList.remove('hidden');
 
       try {
@@ -25344,7 +25764,7 @@ Fim do Relatório
           `;
         }
       } catch (e) {
-        document.getElementById('modal-commit-body').innerHTML = `<div class="text-red-400">Falha ao obter detalhes: ${e.message}</div>`;
+        document.getElementById('modal-commit-body').innerHTML = `<div class="text-red-400">${t('modal_commit_error') || 'Falha ao obter detalhes:'} ${escapeHtml(e.message)}</div>`;
       }
       if (window.lucide) lucide.createIcons();
     }
@@ -25570,7 +25990,7 @@ function localizeDockerStatus(status) {
 
     async function fetchLogs(serviceName, title) {
       document.getElementById('logs-modal-title').textContent = title || `Logs — ${serviceName}`;
-      document.getElementById('logs-modal-content').textContent = 'A carregar logs...';
+      document.getElementById('logs-modal-content').textContent = t('loading_logs') || 'A carregar logs...';
       document.getElementById('logs-modal').classList.remove('hidden');
 
       try {
@@ -26357,7 +26777,7 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
       if (fileIndicator) fileIndicator.textContent = `${t('lbl_file') || 'Ficheiro'}: ${filename}`;
 
       const tbody = document.getElementById('env-table-body');
-      if (tbody) tbody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-slate-400 font-sans">A carregar variáveis de ${filename}...</td></tr>`;
+      if (tbody) tbody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-slate-400 font-sans">${t('loading_variables') || 'A carregar variáveis...'} (${escapeHtml(filename)})</td></tr>`;
 
       try {
         const res = await fetch(`/api/projects/${pId}/env?target_env=${currentEnvSubTab}`);
@@ -26659,7 +27079,7 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
       crumbsHtml += ` <span class="ml-2 px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono text-[11px] font-bold border border-indigo-500/20">${currentBucketObj ? currentBucketObj.total_size : '0 B'}</span></div>`;
       breadcrumbEl.innerHTML = crumbsHtml;
 
-      container.innerHTML = '<div class="text-center py-12 text-slate-500 text-xs">A carregar ficheiros...</div>';
+      container.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs">${t('loading_files') || 'A carregar ficheiros...'}</div>`;
 
       try {
         const res = await fetch(`/api/storage/files?bucket_id=${currentBucketId}&path=${encodeURIComponent(currentStoragePath)}&project_id=${currentProjectId}&env=${currentStorageEnv}`);
