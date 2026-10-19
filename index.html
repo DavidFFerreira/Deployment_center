@@ -20869,8 +20869,52 @@
     let pendingDeployIsRollback = false;
     let deployTimerInterval = null;
 
-    function t(key) {
-      return (I18N[currentLang] && I18N[currentLang][key]) || (I18N['pt-PT'][key]) || key;
+    const I18N_ALIASES = {
+      "th_proj_actions": "th_actions",
+      "th_env_actions": "th_actions",
+      "th_action": "th_actions",
+      "lbl_file": "th_file",
+      "unit_file_singular": "th_file",
+      "cancel": "btn_cancel",
+      "open_site": "btn_open",
+      "btn_open_site": "btn_open",
+      "btn_logout_title": "logout",
+      "theme_toggle": "tt_toggle_theme",
+      "subir_pasta": "fb_up_folder",
+      "restore_sql": "btn_restore_sql",
+      "sync_all": "tt_sync",
+      "delete_folder_title": "delete_folder",
+      "delete_bucket_title": "btn_delete_bucket",
+      "btn_reset_default": "btn_restore_default",
+      "btn_activate_proj": "btn_activate",
+      "never_logged_in": "never",
+      "backup_zip_label": "backup_zip",
+      "db_size_stat": "db_size_title",
+      "db_storage_files_title": "db_storage_files",
+      "db_studio_title": "db_studio",
+      "db_kong_title": "db_kong",
+      "all_schemas_label": "all_schemas",
+      "empty_folder_notice": "empty_folder",
+      "env_prod_tab": "env_subtab_prod",
+      "env_stg_tab": "env_subtab_stg",
+      "env_base_tab": "env_subtab_base",
+      "btn_mode_raw": "env_mode_raw",
+      "env_protected_desc": "env_desc",
+      "lbl_github_token": "vault_github_pat_label",
+      "lbl_postgres_master_pass": "vault_db_master_pass_label",
+      "desc_postgres_master_pass": "vault_db_master_pass_desc",
+      "skills_folder_desc": "set_skills_sub",
+      "docs_official_guides_desc": "docs_desc",
+      "wz_sum_project": "active_project",
+      "no_record": "no_records",
+      "tagline_login": "tagline",
+      "modal_loading_commit_title": "loading_label",
+      "loading_short": "loading_label"
+    };
+
+    function t(key, fallback = '') {
+      const canonicalKey = I18N_ALIASES[key] || key;
+      return (I18N[currentLang] && I18N[currentLang][canonicalKey]) || (I18N['pt-PT'] && I18N['pt-PT'][canonicalKey]) || fallback || key;
     }
 
     function setLanguage(lang) {
