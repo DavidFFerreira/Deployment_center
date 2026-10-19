@@ -21,7 +21,7 @@ test('i18n: index.html contains all 28 languages with 100% dictionary completene
   }
 
   // Extract I18N object
-  const match = html.match(/const I18N = (\{[\s\S]*?\n    \};)/);
+  const match = html.match(/const I18N = (\{[\s\S]*?\n\s*\};)/);
   assert.ok(match, 'I18N object found in index.html');
 
   // Evaluate safely in isolated context
