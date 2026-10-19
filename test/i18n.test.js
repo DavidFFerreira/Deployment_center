@@ -52,6 +52,15 @@ test('i18n: index.html contains all 28 languages with 100% dictionary completene
   assert.ok(html.includes('function applyTheme('), 'function applyTheme defined in index.html');
   assert.ok(html.includes('function toggleTheme('), 'function toggleTheme defined in index.html');
 
+  // Verify all script blocks parse without syntax error
+  const scriptTags = html.match(/<script>([\s\S]*?)<\/script>/g) || [];
+  for (let idx = 0; idx < scriptTags.length; idx++) {
+    const code = scriptTags[idx].replace(/<script>/, '').replace(/<\/script>/, '');
+    assert.doesNotThrow(() => {
+      new Function(code);
+    }, `index.html <script> block ${idx} must parse without JavaScript syntax errors`);
+  }
+
   // Check critical modal translation keys exist in HTML
   assert.ok(html.includes('data-i18n="terms_modal_title"'), 'terms_modal_title data-i18n present in index.html');
   assert.ok(html.includes('data-i18n="terms_sec1_title"'), 'terms_sec1_title data-i18n present in index.html');

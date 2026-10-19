@@ -27720,22 +27720,18 @@ fetchLogs(service, `${t('tab_logs') || 'Logs'} — ${envName}`);
         const data = await res.json();
         const container = document.getElementById('settings-users-list');
         if (data.ok && data.users) {
-          container.innerHTML = data.users.map((u) => `
-            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-xs text-slate-800 dark:text-slate-100">${escapeHtml(u.name === 'Administrador Principal' ? (t('admin_principal_title') || u.name) : (u.name || u.username))}</span>
-                <span class="text-[10px] font-mono text-slate-500 dark:text-slate-400">@${escapeHtml(u.username)}</span>
+          container.innerHTML = data.users.map((u) => {
+            const userDateLocale = currentLang === 'mo' ? 'ro-MD' : (currentLang === 'pt-PT' ? 'pt-PT' : currentLang);
+            return `
+              <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-xs text-slate-800 dark:text-slate-100">${escapeHtml(u.name === 'Administrador Principal' ? (t('admin_principal_title') || u.name) : (u.name || u.username))}</span>
+                  <span class="text-[10px] font-mono text-slate-500 dark:text-slate-400">@${escapeHtml(u.username)}</span>
+                </div>
+                <div class="text-[11px] text-slate-500">${t('last_login_label') || 'Último login:'} ${u.last_login_at ? new Date(u.last_login_at).toLocaleString(userDateLocale) : (t('never') || 'Nunca')}</div>
               </div>
-              const userDateLocale = currentLang === 'mo' ? 'ro-MD' : (currentLang === 'pt-PT' ? 'pt-PT' : currentLang);
-return `<div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm">
-<div class="flex items-center justify-between">
-<span class="font-bold text-xs text-slate-800 dark:text-slate-100">${escapeHtml(u.name === 'Administrador Principal' ? (t('admin_principal_title') || u.name) : (u.name || u.username))}</span>
-<span class="text-[10px] font-mono text-slate-500 dark:text-slate-400">@${escapeHtml(u.username)}</span>
-</div>
-<div class="text-[11px] text-slate-500">${t('last_login_label') || 'Último login:'} ${u.last_login_at ? new Date(u.last_login_at).toLocaleString(userDateLocale) : (t('never') || 'Nunca')}</div>
-</div>`;
-            </div>
-          `).join('');
+            `;
+          }).join('');
         }
       } catch (e) {}
     }
