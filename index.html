@@ -2094,24 +2094,24 @@
           </div>
         </div>
 
-        <!-- Cartão de Destaque WOW: Criar Backup Total -->
+        <!-- Cartão de Destaque Hero: Criar Backup Total -->
         <div class="rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-slate-900/60 to-teal-500/10 p-5 space-y-4 shadow-xl">
           <div class="flex items-start justify-between flex-wrap gap-3">
             <div class="space-y-1.5">
               <div class="flex items-center gap-2 flex-wrap">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">MIGRAÇÃO UNIVERSAL</span>
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">AUTOCONTIDO</span>
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/20 text-purple-400 border border-purple-500/30">DISASTER RECOVERY</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" data-i18n="cluster_badge_universal">MIGRAÇÃO UNIVERSAL</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30" data-i18n="cluster_badge_self_contained">AUTOCONTIDO</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/20 text-purple-400 border border-purple-500/30" data-i18n="cluster_badge_dr">DISASTER RECOVERY</span>
               </div>
-              <h5 class="font-bold text-sm text-white">Pacote Completo com Script de Restauro Autónomo</h5>
-              <p class="text-xs text-slate-300 leading-relaxed max-w-xl">
-                Inclui o Deployment Center (definições, utilizadores, chaves, IA), todos os projetos ativos, ficheiros de configuração, dumps integrais PostgreSQL e o script <code class="px-1.5 py-0.5 rounded bg-slate-900 text-emerald-400 font-mono text-[11px]">restore_full_cluster.sh</code> pronto para executar em qualquer novo servidor Debian ou Ubuntu.
+              <h5 class="font-bold text-sm text-white" data-i18n="cluster_hero_title">Pacote Completo com Script de Restauro Autónomo</h5>
+              <p class="text-xs text-slate-300 leading-relaxed max-w-xl" data-i18n="cluster_hero_desc">
+                Inclui o Deployment Center (definições, utilizadores, chaves, IA), todos os projetos ativos, ficheiros de configuração, dumps integrais PostgreSQL e o script restore_full_cluster.sh pronto para executar em qualquer novo servidor Debian ou Ubuntu.
               </p>
             </div>
 
             <button id="btn-cluster-export" onclick="exportFullClusterBackup()" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-emerald-500/25 transition-all duration-200 active:scale-95 shrink-0 cursor-pointer">
               <i data-lucide="download-cloud" class="w-4 h-4" id="btn-cluster-export-icon"></i>
-              <span id="btn-cluster-export-text" data-i18n="btn_export_cluster">Criar & Descarregar Backup Total (.tar.gz)</span>
+              <span id="btn-cluster-export-text" data-i18n="btn_export_cluster">Criar &amp; Descarregar Backup Total (.tar.gz)</span>
             </button>
           </div>
 
@@ -2120,7 +2120,7 @@
             <div class="flex items-center justify-between text-xs text-emerald-400 font-bold">
               <span class="flex items-center gap-1.5">
                 <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
-                <span id="cluster-export-status-label">A preparar snapshot da infraestrutura...</span>
+                <span id="cluster-export-status-label" data-i18n="cluster_export_progress_label">A preparar snapshot da infraestrutura...</span>
               </span>
               <span id="cluster-export-percentage">0%</span>
             </div>
@@ -2130,28 +2130,128 @@
           </div>
         </div>
 
+        <!-- Seção: O que está incluído no Backup -->
+        <div class="space-y-2.5">
+          <h5 class="font-extrabold text-xs text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="box" class="w-3.5 h-3.5 text-indigo-400"></i>
+            <span data-i18n="cluster_explanation_title">O que está incluído neste Backup Total?</span>
+          </h5>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
+              <div class="flex items-center gap-2">
+                <div class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                  <i data-lucide="shield-check" class="w-4 h-4"></i>
+                </div>
+                <h6 class="font-bold text-xs text-slate-200" data-i18n="cluster_item_dc_title">Deployment Center &amp; Vault</h6>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed" data-i18n="cluster_item_dc_desc">Configurações de sistema, utilizadores, chaves de API, histórico de deploys e diretivas de IA.</p>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
+              <div class="flex items-center gap-2">
+                <div class="p-1.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  <i data-lucide="layers" class="w-4 h-4"></i>
+                </div>
+                <h6 class="font-bold text-xs text-slate-200" data-i18n="cluster_item_projects_title">Código-Fonte &amp; Stacks</h6>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed" data-i18n="cluster_item_projects_desc">Código de todas as aplicações, ficheiros .env, docker-compose.yml e rotas de gateway.</p>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
+              <div class="flex items-center gap-2">
+                <div class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <i data-lucide="database" class="w-4 h-4"></i>
+                </div>
+                <h6 class="font-bold text-xs text-slate-200" data-i18n="cluster_item_db_title">Bases de Dados PostgreSQL</h6>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed" data-i18n="cluster_item_db_desc">Dumps SQL completos de cada projeto (schemas auth, storage, public, tabelas e dados).</p>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
+              <div class="flex items-center gap-2">
+                <div class="p-1.5 rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20">
+                  <i data-lucide="play-circle" class="w-4 h-4"></i>
+                </div>
+                <h6 class="font-bold text-xs text-slate-200" data-i18n="cluster_item_script_title">Script Autónomo de Restauro</h6>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed" data-i18n="cluster_item_script_desc">Script restore_full_cluster.sh incluído que instala o Docker e repõe tudo com 1 só comando.</p>
+            </div>
+          </div>
+        </div>
+
         <!-- Instruções de Migração Passo a Passo -->
-        <div class="rounded-3xl border border-slate-700/60 bg-slate-900/50 p-4 space-y-3">
+        <div class="rounded-3xl border border-slate-700/60 bg-slate-900/50 p-4 space-y-3.5">
           <h5 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
             <i data-lucide="terminal" class="w-4 h-4 text-indigo-400"></i>
             <span data-i18n="cluster_how_to_restore_title">Como Restaurar noutro Servidor (Debian / Ubuntu / TrueNAS)</span>
           </h5>
 
-          <div class="space-y-2 text-xs text-slate-300">
+          <div class="space-y-3 text-xs text-slate-300">
             <div>
-              <span class="font-bold text-slate-400 block mb-1">1. Copiar o ficheiro transferido para o novo servidor:</span>
+              <span class="font-bold text-slate-400 block mb-1" data-i18n="cluster_step1_title">1. Transferir o arquivo para o novo servidor:</span>
+              <p class="text-[11px] text-slate-400 mb-1.5" data-i18n="cluster_step1_desc">Transfira o ficheiro transferido (.tar.gz) para o novo servidor Debian/Ubuntu via SCP:</p>
               <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[11px] text-emerald-400">
                 <span>scp cluster_full_backup_*.tar.gz root@NOVO_IP:/tmp/</span>
-                <button onclick="navigator.clipboard.writeText('scp cluster_full_backup_*.tar.gz root@NOVO_IP:/tmp/'); appAlert({ title: t('state_copied'), message: 'Comando copiado!', type: 'success' });" class="p-1 hover:text-white cursor-pointer"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                <button onclick="navigator.clipboard.writeText('scp cluster_full_backup_*.tar.gz root@NOVO_IP:/tmp/'); appAlert({ title: t('state_copied'), message: t('alert_cmd_copied'), type: 'success' });" class="p-1 hover:text-white cursor-pointer"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
               </div>
             </div>
 
             <div>
-              <span class="font-bold text-slate-400 block mb-1">2. No novo servidor, extrair e executar o script automático:</span>
+              <span class="font-bold text-slate-400 block mb-1" data-i18n="cluster_step2_title">2. Extrair o arquivo no novo servidor:</span>
+              <p class="text-[11px] text-slate-400 mb-1.5" data-i18n="cluster_step2_desc">Ligue-se por SSH, extraia o arquivo numa pasta temporária e entre na pasta:</p>
               <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[11px] text-indigo-400">
-                <span>cd /tmp &amp;&amp; tar -xzf cluster_full_backup_*.tar.gz &amp;&amp; sudo bash restore_full_cluster.sh</span>
-                <button onclick="navigator.clipboard.writeText('cd /tmp && tar -xzf cluster_full_backup_*.tar.gz && sudo bash restore_full_cluster.sh'); appAlert({ title: t('state_copied'), message: 'Comando copiado!', type: 'success' });" class="p-1 hover:text-white cursor-pointer"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                <span>cd /tmp &amp;&amp; tar -xzf cluster_full_backup_*.tar.gz &amp;&amp; cd cluster_full_backup_*</span>
+                <button onclick="navigator.clipboard.writeText('cd /tmp && tar -xzf cluster_full_backup_*.tar.gz && cd cluster_full_backup_*'); appAlert({ title: t('state_copied'), message: t('alert_cmd_copied'), type: 'success' });" class="p-1 hover:text-white cursor-pointer"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
               </div>
+            </div>
+
+            <div>
+              <span class="font-bold text-slate-400 block mb-1" data-i18n="cluster_step3_title">3. Executar o script de restauro automático com privilégios de root:</span>
+              <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[11px] text-amber-400">
+                <span>sudo bash restore_full_cluster.sh</span>
+                <button onclick="navigator.clipboard.writeText('sudo bash restore_full_cluster.sh'); appAlert({ title: t('state_copied'), message: t('alert_cmd_copied'), type: 'success' });" class="p-1 hover:text-white cursor-pointer"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-1.5">
+              <span class="text-[11px] font-bold text-slate-300 block" data-i18n="cluster_step3_details_title">O script de restauro automático executa autonomamente:</span>
+              <ul class="text-[11px] text-slate-400 space-y-1 list-disc list-inside">
+                <li data-i18n="cluster_step3_feat1">Instalação automática do Docker e Docker Compose caso não existam no sistema</li>
+                <li data-i18n="cluster_step3_feat2">Restauração de todas as definições e chaves seguras do Deployment Center</li>
+                <li data-i18n="cluster_step3_feat3">Recriação das bases de dados PostgreSQL e importação dos dumps SQL integrais</li>
+                <li data-i18n="cluster_step3_feat4">Inicialização de todos os projetos e contentores nas portas configuradas</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cenários de Utilização -->
+        <div class="space-y-2.5">
+          <h5 class="font-extrabold text-xs text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="compass" class="w-3.5 h-3.5 text-teal-400"></i>
+            <span data-i18n="cluster_scenarios_title">Cenários de Utilização</span>
+          </h5>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/80 space-y-1">
+              <span class="font-bold text-xs text-rose-400 flex items-center gap-1.5">
+                <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+                <span data-i18n="cluster_scen_dr_title">Recuperação de Desastre</span>
+              </span>
+              <p class="text-[11px] text-slate-400 leading-relaxed" data-i18n="cluster_scen_dr_desc">Se o servidor atual falhar, restaure toda a sua infraestrutura num servidor novo ou limpo em minutos.</p>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/80 space-y-1">
+              <span class="font-bold text-xs text-sky-400 flex items-center gap-1.5">
+                <i data-lucide="arrow-right-left" class="w-3.5 h-3.5"></i>
+                <span data-i18n="cluster_scen_mig_title">Migração de Servidor</span>
+              </span>
+              <p class="text-[11px] text-slate-400 leading-relaxed" data-i18n="cluster_scen_mig_desc">Mude de servidor ou provedor cloud (TrueNAS, Debian, Ubuntu, VPS) sem perda de dados.</p>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/80 space-y-1">
+              <span class="font-bold text-xs text-emerald-400 flex items-center gap-1.5">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span data-i18n="cluster_scen_clone_title">Clonagem &amp; Staging</span>
+              </span>
+              <p class="text-[11px] text-slate-400 leading-relaxed" data-i18n="cluster_scen_clone_desc">Crie uma réplica idêntica de todo o cluster num servidor secundário para testes ou pré-produção.</p>
             </div>
           </div>
         </div>
@@ -4184,7 +4284,46 @@
     "btn_export_cluster": "Criar & Descarregar Backup Total (.tar.gz)",
     "cluster_how_to_restore_title": "Como Restaurar noutro Servidor (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Deseja iniciar a criação do Backup Total de todos os projetos, bases de dados e configurações?",
-    "alert_cluster_backup_success": "Backup Total do Cluster criado com sucesso! Ficheiro: {filename} ({size})"
+    "alert_cluster_backup_success": "Backup Total do Cluster criado com sucesso! Ficheiro: {filename} ({size})",
+    "cluster_explanation_title": "O que está incluído neste Backup Total?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Configurações de sistema, utilizadores, chaves de API, histórico de deploys e diretivas de IA.",
+    "cluster_item_projects_title": "Código-Fonte & Stacks",
+    "cluster_item_projects_desc": "Código de todas as aplicações, ficheiros .env, docker-compose.yml e rotas de gateway.",
+    "cluster_item_db_title": "Bases de Dados PostgreSQL",
+    "cluster_item_db_desc": "Dumps SQL completos de cada projeto (schemas auth, storage, public, tabelas e dados).",
+    "cluster_item_script_title": "Script Autónomo de Restauro",
+    "cluster_item_script_desc": "Script restore_full_cluster.sh incluído que instala o Docker e repõe tudo com 1 só comando.",
+    "cluster_step3_title": "3. Executar o script de restauro automático com privilégios de root:",
+    "cluster_step1_desc": "Transfira o ficheiro transferido (.tar.gz) para o novo servidor Debian/Ubuntu via SCP:",
+    "cluster_step2_desc": "Ligue-se por SSH, extraia o arquivo numa pasta temporária e entre na pasta:",
+    "cluster_badge_universal": "MIGRAÇÃO UNIVERSAL",
+    "cluster_badge_self_contained": "AUTOCONTIDO",
+    "cluster_badge_dr": "DISASTER RECOVERY",
+    "cluster_hero_title": "Pacote Completo com Script de Restauro Autónomo",
+    "cluster_hero_desc": "Inclui o Deployment Center (definições, utilizadores, chaves, IA), todos os projetos ativos, ficheiros de configuração, dumps integrais PostgreSQL e o script restore_full_cluster.sh pronto para executar em qualquer novo servidor Debian ou Ubuntu.",
+    "cluster_export_progress_label": "A preparar snapshot da infraestrutura...",
+    "cluster_step1_title": "1. Transferir o arquivo para o novo servidor:",
+    "cluster_step2_title": "2. Extrair o arquivo no novo servidor:",
+    "cluster_step3_details_title": "O script de restauro automático executa autonomamente:",
+    "cluster_step3_feat1": "Instalação automática do Docker e Docker Compose caso não existam no sistema",
+    "cluster_step3_feat2": "Restauração de todas as definições e chaves seguras do Deployment Center",
+    "cluster_step3_feat3": "Recriação das bases de dados PostgreSQL e importação dos dumps SQL integrais",
+    "cluster_step3_feat4": "Inicialização de todos os projetos e contentores nas portas configuradas",
+    "cluster_scenarios_title": "Cenários de Utilização",
+    "cluster_scen_dr_title": "Recuperação de Desastre",
+    "cluster_scen_dr_desc": "Se o servidor atual falhar, restaure toda a sua infraestrutura num servidor novo ou limpo em minutos.",
+    "cluster_scen_mig_title": "Migração de Servidor",
+    "cluster_scen_mig_desc": "Mude de servidor ou provedor cloud (TrueNAS, Debian, Ubuntu, VPS) sem perda de dados.",
+    "cluster_scen_clone_title": "Clonagem & Staging",
+    "cluster_scen_clone_desc": "Crie uma réplica idêntica de todo o cluster num servidor secundário para testes ou pré-produção.",
+    "alert_cmd_copied": "Comando copiado para a área de transferência!",
+    "btn_exporting_cluster": "A gerar Backup Total...",
+    "cluster_status_collecting": "A recolher definições e código do Deployment Center...",
+    "cluster_status_dumps": "A gerar dumps de bases de dados PostgreSQL de todos os projetos...",
+    "cluster_status_compressing": "A compactar pacote universal (.tar.gz)...",
+    "cluster_status_completed": "Backup concluído com sucesso!",
+    "cluster_status_error": "Erro na geração do backup."
   },
   "en": {
     "wz_zip_label": "Initial Source Code (.ZIP File)",
@@ -4843,7 +4982,46 @@
     "btn_export_cluster": "Create & Download Full Backup (.tar.gz)",
     "cluster_how_to_restore_title": "How to Restore on Another Server (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Do you want to start creating a Full Backup of all projects, databases, and settings?",
-    "alert_cluster_backup_success": "Full Cluster Backup created successfully! File: {filename} ({size})"
+    "alert_cluster_backup_success": "Full Cluster Backup created successfully! File: {filename} ({size})",
+    "cluster_explanation_title": "What is included in this Full Backup?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "System configurations, users, API keys, deployment history, and AI directives.",
+    "cluster_item_projects_title": "Source Code & Stacks",
+    "cluster_item_projects_desc": "Application code, .env files, docker-compose.yml, and API gateway configurations.",
+    "cluster_item_db_title": "PostgreSQL Databases",
+    "cluster_item_db_desc": "Complete SQL dumps for each project (auth, storage, public schemas, tables, and data).",
+    "cluster_item_script_title": "Autonomous Restore Script",
+    "cluster_item_script_desc": "Included restore_full_cluster.sh script that installs Docker and restores everything with 1 command.",
+    "cluster_step3_title": "3. Run the automated restore script with root privileges:",
+    "cluster_step1_desc": "Transfer the downloaded (.tar.gz) file to the new Debian/Ubuntu server via SCP:",
+    "cluster_step2_desc": "Connect via SSH, extract the archive into a temporary folder, and enter it:",
+    "cluster_badge_universal": "UNIVERSAL MIGRATION",
+    "cluster_badge_self_contained": "SELF-CONTAINED",
+    "cluster_badge_dr": "DISASTER RECOVERY",
+    "cluster_hero_title": "Full Package with Autonomous Restore Script",
+    "cluster_hero_desc": "Includes Deployment Center (settings, users, keys, AI), all active projects, configuration files, full PostgreSQL dumps, and the restore_full_cluster.sh script ready to run on any new Debian or Ubuntu server.",
+    "cluster_export_progress_label": "Preparing infrastructure snapshot...",
+    "cluster_step1_title": "1. Transfer the archive to the new server:",
+    "cluster_step2_title": "2. Extract the archive on the new server:",
+    "cluster_step3_details_title": "The automated restore script executes autonomously:",
+    "cluster_step3_feat1": "Automatic installation of Docker and Docker Compose if not already present",
+    "cluster_step3_feat2": "Restoration of all settings and secure credentials in Deployment Center",
+    "cluster_step3_feat3": "Recreation of PostgreSQL databases and full import of all SQL dumps",
+    "cluster_step3_feat4": "Startup of all projects and containers on their configured ports",
+    "cluster_scenarios_title": "Use Case Scenarios",
+    "cluster_scen_dr_title": "Disaster Recovery",
+    "cluster_scen_dr_desc": "If the current server fails, restore your entire infrastructure on a clean machine in minutes.",
+    "cluster_scen_mig_title": "Server Migration",
+    "cluster_scen_mig_desc": "Switch servers or cloud providers (TrueNAS, Debian, Ubuntu, VPS) with zero data loss.",
+    "cluster_scen_clone_title": "Cloning & Staging",
+    "cluster_scen_clone_desc": "Create an identical replica of your entire cluster on a secondary server for testing or staging.",
+    "alert_cmd_copied": "Command copied to clipboard!",
+    "btn_exporting_cluster": "Generating Full Backup...",
+    "cluster_status_collecting": "Collecting Deployment Center settings and code...",
+    "cluster_status_dumps": "Generating PostgreSQL database dumps for all projects...",
+    "cluster_status_compressing": "Compressing universal package (.tar.gz)...",
+    "cluster_status_completed": "Backup completed successfully!",
+    "cluster_status_error": "Error generating backup."
   },
   "it": {
     "wz_zip_label": "Codice Sorgente Iniziale (File .ZIP)",
@@ -5502,7 +5680,46 @@
     "btn_export_cluster": "Crea e Scarica Backup Totale (.tar.gz)",
     "cluster_how_to_restore_title": "Come Ripristinare su un Altro Server (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Desideri avviare la creazione del Backup Totale di tutti i progetti, database e configurazioni?",
-    "alert_cluster_backup_success": "Backup Totale del Cluster creato con successo! File: {filename} ({size})"
+    "alert_cluster_backup_success": "Backup Totale del Cluster creato con successo! File: {filename} ({size})",
+    "cluster_explanation_title": "Cosa è incluso in questo Backup Totale?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Configurazioni di sistema, utenti, chiavi API, cronologia dei deploy e direttive IA.",
+    "cluster_item_projects_title": "Codice Sorgente & Stack",
+    "cluster_item_projects_desc": "Codice di tutte le applicazioni, file .env, docker-compose.yml e rotte gateway.",
+    "cluster_item_db_title": "Database PostgreSQL",
+    "cluster_item_db_desc": "Dump SQL completi per ciascun progetto (schemi auth, storage, public, tabelle e dati).",
+    "cluster_item_script_title": "Script Autonomo di Ripristino",
+    "cluster_item_script_desc": "Script restore_full_cluster.sh incluso che installa Docker e ripristina tutto con un solo comando.",
+    "cluster_step3_title": "3. Eseguire lo script di ripristino automatico con privilegi di root:",
+    "cluster_step1_desc": "Trasferisci il file scaricato (.tar.gz) sul nuovo server Debian/Ubuntu tramite SCP:",
+    "cluster_step2_desc": "Connettiti tramite SSH, estrai l'archivio in una cartella temporanea ed entra:",
+    "cluster_badge_universal": "MIGRAZIONE UNIVERSALE",
+    "cluster_badge_self_contained": "AUTONOMO",
+    "cluster_badge_dr": "DISASTER RECOVERY",
+    "cluster_hero_title": "Pacchetto Completo con Script di Ripristino Autonomo",
+    "cluster_hero_desc": "Include Deployment Center (impostazioni, utenti, chiavi, IA), tutti i progetti attivi, file di configurazione, dump completi PostgreSQL e lo script restore_full_cluster.sh pronto all'uso su Debian o Ubuntu.",
+    "cluster_export_progress_label": "Preparazione dello snapshot dell'infrastruttura...",
+    "cluster_step1_title": "1. Trasferire l'archivio sul nuovo server:",
+    "cluster_step2_title": "2. Estrarre l'archivio sul nuovo server:",
+    "cluster_step3_details_title": "Lo script di ripristino automatico esegue autonomamente:",
+    "cluster_step3_feat1": "Installazione automatica di Docker e Docker Compose se non presenti nel sistema",
+    "cluster_step3_feat2": "Ripristino di tutte le impostazioni e credenziali sicure del Deployment Center",
+    "cluster_step3_feat3": "Ricreazione dei database PostgreSQL e importazione completa di tutti i dump SQL",
+    "cluster_step3_feat4": "Avvio di tutti i progetti e container sulle porte configurate",
+    "cluster_scenarios_title": "Scenari di Utilizzo",
+    "cluster_scen_dr_title": "Disaster Recovery",
+    "cluster_scen_dr_desc": "Se il server attuale si guasta, ripristina l'intera infrastruttura su un server pulito in pochi minuti.",
+    "cluster_scen_mig_title": "Migrazione del Server",
+    "cluster_scen_mig_desc": "Cambia server o provider cloud (TrueNAS, Debian, Ubuntu, VPS) senza perdita di dati.",
+    "cluster_scen_clone_title": "Clonazione & Staging",
+    "cluster_scen_clone_desc": "Crea una replica identica dell'intero cluster su un server secondario per test o pre-produzione.",
+    "alert_cmd_copied": "Comando copiato negli appunti!",
+    "btn_exporting_cluster": "Generazione del Backup Totale...",
+    "cluster_status_collecting": "Raccolta delle impostazioni e del codice di Deployment Center...",
+    "cluster_status_dumps": "Generazione dei dump di database PostgreSQL di tutti i progetti...",
+    "cluster_status_compressing": "Compressione del pacchetto universale (.tar.gz)...",
+    "cluster_status_completed": "Backup completato con successo!",
+    "cluster_status_error": "Errore durante la generazione del backup."
   },
   "de": {
     "wz_zip_label": "Initialer Quellcode (.ZIP-Datei)",
@@ -6161,7 +6378,46 @@
     "btn_export_cluster": "Vollständiges Backup erstellen & herunterladen (.tar.gz)",
     "cluster_how_to_restore_title": "Wiederherstellung auf einem anderen Server (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Möchten Sie die Erstellung des vollständigen Backups aller Projekte, Datenbanken und Einstellungen starten?",
-    "alert_cluster_backup_success": "Vollständiges Cluster-Backup erfolgreich erstellt! Datei: {filename} ({size})"
+    "alert_cluster_backup_success": "Vollständiges Cluster-Backup erfolgreich erstellt! Datei: {filename} ({size})",
+    "cluster_explanation_title": "Was ist in diesem vollständigen Backup enthalten?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Systemkonfigurationen, Benutzer, API-Schlüssel, Deployment-Historie und KI-Richtlinien.",
+    "cluster_item_projects_title": "Quellcode & Stacks",
+    "cluster_item_projects_desc": "Anwendungscode, .env-Dateien, docker-compose.yml und API-Gateway-Routen.",
+    "cluster_item_db_title": "PostgreSQL-Datenbanken",
+    "cluster_item_db_desc": "Vollständige SQL-Dumps für jedes Projekt (auth, storage, public Schemas, Tabellen und Daten).",
+    "cluster_item_script_title": "Autonomes Wiederherstellungsskript",
+    "cluster_item_script_desc": "Enthaltenes restore_full_cluster.sh-Skript, das Docker installiert und alles mit 1 Befehl wiederherstellt.",
+    "cluster_step3_title": "3. Führen Sie das automatische Wiederherstellungsskript mit Root-Rechten aus:",
+    "cluster_step1_desc": "Übertragen Sie die heruntergeladene (.tar.gz) Datei per SCP auf den neuen Debian/Ubuntu-Server:",
+    "cluster_step2_desc": "Verbinden Sie sich per SSH, entpacken Sie das Archiv in einen temporären Ordner und öffnen Sie ihn:",
+    "cluster_badge_universal": "UNIVERSELLE MIGRATION",
+    "cluster_badge_self_contained": "SELBSTSTÄNDIG",
+    "cluster_badge_dr": "DISASTER RECOVERY",
+    "cluster_hero_title": "Komplettpaket mit autonomem Wiederherstellungsskript",
+    "cluster_hero_desc": "Enthält Deployment Center (Einstellungen, Benutzer, Schlüssel, KI), alle aktiven Projekte, Konfigurationsdateien, vollständige PostgreSQL-Dumps und das Skript restore_full_cluster.sh für jeden Debian- oder Ubuntu-Server.",
+    "cluster_export_progress_label": "Infrastruktur-Snapshot wird vorbereitet...",
+    "cluster_step1_title": "1. Archiv auf den neuen Server übertragen:",
+    "cluster_step2_title": "2. Archiv auf dem neuen Server entpacken:",
+    "cluster_step3_details_title": "Das automatische Wiederherstellungsskript führt autonom aus:",
+    "cluster_step3_feat1": "Automatische Installation von Docker und Docker Compose, falls nicht vorhanden",
+    "cluster_step3_feat2": "Wiederherstellung aller Einstellungen und sicheren Anmeldedaten im Deployment Center",
+    "cluster_step3_feat3": "Neuerstellung der PostgreSQL-Datenbanken und vollständiger Import aller SQL-Dumps",
+    "cluster_step3_feat4": "Start aller Projekte und Container auf ihren konfigurierten Ports",
+    "cluster_scenarios_title": "Einsatzszenarien",
+    "cluster_scen_dr_title": "Katastrophenwiederherstellung",
+    "cluster_scen_dr_desc": "Wenn der aktuelle Server ausfällt, stellen Sie Ihre gesamte Infrastruktur in wenigen Minuten auf einem neuen Server wieder her.",
+    "cluster_scen_mig_title": "Server-Migration",
+    "cluster_scen_mig_desc": "Wechseln Sie den Server oder Cloud-Anbieter (TrueNAS, Debian, Ubuntu, VPS) ohne Datenverlust.",
+    "cluster_scen_clone_title": "Klonen & Staging",
+    "cluster_scen_clone_desc": "Erstellen Sie ein identisches Replikat Ihres Clusters auf einem zweiten Server für Tests oder Staging.",
+    "alert_cmd_copied": "Befehl in die Zwischenablage kopiert!",
+    "btn_exporting_cluster": "Vollständiges Backup wird generiert...",
+    "cluster_status_collecting": "Sammeln von Einstellungen und Code des Deployment Centers...",
+    "cluster_status_dumps": "Erstellen von PostgreSQL-Datenbank-Dumps für alle Projekte...",
+    "cluster_status_compressing": "Universelles Paket (.tar.gz) wird komprimiert...",
+    "cluster_status_completed": "Backup erfolgreich abgeschlossen!",
+    "cluster_status_error": "Fehler beim Erstellen des Backups."
   },
   "de-AT": {
     "wz_zip_label": "Initialer Quellcode (.ZIP-Datei)",
@@ -6820,7 +7076,46 @@
     "btn_export_cluster": "Vollständiges Backup erstellen & herunterladen (.tar.gz)",
     "cluster_how_to_restore_title": "Wiederherstellung auf einem anderen Server (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Möchten Sie die Erstellung des vollständigen Backups aller Projekte, Datenbanken und Einstellungen starten?",
-    "alert_cluster_backup_success": "Vollständiges Cluster-Backup erfolgreich erstellt! Datei: {filename} ({size})"
+    "alert_cluster_backup_success": "Vollständiges Cluster-Backup erfolgreich erstellt! Datei: {filename} ({size})",
+    "cluster_explanation_title": "Was ist in diesem vollständigen Backup enthalten?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Systemkonfigurationen, Benutzer, API-Schlüssel, Deployment-Historie und KI-Richtlinien.",
+    "cluster_item_projects_title": "Quellcode & Stacks",
+    "cluster_item_projects_desc": "Anwendungscode, .env-Dateien, docker-compose.yml und API-Gateway-Routen.",
+    "cluster_item_db_title": "PostgreSQL-Datenbanken",
+    "cluster_item_db_desc": "Vollständige SQL-Dumps für jedes Projekt (auth, storage, public Schemas, Tabellen und Daten).",
+    "cluster_item_script_title": "Autonomes Wiederherstellungsskript",
+    "cluster_item_script_desc": "Enthaltenes restore_full_cluster.sh-Skript, das Docker installiert und alles mit 1 Befehl wiederherstellt.",
+    "cluster_step3_title": "3. Führen Sie das automatische Wiederherstellungsskript mit Root-Rechten aus:",
+    "cluster_step1_desc": "Übertragen Sie die heruntergeladene (.tar.gz) Datei per SCP auf den neuen Debian/Ubuntu-Server:",
+    "cluster_step2_desc": "Verbinden Sie sich per SSH, entpacken Sie das Archiv in einen temporären Ordner und öffnen Sie ihn:",
+    "cluster_badge_universal": "UNIVERSELLE MIGRATION",
+    "cluster_badge_self_contained": "SELBSTSTÄNDIG",
+    "cluster_badge_dr": "DISASTER RECOVERY",
+    "cluster_hero_title": "Komplettpaket mit autonomem Wiederherstellungsskript",
+    "cluster_hero_desc": "Enthält Deployment Center (Einstellungen, Benutzer, Schlüssel, KI), alle aktiven Projekte, Konfigurationsdateien, vollständige PostgreSQL-Dumps und das Skript restore_full_cluster.sh für jeden Debian- oder Ubuntu-Server.",
+    "cluster_export_progress_label": "Infrastruktur-Snapshot wird vorbereitet...",
+    "cluster_step1_title": "1. Archiv auf den neuen Server übertragen:",
+    "cluster_step2_title": "2. Archiv auf dem neuen Server entpacken:",
+    "cluster_step3_details_title": "Das automatische Wiederherstellungsskript führt autonom aus:",
+    "cluster_step3_feat1": "Automatische Installation von Docker und Docker Compose, falls nicht vorhanden",
+    "cluster_step3_feat2": "Wiederherstellung aller Einstellungen und sicheren Anmeldedaten im Deployment Center",
+    "cluster_step3_feat3": "Neuerstellung der PostgreSQL-Datenbanken und vollständiger Import aller SQL-Dumps",
+    "cluster_step3_feat4": "Start aller Projekte und Container auf ihren konfigurierten Ports",
+    "cluster_scenarios_title": "Einsatzszenarien",
+    "cluster_scen_dr_title": "Katastrophenwiederherstellung",
+    "cluster_scen_dr_desc": "Wenn der aktuelle Server ausfällt, stellen Sie Ihre gesamte Infrastruktur in wenigen Minuten auf einem neuen Server wieder her.",
+    "cluster_scen_mig_title": "Server-Migration",
+    "cluster_scen_mig_desc": "Wechseln Sie den Server oder Cloud-Anbieter (TrueNAS, Debian, Ubuntu, VPS) ohne Datenverlust.",
+    "cluster_scen_clone_title": "Klonen & Staging",
+    "cluster_scen_clone_desc": "Erstellen Sie ein identisches Replikat Ihres Clusters auf einem zweiten Server für Tests oder Staging.",
+    "alert_cmd_copied": "Befehl in die Zwischenablage kopiert!",
+    "btn_exporting_cluster": "Vollständiges Backup wird generiert...",
+    "cluster_status_collecting": "Sammeln von Einstellungen und Code des Deployment Centers...",
+    "cluster_status_dumps": "Erstellen von PostgreSQL-Datenbank-Dumps für alle Projekte...",
+    "cluster_status_compressing": "Universelles Paket (.tar.gz) wird komprimiert...",
+    "cluster_status_completed": "Backup erfolgreich abgeschlossen!",
+    "cluster_status_error": "Fehler beim Erstellen des Backups."
   },
   "nl": {
     "wz_zip_label": "Initiële Broncode (.ZIP-bestand)",
@@ -7504,7 +7799,46 @@
     "btn_export_cluster": "Volledige Back-up maken en downloaden (.tar.gz)",
     "cluster_how_to_restore_title": "Herstellen op een andere server (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Wilt u starten met het maken van een Volledige Back-up van alle projecten, databases en instellingen?",
-    "alert_cluster_backup_success": "Volledige Clusterback-up succesvol gemaakt! Bestand: {filename} ({size})"
+    "alert_cluster_backup_success": "Volledige Clusterback-up succesvol gemaakt! Bestand: {filename} ({size})",
+    "cluster_explanation_title": "Wat is inbegrepen in deze Volledige Back-up?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Systeemconfiguraties, gebruikers, API-sleutels, implementatiegeschiedenis en AI-richtlijnen.",
+    "cluster_item_projects_title": "Broncode & Stacks",
+    "cluster_item_projects_desc": "Applicatiecode, .env-bestanden, docker-compose.yml en gatewayroutes.",
+    "cluster_item_db_title": "PostgreSQL-databases",
+    "cluster_item_db_desc": "Volledige SQL-dumps per project (auth-, storage-, public-schema's, tabellen en data).",
+    "cluster_item_script_title": "Autonoom Herstelscript",
+    "cluster_item_script_desc": "Inbegrepen restore_full_cluster.sh-script dat Docker installeert en alles herstelt met 1 opdracht.",
+    "cluster_step3_title": "3. Voer het automatische herstelscript uit met rootrechten:",
+    "cluster_step1_desc": "Verzend het gedownloade (.tar.gz) bestand naar de nieuwe Debian/Ubuntu-server via SCP:",
+    "cluster_step2_desc": "Verbind via SSH, pak het archief uit in een tijdelijke map en open deze:",
+    "cluster_badge_universal": "UNIVERSELE MIGRATIE",
+    "cluster_badge_self_contained": "ZELFSTANDIG",
+    "cluster_badge_dr": "HERSTEL NA RAMPEN",
+    "cluster_hero_title": "Compleet pakket met autonoom herstelscript",
+    "cluster_hero_desc": "Bevat Deployment Center (instellingen, gebruikers, sleutels, AI), alle actieve projecten, configuratiebestanden, volledige PostgreSQL-dumps en het script restore_full_cluster.sh voor elke Debian- of Ubuntu-server.",
+    "cluster_export_progress_label": "Infrastructuursnapshot voorbereiden...",
+    "cluster_step1_title": "1. Breng het archief over naar de nieuwe server:",
+    "cluster_step2_title": "2. Pak het archief uit op de nieuwe server:",
+    "cluster_step3_details_title": "Het automatische herstelscript voert autonoom uit:",
+    "cluster_step3_feat1": "Automatische installatie van Docker en Docker Compose indien nog niet aanwezig",
+    "cluster_step3_feat2": "Herstel van alle instellingen en veilige inloggegevens in Deployment Center",
+    "cluster_step3_feat3": "Opnieuw aanmaken van PostgreSQL-databases en volledige import van alle SQL-dumps",
+    "cluster_step3_feat4": "Opstarten van alle projecten en containers op hun geconfigureerde poorten",
+    "cluster_scenarios_title": "Toepassingsscenario's",
+    "cluster_scen_dr_title": "Herstel na ramp",
+    "cluster_scen_dr_desc": "Als de huidige server uitvalt, herstelt u uw volledige infrastructuur binnen enkele minuten op een nieuwe machine.",
+    "cluster_scen_mig_title": "Servermigratie",
+    "cluster_scen_mig_desc": "Wissel van server of cloudprovider (TrueNAS, Debian, Ubuntu, VPS) zonder gegevensverlies.",
+    "cluster_scen_clone_title": "Klonen & Staging",
+    "cluster_scen_clone_desc": "Maak een identieke replica van uw hele cluster op een secundaire server voor testen of staging.",
+    "alert_cmd_copied": "Opdracht gekopieerd naar klembord!",
+    "btn_exporting_cluster": "Volledige back-up genereren...",
+    "cluster_status_collecting": "Instellingen en code van Deployment Center verzamelen...",
+    "cluster_status_dumps": "PostgreSQL-databasedumps genereren voor alle projecten...",
+    "cluster_status_compressing": "Universeel pakket (.tar.gz) comprimeren...",
+    "cluster_status_completed": "Back-up succesvol voltooid!",
+    "cluster_status_error": "Fout bij het genereren van back-up."
   },
   "el": {
     "wz_zip_label": "Αρχικός Πηγαίος Κώδικας (Αρχείο .ZIP)",
@@ -8188,7 +8522,46 @@
     "btn_export_cluster": "Δημιουργία & Λήψη Πλήρους Αντιγράφου (.tar.gz)",
     "cluster_how_to_restore_title": "Πώς να Επαναφέρετε σε Άλλον Διακομιστή (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Θέλετε να ξεκινήσετε τη δημιουργία Πλήρους Αντιγράφου όλων των έργων, βάσεων δεδομένων και ρυθμίσεων;",
-    "alert_cluster_backup_success": "Το Πλήρες Αντίγραφο Συστάδας δημιουργήθηκε με επιτυχία! Αρχείο: {filename} ({size})"
+    "alert_cluster_backup_success": "Το Πλήρες Αντίγραφο Συστάδας δημιουργήθηκε με επιτυχία! Αρχείο: {filename} ({size})",
+    "cluster_explanation_title": "Τι περιλαμβάνεται σε αυτό το Πλήρες Αντίγραφο;",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Διαμορφώσεις συστήματος, χρήστες, κλειδιά API, ιστορικό αναπτύξεων και οδηγίες AI.",
+    "cluster_item_projects_title": "Πηγαίος Κώδικας & Στοίβες",
+    "cluster_item_projects_desc": "Κώδικας εφαρμογών, αρχεία .env, docker-compose.yml και διαδρομές gateway.",
+    "cluster_item_db_title": "Βάσεις Δεδομένων PostgreSQL",
+    "cluster_item_db_desc": "Πλήρη SQL dumps για κάθε έργο (σχήματα auth, storage, public, πίνακες και δεδομένα).",
+    "cluster_item_script_title": "Αυτόνομο Σενάριο Επαναφοράς",
+    "cluster_item_script_desc": "Περιλαμβανόμενο σενάριο restore_full_cluster.sh που εγκαθιστά το Docker και επαναφέρει τα πάντα με 1 εντολή.",
+    "cluster_step3_title": "3. Εκτελέστε το αυτόματο σενάριο επαναφοράς με δικαιώματα root:",
+    "cluster_step1_desc": "Μεταφέρετε το ληφθέν αρχείο (.tar.gz) στον νέο διακομιστή Debian/Ubuntu μέσω SCP:",
+    "cluster_step2_desc": "Συνδεθείτε μέσω SSH, εξαγάγετε το συμπιεσμένο αρχείο σε προσωρινό φάκελο και μεταβείτε σε αυτόν:",
+    "cluster_badge_universal": "ΚΑΘΟΛΙΚΗ ΜΕΤΑΦΟΡΑ",
+    "cluster_badge_self_contained": "ΑΥΤΟΝΟΜΟ",
+    "cluster_badge_dr": "ΑΝΑΚΑΜΨΗ ΑΠΟ ΚΑΤΑΣΤΡΟΦΗ",
+    "cluster_hero_title": "Πλήρες Πακέτο με Αυτόνομο Σενάριο Επαναφοράς",
+    "cluster_hero_desc": "Περιλαμβάνει το Deployment Center (ρυθμίσεις, χρήστες, κλειδιά, AI), όλα τα ενεργά έργα, αρχεία ρυθμίσεων, πλήρη PostgreSQL dumps και το σενάριο restore_full_cluster.sh έτοιμο για εκτέλεση σε Debian ή Ubuntu.",
+    "cluster_export_progress_label": "Προετοιμασία στιγμιότυπου υποδομής...",
+    "cluster_step1_title": "1. Μεταφορά του αρχείου στον νέο διακομιστή:",
+    "cluster_step2_title": "2. Εξαγωγή του αρχείου στον νέο διακομιστή:",
+    "cluster_step3_details_title": "Το αυτόματο σενάριο επαναφοράς εκτελεί αυτόνομα:",
+    "cluster_step3_feat1": "Αυτόματη εγκατάσταση Docker και Docker Compose εάν δεν υπάρχουν",
+    "cluster_step3_feat2": "Επαναφορά όλων των ρυθμίσεων και ασφαλών διαπιστευτηρίων στο Deployment Center",
+    "cluster_step3_feat3": "Επαναδημιουργία βάσεων δεδομένων PostgreSQL και πλήρης εισαγωγή όλων των SQL dumps",
+    "cluster_step3_feat4": "Εκκίνηση όλων των έργων και των containers στις ρυθμισμένες θύρες",
+    "cluster_scenarios_title": "Σενάρια Χρήσης",
+    "cluster_scen_dr_title": "Ανάκαμψη από Καταστροφή",
+    "cluster_scen_dr_desc": "Εάν ο τρέχων διακομιστής καταρρεύσει, επαναφέρετε ολόκληρη την υποδομή σας σε νέο διακομιστή μέσα σε λίγα λεπτά.",
+    "cluster_scen_mig_title": "Μεταφορά Διακομιστή",
+    "cluster_scen_mig_desc": "Αλλάξτε διακομιστή ή πάροχο cloud (TrueNAS, Debian, Ubuntu, VPS) χωρίς καμία απώλεια δεδομένων.",
+    "cluster_scen_clone_title": "Κλωνοποίηση & Staging",
+    "cluster_scen_clone_desc": "Δημιουργήστε ένα πανομοιότυπο αντίγραφο ολόκληρου του cluster σε δευτερεύοντα διακομιστή για δοκιμές.",
+    "alert_cmd_copied": "Η εντολή αντιγράφηκε στο πρόχειρο!",
+    "btn_exporting_cluster": "Δημιουργία Πλήρους Αντιγράφου...",
+    "cluster_status_collecting": "Συλλογή ρυθμίσεων και κώδικα του Deployment Center...",
+    "cluster_status_dumps": "Δημιουργία dumps βάσεων δεδομένων PostgreSQL για όλα τα έργα...",
+    "cluster_status_compressing": "Συμπίεση καθολικού πακέτου (.tar.gz)...",
+    "cluster_status_completed": "Το αντίγραφο ασφαλείας ολοκληρώθηκε με επιτυχία!",
+    "cluster_status_error": "Σφάλμα κατά τη δημιουργία του αντιγράφου."
   },
   "pl": {
     "wz_zip_label": "Początkowy Kod Źródłowy (Plik .ZIP)",
@@ -8872,7 +9245,46 @@
     "btn_export_cluster": "Utwórz i Pobierz Pełną Kopię (.tar.gz)",
     "cluster_how_to_restore_title": "Jak Przywrócić na Innym Serwerze (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Czy chcesz rozpocząć tworzenie Pełnej Kopii Zapasowej wszystkich projektów, baz danych i ustawień?",
-    "alert_cluster_backup_success": "Pełna Kopia Klastra została utworzona pomyślnie! Plik: {filename} ({size})"
+    "alert_cluster_backup_success": "Pełna Kopia Klastra została utworzona pomyślnie! Plik: {filename} ({size})",
+    "cluster_explanation_title": "Co zawiera ta Pełna Kopia Zapasowa?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Konfiguracja systemu, użytkownicy, klucze API, historia wdrożeń i dyrektywy AI.",
+    "cluster_item_projects_title": "Kod Źródłowy & Stosy",
+    "cluster_item_projects_desc": "Kod aplikacji, pliki .env, docker-compose.yml i konfiguracja gateway.",
+    "cluster_item_db_title": "Bazy Danych PostgreSQL",
+    "cluster_item_db_desc": "Pełne zrzuty SQL dla każdego projektu (schematy auth, storage, public, tabele i dane).",
+    "cluster_item_script_title": "Autonomiczny Skrypt Przywracania",
+    "cluster_item_script_desc": "Dołączony skrypt restore_full_cluster.sh, który instaluje Dockera i przywraca wszystko 1 poleceniem.",
+    "cluster_step3_title": "3. Uruchom automatyczny skrypt przywracania z uprawnieniami roota:",
+    "cluster_step1_desc": "Prześlij pobrany plik (.tar.gz) na nowy serwer Debian/Ubuntu przez SCP:",
+    "cluster_step2_desc": "Połącz się przez SSH, rozpakuj archiwum do folderu tymczasowego i wejdź do niego:",
+    "cluster_badge_universal": "UNIWERSALNA MIGRACJA",
+    "cluster_badge_self_contained": "SAMOWYSTARCZALNY",
+    "cluster_badge_dr": "ODZYSKIWANIE PO AWARII",
+    "cluster_hero_title": "Kompletny Pakiet z Autonomicznym Skryptem Przywracania",
+    "cluster_hero_desc": "Zawiera Deployment Center (ustawienia, użytkowników, klucze, AI), wszystkie aktywne projekty, pliki konfiguracyjne, pełne zrzuty PostgreSQL oraz skrypt restore_full_cluster.sh gotowy do uruchomienia na Debianie lub Ubuntu.",
+    "cluster_export_progress_label": "Przygotowywanie migawki infrastruktury...",
+    "cluster_step1_title": "1. Przenieś archiwum na nowy serwer:",
+    "cluster_step2_title": "2. Rozpakuj archiwum na nowym serwerze:",
+    "cluster_step3_details_title": "Automatyczny skrypt przywracania wykonuje autonomicznie:",
+    "cluster_step3_feat1": "Automatyczna instalacja Docker i Docker Compose, jeśli nie są zainstalowane",
+    "cluster_step3_feat2": "Przywrócenie wszystkich ustawień i bezpiecznych poświadczeń Deployment Center",
+    "cluster_step3_feat3": "Odtworzenie baz danych PostgreSQL i pełny import wszystkich zrzutów SQL",
+    "cluster_step3_feat4": "Uruchomienie wszystkich projektów i kontenerów na skonfigurowanych portach",
+    "cluster_scenarios_title": "Scenariusze Użycia",
+    "cluster_scen_dr_title": "Odzyskiwanie po Awarii",
+    "cluster_scen_dr_desc": "W przypadku awarii obecnego serwera przywróć całą infrastrukturę na nowej maszynie w kilka minut.",
+    "cluster_scen_mig_title": "Migracja Serwera",
+    "cluster_scen_mig_desc": "Zmień serwer lub dostawcę chmury (TrueNAS, Debian, Ubuntu, VPS) bez utraty danych.",
+    "cluster_scen_clone_title": "Klonowanie & Środowisko Testowe",
+    "cluster_scen_clone_desc": "Stwórz identyczną replikę całego klastra na serwerze pomocniczym do celów testowych.",
+    "alert_cmd_copied": "Polecenie skopiowane do schowka!",
+    "btn_exporting_cluster": "Generowanie Pełnej Kopii Zapasowej...",
+    "cluster_status_collecting": "Zbieranie ustawień i kodu Deployment Center...",
+    "cluster_status_dumps": "Generowanie zrzutów baz danych PostgreSQL dla wszystkich projektów...",
+    "cluster_status_compressing": "Kompresowanie uniwersalnego pakietu (.tar.gz)...",
+    "cluster_status_completed": "Tworzenie kopii zapasowej zakończone sukcesem!",
+    "cluster_status_error": "Błąd podczas tworzenia kopii zapasowej."
   },
   "ru": {
     "wz_zip_label": "Исходный Код (.ZIP Файл)",
@@ -9556,7 +9968,46 @@
     "btn_export_cluster": "Создать и Скачать Полный Бэкап (.tar.gz)",
     "cluster_how_to_restore_title": "Как Восстановить на Другом Сервере (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Начать создание Полного Бэкапа всех проектов, баз данных и настроек?",
-    "alert_cluster_backup_success": "Полный Бэкап Кластера успешно создан! Файл: {filename} ({size})"
+    "alert_cluster_backup_success": "Полный Бэкап Кластера успешно создан! Файл: {filename} ({size})",
+    "cluster_explanation_title": "Что включено в этот Полный Бэкап?",
+    "cluster_item_dc_title": "Deployment Center и Vault",
+    "cluster_item_dc_desc": "Конфигурация системы, пользователи, ключи API, история развертываний и директивы ИИ.",
+    "cluster_item_projects_title": "Исходный Код и Стеки",
+    "cluster_item_projects_desc": "Код всех приложений, файлы .env, docker-compose.yml и маршруты шлюза.",
+    "cluster_item_db_title": "Базы Данных PostgreSQL",
+    "cluster_item_db_desc": "Полные SQL-дампы каждого проекта (схемы auth, storage, public, таблицы и данные).",
+    "cluster_item_script_title": "Автономный Скрипт Восстановления",
+    "cluster_item_script_desc": "Встроенный скрипт restore_full_cluster.sh, который устанавливает Docker и восстанавливает всё одной командой.",
+    "cluster_step3_title": "3. Запустите скрипт автоматического восстановления с правами root:",
+    "cluster_step1_desc": "Передайте скачанный файл (.tar.gz) на новый сервер Debian/Ubuntu по SCP:",
+    "cluster_step2_desc": "Подключитесь по SSH, распакуйте архив во временную папку и перейдите в неё:",
+    "cluster_badge_universal": "УНИВЕРСАЛЬНАЯ МИГРАЦИЯ",
+    "cluster_badge_self_contained": "АВТОНОМНЫЙ",
+    "cluster_badge_dr": "АВАРИЙНОЕ ВОССТАНОВЛЕНИЕ",
+    "cluster_hero_title": "Полный Пакет с Автономным Скриптом Восстановления",
+    "cluster_hero_desc": "Включает Deployment Center (настройки, пользователей, ключи, ИИ), все активные проекты, файлы конфигурации, полные дампы PostgreSQL и скрипт restore_full_cluster.sh, готовый к запуску на Debian или Ubuntu.",
+    "cluster_export_progress_label": "Подготовка снимка инфраструктуры...",
+    "cluster_step1_title": "1. Передайте архив на новый сервер:",
+    "cluster_step2_title": "2. Распакуйте архив на новом сервере:",
+    "cluster_step3_details_title": "Скрипт автоматического восстановления автономно выполняет:",
+    "cluster_step3_feat1": "Автоматическая установка Docker и Docker Compose, если они отсутствуют",
+    "cluster_step3_feat2": "Восстановление всех настроек и защищенных учетных данных в Deployment Center",
+    "cluster_step3_feat3": "Воссоздание баз данных PostgreSQL и полный импорт всех SQL-дампов",
+    "cluster_step3_feat4": "Запуск всех проектов и контейнеров на настроенных портах",
+    "cluster_scenarios_title": "Сценарии Использования",
+    "cluster_scen_dr_title": "Аварийное Восстановление",
+    "cluster_scen_dr_desc": "В случае сбоя текущего сервера восстановите всю инфраструктуру на новой машине за считанные минуты.",
+    "cluster_scen_mig_title": "Миграция Сервера",
+    "cluster_scen_mig_desc": "Переходите на другой сервер или в облако (TrueNAS, Debian, Ubuntu, VPS) без потери данных.",
+    "cluster_scen_clone_title": "Клонирование и Тестирование",
+    "cluster_scen_clone_desc": "Создайте идентичную копию всего кластера на дополнительном сервере для тестирования.",
+    "alert_cmd_copied": "Команда скопирована в буфер обмена!",
+    "btn_exporting_cluster": "Создание Полного Бэкапа...",
+    "cluster_status_collecting": "Сбор настроек и кода Deployment Center...",
+    "cluster_status_dumps": "Создание дампов баз данных PostgreSQL для всех проектов...",
+    "cluster_status_compressing": "Сжатие универсального архива (.tar.gz)...",
+    "cluster_status_completed": "Резервное копирование успешно завершено!",
+    "cluster_status_error": "Ошибка при создании резервной копии."
   },
   "zh": {
     "wz_zip_label": "初始源代码（.ZIP 文件）",
@@ -10240,7 +10691,46 @@
     "btn_export_cluster": "创建并下载完整集群备份 (.tar.gz)",
     "cluster_how_to_restore_title": "如何在另一台服务器上恢复 (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "是否开始为所有项目、数据库和配置创建完整集群备份？",
-    "alert_cluster_backup_success": "完整集群备份已成功创建！文件：{filename} ({size})"
+    "alert_cluster_backup_success": "完整集群备份已成功创建！文件：{filename} ({size})",
+    "cluster_explanation_title": "完整备份中包含哪些内容？",
+    "cluster_item_dc_title": "Deployment Center 与凭据保管库",
+    "cluster_item_dc_desc": "系统配置、用户账户、API 密钥、部署历史记录和 AI 指令。",
+    "cluster_item_projects_title": "源代码与技术栈",
+    "cluster_item_projects_desc": "所有应用程序代码、.env 环境变量文件、docker-compose.yml 和网关路由。",
+    "cluster_item_db_title": "PostgreSQL 数据库",
+    "cluster_item_db_desc": "每个项目的完整 SQL 转储（包含 auth、storage、public 模式、表结构和业务数据）。",
+    "cluster_item_script_title": "自主自动化恢复脚本",
+    "cluster_item_script_desc": "内置 restore_full_cluster.sh 脚本，可一键安装 Docker 并完成全部恢复。",
+    "cluster_step3_title": "3. 使用 root 权限运行全自动恢复脚本：",
+    "cluster_step1_desc": "通过 SCP 将下载的 (.tar.gz) 文件传输到新的 Debian/Ubuntu 服务器：",
+    "cluster_step2_desc": "通过 SSH 连接，将压缩包解压到临时目录并进入该目录：",
+    "cluster_badge_universal": "通用迁移",
+    "cluster_badge_self_contained": "独立完备",
+    "cluster_badge_dr": "容灾恢复",
+    "cluster_hero_title": "包含自主还原脚本的完整归档包",
+    "cluster_hero_desc": "包含 Deployment Center（系统设置、用户、密钥、AI 指令）、所有运行中的项目、配置文件、完整的 PostgreSQL 数据库转储，以及即开即用的 restore_full_cluster.sh 恢复脚本。",
+    "cluster_export_progress_label": "正在准备基础设施系统快照...",
+    "cluster_step1_title": "1. 将归档文件传输到新服务器：",
+    "cluster_step2_title": "2. 在新服务器上解压归档包：",
+    "cluster_step3_details_title": "全自动还原脚本将自主执行以下操作：",
+    "cluster_step3_feat1": "若系统中尚未安装，自动检测并安装 Docker 及 Docker Compose",
+    "cluster_step3_feat2": "恢复 Deployment Center 的所有系统配置与加密凭据保管库",
+    "cluster_step3_feat3": "重新创建 PostgreSQL 数据库并完整导入所有项目的 SQL 数据转储",
+    "cluster_step3_feat4": "在新服务器上根据既定端口配置自动拉起并运行所有项目与容器",
+    "cluster_scenarios_title": "适用应用场景",
+    "cluster_scen_dr_title": "灾难恢复",
+    "cluster_scen_dr_desc": "如果当前服务器发生故障，可在数分钟内将全部业务与基础设施完整复原到全新的纯净服务器。",
+    "cluster_scen_mig_title": "跨服务器无损迁移",
+    "cluster_scen_mig_desc": "轻松在不同硬件或云服务商（TrueNAS、Debian、Ubuntu、VPS）之间迁移，保障零数据丢失。",
+    "cluster_scen_clone_title": "集群克隆与预发布环境",
+    "cluster_scen_clone_desc": "在备用或测试服务器上一键创建整个集群的完整镜像，用于压力测试或预发布验证。",
+    "alert_cmd_copied": "命令已复制到剪贴板！",
+    "btn_exporting_cluster": "正在生成完整备份...",
+    "cluster_status_collecting": "正在收集 Deployment Center 系统设置与代码...",
+    "cluster_status_dumps": "正在生成所有项目的 PostgreSQL 数据库转储...",
+    "cluster_status_compressing": "正在压缩通用归档包 (.tar.gz)...",
+    "cluster_status_completed": "完整备份创建成功！",
+    "cluster_status_error": "创建备份时发生错误。"
   },
   "ja": {
     "wz_zip_label": "初期ソースコード (.ZIP ファイル)",
@@ -10924,7 +11414,46 @@
     "btn_export_cluster": "フルバックアップの作成とダウンロード (.tar.gz)",
     "cluster_how_to_restore_title": "別サーバーでの復元手順 (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "すべてのプロジェクト、データベース、設定のフルバックアップ作成を開始しますか？",
-    "alert_cluster_backup_success": "クラスターのフルバックアップが正常に作成されました！ファイル：{filename} ({size})"
+    "alert_cluster_backup_success": "クラスターのフルバックアップが正常に作成されました！ファイル：{filename} ({size})",
+    "cluster_explanation_title": "このフルバックアップに含まれるもの：",
+    "cluster_item_dc_title": "Deployment Center＆Vault",
+    "cluster_item_dc_desc": "システム設定、ユーザー、API キー、デプロイ履歴、および AI 指示。",
+    "cluster_item_projects_title": "ソースコード＆スタック",
+    "cluster_item_projects_desc": "すべてのアプリケーションコード、.env ファイル、docker-compose.yml、ゲートウェイルート。",
+    "cluster_item_db_title": "PostgreSQL データベース",
+    "cluster_item_db_desc": "各プロジェクトの完全な SQL ダンプ（auth、storage、public スキーマ、テーブル、データ）。",
+    "cluster_item_script_title": "自律型自動復元スクリプト",
+    "cluster_item_script_desc": "Docker のインストールからすべてを1コマンドで復元する付属の restore_full_cluster.sh スクリプト。",
+    "cluster_step3_title": "3. root 権限で自動復元スクリプトを実行：",
+    "cluster_step1_desc": "ダウンロードした (.tar.gz) ファイルを SCP 経由で新しい Debian/Ubuntu サーバーに転送：",
+    "cluster_step2_desc": "SSH で接続し、一時フォルダにアーカイブを展開してそのディレクトリに移動：",
+    "cluster_badge_universal": "ユニバーサル移行",
+    "cluster_badge_self_contained": "自己完結型",
+    "cluster_badge_dr": "ディザスタリカバリ",
+    "cluster_hero_title": "自律型復元スクリプトを含む完全パッケージ",
+    "cluster_hero_desc": "Deployment Center（設定、ユーザー、キー、AI）、すべてのアクティブなプロジェクト、設定ファイル、完全な PostgreSQL ダンプ、および Debian/Ubuntu ですぐに実行可能な restore_full_cluster.sh を含みます。",
+    "cluster_export_progress_label": "インフラストラクチャのスナップショットを準備中...",
+    "cluster_step1_title": "1. アーカイブを新しいサーバーに転送：",
+    "cluster_step2_title": "2. 新しいサーバーでアーカイブを展開：",
+    "cluster_step3_details_title": "自動復元スクリプトは以下を自律的に実行します：",
+    "cluster_step3_feat1": "未インストールの場合は Docker および Docker Compose を自動インストール",
+    "cluster_step3_feat2": "Deployment Center のすべての設定と暗号化認証情報の復元",
+    "cluster_step3_feat3": "PostgreSQL データベースの再作成とすべての SQL ダンプの完全インポート",
+    "cluster_step3_feat4": "設定されたポートですべてのプロジェクトとコンテナを起動",
+    "cluster_scenarios_title": "活用シナリオ",
+    "cluster_scen_dr_title": "ディザスタリカバリ",
+    "cluster_scen_dr_desc": "現在のサーバーに障害が発生した場合でも、わずか数分でクリーンなサーバー上にインフラ全体を復元できます。",
+    "cluster_scen_mig_title": "サーバー移行",
+    "cluster_scen_mig_desc": "データ損失ゼロでサーバーやクラウドプロバイダー（TrueNAS、Debian、Ubuntu、VPS）を変更可能。",
+    "cluster_scen_clone_title": "クローン＆ステージング",
+    "cluster_scen_clone_desc": "テストやステージングのために、セカンダリサーバー上にクラスター全体の同一レプリカを作成。",
+    "alert_cmd_copied": "コマンドをクリップボードにコピーしました！",
+    "btn_exporting_cluster": "フルバックアップを生成中...",
+    "cluster_status_collecting": "Deployment Center の設定とコードを収集中...",
+    "cluster_status_dumps": "すべてのプロジェクトの PostgreSQL データベースダンプを生成中...",
+    "cluster_status_compressing": "ユニバーサルパッケージ (.tar.gz) を圧縮中...",
+    "cluster_status_completed": "バックアップが正常に完了しました！",
+    "cluster_status_error": "バックアップの生成中にエラーが発生しました。"
   },
   "sv": {
     "wz_zip_label": "Ursprunglig Källkod (.ZIP-fil)",
@@ -11608,7 +12137,46 @@
     "btn_export_cluster": "Skapa & Ladda ner Fullständig Backup (.tar.gz)",
     "cluster_how_to_restore_title": "Hur man Återställer på en Annan Server (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Vill du starta skapandet av en Fullständig Säkerhetskopia av alla projekt, databaser och inställningar?",
-    "alert_cluster_backup_success": "Fullständig Klusterbackup skapad! Fil: {filename} ({size})"
+    "alert_cluster_backup_success": "Fullständig Klusterbackup skapad! Fil: {filename} ({size})",
+    "cluster_explanation_title": "Vad ingår i denna fullständiga säkerhetskopia?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Systemkonfigurationer, användare, API-nycklar, distributionshistorik och AI-direktiv.",
+    "cluster_item_projects_title": "Källkod & Stackar",
+    "cluster_item_projects_desc": "Applikationskod, .env-filer, docker-compose.yml och gateway-rutter.",
+    "cluster_item_db_title": "PostgreSQL-databaser",
+    "cluster_item_db_desc": "Fullständiga SQL-dumpar för varje projekt (scheman auth, storage, public, tabeller och data).",
+    "cluster_item_script_title": "Autonomt Återställningsskript",
+    "cluster_item_script_desc": "Medföljande restore_full_cluster.sh-skript som installerar Docker och återställer allt med ett kommando.",
+    "cluster_step3_title": "3. Kör det automatiska återställningsskriptet med root-privilegier:",
+    "cluster_step1_desc": "Överför den nedladdade (.tar.gz)-filen till den nya Debian/Ubuntu-servern via SCP:",
+    "cluster_step2_desc": "Anslut via SSH, packa upp arkivet i en tillfällig mapp och gå in i den:",
+    "cluster_badge_universal": "UNIVERSELL MIGRERING",
+    "cluster_badge_self_contained": "SJÄLVSTÄNDIG",
+    "cluster_badge_dr": "KATASTROFÅTERSTÄLLNING",
+    "cluster_hero_title": "Komplett paket med autonomt återställningsskript",
+    "cluster_hero_desc": "Innehåller Deployment Center (inställningar, användare, nycklar, AI), alla aktiva projekt, konfigurationsfiler, fullständiga PostgreSQL-dumpar och skriptet restore_full_cluster.sh redo att köras på Debian eller Ubuntu.",
+    "cluster_export_progress_label": "Förbereder ögonblicksbild av infrastrukturen...",
+    "cluster_step1_title": "1. Överför arkivet till den nya servern:",
+    "cluster_step2_title": "2. Packa upp arkivet på den nya servern:",
+    "cluster_step3_details_title": "Det automatiska återställningsskriptet utför autonomt:",
+    "cluster_step3_feat1": "Automatisk installation av Docker och Docker Compose om de saknas",
+    "cluster_step3_feat2": "Återställning av alla inställningar och säkra autentiseringsuppgifter i Deployment Center",
+    "cluster_step3_feat3": "Återskapande av PostgreSQL-databaser och fullständig import av alla SQL-dumpar",
+    "cluster_step3_feat4": "Start av alla projekt och behållare på deras konfigurerade portar",
+    "cluster_scenarios_title": "Användningsscenarier",
+    "cluster_scen_dr_title": "Katastrofåterställning",
+    "cluster_scen_dr_desc": "Om den nuvarande servern slutar fungera återställer du hela infrastrukturen på en ren maskin på några minuter.",
+    "cluster_scen_mig_title": "Servermigrering",
+    "cluster_scen_mig_desc": "Byt server eller molnleverantör (TrueNAS, Debian, Ubuntu, VPS) utan dataförlust.",
+    "cluster_scen_clone_title": "Kloning & Staging",
+    "cluster_scen_clone_desc": "Skapa en identisk replika av hela ditt kluster på en sekundär server för testning eller staging.",
+    "alert_cmd_copied": "Kommandot har kopierats till urklipp!",
+    "btn_exporting_cluster": "Skapar fullständig säkerhetskopia...",
+    "cluster_status_collecting": "Samlar in inställningar och kod för Deployment Center...",
+    "cluster_status_dumps": "Skapar PostgreSQL-databaskopior för alla projekt...",
+    "cluster_status_compressing": "Komprimerar universellt paket (.tar.gz)...",
+    "cluster_status_completed": "Säkerhetskopieringen slutfördes utan problem!",
+    "cluster_status_error": "Fel vid skapande av säkerhetskopia."
   },
   "ro": {
     "wz_zip_label": "Cod Sursă Inițial (Fișier .ZIP)",
@@ -12292,7 +12860,46 @@
     "btn_export_cluster": "Creare & Descărcare Backup Total (.tar.gz)",
     "cluster_how_to_restore_title": "Cum se Restaurează pe Alt Server (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Doriți să începeți crearea Backup-ului Total pentru toate proiectele, bazele de date și configurările?",
-    "alert_cluster_backup_success": "Backup-ul Total al Clusterului a fost creat cu succes! Fișier: {filename} ({size})"
+    "alert_cluster_backup_success": "Backup-ul Total al Clusterului a fost creat cu succes! Fișier: {filename} ({size})",
+    "cluster_explanation_title": "Ce este inclus în acest Backup Total?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Configurații de sistem, utilizatori, chei API, istoric de implementare și directive AI.",
+    "cluster_item_projects_title": "Cod Sursă & Stive",
+    "cluster_item_projects_desc": "Codul aplicațiilor, fișierele .env, docker-compose.yml și rutele de gateway.",
+    "cluster_item_db_title": "Baze de Date PostgreSQL",
+    "cluster_item_db_desc": "Dump-uri SQL complete pentru fiecare proiect (schemele auth, storage, public, tabele și date).",
+    "cluster_item_script_title": "Script Autonom de Restaurare",
+    "cluster_item_script_desc": "Scriptul restore_full_cluster.sh inclus instalează Docker și restaurează totul cu o singură comandă.",
+    "cluster_step3_title": "3. Rulați scriptul de restaurare automată cu privilegii de root:",
+    "cluster_step1_desc": "Transferați fișierul descărcat (.tar.gz) pe noul server Debian/Ubuntu prin SCP:",
+    "cluster_step2_desc": "Conectați-vă prin SSH, extrageți arhiva într-un dosar temporar și intrați în el:",
+    "cluster_badge_universal": "MIGRARE UNIVERSALĂ",
+    "cluster_badge_self_contained": "AUTOCONȚINUT",
+    "cluster_badge_dr": "RECUPERARE DUPĂ DEZASTRU",
+    "cluster_hero_title": "Pachet Complet cu Script Autonom de Restaurare",
+    "cluster_hero_desc": "Include Deployment Center (setări, utilizatori, chei, IA), toate proiectele active, fișierele de configurare, dump-urile PostgreSQL complete și scriptul restore_full_cluster.sh gata de rulare pe Debian sau Ubuntu.",
+    "cluster_export_progress_label": "Se pregătește instantaneul infrastructurii...",
+    "cluster_step1_title": "1. Transferați arhiva pe noul server:",
+    "cluster_step2_title": "2. Extrageți arhiva pe noul server:",
+    "cluster_step3_details_title": "Scriptul de restaurare automată execută autonom:",
+    "cluster_step3_feat1": "Instalarea automată a Docker și Docker Compose dacă nu sunt prezente",
+    "cluster_step3_feat2": "Restaurarea tuturor setărilor și acreditărilor securizate din Deployment Center",
+    "cluster_step3_feat3": "Recrearea bazelor de date PostgreSQL și importul complet al tuturor dump-urilor SQL",
+    "cluster_step3_feat4": "Pornirea tuturor proiectelor și containerelor pe porturile configurate",
+    "cluster_scenarios_title": "Scenarii de Utilizare",
+    "cluster_scen_dr_title": "Recuperare după Dezastru",
+    "cluster_scen_dr_desc": "Dacă serverul actual cedează, restaurați întreaga infrastructură pe o mașină curată în câteva minute.",
+    "cluster_scen_mig_title": "Migrare de Server",
+    "cluster_scen_mig_desc": "Schimbați serverul sau furnizorul cloud (TrueNAS, Debian, Ubuntu, VPS) fără pierderi de date.",
+    "cluster_scen_clone_title": "Clonare & Staging",
+    "cluster_scen_clone_desc": "Creați o replică identică a întregului cluster pe un server secundar pentru teste sau pre-producție.",
+    "alert_cmd_copied": "Comandă copiată în clipboard!",
+    "btn_exporting_cluster": "Se generează Backup-ul Total...",
+    "cluster_status_collecting": "Se colectează setările și codul Deployment Center...",
+    "cluster_status_dumps": "Se generează dump-urile bazelor de date PostgreSQL pentru toate proiectele...",
+    "cluster_status_compressing": "Se comprimă pachetul universal (.tar.gz)...",
+    "cluster_status_completed": "Backup finalizat cu succes!",
+    "cluster_status_error": "Eroare la generarea backup-ului."
   },
   "mo": {
     "wz_zip_label": "Cod Sursă Inițial (Fișier .ZIP)",
@@ -12976,7 +13583,46 @@
     "btn_export_cluster": "Creare & Descărcare Backup Total (.tar.gz)",
     "cluster_how_to_restore_title": "Cum se Restaurează pe Alt Server (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Doriți să începeți crearea Backup-ului Total pentru toate proiectele, bazele de date și configurările?",
-    "alert_cluster_backup_success": "Backup-ul Total al Clusterului a fost creat cu succes! Fișier: {filename} ({size})"
+    "alert_cluster_backup_success": "Backup-ul Total al Clusterului a fost creat cu succes! Fișier: {filename} ({size})",
+    "cluster_explanation_title": "Ce este inclus în acest Backup Total?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Configurații de sistem, utilizatori, chei API, istoric de implementare și directive AI.",
+    "cluster_item_projects_title": "Cod Sursă & Stive",
+    "cluster_item_projects_desc": "Codul aplicațiilor, fișierele .env, docker-compose.yml și rutele de gateway.",
+    "cluster_item_db_title": "Baze de Date PostgreSQL",
+    "cluster_item_db_desc": "Dump-uri SQL complete pentru fiecare proiect (schemele auth, storage, public, tabele și date).",
+    "cluster_item_script_title": "Script Autonom de Restaurare",
+    "cluster_item_script_desc": "Scriptul restore_full_cluster.sh inclus instalează Docker și restaurează totul cu o singură comandă.",
+    "cluster_step3_title": "3. Rulați scriptul de restaurare automată cu privilegii de root:",
+    "cluster_step1_desc": "Transferați fișierul descărcat (.tar.gz) pe noul server Debian/Ubuntu prin SCP:",
+    "cluster_step2_desc": "Conectați-vă prin SSH, extrageți arhiva într-un dosar temporar și intrați în el:",
+    "cluster_badge_universal": "MIGRARE UNIVERSALĂ",
+    "cluster_badge_self_contained": "AUTOCONȚINUT",
+    "cluster_badge_dr": "RECUPERARE DUPĂ DEZASTRU",
+    "cluster_hero_title": "Pachet Complet cu Script Autonom de Restaurare",
+    "cluster_hero_desc": "Include Deployment Center (setări, utilizatori, chei, IA), toate proiectele active, fișierele de configurare, dump-urile PostgreSQL complete și scriptul restore_full_cluster.sh gata de rulare pe Debian sau Ubuntu.",
+    "cluster_export_progress_label": "Se pregătește instantaneul infrastructurii...",
+    "cluster_step1_title": "1. Transferați arhiva pe noul server:",
+    "cluster_step2_title": "2. Extrageți arhiva pe noul server:",
+    "cluster_step3_details_title": "Scriptul de restaurare automată execută autonom:",
+    "cluster_step3_feat1": "Instalarea automată a Docker și Docker Compose dacă nu sunt prezente",
+    "cluster_step3_feat2": "Restaurarea tuturor setărilor și acreditărilor securizate din Deployment Center",
+    "cluster_step3_feat3": "Recrearea bazelor de date PostgreSQL și importul complet al tuturor dump-urilor SQL",
+    "cluster_step3_feat4": "Pornirea tuturor proiectelor și containerelor pe porturile configurate",
+    "cluster_scenarios_title": "Scenarii de Utilizare",
+    "cluster_scen_dr_title": "Recuperare după Dezastru",
+    "cluster_scen_dr_desc": "Dacă serverul actual cedează, restaurați întreaga infrastructură pe o mașină curată în câteva minute.",
+    "cluster_scen_mig_title": "Migrare de Server",
+    "cluster_scen_mig_desc": "Schimbați serverul sau furnizorul cloud (TrueNAS, Debian, Ubuntu, VPS) fără pierderi de date.",
+    "cluster_scen_clone_title": "Clonare & Staging",
+    "cluster_scen_clone_desc": "Creați o replică identică a întregului cluster pe un server secundar pentru teste sau pre-producție.",
+    "alert_cmd_copied": "Comandă copiată în clipboard!",
+    "btn_exporting_cluster": "Se generează Backup-ul Total...",
+    "cluster_status_collecting": "Se colectează setările și codul Deployment Center...",
+    "cluster_status_dumps": "Se generează dump-urile bazelor de date PostgreSQL pentru toate proiectele...",
+    "cluster_status_compressing": "Se comprimă pachetul universal (.tar.gz)...",
+    "cluster_status_completed": "Backup finalizat cu succes!",
+    "cluster_status_error": "Eroare la generarea backup-ului."
   },
   "es": {
     "wz_zip_label": "Código Fuente Inicial (Archivo .ZIP)",
@@ -13635,7 +14281,46 @@
     "btn_export_cluster": "Crear y Descargar Copia Total (.tar.gz)",
     "cluster_how_to_restore_title": "Cómo Restaurar en Otro Servidor (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "¿Desea iniciar la creación de la Copia Total de todos los proyectos, bases de datos y configuraciones?",
-    "alert_cluster_backup_success": "¡Copia Total del Clúster creada con éxito! Archivo: {filename} ({size})"
+    "alert_cluster_backup_success": "¡Copia Total del Clúster creada con éxito! Archivo: {filename} ({size})",
+    "cluster_explanation_title": "¿Qué incluye esta Copia Total?",
+    "cluster_item_dc_title": "Deployment Center y Vault",
+    "cluster_item_dc_desc": "Configuraciones del sistema, usuarios, claves de API, historial de despliegues y directivas de IA.",
+    "cluster_item_projects_title": "Código Fuente y Stacks",
+    "cluster_item_projects_desc": "Código de todas las aplicaciones, archivos .env, docker-compose.yml y rutas de gateway.",
+    "cluster_item_db_title": "Bases de Datos PostgreSQL",
+    "cluster_item_db_desc": "Dumps SQL completos de cada proyecto (esquemas auth, storage, public, tablas y datos).",
+    "cluster_item_script_title": "Script Autónomo de Restauración",
+    "cluster_item_script_desc": "Script restore_full_cluster.sh incluido que instala Docker y restaura todo con un solo comando.",
+    "cluster_step3_title": "3. Ejecutar el script de restauración automática con privilegios de root:",
+    "cluster_step1_desc": "Transfiera el archivo descargado (.tar.gz) al nuevo servidor Debian/Ubuntu vía SCP:",
+    "cluster_step2_desc": "Conéctese por SSH, extraiga el archivo en una carpeta temporal y acceda a ella:",
+    "cluster_badge_universal": "MIGRACIÓN UNIVERSAL",
+    "cluster_badge_self_contained": "AUTOCONTENIDO",
+    "cluster_badge_dr": "RECUPERACIÓN ANTE DESASTRES",
+    "cluster_hero_title": "Paquete Completo con Script de Restauración Autónoma",
+    "cluster_hero_desc": "Incluye Deployment Center (ajustes, usuarios, claves, IA), todos los proyectos activos, archivos de configuración, dumps completos de PostgreSQL y el script restore_full_cluster.sh listo para ejecutarse en cualquier nuevo servidor Debian o Ubuntu.",
+    "cluster_export_progress_label": "Preparando instantánea de la infraestructura...",
+    "cluster_step1_title": "1. Transferir el archivo al nuevo servidor:",
+    "cluster_step2_title": "2. Extraer el archivo en el nuevo servidor:",
+    "cluster_step3_details_title": "El script de restauración automática ejecuta de forma autónoma:",
+    "cluster_step3_feat1": "Instalación automática de Docker y Docker Compose si no existen en el sistema",
+    "cluster_step3_feat2": "Restauración de todas las configuraciones y credenciales seguras de Deployment Center",
+    "cluster_step3_feat3": "Recreación de las bases de datos PostgreSQL e importación completa de los dumps SQL",
+    "cluster_step3_feat4": "Inicio de todos los proyectos y contenedores en sus puertos configurados",
+    "cluster_scenarios_title": "Escenarios de Uso",
+    "cluster_scen_dr_title": "Recuperación ante Desastres",
+    "cluster_scen_dr_desc": "Si el servidor actual falla, restaure toda su infraestructura en un servidor limpio en minutos.",
+    "cluster_scen_mig_title": "Migración de Servidor",
+    "cluster_scen_mig_desc": "Cambie de servidor o proveedor en la nube (TrueNAS, Debian, Ubuntu, VPS) sin pérdida de datos.",
+    "cluster_scen_clone_title": "Clonación y Entornos Staging",
+    "cluster_scen_clone_desc": "Cree una réplica idéntica de todo su clúster en un servidor secundario para pruebas o preproducción.",
+    "alert_cmd_copied": "¡Comando copiado al portapapeles!",
+    "btn_exporting_cluster": "Generando Copia Total...",
+    "cluster_status_collecting": "Recopilando configuraciones y código de Deployment Center...",
+    "cluster_status_dumps": "Generando volcados de bases de datos PostgreSQL de todos los proyectos...",
+    "cluster_status_compressing": "Comprimiendo paquete universal (.tar.gz)...",
+    "cluster_status_completed": "¡Copia de seguridad completada con éxito!",
+    "cluster_status_error": "Error al generar la copia de seguridad."
   },
   "fr": {
     "wz_zip_label": "Code Source Initial (Fichier .ZIP)",
@@ -14294,7 +14979,46 @@
     "btn_export_cluster": "Créer & Télécharger la Sauvegarde Totale (.tar.gz)",
     "cluster_how_to_restore_title": "Comment Restaurer sur un Autre Serveur (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Voulez-vous lancer la création de la Sauvegarde Totale de tous les projets, bases de données et configurations ?",
-    "alert_cluster_backup_success": "Sauvegarde Totale du Cluster créée avec succès ! Fichier : {filename} ({size})"
+    "alert_cluster_backup_success": "Sauvegarde Totale du Cluster créée avec succès ! Fichier : {filename} ({size})",
+    "cluster_explanation_title": "Que contient cette Sauvegarde Totale ?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Paramètres système, utilisateurs, clés API, historique des déploiements et directives d'IA.",
+    "cluster_item_projects_title": "Code Source & Stacks",
+    "cluster_item_projects_desc": "Code de toutes les applications, fichiers .env, docker-compose.yml et passerelles API.",
+    "cluster_item_db_title": "Bases de Données PostgreSQL",
+    "cluster_item_db_desc": "Dumps SQL complets pour chaque projet (schémas auth, storage, public, tables et données).",
+    "cluster_item_script_title": "Script Autonome de Restauration",
+    "cluster_item_script_desc": "Script restore_full_cluster.sh inclus qui installe Docker et restaure tout en une seule commande.",
+    "cluster_step3_title": "3. Exécuter le script de restauration automatique avec les droits root :",
+    "cluster_step1_desc": "Transférez le fichier téléchargé (.tar.gz) vers le nouveau serveur Debian/Ubuntu via SCP :",
+    "cluster_step2_desc": "Connectez-vous en SSH, extrayez l'archive dans un dossier temporaire et ouvrez-le :",
+    "cluster_badge_universal": "MIGRATION UNIVERSELLE",
+    "cluster_badge_self_contained": "AUTONOME",
+    "cluster_badge_dr": "PLAN DE REPRISE D'ACTIVITÉ",
+    "cluster_hero_title": "Pack Complet avec Script de Restauration Autonome",
+    "cluster_hero_desc": "Comprend le Deployment Center (paramètres, utilisateurs, clés, IA), tous les projets actifs, les fichiers de configuration, les dumps intégraux PostgreSQL et le script restore_full_cluster.sh prêt à l'emploi sur Debian ou Ubuntu.",
+    "cluster_export_progress_label": "Préparation de l'instantané de l'infrastructure...",
+    "cluster_step1_title": "1. Transférer l'archive vers le nouveau serveur :",
+    "cluster_step2_title": "2. Extraire l'archive sur le nouveau serveur :",
+    "cluster_step3_details_title": "Le script de restauration automatique exécute de manière autonome :",
+    "cluster_step3_feat1": "Installation automatique de Docker et Docker Compose s'ils sont absents",
+    "cluster_step3_feat2": "Restauration de tous les paramètres et identifiants sécurisés du Deployment Center",
+    "cluster_step3_feat3": "Recréation des bases de données PostgreSQL et importation intégrale des dumps SQL",
+    "cluster_step3_feat4": "Démarrage de tous les projets et conteneurs sur leurs ports configurés",
+    "cluster_scenarios_title": "Scénarios d'Utilisation",
+    "cluster_scen_dr_title": "Reprise après Sinistre",
+    "cluster_scen_dr_desc": "En cas de panne du serveur actuel, restaurez toute votre infrastructure sur une machine neuve en quelques minutes.",
+    "cluster_scen_mig_title": "Migration de Serveur",
+    "cluster_scen_mig_desc": "Changez de serveur ou d'hébergeur cloud (TrueNAS, Debian, Ubuntu, VPS) sans aucune perte de données.",
+    "cluster_scen_clone_title": "Clonage & Environnement de Staging",
+    "cluster_scen_clone_desc": "Créez une réplique identique de l'ensemble de votre cluster sur un serveur secondaire pour tests.",
+    "alert_cmd_copied": "Commande copiée dans le presse-papiers !",
+    "btn_exporting_cluster": "Génération de la Sauvegarde Totale...",
+    "cluster_status_collecting": "Collecte des paramètres et du code du Deployment Center...",
+    "cluster_status_dumps": "Génération des dumps PostgreSQL de tous les projets...",
+    "cluster_status_compressing": "Compression de l'archive universelle (.tar.gz)...",
+    "cluster_status_completed": "Sauvegarde terminée avec succès !",
+    "cluster_status_error": "Erreur lors de la génération de la sauvegarde."
   },
   "cs": {
     "wz_zip_label": "Počáteční Zdrojový Kód (Soubor .ZIP)",
@@ -14978,7 +15702,46 @@
     "btn_export_cluster": "Vytvořit a Stáhnout Úplnou Zálohu (.tar.gz)",
     "cluster_how_to_restore_title": "Jak Obnovit na Jiném Serveru (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Chcete zahájit vytváření Úplné Zálohy všech projektů, databází a nastavení?",
-    "alert_cluster_backup_success": "Úplná Záloha Clusteru byla úspěšně vytvořena! Soubor: {filename} ({size})"
+    "alert_cluster_backup_success": "Úplná Záloha Clusteru byla úspěšně vytvořena! Soubor: {filename} ({size})",
+    "cluster_explanation_title": "Co je součástí této úplné zálohy?",
+    "cluster_item_dc_title": "Deployment Center a Vault",
+    "cluster_item_dc_desc": "Konfigurace systému, uživatelé, klíče API, historie nasazení a směrnice AI.",
+    "cluster_item_projects_title": "Zdrojový Kód a Stacky",
+    "cluster_item_projects_desc": "Kód aplikací, soubory .env, docker-compose.yml a konfigurace brány.",
+    "cluster_item_db_title": "Databáze PostgreSQL",
+    "cluster_item_db_desc": "Kompletní výpisy SQL pro každý projekt (schémata auth, storage, public, tabulky a data).",
+    "cluster_item_script_title": "Autonomní Skript Obnovy",
+    "cluster_item_script_desc": "Přiložený skript restore_full_cluster.sh, který nainstaluje Docker a vše obnoví jedním příkazem.",
+    "cluster_step3_title": "3. Spusťte skript automatické obnovy s oprávněními root:",
+    "cluster_step1_desc": "Přeneste stažený soubor (.tar.gz) na nový server Debian/Ubuntu přes SCP:",
+    "cluster_step2_desc": "Připojte se přes SSH, rozbalte archiv do dočasné složky a vstupte do ní:",
+    "cluster_badge_universal": "UNIVERZÁLNÍ MIGRACE",
+    "cluster_badge_self_contained": "SOBĚSTAČNÝ",
+    "cluster_badge_dr": "OBNOVA PO HAVÁRII",
+    "cluster_hero_title": "Kompletní balíček s autonomním skriptem pro obnovu",
+    "cluster_hero_desc": "Zahrnuje Deployment Center (nastavení, uživatele, klíče, AI), všechny aktivní projekty, konfigurační soubory, kompletní výpisy PostgreSQL a skript restore_full_cluster.sh připravený ke spuštění na Debianu nebo Ubuntu.",
+    "cluster_export_progress_label": "Příprava snímku infrastruktury...",
+    "cluster_step1_title": "1. Přenesení archivu na nový server:",
+    "cluster_step2_title": "2. Rozbalení archivu na novém serveru:",
+    "cluster_step3_details_title": "Skript automatické obnovy samostatně provádí:",
+    "cluster_step3_feat1": "Automatická instalace Dockeru a Docker Compose, pokud ještě nejsou přítomny",
+    "cluster_step3_feat2": "Obnova veškerého nastavení a zabezpečených přihlašovacích údajů v Deployment Center",
+    "cluster_step3_feat3": "Znovuvytvoření databází PostgreSQL a kompletní import všech výpisů SQL",
+    "cluster_step3_feat4": "Spuštění všech projektů a kontejnerů na jejich nakonfigurovaných portech",
+    "cluster_scenarios_title": "Scénáře použití",
+    "cluster_scen_dr_title": "Obnova po havárii",
+    "cluster_scen_dr_desc": "Pokud dojde k selhání aktuálního serveru, obnovte celou infrastrukturu na novém počítači během několika minut.",
+    "cluster_scen_mig_title": "Migrace serveru",
+    "cluster_scen_mig_desc": "Změňte server nebo poskytovatele cloudu (TrueNAS, Debian, Ubuntu, VPS) bez ztráty dat.",
+    "cluster_scen_clone_title": "Klonování a testovací prostředí",
+    "cluster_scen_clone_desc": "Vytvořte identickou repliku celého clusteru na sekundárním serveru pro testování.",
+    "alert_cmd_copied": "Příkaz byl zkopírován do schránky!",
+    "btn_exporting_cluster": "Vytváří se úplná záloha...",
+    "cluster_status_collecting": "Shromažďování nastavení a kódu Deployment Center...",
+    "cluster_status_dumps": "Vytváření výpisů databází PostgreSQL pro všechny projekty...",
+    "cluster_status_compressing": "Komprese univerzálního balíčku (.tar.gz)...",
+    "cluster_status_completed": "Zálohování bylo úspěšně dokončeno!",
+    "cluster_status_error": "Chyba při vytváření zálohy."
   },
   "hr": {
     "wz_zip_label": "Početni Izvorni Kod (.ZIP Datoteka)",
@@ -15662,7 +16425,46 @@
     "btn_export_cluster": "Stvori i Preuzmi Potpunu Sigurnosnu Kopiju (.tar.gz)",
     "cluster_how_to_restore_title": "Kako Vratiti na Drugom Poslužitelju (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Želite li započeti stvaranje Potpune Sigurnosne Kopije svih projekata, baza podataka i postavki?",
-    "alert_cluster_backup_success": "Potpuna Sigurnosna Kopija Klastera uspješno stvorena! Datoteka: {filename} ({size})"
+    "alert_cluster_backup_success": "Potpuna Sigurnosna Kopija Klastera uspješno stvorena! Datoteka: {filename} ({size})",
+    "cluster_explanation_title": "Što je uključeno u ovu potpunu sigurnosnu kopiju?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Konfiguracije sustava, korisnici, API ključevi, povijest implementacije i AI smjernice.",
+    "cluster_item_projects_title": "Izvorni Kod & Stackovi",
+    "cluster_item_projects_desc": "Kod aplikacija, .env datoteke, docker-compose.yml i rute gatewaya.",
+    "cluster_item_db_title": "PostgreSQL Baze Podataka",
+    "cluster_item_db_desc": "Potpuni SQL dumpovi za svaki projekt (auth, storage, public sheme, tablice i podaci).",
+    "cluster_item_script_title": "Autonomna Skripta za Vraćanje",
+    "cluster_item_script_desc": "Uključena skripta restore_full_cluster.sh koja instalira Docker i sve vraća jednom naredbom.",
+    "cluster_step3_title": "3. Pokrenite automatsku skriptu za vraćanje s root ovlastima:",
+    "cluster_step1_desc": "Prenesite preuzetu (.tar.gz) datoteku na novi Debian/Ubuntu poslužitelj putem SCP-a:",
+    "cluster_step2_desc": "Povežite se putem SSH-a, raspakirajte arhivu u privremenu mapu i uđite u nju:",
+    "cluster_badge_universal": "UNIVERZALNA MIGRACIJA",
+    "cluster_badge_self_contained": "SAMOSTALAN",
+    "cluster_badge_dr": "OPORAVAK OD KATASTROFE",
+    "cluster_hero_title": "Potpuni paket s autonomnom skriptom za vraćanje",
+    "cluster_hero_desc": "Uključuje Deployment Center (postavke, korisnike, ključeve, AI), sve aktivne projekte, konfiguracijske datoteke, potpune PostgreSQL dumpove i skriptu restore_full_cluster.sh spremnu za pokretanje na Debianu ili Ubuntuu.",
+    "cluster_export_progress_label": "Priprema snimke infrastrukture...",
+    "cluster_step1_title": "1. Prijenos arhive na novi poslužitelj:",
+    "cluster_step2_title": "2. Raspakiravanje arhive na novom poslužitelju:",
+    "cluster_step3_details_title": "Automatska skripta za vraćanje samostalno izvršava:",
+    "cluster_step3_feat1": "Automatska instalacija Dockera i Docker Composea ako već nisu instalirani",
+    "cluster_step3_feat2": "Vraćanje svih postavki i sigurnih vjerodajnica u Deployment Centeru",
+    "cluster_step3_feat3": "Ponovno stvaranje PostgreSQL baza podataka i potpuni uvoz svih SQL dumpova",
+    "cluster_step3_feat4": "Pokretanje svih projekata i kontejnera na njihovim konfiguriranim priključcima",
+    "cluster_scenarios_title": "Scenariji korištenja",
+    "cluster_scen_dr_title": "Oporavak od katastrofe",
+    "cluster_scen_dr_desc": "Ako trenutni poslužitelj zakaže, vratite cjelokupnu infrastrukturu na čisti poslužitelj za nekoliko minuta.",
+    "cluster_scen_mig_title": "Migracija poslužitelja",
+    "cluster_scen_mig_desc": "Promijenite poslužitelj ili pružatelja usluga u oblaku (TrueNAS, Debian, Ubuntu, VPS) bez gubitka podataka.",
+    "cluster_scen_clone_title": "Kloniranje & Staging",
+    "cluster_scen_clone_desc": "Stvorite identičnu repliku cijelog klastera na sekundarnom poslužitelju za testiranje.",
+    "alert_cmd_copied": "Naredba je kopirana u međuspremnik!",
+    "btn_exporting_cluster": "Stvaranje potpune sigurnosne kopije...",
+    "cluster_status_collecting": "Prikupljanje postavki i koda Deployment Centera...",
+    "cluster_status_dumps": "Stvaranje PostgreSQL dumpova baze podataka za sve projekte...",
+    "cluster_status_compressing": "Sažimanje univerzalnog paketa (.tar.gz)...",
+    "cluster_status_completed": "Sigurnosno kopiranje uspješno dovršeno!",
+    "cluster_status_error": "Pogreška pri stvaranju sigurnosne kopije."
   },
   "da": {
     "wz_zip_label": "Indledende Kildekode (.ZIP Fil)",
@@ -16346,7 +17148,46 @@
     "btn_export_cluster": "Opret og Download Fuld Sikkerhedskopi (.tar.gz)",
     "cluster_how_to_restore_title": "Sådan Gendannes på en Anden Server (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Vil du starte oprettelsen af en Fuld Sikkerhedskopi af alle projekter, databaser og indstillinger?",
-    "alert_cluster_backup_success": "Fuld Klyngesikkerhedskopi oprettet! Fil: {filename} ({size})"
+    "alert_cluster_backup_success": "Fuld Klyngesikkerhedskopi oprettet! Fil: {filename} ({size})",
+    "cluster_explanation_title": "Hvad er inkluderet i denne fulde sikkerhedskopi?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Systemkonfigurationer, brugere, API-nøgler, implementeringshistorik og AI-direktiver.",
+    "cluster_item_projects_title": "Kildekode & Stakke",
+    "cluster_item_projects_desc": "Applikationskode, .env-filer, docker-compose.yml og gateway-ruter.",
+    "cluster_item_db_title": "PostgreSQL Databaser",
+    "cluster_item_db_desc": "Komplette SQL-dumps for hvert projekt (auth, storage, public skemaer, tabeller og data).",
+    "cluster_item_script_title": "Autonomt Gendannelsesscript",
+    "cluster_item_script_desc": "Inkluderet restore_full_cluster.sh script, der installerer Docker og gendanner alt med 1 kommando.",
+    "cluster_step3_title": "3. Kør det automatiske gendannelsesscript med root-rettigheder:",
+    "cluster_step1_desc": "Overfør den downloadede (.tar.gz) fil til den nye Debian/Ubuntu-server via SCP:",
+    "cluster_step2_desc": "Opret forbindelse via SSH, udpak arkivet i en midlertidig mappe, og gå ind i den:",
+    "cluster_badge_universal": "UNIVERSEL MIGRERING",
+    "cluster_badge_self_contained": "SELVSTÆNDIG",
+    "cluster_badge_dr": "KATASTROFEGENDANNELSE",
+    "cluster_hero_title": "Komplet pakke med autonomt gendannelsesscript",
+    "cluster_hero_desc": "Indeholder Deployment Center (indstillinger, brugere, nøgler, AI), alle aktive projekter, konfigurationsfiler, komplette PostgreSQL-dumps og skriptet restore_full_cluster.sh klar til kørsel på Debian eller Ubuntu.",
+    "cluster_export_progress_label": "Forbereder snapshot af infrastrukturen...",
+    "cluster_step1_title": "1. Overfør arkivet til den nye server:",
+    "cluster_step2_title": "2. Udpak arkivet på den nye server:",
+    "cluster_step3_details_title": "Det automatiske gendannelsesscript udfører autonomt:",
+    "cluster_step3_feat1": "Automatisk installation af Docker og Docker Compose, hvis de mangler",
+    "cluster_step3_feat2": "Gendannelse af alle indstillinger og sikre legitimationsoplysninger i Deployment Center",
+    "cluster_step3_feat3": "Gendannelse af PostgreSQL-databaser og fuld import af alle SQL-dumps",
+    "cluster_step3_feat4": "Opstart af alle projekter og containere på de konfigurerede porte",
+    "cluster_scenarios_title": "Brugsscenarier",
+    "cluster_scen_dr_title": "Katastrofegendannelse",
+    "cluster_scen_dr_desc": "Hvis den nuværende server svigter, kan du gendanne hele din infrastruktur på en ren maskine på få minutter.",
+    "cluster_scen_mig_title": "Servermigrering",
+    "cluster_scen_mig_desc": "Skift server eller cloud-udbyder (TrueNAS, Debian, Ubuntu, VPS) uden datatab.",
+    "cluster_scen_clone_title": "Kloning & Staging",
+    "cluster_scen_clone_desc": "Opret en identisk kopi af hele din klynge på en sekundær server til test eller staging.",
+    "alert_cmd_copied": "Kommando kopieret til udklipsholder!",
+    "btn_exporting_cluster": "Genererer fuld sikkerhedskopi...",
+    "cluster_status_collecting": "Indsamler indstillinger og kode for Deployment Center...",
+    "cluster_status_dumps": "Genererer PostgreSQL database-dumps for alle projekter...",
+    "cluster_status_compressing": "Komprimerer universel pakke (.tar.gz)...",
+    "cluster_status_completed": "Sikkerhedskopiering gennemført med succes!",
+    "cluster_status_error": "Fejl ved generering af sikkerhedskopi."
   },
   "sk": {
     "wz_zip_label": "Počiatočný Zdrojový Kód (Súbor .ZIP)",
@@ -17030,7 +17871,46 @@
     "btn_export_cluster": "Vytvoriť a Stiahnuť Úplnú Zálohu (.tar.gz)",
     "cluster_how_to_restore_title": "Ako Obnoviť na Inom Serveri (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Chcete začať vytvárať Úplnú Zálohu všetkých projektov, databáz a nastavení?",
-    "alert_cluster_backup_success": "Úplná Záloha Klastra bola úspešne vytvorená! Súbor: {filename} ({size})"
+    "alert_cluster_backup_success": "Úplná Záloha Klastra bola úspešne vytvorená! Súbor: {filename} ({size})",
+    "cluster_explanation_title": "Čo je súčasťou tejto úplnej zálohy?",
+    "cluster_item_dc_title": "Deployment Center a Vault",
+    "cluster_item_dc_desc": "Konfigurácia systému, používatelia, kľúče API, história nasadenia a smernice AI.",
+    "cluster_item_projects_title": "Zdrojový Kód a Stacky",
+    "cluster_item_projects_desc": "Kód aplikácií, súbory .env, docker-compose.yml a trasy brány.",
+    "cluster_item_db_title": "Databázy PostgreSQL",
+    "cluster_item_db_desc": "Kompletné výpisy SQL pre každý projekt (schémy auth, storage, public, tabuľky a dáta).",
+    "cluster_item_script_title": "Autonómny Skript Obnovy",
+    "cluster_item_script_desc": "Priložený skript restore_full_cluster.sh, ktorý nainštaluje Docker a všetko obnoví jedným príkazom.",
+    "cluster_step3_title": "3. Spustite skript automatickej obnovy s oprávneniami root:",
+    "cluster_step1_desc": "Preneste stiahnutý súbor (.tar.gz) na nový server Debian/Ubuntu cez SCP:",
+    "cluster_step2_desc": "Pripojte sa cez SSH, rozbaľte archív do dočasného priečinka a prejdite doň:",
+    "cluster_badge_universal": "UNIVERZÁLNA MIGRÁCIA",
+    "cluster_badge_self_contained": "SEBESTAČNÝ",
+    "cluster_badge_dr": "OBNOVA PO HAVÁRII",
+    "cluster_hero_title": "Kompletný balík s autonómnym skriptom na obnovenie",
+    "cluster_hero_desc": "Zahŕňa Deployment Center (nastavenia, používateľov, kľúče, AI), všetky aktívne projekty, konfiguračné súbory, kompletné výpisy PostgreSQL a skript restore_full_cluster.sh pripravený na spustenie na Debiane alebo Ubuntu.",
+    "cluster_export_progress_label": "Príprava snímky infraštruktúry...",
+    "cluster_step1_title": "1. Prenos archívu na nový server:",
+    "cluster_step2_title": "2. Rozbalenie archívu na novom serveri:",
+    "cluster_step3_details_title": "Skript automatickej obnovy samostatne vykonáva:",
+    "cluster_step3_feat1": "Automatická inštalácia Dockeru a Docker Compose, ak ešte nie sú prítomné",
+    "cluster_step3_feat2": "Obnovenie všetkých nastavení a zabezpečených prihlasovacích údajov v Deployment Center",
+    "cluster_step3_feat3": "Znovuvytvorenie databáz PostgreSQL a kompletný import všetkých výpisov SQL",
+    "cluster_step3_feat4": "Spustenie všetkých projektov a kontajnerov na ich nakonfigurovaných portoch",
+    "cluster_scenarios_title": "Scenáre použitia",
+    "cluster_scen_dr_title": "Obnova po havárii",
+    "cluster_scen_dr_desc": "Ak aktuálny server zlyhá, obnovte celú svoju infraštruktúru na novom stroji v priebehu niekoľkých minút.",
+    "cluster_scen_mig_title": "Migrácia servera",
+    "cluster_scen_mig_desc": "Zmeňte server alebo poskytovateľa cloudu (TrueNAS, Debian, Ubuntu, VPS) bez straty údajov.",
+    "cluster_scen_clone_title": "Klonovanie a testovacie prostredie",
+    "cluster_scen_clone_desc": "Vytvorte identickú repliku celého klastra na sekundárnom serveri na testovanie.",
+    "alert_cmd_copied": "Príkaz bol skopírovaný do schránky!",
+    "btn_exporting_cluster": "Vytvára sa úplná záloha...",
+    "cluster_status_collecting": "Zhromažďovanie nastavení a kódu Deployment Center...",
+    "cluster_status_dumps": "Vytváranie výpisov databáz PostgreSQL pre všetky projekty...",
+    "cluster_status_compressing": "Kompresia univerzálneho balíka (.tar.gz)...",
+    "cluster_status_completed": "Zálohovanie bolo úspešne dokončené!",
+    "cluster_status_error": "Chyba pri vytváraní zálohy."
   },
   "sl": {
     "wz_zip_label": "Začetna Izvorna Koda (.ZIP Datoteka)",
@@ -17714,7 +18594,46 @@
     "btn_export_cluster": "Ustvari in Prenesi Popolno Varnostno Kopijo (.tar.gz)",
     "cluster_how_to_restore_title": "Kako Obnoviti na Drugem Strežniku (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Ali želite začeti ustvarjati Popolno Varnostno Kopijo vseh projektov, podatkovnih zbirk in nastavitev?",
-    "alert_cluster_backup_success": "Popolna Varnostna Kopija Gruče uspešno ustvarjena! Datoteka: {filename} ({size})"
+    "alert_cluster_backup_success": "Popolna Varnostna Kopija Gruče uspešno ustvarjena! Datoteka: {filename} ({size})",
+    "cluster_explanation_title": "Kaj je vključeno v to popolno varnostno kopijo?",
+    "cluster_item_dc_title": "Deployment Center in Vault",
+    "cluster_item_dc_desc": "Sistemske konfiguracije, uporabniki, ključi API, zgodovina nameščanja in direktive UI.",
+    "cluster_item_projects_title": "Izvorna Koda in Skladi",
+    "cluster_item_projects_desc": "Koda aplikacij, datoteke .env, docker-compose.yml in prehodi.",
+    "cluster_item_db_title": "Zbirke Podatkov PostgreSQL",
+    "cluster_item_db_desc": "Popolni izpisi SQL za vsak projekt (sheme auth, storage, public, tabele in podatki).",
+    "cluster_item_script_title": "Samodejni Skript za Obnovitev",
+    "cluster_item_script_desc": "Priložen skript restore_full_cluster.sh, ki namesti Docker in vse obnovi z enim ukazom.",
+    "cluster_step3_title": "3. Zaženite samodejni skript za obnovitev s skrbniškimi pravicami (root):",
+    "cluster_step1_desc": "Prenašanje prenesene datoteke (.tar.gz) na nov strežnik Debian/Ubuntu prek SCP:",
+    "cluster_step2_desc": "Povežite se prek SSH, razpakirajte arhiv v začasno mapo in vstopite vanjo:",
+    "cluster_badge_universal": "UNIVERZALNA MIGRACIJA",
+    "cluster_badge_self_contained": "SAMOSTOJEN",
+    "cluster_badge_dr": "OBNOVITEV PO KATASTROFI",
+    "cluster_hero_title": "Popoln paket s samodejnim skriptom za obnovitev",
+    "cluster_hero_desc": "Vključuje Deployment Center (nastavitve, uporabnike, ključe, UI), vse aktivne projekte, konfiguracijske datoteke, popolne izpise PostgreSQL in skript restore_full_cluster.sh za Debian ali Ubuntu.",
+    "cluster_export_progress_label": "Priprava posnetka infrastrukture...",
+    "cluster_step1_title": "1. Prenos arhiva na nov strežnik:",
+    "cluster_step2_title": "2. Razpakiranje arhiva na novem strežniku:",
+    "cluster_step3_details_title": "Samodejni skript za obnovitev samostojno izvede:",
+    "cluster_step3_feat1": "Samodejna namestitev Dockerja in Docker Compose, če še nista nameščena",
+    "cluster_step3_feat2": "Obnovitev vseh nastavitev in varnih poverilnic v Deployment Centru",
+    "cluster_step3_feat3": "Ponovno ustvarjanje zbirk podatkov PostgreSQL in popoln uvoz vseh izpisov SQL",
+    "cluster_step3_feat4": "Zagon vseh projektov in vsebnikov na nastavljenih vratih",
+    "cluster_scenarios_title": "Scenariji uporabe",
+    "cluster_scen_dr_title": "Obnovitev po katastrofi",
+    "cluster_scen_dr_desc": "Če sedanji strežnik odpove, v nekaj minutah obnovite celotno infrastrukturo na novem strežniku.",
+    "cluster_scen_mig_title": "Migracija strežnika",
+    "cluster_scen_mig_desc": "Zamenjajte strežnik ali ponudnika v oblaku (TrueNAS, Debian, Ubuntu, VPS) brez izgube podatkov.",
+    "cluster_scen_clone_title": "Kloniranje in testno okolje",
+    "cluster_scen_clone_desc": "Ustvarite identično repliko celotnega grozda na sekundarnem strežniku za testiranje.",
+    "alert_cmd_copied": "Ukaz je kopiran v odložišče!",
+    "btn_exporting_cluster": "Ustvarjanje popolne varnostne kopije...",
+    "cluster_status_collecting": "Zbiranje nastavitev in kode Deployment Centra...",
+    "cluster_status_dumps": "Ustvarjanje izpisov zbirk podatkov PostgreSQL za vse projekte...",
+    "cluster_status_compressing": "Stiskanje univerzalnega paketa (.tar.gz)...",
+    "cluster_status_completed": "Varnostno kopiranje uspešno zaključeno!",
+    "cluster_status_error": "Napaka pri ustvarjanju varnostne kopije."
   },
   "et": {
     "wz_zip_label": "Algne Lähtekood (.ZIP Fail)",
@@ -18398,7 +19317,46 @@
     "btn_export_cluster": "Loo ja Laadi alla Täielik Varundus (.tar.gz)",
     "cluster_how_to_restore_title": "Kuidas Taastada Teises Serveris (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Kas soovite alustada kõigi projektide, andmebaaside ja sätete täieliku varunduse loomist?",
-    "alert_cluster_backup_success": "Klastri Täielik Varundus edukalt loodud! Fail: {filename} ({size})"
+    "alert_cluster_backup_success": "Klastri Täielik Varundus edukalt loodud! Fail: {filename} ({size})",
+    "cluster_explanation_title": "Mida see täielik varundus sisaldab?",
+    "cluster_item_dc_title": "Deployment Center ja Vault",
+    "cluster_item_dc_desc": "Süsteemi konfiguratsioonid, kasutajad, API-võtmed, juurutamise ajalugu ja tehisintellekti direktiivid.",
+    "cluster_item_projects_title": "Lähtekood ja Virnad",
+    "cluster_item_projects_desc": "Rakenduskood, .env failid, docker-compose.yml ja lüüsi marsruudid.",
+    "cluster_item_db_title": "PostgreSQL Andmebaasid",
+    "cluster_item_db_desc": "Täielikud SQL-tõmmised iga projekti jaoks (skeemid auth, storage, public, tabelid ja andmed).",
+    "cluster_item_script_title": "Autonoomne Taastamisskript",
+    "cluster_item_script_desc": "Kaasasolev restore_full_cluster.sh skript, mis paigaldab Dockeri ja taastab kõik ühe käsuga.",
+    "cluster_step3_title": "3. Käivitage automaatne taastamisskript root-õigustega:",
+    "cluster_step1_desc": "Edastage allalaaditud (.tar.gz) fail uude Debian/Ubuntu serverisse SCP kaudu:",
+    "cluster_step2_desc": "Ühendage SSH kaudu, pakkige arhiiv lahti ajutisse kausta ja sisenege sinna:",
+    "cluster_badge_universal": "UNIVERSAALNE MIGREERIMINE",
+    "cluster_badge_self_contained": "ISEMAJANDAV",
+    "cluster_badge_dr": "AVARIITAASTAMINE",
+    "cluster_hero_title": "Täielik pakett koos autonoomse taastamisskriptiga",
+    "cluster_hero_desc": "Sisaldab Deployment Centerit (sätted, kasutajad, võtmed, tehisintellekt), kõiki aktiivseid projekte, konfiguratsioonifaile, täielikke PostgreSQL-i tõmmiseid ja skripti restore_full_cluster.sh Debiani või Ubuntu jaoks.",
+    "cluster_export_progress_label": "Infrastruktuuri hetktõmmise ettevalmistamine...",
+    "cluster_step1_title": "1. Arhiivi edastamine uude serverisse:",
+    "cluster_step2_title": "2. Arhiivi lahtipakkimine uues serveris:",
+    "cluster_step3_details_title": "Automaatne taastamisskript viib autonoomselt läbi:",
+    "cluster_step3_feat1": "Dockeri ja Docker Compose'i automaatne installimine, kui need puuduvad",
+    "cluster_step3_feat2": "Kõigi sätete ja turvaliste mandaatide taastamine Deployment Centeris",
+    "cluster_step3_feat3": "PostgreSQL andmebaaside taasloomine ja kõigi SQL-tõmmiste täielik importimine",
+    "cluster_step3_feat4": "Kõigi projektide ja konteinerite käivitamine nende konfigureeritud portides",
+    "cluster_scenarios_title": "Kasutusstsenaariumid",
+    "cluster_scen_dr_title": "Avariitaastamine",
+    "cluster_scen_dr_desc": "Kui praegune server ebaõnnestub, taastage kogu oma infrastruktuur puhtas masinas mõne minutiga.",
+    "cluster_scen_mig_title": "Serveri migreerimine",
+    "cluster_scen_mig_desc": "Vahetage serverit või pilveteenuse pakkujat (TrueNAS, Debian, Ubuntu, VPS) ilma andmekaota.",
+    "cluster_scen_clone_title": "Kloonimine ja katsekeskkond",
+    "cluster_scen_clone_desc": "Looge kogu oma klastrist identne koopia teiseses serveris testimiseks või katsetamiseks.",
+    "alert_cmd_copied": "Käsk kopeeritud lõikelauale!",
+    "btn_exporting_cluster": "Täieliku varunduse loomine...",
+    "cluster_status_collecting": "Deployment Centeri sätete ja koodi kogumine...",
+    "cluster_status_dumps": "PostgreSQL andmebaaside tõmmiste loomine kõigi projektide jaoks...",
+    "cluster_status_compressing": "Universaalse paketi (.tar.gz) tihendamine...",
+    "cluster_status_completed": "Varundamine edukalt lõpule viidud!",
+    "cluster_status_error": "Viga varunduse genereerimisel."
   },
   "fi": {
     "wz_zip_label": "Alkuperäinen Lähdekoodi (.ZIP-tiedosto)",
@@ -19082,7 +20040,46 @@
     "btn_export_cluster": "Luo ja Lataa Täysi Varmuuskopio (.tar.gz)",
     "cluster_how_to_restore_title": "Miten Palautetaan Toiselle Palvelimelle (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Haluatko aloittaa kaikkien projektien, tietokantojen ja asetusten Täyden Varmuuskopion luomisen?",
-    "alert_cluster_backup_success": "Klusterin Täysi Varmuuskopio luotu onnistuneesti! Tiedosto: {filename} ({size})"
+    "alert_cluster_backup_success": "Klusterin Täysi Varmuuskopio luotu onnistuneesti! Tiedosto: {filename} ({size})",
+    "cluster_explanation_title": "Mitä tämä täysi varmuuskopio sisältää?",
+    "cluster_item_dc_title": "Deployment Center & Vault",
+    "cluster_item_dc_desc": "Järjestelmäasetukset, käyttäjät, API-avaimet, käyttöönottoraportit ja tekoälydirektiivit.",
+    "cluster_item_projects_title": "Lähdekoodi & Pinot",
+    "cluster_item_projects_desc": "Sovelluskoodi, .env-tiedostot, docker-compose.yml ja yhdyskäytäväasetukset.",
+    "cluster_item_db_title": "PostgreSQL-tietokannat",
+    "cluster_item_db_desc": "Täydet SQL-vedokset kullekin projektille (auth-, storage-, public-skeemat, taulut ja tiedot).",
+    "cluster_item_script_title": "Autonominen Palautusskripti",
+    "cluster_item_script_desc": "Mukana toimitettu restore_full_cluster.sh-skripti, joka asentaa Dockerin ja palauttaa kaiken yhdellä komennolla.",
+    "cluster_step3_title": "3. Suorita automaattinen palautusskripti root-oikeuksilla:",
+    "cluster_step1_desc": "Siirrä ladattu (.tar.gz) tiedosto uudelle Debian/Ubuntu-palvelimelle SCP:n kautta:",
+    "cluster_step2_desc": "Yhdistä SSH:lla, pura arkisto väliaikaiseen kansioon ja siirry siihen:",
+    "cluster_badge_universal": "YLEINEN SIIRTO",
+    "cluster_badge_self_contained": "OMAVARAINEN",
+    "cluster_badge_dr": "KATASTROFIPALAUTUS",
+    "cluster_hero_title": "Täydellinen paketti autonomisella palautusskriptillä",
+    "cluster_hero_desc": "Sisältää Deployment Centerin (asetukset, käyttäjät, avaimet, tekoäly), kaikki aktiiviset projektit, konfiguraatiotiedostot, täydet PostgreSQL-vedokset ja restore_full_cluster.sh-skriptin Debianille tai Ubuntulle.",
+    "cluster_export_progress_label": "Valmistellaan infrastruktuurin tilannevedosta...",
+    "cluster_step1_title": "1. Siirrä arkisto uudelle palvelimelle:",
+    "cluster_step2_title": "2. Pura arkisto uudella palvelimella:",
+    "cluster_step3_details_title": "Automaattinen palautusskripti suorittaa itsenäisesti:",
+    "cluster_step3_feat1": "Dockerin ja Docker Composen automaattinen asennus, jos ne puuttuvat",
+    "cluster_step3_feat2": "Kaikkien asetusten ja suojattujen kirjautumistietojen palautus Deployment Centerissä",
+    "cluster_step3_feat3": "PostgreSQL-tietokantojen uudelleenluominen ja kaikkien SQL-vedosten täysi tuonti",
+    "cluster_step3_feat4": "Kaikkien projektien ja konttien käynnistäminen määritetyissä porteissa",
+    "cluster_scenarios_title": "Käyttöskenaariot",
+    "cluster_scen_dr_title": "Katastrofipalautus",
+    "cluster_scen_dr_desc": "Jos nykyinen palvelin vikaantuu, palauta koko infrastruktuurisi puhtaalle palvelimelle minuuteissa.",
+    "cluster_scen_mig_title": "Palvelimen siirto",
+    "cluster_scen_mig_desc": "Vaihda palvelinta tai pilvipalveluntarjoajaa (TrueNAS, Debian, Ubuntu, VPS) ilman datan menetystä.",
+    "cluster_scen_clone_title": "Kloonaus & Esituotantoympäristö",
+    "cluster_scen_clone_desc": "Luo identtinen kopio koko klusteristasi toiselle palvelimelle testausta tai esituotantoa varten.",
+    "alert_cmd_copied": "Komento kopioitu leikepöydälle!",
+    "btn_exporting_cluster": "Luodaan täyttä varmuuskopiota...",
+    "cluster_status_collecting": "Kerätään Deployment Centerin asetuksia ja koodia...",
+    "cluster_status_dumps": "Luodaan PostgreSQL-tietokantavedoksia kaikille projekteille...",
+    "cluster_status_compressing": "Pakataan yleistä pakettia (.tar.gz)...",
+    "cluster_status_completed": "Varmuuskopiointi suoritettu onnistuneesti!",
+    "cluster_status_error": "Virhe varmuuskopion luonnissa."
   },
   "hu": {
     "wz_zip_label": "Kezdeti Forráskód (.ZIP Fájl)",
@@ -19766,7 +20763,46 @@
     "btn_export_cluster": "Teljes Mentés Létrehozása és Letöltése (.tar.gz)",
     "cluster_how_to_restore_title": "Visszaállítás Másik Szerveren (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Elindítja az összes projekt, adatbázis és beállítás Teljes Mentésének létrehozását?",
-    "alert_cluster_backup_success": "A fürt Teljes Mentése sikeresen elkészült! Fájl: {filename} ({size})"
+    "alert_cluster_backup_success": "A fürt Teljes Mentése sikeresen elkészült! Fájl: {filename} ({size})",
+    "cluster_explanation_title": "Mit tartalmaz ez a Teljes Mentés?",
+    "cluster_item_dc_title": "Deployment Center és Vault",
+    "cluster_item_dc_desc": "Rendszerbeállítások, felhasználók, API-kulcsok, telepítési előzmények és AI-irányelvek.",
+    "cluster_item_projects_title": "Forráskód és Stackek",
+    "cluster_item_projects_desc": "Alkalmazáskód, .env fájlok, docker-compose.yml és átjáró útvonalak.",
+    "cluster_item_db_title": "PostgreSQL Adatbázisok",
+    "cluster_item_db_desc": "Teljes SQL dumpok minden projekthez (auth, storage, public sémák, táblák és adatok).",
+    "cluster_item_script_title": "Önálló Visszaállító Szkript",
+    "cluster_item_script_desc": "A mellékelt restore_full_cluster.sh szkript, amely telepíti a Dockert és mindent visszaállít 1 paranccsal.",
+    "cluster_step3_title": "3. Futtassa az automatikus visszaállító szkriptet root jogosultságokkal:",
+    "cluster_step1_desc": "Másolja át a letöltött (.tar.gz) fájlt az új Debian/Ubuntu szerverre SCP-n keresztül:",
+    "cluster_step2_desc": "Csatlakozzon SSH-n keresztül, bontsa ki az archívumot egy ideiglenes mappába, majd lépjen be:",
+    "cluster_badge_universal": "UNIVERZÁLIS MIGRÁCIÓ",
+    "cluster_badge_self_contained": "ÖNÁLLÓ",
+    "cluster_badge_dr": "KATASZTRÓFA-ELHÁRÍTÁS",
+    "cluster_hero_title": "Teljes csomag önálló visszaállító szkripttel",
+    "cluster_hero_desc": "Tartalmazza a Deployment Centert (beállítások, felhasználók, kulcsok, AI), az összes aktív projektet, konfigurációs fájlokat, teljes PostgreSQL dumpokat és a restore_full_cluster.sh szkriptet.",
+    "cluster_export_progress_label": "Infrastruktúra pillanatkép készítése...",
+    "cluster_step1_title": "1. Az archívum átvitele az új szerverre:",
+    "cluster_step2_title": "2. Csomagolja ki az archívumot az új szerveren:",
+    "cluster_step3_details_title": "Az automatikus visszaállító szkript önállóan végrehajtja a következőket:",
+    "cluster_step3_feat1": "A Docker és a Docker Compose automatikus telepítése, ha még nincsenek jelen",
+    "cluster_step3_feat2": "Az összes beállítás és biztonságos hitelesítő adat visszaállítása a Deployment Centerben",
+    "cluster_step3_feat3": "A PostgreSQL adatbázisok újbóli létrehozása és az összes SQL dump teljes importálása",
+    "cluster_step3_feat4": "Az összes projekt és konténer elindítása a konfigurált portokon",
+    "cluster_scenarios_title": "Használati forgatókönyvek",
+    "cluster_scen_dr_title": "Katasztrófa utáni helyreállítás",
+    "cluster_scen_dr_desc": "Ha a jelenlegi szerver meghibásodik, percek alatt állítsa vissza a teljes infrastruktúrát egy tiszta gépen.",
+    "cluster_scen_mig_title": "Szervermigráció",
+    "cluster_scen_mig_desc": "Váltson szervert vagy felhőszolgáltatót (TrueNAS, Debian, Ubuntu, VPS) adatvesztés nélkül.",
+    "cluster_scen_clone_title": "Klónozás és Staging",
+    "cluster_scen_clone_desc": "Hozzon létre egy azonos másolatot a teljes fürtről egy másodlagos szerveren teszteléshez.",
+    "alert_cmd_copied": "Parancs a vágólapra másolva!",
+    "btn_exporting_cluster": "Teljes mentés generálása...",
+    "cluster_status_collecting": "A Deployment Center beállításainak és kódjának összegyűjtése...",
+    "cluster_status_dumps": "PostgreSQL adatbázis-dumpok készítése az összes projekthez...",
+    "cluster_status_compressing": "Univerzális csomag (.tar.gz) tömörítése...",
+    "cluster_status_completed": "A mentés sikeresen befejeződött!",
+    "cluster_status_error": "Hiba történt a mentés létrehozásakor."
   },
   "lv": {
     "wz_zip_label": "Sākotnējais Pirmkods (.ZIP Fails)",
@@ -20450,7 +21486,46 @@
     "btn_export_cluster": "Izveidot un Lejupielādēt Pilnu Dublējumu (.tar.gz)",
     "cluster_how_to_restore_title": "Kā Atjaunot Citā Serverī (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Vai vēlaties sākt visu projektu, datubāzu un iestatījumu Pilna Dublējuma izveidi?",
-    "alert_cluster_backup_success": "Klastera Pilns Dublējums veiksmīgi izveidots! Fails: {filename} ({size})"
+    "alert_cluster_backup_success": "Klastera Pilns Dublējums veiksmīgi izveidots! Fails: {filename} ({size})",
+    "cluster_explanation_title": "Kas ir iekļauts šajā Pilnajā Dublējumā?",
+    "cluster_item_dc_title": "Deployment Center un Vault",
+    "cluster_item_dc_desc": "Sistēmas konfigurācijas, lietotāji, API atslēgas, izvietošanas vēsture un AI direktīvas.",
+    "cluster_item_projects_title": "Pirmkods un Steki",
+    "cluster_item_projects_desc": "Lietojumprogrammu kods, .env faili, docker-compose.yml un vārtejas maršruti.",
+    "cluster_item_db_title": "PostgreSQL Datubāzes",
+    "cluster_item_db_desc": "Pilni SQL izvilkumi katram projektam (shēmas auth, storage, public, tabulas un dati).",
+    "cluster_item_script_title": "Autonoms Atjaunošanas Skripts",
+    "cluster_item_script_desc": "Iekļauts restore_full_cluster.sh skripts, kas instalē Docker un atjauno visu ar 1 komandu.",
+    "cluster_step3_title": "3. Palaidiet automātisko atjaunošanas skriptu ar root tiesībām:",
+    "cluster_step1_desc": "Pārsūtiet lejupielādēto (.tar.gz) failu uz jauno Debian/Ubuntu serveri, izmantojot SCP:",
+    "cluster_step2_desc": "Pieslēdzieties caur SSH, atveriet arhīvu pagaidu mapē un ieejiet tajā:",
+    "cluster_badge_universal": "UNIVERSĀLA MIGRĀCIJA",
+    "cluster_badge_self_contained": "AUTONOMS",
+    "cluster_badge_dr": "KATAS TROFAS ATJAUNOŠANA",
+    "cluster_hero_title": "Pilna pakotne ar autonomu atjaunošanas skriptu",
+    "cluster_hero_desc": "Ietver Deployment Center (iestatījumus, lietotājus, atslēgas, AI), visus aktīvos projektus, konfigurācijas failus, pilnus PostgreSQL izvilkumus un skriptu restore_full_cluster.sh Debian vai Ubuntu sistēmām.",
+    "cluster_export_progress_label": "Gatavo infrastruktūras momentuzņēmumu...",
+    "cluster_step1_title": "1. Pārsūtiet arhīvu uz jauno serveri:",
+    "cluster_step2_title": "2. Atveriet arhīvu jaunajā serverī:",
+    "cluster_step3_details_title": "Automātiskais atjaunošanas skripts autonomi veic:",
+    "cluster_step3_feat1": "Automātiska Docker un Docker Compose instalēšana, ja tie vēl nav uzstādīti",
+    "cluster_step3_feat2": "Visu iestatījumu un drošo akreditācijas datu atjaunošana Deployment Center",
+    "cluster_step3_feat3": "PostgreSQL datubāzu atkārtota izveide un visu SQL izvilkumu pilnīga importēšana",
+    "cluster_step3_feat4": "Visu projektu un konteineru palaišana to konfigurētajos portos",
+    "cluster_scenarios_title": "Lietošanas scenāriji",
+    "cluster_scen_dr_title": "Atjaunošana pēc avārijas",
+    "cluster_scen_dr_desc": "Ja pašreizējais serveris avarē, dažu minūšu laikā atjaunojiet visu infrastruktūru tīrā mašīnā.",
+    "cluster_scen_mig_title": "Servera migrācija",
+    "cluster_scen_mig_desc": "Mainiet serveri vai mākoņa pakalpojumu sniedzēju (TrueNAS, Debian, Ubuntu, VPS) bez datu zuduma.",
+    "cluster_scen_clone_title": "Klonēšana un sagatavošanas vide",
+    "cluster_scen_clone_desc": "Izveidojiet identisku visas kopas kopiju sekundārajā serverī testēšanai vai sagatavošanai.",
+    "alert_cmd_copied": "Komanda nokopēta starpliktuvē!",
+    "btn_exporting_cluster": "Ģenerē pilno dublējumu...",
+    "cluster_status_collecting": "Apkopo Deployment Center iestatījumus un kodu...",
+    "cluster_status_dumps": "Ģenerē PostgreSQL datubāzu izvilkumus visiem projektiem...",
+    "cluster_status_compressing": "Saspiež universālo pakotni (.tar.gz)...",
+    "cluster_status_completed": "Dublēšana veiksmīgi pabeigta!",
+    "cluster_status_error": "Kļūda, ģenerējot dublējumu."
   },
   "lt": {
     "wz_zip_label": "Pradinis Pirminis Kodas (.ZIP Failas)",
@@ -21134,7 +22209,46 @@
     "btn_export_cluster": "Sukurti ir Atsisiųsti Pilną Atsarginę Kopiją (.tar.gz)",
     "cluster_how_to_restore_title": "Kaip Atkurti Kitame Serveryje (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Ar norite pradėti kurti visų projektų, duomenų bazių ir nustatymų Pilną Atsarginę Kopiją?",
-    "alert_cluster_backup_success": "Pilna Klasterio Atsarginė Kopija sėkmingai sukurta! Failas: {filename} ({size})"
+    "alert_cluster_backup_success": "Pilna Klasterio Atsarginė Kopija sėkmingai sukurta! Failas: {filename} ({size})",
+    "cluster_explanation_title": "Kas įtraukta į šią Pilną Atsarginę Kopiją?",
+    "cluster_item_dc_title": "Deployment Center ir Vault",
+    "cluster_item_dc_desc": "Sistemos konfigūracijos, vartotojai, API raktai, diegimo istorija ir DI direktyvos.",
+    "cluster_item_projects_title": "Pirminis Kodas ir Stekai",
+    "cluster_item_projects_desc": "Programų kodas, .env failai, docker-compose.yml ir šliuzų maršrutai.",
+    "cluster_item_db_title": "PostgreSQL Duomenų Bazės",
+    "cluster_item_db_desc": "Pilni SQL išrašai kiekvienam projektui (schemos auth, storage, public, lentelės ir duomenys).",
+    "cluster_item_script_title": "Autonominis Atkūrimo Scenarijus",
+    "cluster_item_script_desc": "Pridėtas restore_full_cluster.sh scenarijus, kuris įdiegia Docker ir viską atkuria viena komanda.",
+    "cluster_step3_title": "3. Paleiskite automatinį atkūrimo scenarijų su root teisėmis:",
+    "cluster_step1_desc": "Perkelkite atsisiųstą (.tar.gz) failą į naują Debian/Ubuntu serverį per SCP:",
+    "cluster_step2_desc": "Prisijunkite per SSH, išpakuokite archyvą į laikiną aplanką ir įeikite į jį:",
+    "cluster_badge_universal": "UNIVERSALUS MIGRAVIMAS",
+    "cluster_badge_self_contained": "SAVARANKIŠKAS",
+    "cluster_badge_dr": "AVARINIS ATKŪRIMAS",
+    "cluster_hero_title": "Pilnas paketas su autonominiu atkūrimo scenarijumi",
+    "cluster_hero_desc": "Apima „Deployment Center“ (nustatymus, vartotojus, raktus, DI), visus aktyvius projektus, konfigūracijos failus, pilnus „PostgreSQL“ išrašus ir „restore_full_cluster.sh“ scenarijų, paruoštą „Debian“ ar „Ubuntu“.",
+    "cluster_export_progress_label": "Ruošiamas infrastruktūros momentinis vaizdas...",
+    "cluster_step1_title": "1. Perkelkite archyvą į naują serverį:",
+    "cluster_step2_title": "2. Išpakuokite archyvą naujame serveryje:",
+    "cluster_step3_details_title": "Automatinis atkūrimo scenarijus autonomiškai atlieka:",
+    "cluster_step3_feat1": "Automatinis „Docker“ ir „Docker Compose“ įdiegimas, jei jų dar nėra sistemoje",
+    "cluster_step3_feat2": "Visų „Deployment Center“ nustatymų ir saugių kredencialų atkūrimas",
+    "cluster_step3_feat3": "„PostgreSQL“ duomenų bazių atkūrimas ir pilnas visų SQL išrašų importavimas",
+    "cluster_step3_feat4": "Visų projektų ir konteinerių paleidimas jų sukonfigūruotuose prievaduose",
+    "cluster_scenarios_title": "Naudojimo scenarijai",
+    "cluster_scen_dr_title": "Avarinis atkūrimas",
+    "cluster_scen_dr_desc": "Sugedus dabartiniam serveriui, per kelias minutes atkurkite visą infrastruktūrą naujame serveryje.",
+    "cluster_scen_mig_title": "Serverio migravimas",
+    "cluster_scen_mig_desc": "Pakeiskite serverį ar debesijos paslaugų teikėją (TrueNAS, Debian, Ubuntu, VPS) be duomenų praradimo.",
+    "cluster_scen_clone_title": "Klonavimas ir testavimo aplinka",
+    "cluster_scen_clone_desc": "Sukurkite identišką visos klasterio kopiją antriniame serveryje testavimui ar rengimui.",
+    "alert_cmd_copied": "Komanda nukopijuota į iškarpinę!",
+    "btn_exporting_cluster": "Kuriama pilna atsarginė kopija...",
+    "cluster_status_collecting": "Renkami „Deployment Center“ nustatymai ir kodas...",
+    "cluster_status_dumps": "Kuriamos „PostgreSQL“ duomenų bazių kopijos visiems projektams...",
+    "cluster_status_compressing": "Glaudinamas universalus paketas (.tar.gz)...",
+    "cluster_status_completed": "Atsarginė kopija sėkmingai sukurta!",
+    "cluster_status_error": "Klaida kuriant atsarginę kopiją."
   },
   "mt": {
     "wz_zip_label": "Kodiċi Sors Inizjali (Fajl .ZIP)",
@@ -21818,7 +22932,46 @@
     "btn_export_cluster": "Oħloq u Niżżel Backup Sħiħ (.tar.gz)",
     "cluster_how_to_restore_title": "Kif Tirrestawra fuq Server Ieħor (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Trid tibda toħloq Backup Sħiħ tal-proġetti, databases u settings kollha?",
-    "alert_cluster_backup_success": "Backup Sħiħ tal-Cluster maħluq b'suċċess! Fajl: {filename} ({size})"
+    "alert_cluster_backup_success": "Backup Sħiħ tal-Cluster maħluq b'suċċess! Fajl: {filename} ({size})",
+    "cluster_explanation_title": "X'inhu inkluż f'dan il-Backup Sħiħ?",
+    "cluster_item_dc_title": "Deployment Center u Vault",
+    "cluster_item_dc_desc": "Konfigurazzjonijiet tas-sistema, utenti, ċwievet API, storja tal-iskjerament u direttivi tal-IA.",
+    "cluster_item_projects_title": "Kodiċi tas-Sors u Stacks",
+    "cluster_item_projects_desc": "Kodiċi tal-applikazzjonijiet, fajls .env, docker-compose.yml u rotot tal-gateway.",
+    "cluster_item_db_title": "Databases PostgreSQL",
+    "cluster_item_db_desc": "Dumps SQL sħaħ għal kull proġett (skemi auth, storage, public, tabelli u dejta).",
+    "cluster_item_script_title": "Skript Awtonomu ta' Restawr",
+    "cluster_item_script_desc": "Skript restore_full_cluster.sh inkluż li jinstalla Docker u jirrestawra kollox b'kmand 1.",
+    "cluster_step3_title": "3. Ħaddem l-iskript ta' restawr awtomatiku bi privileġġi ta' root:",
+    "cluster_step1_desc": "Ittrasferixxi l-fajl imniżżel (.tar.gz) lejn is-server il-ġdid ta' Debian/Ubuntu permezz ta' SCP:",
+    "cluster_step2_desc": "Qabbad permezz ta' SSH, oħroġ l-arkivju f'fowlder temporanju u idħol fih:",
+    "cluster_badge_universal": "MIGRAZZJONI UNIVERSALI",
+    "cluster_badge_self_contained": "AWTONOMU",
+    "cluster_badge_dr": "RKUPRU MINN DIŻASTRU",
+    "cluster_hero_title": "Pakkett Sħiħ bi Skript ta' Restawr Awtonomu",
+    "cluster_hero_desc": "Jinkludi Deployment Center (settings, utenti, ċwievet, IA), il-proġetti attivi kollha, fajls ta' konfigurazzjoni, dumps PostgreSQL sħaħ, u l-iskript restore_full_cluster.sh lest għal Debian jew Ubuntu.",
+    "cluster_export_progress_label": "Qed jitħejja snapshot tal-infrastruttura...",
+    "cluster_step1_title": "1. Ittrasferixxi l-arkivju lejn is-server il-ġdid:",
+    "cluster_step2_title": "2. Oħroġ l-arkivju fuq is-server il-ġdid:",
+    "cluster_step3_details_title": "L-iskript ta' restawr awtomatiku jesegwixxi b'mod awtonomu:",
+    "cluster_step3_feat1": "Installazzjoni awtomatika ta' Docker u Docker Compose jekk mhumiex preżenti",
+    "cluster_step3_feat2": "Restawr tas-settings kollha u kredenzjali siguri f'Deployment Center",
+    "cluster_step3_feat3": "Rikreazzjoni ta' databases PostgreSQL u importazzjoni sħiħa tad-dumps SQL kollha",
+    "cluster_step3_feat4": "Bidu tal-proġetti u kontenituri kollha fuq il-portijiet ikkonfigurati tagħhom",
+    "cluster_scenarios_title": "Xenarji ta' Użu",
+    "cluster_scen_dr_title": "Rkupru minn Diżastru",
+    "cluster_scen_dr_desc": "Jekk is-server attwali jieqaf jaħdem, irrestawra l-infrastruttura kollha tiegħek fuq magna ġdida fi ftit minuti.",
+    "cluster_scen_mig_title": "Migrazzjoni tas-Server",
+    "cluster_scen_mig_desc": "Ibdel is-server jew il-fornitur tal-cloud (TrueNAS, Debian, Ubuntu, VPS) mingħajr l-ebda telf ta' dejta.",
+    "cluster_scen_clone_title": "Klonazzjoni u Staging",
+    "cluster_scen_clone_desc": "Oħloq replika identika tal-cluster kollu tiegħek fuq server sekondarju għall-ittestjar.",
+    "alert_cmd_copied": "Kmand ikkupjat fil-clipboard!",
+    "btn_exporting_cluster": "Qed jiġi ġġenerat il-Backup Sħiħ...",
+    "cluster_status_collecting": "Qed jinġabru s-settings u l-kodiċi ta' Deployment Center...",
+    "cluster_status_dumps": "Qed jiġu ġġenerati d-dumps tal-bażi tad-dejta PostgreSQL għall-proġetti kollha...",
+    "cluster_status_compressing": "Qed jiġi kkompressat il-pakkett universali (.tar.gz)...",
+    "cluster_status_completed": "Il-backup tlesta b'suċċess!",
+    "cluster_status_error": "Żball waqt il-ġenerazzjoni tal-backup."
   },
   "la": {
     "wz_zip_label": "Primarius Codex Fontis (Fasciculus .ZIP)",
@@ -22502,7 +23655,46 @@
     "btn_export_cluster": "Para et Deprome Exemplum Integrum (.tar.gz)",
     "cluster_how_to_restore_title": "Quomodo in Alio Servitore Restituatur (Debian / Ubuntu / TrueNAS)",
     "confirm_export_cluster": "Visne initium facere exempli integri omnium inceptorum, datorum ac constitutionum?",
-    "alert_cluster_backup_success": "Exemplum Integrum Fasciculi feliciter creatum est! Fasciculus: {filename} ({size})"
+    "alert_cluster_backup_success": "Exemplum Integrum Fasciculi feliciter creatum est! Fasciculus: {filename} ({size})",
+    "cluster_explanation_title": "Quid in hoc Exemplo Integro continetur?",
+    "cluster_item_dc_title": "Deployment Center et Vault",
+    "cluster_item_dc_desc": "Constitutiones systematis, usores, claves API, historia exsecutionis et praecepta intellegentiae artificialis.",
+    "cluster_item_projects_title": "Fons Codicis et Structurae",
+    "cluster_item_projects_desc": "Codex applicationum, fasciculi .env, docker-compose.yml et viae transitus.",
+    "cluster_item_db_title": "Receptacula Datorum PostgreSQL",
+    "cluster_item_db_desc": "Plena SQL exempla pro unoquoque incepto (schemata auth, storage, public, tabulae ac dati).",
+    "cluster_item_script_title": "Scriptum Autonomum Restituendi",
+    "cluster_item_script_desc": "Scriptum restore_full_cluster.sh inclusum quod Docker instituit et omnia uno mandato restituit.",
+    "cluster_step3_title": "3. Exsequere scriptum automatarium restituendi cum potestate root:",
+    "cluster_step1_desc": "Transvehe fasciculum receptum (.tar.gz) in novum servitorem Debian/Ubuntu per SCP:",
+    "cluster_step2_desc": "Coniunge per SSH, extrahe archivum in scapum temporalem et ingredere:",
+    "cluster_badge_universal": "MIGRATIO UNIVERSALIS",
+    "cluster_badge_self_contained": "IN SE CONCLUSUM",
+    "cluster_badge_dr": "RECUPERATIO POST CLADEM",
+    "cluster_hero_title": "Sarcina Integra cum Scripto Restituendi Autonomo",
+    "cluster_hero_desc": "Deployment Center (optiones, usores, claves, AI), omnia incepta activa, fasciculos constitutionis, plena exempla PostgreSQL et scriptum restore_full_cluster.sh paratum continet.",
+    "cluster_export_progress_label": "Imago structurae paratur...",
+    "cluster_step1_title": "1. Translatio archivi in novum servitorem:",
+    "cluster_step2_title": "2. Extractio archivi in novo servitore:",
+    "cluster_step3_details_title": "Scriptum automatarium restituendi per se ipsam efficit:",
+    "cluster_step3_feat1": "Institutio automataria Docker et Docker Compose si absunt",
+    "cluster_step3_feat2": "Restitutio omnium optionum et clavium securarum in Deployment Center",
+    "cluster_step3_feat3": "Recreatio receptaculorum datorum PostgreSQL et plena importatio omnium exemplorum SQL",
+    "cluster_step3_feat4": "Initium omnium inceptorum et vasorum in portis constitutis",
+    "cluster_scenarios_title": "Scenarii Usus",
+    "cluster_scen_dr_title": "Recuperatio post Cladem",
+    "cluster_scen_dr_desc": "Si servitor praesens defecerit, totam structuram in pura machina paucis minutis restitue.",
+    "cluster_scen_mig_title": "Migratio Servitoris",
+    "cluster_scen_mig_desc": "Muta servitorem vel provisorem nubis (TrueNAS, Debian, Ubuntu, VPS) sine ulla iactura datorum.",
+    "cluster_scen_clone_title": "Clonatio et Ambitus Praevius",
+    "cluster_scen_clone_desc": "Effice exemplum geminum totius fasciculi in servitore secundario ad experimenta.",
+    "alert_cmd_copied": "Mandatum in tabellam transcriptum est!",
+    "btn_exporting_cluster": "Exemplum Integrum gignitur...",
+    "cluster_status_collecting": "Optiones et codex Deployment Center colliguntur...",
+    "cluster_status_dumps": "Exempla datorum PostgreSQL pro omnibus inceptis parantur...",
+    "cluster_status_compressing": "Sarcina universalis (.tar.gz) comprimitur...",
+    "cluster_status_completed": "Exemplum bene confectum est!",
+    "cluster_status_error": "Error in exemplo gignendo."
   }
 };
 
@@ -23277,12 +24469,12 @@
 
       bar.style.width = '20%';
       percentage.textContent = '20%';
-      statusLabel.textContent = 'A recolher definições e código do Deployment Center...';
+      statusLabel.textContent = t('cluster_status_collecting');
 
       try {
         bar.style.width = '45%';
         percentage.textContent = '45%';
-        statusLabel.textContent = 'A gerar dumps de bases de dados PostgreSQL de todos os projetos...';
+        statusLabel.textContent = t('cluster_status_dumps');
 
         const res = await fetch('/api/cluster/backup-full', {
           method: 'POST',
@@ -23291,14 +24483,14 @@
 
         bar.style.width = '85%';
         percentage.textContent = '85%';
-        statusLabel.textContent = 'A compactar pacote universal (.tar.gz)...';
+        statusLabel.textContent = t('cluster_status_compressing');
 
         const data = await res.json();
         if (!data.ok) throw new Error(data.error || 'Falha ao gerar backup');
 
         bar.style.width = '100%';
         percentage.textContent = '100%';
-        statusLabel.textContent = `Concluído com sucesso! (${data.sizeFormatted})`;
+        statusLabel.textContent = `${t('cluster_status_completed')} (${data.sizeFormatted})`;
 
         // Disparar download direto
         const a = document.createElement('a');
@@ -23314,7 +24506,7 @@
           type: 'success'
         });
       } catch (err) {
-        statusLabel.textContent = 'Erro na geração do backup.';
+        statusLabel.textContent = t('cluster_status_error');
         await appAlert({
           title: t('wow_title_alert'),
           message: 'Erro: ' + err.message,

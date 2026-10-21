@@ -52,4 +52,80 @@ test("cluster migration: UI elements and endpoints exist in index.html and serve
   assert.ok(html.includes('function exportFullClusterBackup('), "Function exportFullClusterBackup must exist in index.html");
   assert.ok(html.includes('data-i18n="set_tab_cluster"'), "set_tab_cluster data-i18n must exist");
   assert.ok(html.includes('data-i18n="btn_export_cluster"'), "btn_export_cluster data-i18n must exist");
+  assert.ok(html.includes('data-i18n="cluster_explanation_title"'), "cluster_explanation_title data-i18n must exist");
+  assert.ok(html.includes('data-i18n="cluster_item_dc_title"'), "cluster_item_dc_title data-i18n must exist");
+  assert.ok(html.includes('data-i18n="cluster_item_projects_title"'), "cluster_item_projects_title data-i18n must exist");
+  assert.ok(html.includes('data-i18n="cluster_item_db_title"'), "cluster_item_db_title data-i18n must exist");
+  assert.ok(html.includes('data-i18n="cluster_item_script_title"'), "cluster_item_script_title data-i18n must exist");
+  assert.ok(html.includes('data-i18n="cluster_how_to_restore_title"'), "cluster_how_to_restore_title data-i18n must exist");
+  assert.ok(html.includes('data-i18n="cluster_step1_title"'), "cluster_step1_title data-i18n must exist");
+  assert.ok(html.includes('data-i18n="cluster_step2_title"'), "cluster_step2_title data-i18n must exist");
+  assert.ok(html.includes('data-i18n="cluster_step3_title"'), "cluster_step3_title data-i18n must exist");
+  assert.ok(html.includes('data-i18n="cluster_scenarios_title"'), "cluster_scenarios_title data-i18n must exist");
+});
+
+test("cluster migration: all guide and explanation keys exist across all 28 languages in I18N", () => {
+  const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const match = html.match(/const I18N = (\{[\s\S]*?\n\s*\};)/);
+  assert.ok(match, "I18N found in index.html");
+  const i18n = new Function(`return ${match[1].replace(/;$/, "")}`)();
+
+  const requiredClusterKeys = [
+    "set_tab_cluster",
+    "cluster_title",
+    "cluster_desc",
+    "btn_export_cluster",
+    "btn_exporting_cluster",
+    "cluster_how_to_restore_title",
+    "cluster_badge_universal",
+    "cluster_badge_self_contained",
+    "cluster_badge_dr",
+    "cluster_hero_title",
+    "cluster_hero_desc",
+    "cluster_export_progress_label",
+    "cluster_explanation_title",
+    "cluster_item_dc_title",
+    "cluster_item_dc_desc",
+    "cluster_item_projects_title",
+    "cluster_item_projects_desc",
+    "cluster_item_db_title",
+    "cluster_item_db_desc",
+    "cluster_item_script_title",
+    "cluster_item_script_desc",
+    "cluster_step1_title",
+    "cluster_step1_desc",
+    "cluster_step2_title",
+    "cluster_step2_desc",
+    "cluster_step3_title",
+    "cluster_step3_details_title",
+    "cluster_step3_feat1",
+    "cluster_step3_feat2",
+    "cluster_step3_feat3",
+    "cluster_step3_feat4",
+    "cluster_scenarios_title",
+    "cluster_scen_dr_title",
+    "cluster_scen_dr_desc",
+    "cluster_scen_mig_title",
+    "cluster_scen_mig_desc",
+    "cluster_scen_clone_title",
+    "cluster_scen_clone_desc",
+    "cluster_status_collecting",
+    "cluster_status_dumps",
+    "cluster_status_compressing",
+    "cluster_status_completed",
+    "cluster_status_error",
+    "alert_cmd_copied"
+  ];
+
+  const langs = Object.keys(i18n);
+  assert.equal(langs.length, 28, "Must support all 28 languages");
+
+  for (const lang of langs) {
+    for (const key of requiredClusterKeys) {
+      assert.ok(
+        i18n[lang][key] && typeof i18n[lang][key] === "string" && i18n[lang][key].trim().length > 0,
+        `Language ${lang} is missing non-empty cluster key "${key}"`
+      );
+    }
+  }
 });
