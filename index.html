@@ -1813,6 +1813,9 @@
         <button id="set-tab-btn-skills" onclick="switchSettingsTab('skills')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-1.5">
           <i data-lucide="brain" class="w-3.5 h-3.5 text-pink-400"></i> <span data-i18n="set_tab_skills">Skills de IA (.agents/skills)</span>
         </button>
+        <button id="set-tab-btn-cluster" onclick="switchSettingsTab('cluster')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-1.5">
+          <i data-lucide="server" class="w-3.5 h-3.5 text-emerald-400"></i> <span data-i18n="set_tab_cluster">Backup Total & Migração</span>
+        </button>
       </div>
 
       <!-- Conteúdo Diretivas de IA (.agents/rules) -->
@@ -2079,7 +2082,81 @@
             </button>
           </div>
         </div>
+      
+      <!-- Conteúdo Backup Total do Cluster & Migração -->
+      <div id="set-content-cluster" class="space-y-4 overflow-y-auto flex-1 pr-1 hidden">
+        <div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
+          <div>
+            <h4 class="font-extrabold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+              <i data-lucide="server" class="w-4 h-4 text-emerald-400"></i> <span data-i18n="cluster_title">Backup Total de Infraestrutura & Migração Universal</span>
+            </h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" data-i18n="cluster_desc">Gera um pacote autocontido com o Deployment Center, todos os projetos, bases de dados PostgreSQL, volumes de storage e um script de restauro automático para outro servidor.</p>
+          </div>
+        </div>
+
+        <!-- Cartão de Destaque WOW: Criar Backup Total -->
+        <div class="rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-slate-900/60 to-teal-500/10 p-5 space-y-4 shadow-xl">
+          <div class="flex items-start justify-between flex-wrap gap-3">
+            <div class="space-y-1.5">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">MIGRAÇÃO UNIVERSAL</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">AUTOCONTIDO</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/20 text-purple-400 border border-purple-500/30">DISASTER RECOVERY</span>
+              </div>
+              <h5 class="font-bold text-sm text-white">Pacote Completo com Script de Restauro Autónomo</h5>
+              <p class="text-xs text-slate-300 leading-relaxed max-w-xl">
+                Inclui o Deployment Center (definições, utilizadores, chaves, IA), todos os projetos ativos, ficheiros de configuração, dumps integrais PostgreSQL e o script <code class="px-1.5 py-0.5 rounded bg-slate-900 text-emerald-400 font-mono text-[11px]">restore_full_cluster.sh</code> pronto para executar em qualquer novo servidor Debian ou Ubuntu.
+              </p>
+            </div>
+
+            <button id="btn-cluster-export" onclick="exportFullClusterBackup()" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-emerald-500/25 transition-all duration-200 active:scale-95 shrink-0 cursor-pointer">
+              <i data-lucide="download-cloud" class="w-4 h-4" id="btn-cluster-export-icon"></i>
+              <span id="btn-cluster-export-text" data-i18n="btn_export_cluster">Criar & Descarregar Backup Total (.tar.gz)</span>
+            </button>
+          </div>
+
+          <!-- Indicador de Progresso / Estado -->
+          <div id="cluster-export-progress" class="hidden space-y-2 pt-2 border-t border-emerald-500/20">
+            <div class="flex items-center justify-between text-xs text-emerald-400 font-bold">
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                <span id="cluster-export-status-label">A preparar snapshot da infraestrutura...</span>
+              </span>
+              <span id="cluster-export-percentage">0%</span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+              <div id="cluster-export-bar" class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500 w-0"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instruções de Migração Passo a Passo -->
+        <div class="rounded-3xl border border-slate-700/60 bg-slate-900/50 p-4 space-y-3">
+          <h5 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
+            <i data-lucide="terminal" class="w-4 h-4 text-indigo-400"></i>
+            <span data-i18n="cluster_how_to_restore_title">Como Restaurar noutro Servidor (Debian / Ubuntu / TrueNAS)</span>
+          </h5>
+
+          <div class="space-y-2 text-xs text-slate-300">
+            <div>
+              <span class="font-bold text-slate-400 block mb-1">1. Copiar o ficheiro transferido para o novo servidor:</span>
+              <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[11px] text-emerald-400">
+                <span>scp cluster_full_backup_*.tar.gz root@NOVO_IP:/tmp/</span>
+                <button onclick="navigator.clipboard.writeText('scp cluster_full_backup_*.tar.gz root@NOVO_IP:/tmp/'); appAlert({ title: t('state_copied'), message: 'Comando copiado!', type: 'success' });" class="p-1 hover:text-white cursor-pointer"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+              </div>
+            </div>
+
+            <div>
+              <span class="font-bold text-slate-400 block mb-1">2. No novo servidor, extrair e executar o script automático:</span>
+              <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[11px] text-indigo-400">
+                <span>cd /tmp &amp;&amp; tar -xzf cluster_full_backup_*.tar.gz &amp;&amp; sudo bash restore_full_cluster.sh</span>
+                <button onclick="navigator.clipboard.writeText('cd /tmp && tar -xzf cluster_full_backup_*.tar.gz && sudo bash restore_full_cluster.sh'); appAlert({ title: t('state_copied'), message: 'Comando copiado!', type: 'success' });" class="p-1 hover:text-white cursor-pointer"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+</div>
     </div>
   </div>
 
@@ -4100,7 +4177,14 @@
     "alert_backup_created": "Backup criado com sucesso! Ficheiro: {filename}",
     "alert_db_restored": "Restauro da base de dados concluído com sucesso em {env}!",
     "alert_zip_restore_success": "🎉 Restauro concluído com sucesso! Foram repostos {count} ficheiro(s).",
-    "app_title_full": "Deployment Center — Gestão Universal de Infraestrutura & Deploys"
+    "app_title_full": "Deployment Center — Gestão Universal de Infraestrutura & Deploys",
+    "set_tab_cluster": "Backup Total & Migração",
+    "cluster_title": "Backup Total de Infraestrutura & Migração Universal",
+    "cluster_desc": "Gera um pacote autocontido com o Deployment Center, todos os projetos, bases de dados PostgreSQL, volumes de storage e um script de restauro automático para outro servidor.",
+    "btn_export_cluster": "Criar & Descarregar Backup Total (.tar.gz)",
+    "cluster_how_to_restore_title": "Como Restaurar noutro Servidor (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Deseja iniciar a criação do Backup Total de todos os projetos, bases de dados e configurações?",
+    "alert_cluster_backup_success": "Backup Total do Cluster criado com sucesso! Ficheiro: {filename} ({size})"
   },
   "en": {
     "wz_zip_label": "Initial Source Code (.ZIP File)",
@@ -4752,7 +4836,14 @@
     "alert_backup_created": "Backup created successfully! File: {filename}",
     "alert_db_restored": "Database restore completed successfully in {env}!",
     "alert_zip_restore_success": "🎉 Restore completed successfully! Restored {count} file(s).",
-    "app_title_full": "Deployment Center — Universal Infrastructure & Deploy Management"
+    "app_title_full": "Deployment Center — Universal Infrastructure & Deploy Management",
+    "set_tab_cluster": "Full Backup & Migration",
+    "cluster_title": "Full Infrastructure Backup & Universal Migration",
+    "cluster_desc": "Generates a self-contained package with the Deployment Center, all projects, PostgreSQL databases, storage volumes, and an automatic restore script for another server.",
+    "btn_export_cluster": "Create & Download Full Backup (.tar.gz)",
+    "cluster_how_to_restore_title": "How to Restore on Another Server (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Do you want to start creating a Full Backup of all projects, databases, and settings?",
+    "alert_cluster_backup_success": "Full Cluster Backup created successfully! File: {filename} ({size})"
   },
   "it": {
     "wz_zip_label": "Codice Sorgente Iniziale (File .ZIP)",
@@ -5404,7 +5495,14 @@
     "alert_backup_created": "Backup creato con successo! File: {filename}",
     "alert_db_restored": "Ripristino del database completato con successo in {env}!",
     "alert_zip_restore_success": "🎉 Ripristino completato con successo! Ripristinati {count} file.",
-    "app_title_full": "Deployment Center — Gestione Universale dell'Infrastruttura e Deploy"
+    "app_title_full": "Deployment Center — Gestione Universale dell'Infrastruttura e Deploy",
+    "set_tab_cluster": "Backup Totale & Migrazione",
+    "cluster_title": "Backup Totale dell'Infrastruttura e Migrazione Universale",
+    "cluster_desc": "Genera un pacchetto autonomo con Deployment Center, tutti i progetti, database PostgreSQL, volumi di storage e uno script di ripristino automatico per un altro server.",
+    "btn_export_cluster": "Crea e Scarica Backup Totale (.tar.gz)",
+    "cluster_how_to_restore_title": "Come Ripristinare su un Altro Server (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Desideri avviare la creazione del Backup Totale di tutti i progetti, database e configurazioni?",
+    "alert_cluster_backup_success": "Backup Totale del Cluster creato con successo! File: {filename} ({size})"
   },
   "de": {
     "wz_zip_label": "Initialer Quellcode (.ZIP-Datei)",
@@ -6056,7 +6154,14 @@
     "alert_backup_created": "Backup erfolgreich erstellt! Datei: {filename}",
     "alert_db_restored": "Datenbank-Wiederherstellung in {env} erfolgreich abgeschlossen!",
     "alert_zip_restore_success": "🎉 Wiederherstellung erfolgreich! {count} Datei(en) wiederhergestellt.",
-    "app_title_full": "Deployment Center — Universelles Infrastruktur- & Deployment-Management"
+    "app_title_full": "Deployment Center — Universelles Infrastruktur- & Deployment-Management",
+    "set_tab_cluster": "Vollständiges Backup & Migration",
+    "cluster_title": "Vollständiges Infrastruktur-Backup & Universelle Migration",
+    "cluster_desc": "Erstellt ein in sich geschlossenes Paket mit dem Deployment Center, allen Projekten, PostgreSQL-Datenbanken, Speicher-Volumes und einem automatischen Wiederherstellungsskript für einen anderen Server.",
+    "btn_export_cluster": "Vollständiges Backup erstellen & herunterladen (.tar.gz)",
+    "cluster_how_to_restore_title": "Wiederherstellung auf einem anderen Server (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Möchten Sie die Erstellung des vollständigen Backups aller Projekte, Datenbanken und Einstellungen starten?",
+    "alert_cluster_backup_success": "Vollständiges Cluster-Backup erfolgreich erstellt! Datei: {filename} ({size})"
   },
   "de-AT": {
     "wz_zip_label": "Initialer Quellcode (.ZIP-Datei)",
@@ -6708,7 +6813,14 @@
     "alert_backup_created": "Backup erfolgreich erstellt! Datei: {filename}",
     "alert_db_restored": "Datenbank-Wiederherstellung in {env} erfolgreich abgeschlossen!",
     "alert_zip_restore_success": "🎉 Wiederherstellung erfolgreich! {count} Datei(en) wiederhergestellt.",
-    "app_title_full": "Deployment Center — Universelles Infrastruktur- & Deployment-Management"
+    "app_title_full": "Deployment Center — Universelles Infrastruktur- & Deployment-Management",
+    "set_tab_cluster": "Vollständiges Backup & Migration",
+    "cluster_title": "Vollständiges Infrastruktur-Backup & Universelle Migration",
+    "cluster_desc": "Erstellt ein in sich geschlossenes Paket mit dem Deployment Center, allen Projekten, PostgreSQL-Datenbanken, Speicher-Volumes und einem automatischen Wiederherstellungsskript für einen anderen Server.",
+    "btn_export_cluster": "Vollständiges Backup erstellen & herunterladen (.tar.gz)",
+    "cluster_how_to_restore_title": "Wiederherstellung auf einem anderen Server (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Möchten Sie die Erstellung des vollständigen Backups aller Projekte, Datenbanken und Einstellungen starten?",
+    "alert_cluster_backup_success": "Vollständiges Cluster-Backup erfolgreich erstellt! Datei: {filename} ({size})"
   },
   "nl": {
     "wz_zip_label": "Initiële Broncode (.ZIP-bestand)",
@@ -7385,7 +7497,14 @@
     "alert_backup_created": "Back-up succesvol gemaakt! Bestand: {filename}",
     "alert_db_restored": "Databaseherstel succesvol voltooid in {env}!",
     "alert_zip_restore_success": "🎉 Herstel succesvol voltooid! {count} bestand(en) hersteld.",
-    "app_title_full": "Deployment Center — Universeel Infrastructuur- & Implementatiebeheer"
+    "app_title_full": "Deployment Center — Universeel Infrastructuur- & Implementatiebeheer",
+    "set_tab_cluster": "Volledige Back-up & Migratie",
+    "cluster_title": "Volledige Infrastructuurback-up & Universele Migratie",
+    "cluster_desc": "Genereert een zelfstandig pakket met Deployment Center, alle projecten, PostgreSQL-databases, opslagvolumes en een automatisch herstelscript voor een andere server.",
+    "btn_export_cluster": "Volledige Back-up maken en downloaden (.tar.gz)",
+    "cluster_how_to_restore_title": "Herstellen op een andere server (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Wilt u starten met het maken van een Volledige Back-up van alle projecten, databases en instellingen?",
+    "alert_cluster_backup_success": "Volledige Clusterback-up succesvol gemaakt! Bestand: {filename} ({size})"
   },
   "el": {
     "wz_zip_label": "Αρχικός Πηγαίος Κώδικας (Αρχείο .ZIP)",
@@ -8062,7 +8181,14 @@
     "alert_backup_created": "Το αντίγραφο ασφαλείας δημιουργήθηκε με επιτυχία! Αρχείο: {filename}",
     "alert_db_restored": "Η επαναφορά της βάσης δεδομένων ολοκληρώθηκε με επιτυχία στο {env}!",
     "alert_zip_restore_success": "🎉 Η επαναφορά ολοκληρώθηκε με επιτυχία! Επαναφέρθηκαν {count} αρχεία.",
-    "app_title_full": "Deployment Center — Καθολική Διαχείριση Υποδομών & Αναπτύξεων"
+    "app_title_full": "Deployment Center — Καθολική Διαχείριση Υποδομών & Αναπτύξεων",
+    "set_tab_cluster": "Πλήρες Αντίγραφο & Μετανάστευση",
+    "cluster_title": "Πλήρες Αντίγραφο Υποδομής & Καθολική Μετανάστευση",
+    "cluster_desc": "Δημιουργεί ένα αυτόνομο πακέτο με το Deployment Center, όλα τα έργα, βάσεις δεδομένων PostgreSQL, τόμους αποθήκευσης και ένα αυτόματο σενάριο επαναφοράς για άλλον διακομιστή.",
+    "btn_export_cluster": "Δημιουργία & Λήψη Πλήρους Αντιγράφου (.tar.gz)",
+    "cluster_how_to_restore_title": "Πώς να Επαναφέρετε σε Άλλον Διακομιστή (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Θέλετε να ξεκινήσετε τη δημιουργία Πλήρους Αντιγράφου όλων των έργων, βάσεων δεδομένων και ρυθμίσεων;",
+    "alert_cluster_backup_success": "Το Πλήρες Αντίγραφο Συστάδας δημιουργήθηκε με επιτυχία! Αρχείο: {filename} ({size})"
   },
   "pl": {
     "wz_zip_label": "Początkowy Kod Źródłowy (Plik .ZIP)",
@@ -8739,7 +8865,14 @@
     "alert_backup_created": "Kopia zapasowa została utworzona! Plik: {filename}",
     "alert_db_restored": "Przywracanie bazy danych zakończone pomyślnie w {env}!",
     "alert_zip_restore_success": "🎉 Przywracanie zakończone pomyślnie! Przywrócono {count} plików.",
-    "app_title_full": "Deployment Center — Uniwersalne Zarządzanie Infrastrukturą i Wdrożeniami"
+    "app_title_full": "Deployment Center — Uniwersalne Zarządzanie Infrastrukturą i Wdrożeniami",
+    "set_tab_cluster": "Pełna Kopia & Migracja",
+    "cluster_title": "Pełna Kopia Zapasowa Infrastruktury i Uniwersalna Migracja",
+    "cluster_desc": "Generuje samowystarczalny pakiet z Deployment Center, wszystkimi projektami, bazami danych PostgreSQL, wolumenami pamięci masowej i skryptem automatycznego przywracania na innym serwerze.",
+    "btn_export_cluster": "Utwórz i Pobierz Pełną Kopię (.tar.gz)",
+    "cluster_how_to_restore_title": "Jak Przywrócić na Innym Serwerze (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Czy chcesz rozpocząć tworzenie Pełnej Kopii Zapasowej wszystkich projektów, baz danych i ustawień?",
+    "alert_cluster_backup_success": "Pełna Kopia Klastra została utworzona pomyślnie! Plik: {filename} ({size})"
   },
   "ru": {
     "wz_zip_label": "Исходный Код (.ZIP Файл)",
@@ -9416,7 +9549,14 @@
     "alert_backup_created": "Резервная копия успешно создана! Файл: {filename}",
     "alert_db_restored": "Восстановление базы данных успешно завершено в {env}!",
     "alert_zip_restore_success": "🎉 Восстановление успешно завершено! Восстановлено файлов: {count}.",
-    "app_title_full": "Deployment Center — Универсальное Управление Инфраструктурой и Развертыванием"
+    "app_title_full": "Deployment Center — Универсальное Управление Инфраструктурой и Развертыванием",
+    "set_tab_cluster": "Полный Бэкап и Миграция",
+    "cluster_title": "Полный Бэкап Инфраструктуры и Универсальная Миграция",
+    "cluster_desc": "Создает автономный архив с Deployment Center, всеми проектами, базами данных PostgreSQL, томами хранилища и автоматическим скриптом восстановления для другого сервера.",
+    "btn_export_cluster": "Создать и Скачать Полный Бэкап (.tar.gz)",
+    "cluster_how_to_restore_title": "Как Восстановить на Другом Сервере (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Начать создание Полного Бэкапа всех проектов, баз данных и настроек?",
+    "alert_cluster_backup_success": "Полный Бэкап Кластера успешно создан! Файл: {filename} ({size})"
   },
   "zh": {
     "wz_zip_label": "初始源代码（.ZIP 文件）",
@@ -10093,7 +10233,14 @@
     "alert_backup_created": "备份创建成功！文件：{filename}",
     "alert_db_restored": "在 {env} 环境中的数据库恢复成功！",
     "alert_zip_restore_success": "🎉 恢复成功！已恢复 {count} 个文件。",
-    "app_title_full": "Deployment Center — 通用基础设施与部署管理平台"
+    "app_title_full": "Deployment Center — 通用基础设施与部署管理平台",
+    "set_tab_cluster": "完整备份与集群迁移",
+    "cluster_title": "全基础设施备份与通用服务器迁移",
+    "cluster_desc": "生成包含 Deployment Center、所有项目、PostgreSQL 数据库、存储卷以及用于另一台服务器的自动恢复脚本的自包含包。",
+    "btn_export_cluster": "创建并下载完整集群备份 (.tar.gz)",
+    "cluster_how_to_restore_title": "如何在另一台服务器上恢复 (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "是否开始为所有项目、数据库和配置创建完整集群备份？",
+    "alert_cluster_backup_success": "完整集群备份已成功创建！文件：{filename} ({size})"
   },
   "ja": {
     "wz_zip_label": "初期ソースコード (.ZIP ファイル)",
@@ -10770,7 +10917,14 @@
     "alert_backup_created": "バックアップが正常に作成されました！ファイル：{filename}",
     "alert_db_restored": "{env} でのデータベース復元が正常に完了しました！",
     "alert_zip_restore_success": "🎉 復元が正常に完了しました！{count} 個のファイルを復元しました。",
-    "app_title_full": "Deployment Center — ユニバーサル インフラストラクチャ＆デプロイ管理"
+    "app_title_full": "Deployment Center — ユニバーサル インフラストラクチャ＆デプロイ管理",
+    "set_tab_cluster": "フルバックアップ＆移行",
+    "cluster_title": "インフラ全体のフルバックアップ＆ユニバーサル移行",
+    "cluster_desc": "Deployment Center、すべてのプロジェクト、PostgreSQL データベース、ストレージボリューム、および別サーバー用の自動復元スクリプトを含む完全自己完結型パッケージを生成します。",
+    "btn_export_cluster": "フルバックアップの作成とダウンロード (.tar.gz)",
+    "cluster_how_to_restore_title": "別サーバーでの復元手順 (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "すべてのプロジェクト、データベース、設定のフルバックアップ作成を開始しますか？",
+    "alert_cluster_backup_success": "クラスターのフルバックアップが正常に作成されました！ファイル：{filename} ({size})"
   },
   "sv": {
     "wz_zip_label": "Ursprunglig Källkod (.ZIP-fil)",
@@ -11447,7 +11601,14 @@
     "alert_backup_created": "Säkerhetskopia skapad! Fil: {filename}",
     "alert_db_restored": "Databasåterställning slutförd i {env}!",
     "alert_zip_restore_success": "🎉 Återställning klar! {count} fil(er) återställda.",
-    "app_title_full": "Deployment Center — Universell Infrastruktur- och Distributionshantering"
+    "app_title_full": "Deployment Center — Universell Infrastruktur- och Distributionshantering",
+    "set_tab_cluster": "Fullständig Säkerhetskopia & Migrering",
+    "cluster_title": "Fullständig Infrastrukturbackup & Universell Migrering",
+    "cluster_desc": "Skapar ett fristående paket med Deployment Center, alla projekt, PostgreSQL-databaser, lagringsvolymer och ett automatiskt återställningsskript för en annan server.",
+    "btn_export_cluster": "Skapa & Ladda ner Fullständig Backup (.tar.gz)",
+    "cluster_how_to_restore_title": "Hur man Återställer på en Annan Server (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Vill du starta skapandet av en Fullständig Säkerhetskopia av alla projekt, databaser och inställningar?",
+    "alert_cluster_backup_success": "Fullständig Klusterbackup skapad! Fil: {filename} ({size})"
   },
   "ro": {
     "wz_zip_label": "Cod Sursă Inițial (Fișier .ZIP)",
@@ -12124,7 +12285,14 @@
     "alert_backup_created": "Copie de rezervă creată cu succes! Fișier: {filename}",
     "alert_db_restored": "Restaurarea bazei de date a fost finalizată cu succes în {env}!",
     "alert_zip_restore_success": "🎉 Restaurare finalizată cu succes! S-au restaurat {count} fișier(e).",
-    "app_title_full": "Deployment Center — Gestionare Universală a Infrastructurii și Implementărilor"
+    "app_title_full": "Deployment Center — Gestionare Universală a Infrastructurii și Implementărilor",
+    "set_tab_cluster": "Backup Total & Migrare",
+    "cluster_title": "Backup Total al Infrastructurii & Migrare Universală",
+    "cluster_desc": "Generează un pachet autonom cu Deployment Center, toate proiectele, bazele de date PostgreSQL, volumele de stocare și un script de restaurare automată pentru alt server.",
+    "btn_export_cluster": "Creare & Descărcare Backup Total (.tar.gz)",
+    "cluster_how_to_restore_title": "Cum se Restaurează pe Alt Server (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Doriți să începeți crearea Backup-ului Total pentru toate proiectele, bazele de date și configurările?",
+    "alert_cluster_backup_success": "Backup-ul Total al Clusterului a fost creat cu succes! Fișier: {filename} ({size})"
   },
   "mo": {
     "wz_zip_label": "Cod Sursă Inițial (Fișier .ZIP)",
@@ -12801,7 +12969,14 @@
     "alert_backup_created": "Copie de rezervă creată cu succes! Fișier: {filename}",
     "alert_db_restored": "Restaurarea bazei de date a fost finalizată cu succes în {env}!",
     "alert_zip_restore_success": "🎉 Restaurare finalizată cu succes! S-au restaurat {count} fișier(e).",
-    "app_title_full": "Deployment Center — Gestionare Universală a Infrastructurii și Implementărilor"
+    "app_title_full": "Deployment Center — Gestionare Universală a Infrastructurii și Implementărilor",
+    "set_tab_cluster": "Backup Total & Migrare",
+    "cluster_title": "Backup Total al Infrastructurii & Migrare Universală",
+    "cluster_desc": "Generează un pachet autonom cu Deployment Center, toate proiectele, bazele de date PostgreSQL, volumele de stocare și un script de restaurare automată pentru alt server.",
+    "btn_export_cluster": "Creare & Descărcare Backup Total (.tar.gz)",
+    "cluster_how_to_restore_title": "Cum se Restaurează pe Alt Server (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Doriți să începeți crearea Backup-ului Total pentru toate proiectele, bazele de date și configurările?",
+    "alert_cluster_backup_success": "Backup-ul Total al Clusterului a fost creat cu succes! Fișier: {filename} ({size})"
   },
   "es": {
     "wz_zip_label": "Código Fuente Inicial (Archivo .ZIP)",
@@ -13453,7 +13628,14 @@
     "alert_backup_created": "¡Copia de seguridad creada con éxito! Archivo: {filename}",
     "alert_db_restored": "¡Restauración de la base de datos completada con éxito en {env}!",
     "alert_zip_restore_success": "🎉 ¡Restauración completada con éxito! Se restauraron {count} archivo(s).",
-    "app_title_full": "Deployment Center — Gestión Universal de Infraestructura y Despliegues"
+    "app_title_full": "Deployment Center — Gestión Universal de Infraestructura y Despliegues",
+    "set_tab_cluster": "Copia Total y Migración",
+    "cluster_title": "Copia de Seguridad Total de Infraestructura y Migración Universal",
+    "cluster_desc": "Genera un paquete autocontenido con el Deployment Center, todos los proyectos, bases de datos PostgreSQL, volúmenes de storage y un script de restauración automática para otro servidor.",
+    "btn_export_cluster": "Crear y Descargar Copia Total (.tar.gz)",
+    "cluster_how_to_restore_title": "Cómo Restaurar en Otro Servidor (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "¿Desea iniciar la creación de la Copia Total de todos los proyectos, bases de datos y configuraciones?",
+    "alert_cluster_backup_success": "¡Copia Total del Clúster creada con éxito! Archivo: {filename} ({size})"
   },
   "fr": {
     "wz_zip_label": "Code Source Initial (Fichier .ZIP)",
@@ -14105,7 +14287,14 @@
     "alert_backup_created": "Sauvegarde créée avec succès ! Fichier : {filename}",
     "alert_db_restored": "Restauration de la base de données terminée avec succès sur {env} !",
     "alert_zip_restore_success": "🎉 Restauration terminée avec succès ! {count} fichier(s) restauré(s).",
-    "app_title_full": "Deployment Center — Gestion Universelle d'Infrastructure et Déploiements"
+    "app_title_full": "Deployment Center — Gestion Universelle d'Infrastructure et Déploiements",
+    "set_tab_cluster": "Sauvegarde Totale & Migration",
+    "cluster_title": "Sauvegarde Totale d'Infrastructure & Migration Universelle",
+    "cluster_desc": "Génère un package autonome avec le Deployment Center, tous les projets, bases de données PostgreSQL, volumes de stockage et un script de restauration automatique pour un autre serveur.",
+    "btn_export_cluster": "Créer & Télécharger la Sauvegarde Totale (.tar.gz)",
+    "cluster_how_to_restore_title": "Comment Restaurer sur un Autre Serveur (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Voulez-vous lancer la création de la Sauvegarde Totale de tous les projets, bases de données et configurations ?",
+    "alert_cluster_backup_success": "Sauvegarde Totale du Cluster créée avec succès ! Fichier : {filename} ({size})"
   },
   "cs": {
     "wz_zip_label": "Počáteční Zdrojový Kód (Soubor .ZIP)",
@@ -14782,7 +14971,14 @@
     "alert_backup_created": "Záloha byla úspěšně vytvořena! Soubor: {filename}",
     "alert_db_restored": "Obnova databáze byla úspěšně dokončena v {env}!",
     "alert_zip_restore_success": "🎉 Obnova byla úspěšně dokončena! Obnoveno souborů: {count}.",
-    "app_title_full": "Deployment Center — Univerzální Správa Infrastruktury a Nasazení"
+    "app_title_full": "Deployment Center — Univerzální Správa Infrastruktury a Nasazení",
+    "set_tab_cluster": "Úplná Záloha a Migrace",
+    "cluster_title": "Úplná Záloha Infrastruktury a Univerzální Migrace",
+    "cluster_desc": "Vytvoří soběstačný balíček s Deployment Center, všemi projekty, databázemi PostgreSQL, svazky úložiště a skriptem automatické obnovy pro jiný server.",
+    "btn_export_cluster": "Vytvořit a Stáhnout Úplnou Zálohu (.tar.gz)",
+    "cluster_how_to_restore_title": "Jak Obnovit na Jiném Serveru (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Chcete zahájit vytváření Úplné Zálohy všech projektů, databází a nastavení?",
+    "alert_cluster_backup_success": "Úplná Záloha Clusteru byla úspěšně vytvořena! Soubor: {filename} ({size})"
   },
   "hr": {
     "wz_zip_label": "Početni Izvorni Kod (.ZIP Datoteka)",
@@ -15459,7 +15655,14 @@
     "alert_backup_created": "Sigurnosna kopija je uspješno stvorena! Datoteka: {filename}",
     "alert_db_restored": "Vraćanje baze podataka uspješno je završeno u {env}!",
     "alert_zip_restore_success": "🎉 Vraćanje uspješno završeno! Vraćeno datoteka: {count}.",
-    "app_title_full": "Deployment Center — Univerzalno Upravljanje Infrastrukturom i Implementacijama"
+    "app_title_full": "Deployment Center — Univerzalno Upravljanje Infrastrukturom i Implementacijama",
+    "set_tab_cluster": "Potpuna Sigurnosna Kopija & Migracija",
+    "cluster_title": "Potpuna Sigurnosna Kopija Infrastrukture & Univerzalna Migracija",
+    "cluster_desc": "Stvara samostalni paket s Deployment Centerom, svim projektima, PostgreSQL bazama podataka, volumenima pohrane i skriptom automatskog vraćanja za drugi poslužitelj.",
+    "btn_export_cluster": "Stvori i Preuzmi Potpunu Sigurnosnu Kopiju (.tar.gz)",
+    "cluster_how_to_restore_title": "Kako Vratiti na Drugom Poslužitelju (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Želite li započeti stvaranje Potpune Sigurnosne Kopije svih projekata, baza podataka i postavki?",
+    "alert_cluster_backup_success": "Potpuna Sigurnosna Kopija Klastera uspješno stvorena! Datoteka: {filename} ({size})"
   },
   "da": {
     "wz_zip_label": "Indledende Kildekode (.ZIP Fil)",
@@ -16136,7 +16339,14 @@
     "alert_backup_created": "Sikkerhedskopi oprettet! Fil: {filename}",
     "alert_db_restored": "Gendannelse af database fuldført i {env}!",
     "alert_zip_restore_success": "🎉 Gendannelse fuldført! {count} fil(er) gendannet.",
-    "app_title_full": "Deployment Center — Universel Infrastruktur- og Implementeringsstyring"
+    "app_title_full": "Deployment Center — Universel Infrastruktur- og Implementeringsstyring",
+    "set_tab_cluster": "Fuld Sikkerhedskopi & Migrering",
+    "cluster_title": "Fuld Infrastruktur-Sikkerhedskopi & Universel Migrering",
+    "cluster_desc": "Opretter en selvstændig pakke med Deployment Center, alle projekter, PostgreSQL-databaser, lagerdiske og et automatisk gendannelsesscript til en anden server.",
+    "btn_export_cluster": "Opret og Download Fuld Sikkerhedskopi (.tar.gz)",
+    "cluster_how_to_restore_title": "Sådan Gendannes på en Anden Server (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Vil du starte oprettelsen af en Fuld Sikkerhedskopi af alle projekter, databaser og indstillinger?",
+    "alert_cluster_backup_success": "Fuld Klyngesikkerhedskopi oprettet! Fil: {filename} ({size})"
   },
   "sk": {
     "wz_zip_label": "Počiatočný Zdrojový Kód (Súbor .ZIP)",
@@ -16813,7 +17023,14 @@
     "alert_backup_created": "Záloha bola úspešne vytvorená! Súbor: {filename}",
     "alert_db_restored": "Obnova databázy bola úspešne dokončená v {env}!",
     "alert_zip_restore_success": "🎉 Obnova bola úspešne dokončená! Obnovených súborov: {count}.",
-    "app_title_full": "Deployment Center — Univerzálna Správa Infraštruktúry a Nasadení"
+    "app_title_full": "Deployment Center — Univerzálna Správa Infraštruktúry a Nasadení",
+    "set_tab_cluster": "Úplná Záloha a Migrácia",
+    "cluster_title": "Úplná Záloha Infraštruktúry a Univerzálna Migrácia",
+    "cluster_desc": "Vytvorí samostatný balíček s Deployment Center, všetkými projektmi, databázami PostgreSQL, zväzkami úložiska a skriptom automatickej obnovy pre iný server.",
+    "btn_export_cluster": "Vytvoriť a Stiahnuť Úplnú Zálohu (.tar.gz)",
+    "cluster_how_to_restore_title": "Ako Obnoviť na Inom Serveri (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Chcete začať vytvárať Úplnú Zálohu všetkých projektov, databáz a nastavení?",
+    "alert_cluster_backup_success": "Úplná Záloha Klastra bola úspešne vytvorená! Súbor: {filename} ({size})"
   },
   "sl": {
     "wz_zip_label": "Začetna Izvorna Koda (.ZIP Datoteka)",
@@ -17490,7 +17707,14 @@
     "alert_backup_created": "Varnostna kopija je bila uspešno ustvarjena! Datoteka: {filename}",
     "alert_db_restored": "Obnovitev baze podatkov uspešno končana v {env}!",
     "alert_zip_restore_success": "🎉 Obnovitev uspešno končana! Obnovljenih datotek: {count}.",
-    "app_title_full": "Deployment Center — Univerzalno Upravljanje Infrastrukture in Nameščanja"
+    "app_title_full": "Deployment Center — Univerzalno Upravljanje Infrastrukture in Nameščanja",
+    "set_tab_cluster": "Popolna Varnostna Kopija in Migracija",
+    "cluster_title": "Popolna Varnostna Kopija Infrastrukture in Univerzalna Migracija",
+    "cluster_desc": "Ustvari samostojen paket z Deployment Center, vsemi projekti, podatkovnimi zbirkami PostgreSQL, pomnilniškimi nosilci in skriptom za samodejno obnovitev za drug strežnik.",
+    "btn_export_cluster": "Ustvari in Prenesi Popolno Varnostno Kopijo (.tar.gz)",
+    "cluster_how_to_restore_title": "Kako Obnoviti na Drugem Strežniku (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Ali želite začeti ustvarjati Popolno Varnostno Kopijo vseh projektov, podatkovnih zbirk in nastavitev?",
+    "alert_cluster_backup_success": "Popolna Varnostna Kopija Gruče uspešno ustvarjena! Datoteka: {filename} ({size})"
   },
   "et": {
     "wz_zip_label": "Algne Lähtekood (.ZIP Fail)",
@@ -18167,7 +18391,14 @@
     "alert_backup_created": "Varukoopia edukalt loodud! Fail: {filename}",
     "alert_db_restored": "Andmebaasi taastamine edukalt lõpule viidud keskkonnas {env}!",
     "alert_zip_restore_success": "🎉 Taastamine edukalt lõpule viidud! Taastati {count} faili.",
-    "app_title_full": "Deployment Center — Universaalne Taristu ja Juurutamise Haldus"
+    "app_title_full": "Deployment Center — Universaalne Taristu ja Juurutamise Haldus",
+    "set_tab_cluster": "Täielik Varundus ja Migratsioon",
+    "cluster_title": "Kogu Taristu Varundus ja Universaalne Migratsioon",
+    "cluster_desc": "Loob iseseisva paketi, mis sisaldab Deployment Centerit, kõiki projekte, PostgreSQL-andmebaase, salvestusköiteid ja automaatset taastamisskripti teise serveri jaoks.",
+    "btn_export_cluster": "Loo ja Laadi alla Täielik Varundus (.tar.gz)",
+    "cluster_how_to_restore_title": "Kuidas Taastada Teises Serveris (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Kas soovite alustada kõigi projektide, andmebaaside ja sätete täieliku varunduse loomist?",
+    "alert_cluster_backup_success": "Klastri Täielik Varundus edukalt loodud! Fail: {filename} ({size})"
   },
   "fi": {
     "wz_zip_label": "Alkuperäinen Lähdekoodi (.ZIP-tiedosto)",
@@ -18844,7 +19075,14 @@
     "alert_backup_created": "Varmuuskopio luotu onnistuneesti! Tiedosto: {filename}",
     "alert_db_restored": "Tietokannan palautus suoritettu onnistuneesti ympäristössä {env}!",
     "alert_zip_restore_success": "🎉 Palautus suoritettu onnistuneesti! Palautettu {count} tiedostoa.",
-    "app_title_full": "Deployment Center — Yleismaailmallinen Infrastruktuurin ja Käyttöönoton Hallinta"
+    "app_title_full": "Deployment Center — Yleismaailmallinen Infrastruktuurin ja Käyttöönoton Hallinta",
+    "set_tab_cluster": "Täysi Varmuuskopio & Migraatio",
+    "cluster_title": "Täysi Infrastruktuurin Varmuuskopiointi & Universaali Migraatio",
+    "cluster_desc": "Luo itsenäisen paketin, joka sisältää Deployment Centerin, kaikki projektit, PostgreSQL-tietokannat, tallennustaltiot ja automaattisen palautusskriptin toiselle palvelimelle.",
+    "btn_export_cluster": "Luo ja Lataa Täysi Varmuuskopio (.tar.gz)",
+    "cluster_how_to_restore_title": "Miten Palautetaan Toiselle Palvelimelle (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Haluatko aloittaa kaikkien projektien, tietokantojen ja asetusten Täyden Varmuuskopion luomisen?",
+    "alert_cluster_backup_success": "Klusterin Täysi Varmuuskopio luotu onnistuneesti! Tiedosto: {filename} ({size})"
   },
   "hu": {
     "wz_zip_label": "Kezdeti Forráskód (.ZIP Fájl)",
@@ -19521,7 +19759,14 @@
     "alert_backup_created": "A biztonsági mentés sikeresen elkészült! Fájl: {filename}",
     "alert_db_restored": "Az adatbázis visszaállítása sikeresen befejeződött a(z) {env} környezetben!",
     "alert_zip_restore_success": "🎉 A visszaállítás sikeres! {count} fájl visszaállítva.",
-    "app_title_full": "Deployment Center — Univerzális Infrastruktúra- és Telepítéskezelés"
+    "app_title_full": "Deployment Center — Univerzális Infrastruktúra- és Telepítéskezelés",
+    "set_tab_cluster": "Teljes Mentés és Migráció",
+    "cluster_title": "Teljes Infrastruktúra-Mentés és Univerzális Migráció",
+    "cluster_desc": "Önálló csomagot hoz létre a Deployment Centerrel, az összes projekttel, PostgreSQL adatbázisokkal, tárolókötetekkel és egy automatikus visszaállító szkripttel egy másik szerverhez.",
+    "btn_export_cluster": "Teljes Mentés Létrehozása és Letöltése (.tar.gz)",
+    "cluster_how_to_restore_title": "Visszaállítás Másik Szerveren (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Elindítja az összes projekt, adatbázis és beállítás Teljes Mentésének létrehozását?",
+    "alert_cluster_backup_success": "A fürt Teljes Mentése sikeresen elkészült! Fájl: {filename} ({size})"
   },
   "lv": {
     "wz_zip_label": "Sākotnējais Pirmkods (.ZIP Fails)",
@@ -20198,7 +20443,14 @@
     "alert_backup_created": "Dublējums veiksmīgi izveidots! Fails: {filename}",
     "alert_db_restored": "Datubāzes atjaunošana veiksmīgi pabeigta vidē {env}!",
     "alert_zip_restore_success": "🎉 Atjaunošana veiksmīgi pabeigta! Atjaunoti {count} faili.",
-    "app_title_full": "Deployment Center — Universāla Infrastruktūras un Izvietošanas Pārvaldība"
+    "app_title_full": "Deployment Center — Universāla Infrastruktūras un Izvietošanas Pārvaldība",
+    "set_tab_cluster": "Pilna Dublēšana un Migrācija",
+    "cluster_title": "Pilna Infrastruktūras Dublēšana un Universālā Migrācija",
+    "cluster_desc": "Izveido autonomu pakotni ar Deployment Center, visiem projektiem, PostgreSQL datubāzēm, krātuves sējumiem un automātisku atjaunošanas skriptu citam serverim.",
+    "btn_export_cluster": "Izveidot un Lejupielādēt Pilnu Dublējumu (.tar.gz)",
+    "cluster_how_to_restore_title": "Kā Atjaunot Citā Serverī (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Vai vēlaties sākt visu projektu, datubāzu un iestatījumu Pilna Dublējuma izveidi?",
+    "alert_cluster_backup_success": "Klastera Pilns Dublējums veiksmīgi izveidots! Fails: {filename} ({size})"
   },
   "lt": {
     "wz_zip_label": "Pradinis Pirminis Kodas (.ZIP Failas)",
@@ -20875,7 +21127,14 @@
     "alert_backup_created": "Atsarginė kopija sėkmingai sukurta! Failas: {filename}",
     "alert_db_restored": "Duomenų bazės atkūrimas sėkmingai baigtas aplinkoje {env}!",
     "alert_zip_restore_success": "🎉 Atkūrimas sėkmingai baigtas! Atkurta failų: {count}.",
-    "app_title_full": "Deployment Center — Visuotinė Infrastruktūros ir Diegimo Valdymo Sistema"
+    "app_title_full": "Deployment Center — Visuotinė Infrastruktūros ir Diegimo Valdymo Sistema",
+    "set_tab_cluster": "Pilna Atsarginė Kopija ir Migracija",
+    "cluster_title": "Pilna Infrastruktūros Atsarginė Kopija ir Visuotinė Migracija",
+    "cluster_desc": "Sugeneruoja savarankišką paketą su Deployment Center, visais projektais, PostgreSQL duomenų bazėmis, saugyklos tomais ir automatiniu atkūrimo scenarijumi kitam serveriui.",
+    "btn_export_cluster": "Sukurti ir Atsisiųsti Pilną Atsarginę Kopiją (.tar.gz)",
+    "cluster_how_to_restore_title": "Kaip Atkurti Kitame Serveryje (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Ar norite pradėti kurti visų projektų, duomenų bazių ir nustatymų Pilną Atsarginę Kopiją?",
+    "alert_cluster_backup_success": "Pilna Klasterio Atsarginė Kopija sėkmingai sukurta! Failas: {filename} ({size})"
   },
   "mt": {
     "wz_zip_label": "Kodiċi Sors Inizjali (Fajl .ZIP)",
@@ -21552,7 +21811,14 @@
     "alert_backup_created": "Backup maħluq b'suċċess! Fajl: {filename}",
     "alert_db_restored": "Ir-restawr tad-database tlesta b'suċċess f'{env}!",
     "alert_zip_restore_success": "🎉 Ir-restawr tlesta b'suċċess! Ġew restawrati {count} fajls.",
-    "app_title_full": "Deployment Center — Ġestjoni Universali tal-Infrastruttura u l-Iskjerament"
+    "app_title_full": "Deployment Center — Ġestjoni Universali tal-Infrastruttura u l-Iskjerament",
+    "set_tab_cluster": "Backup Sħiħ u Migrazzjoni",
+    "cluster_title": "Backup Sħiħ tal-Infrastruttura u Migrazzjoni Universali",
+    "cluster_desc": "Jiġġenera pakkett awtonomu b'Deployment Center, il-proġetti kollha, databases PostgreSQL, volumi ta' ħażna u skript ta' restawr awtomatiku għal server ieħor.",
+    "btn_export_cluster": "Oħloq u Niżżel Backup Sħiħ (.tar.gz)",
+    "cluster_how_to_restore_title": "Kif Tirrestawra fuq Server Ieħor (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Trid tibda toħloq Backup Sħiħ tal-proġetti, databases u settings kollha?",
+    "alert_cluster_backup_success": "Backup Sħiħ tal-Cluster maħluq b'suċċess! Fajl: {filename} ({size})"
   },
   "la": {
     "wz_zip_label": "Primarius Codex Fontis (Fasciculus .ZIP)",
@@ -22229,7 +22495,14 @@
     "alert_backup_created": "Exemplum datorum feliciter creatum est! Fasciculus: {filename}",
     "alert_db_restored": "Restitutio datorum feliciter peracta est in {env}!",
     "alert_zip_restore_success": "🎉 Restitutio feliciter confecta est! {count} fasciculi restituti sunt.",
-    "app_title_full": "Deployment Center — Universalis Administratio Structurae et Exsecutionis"
+    "app_title_full": "Deployment Center — Universalis Administratio Structurae et Exsecutionis",
+    "set_tab_cluster": "Exemplum Integrum et Migratio",
+    "cluster_title": "Exemplum Integrum Structurae et Universalis Migratio",
+    "cluster_desc": "Sarcinam sui iuris parat cum Deployment Center, omnibus inceptis, receptaculis PostgreSQL, voluminibus ac scripto automatario ad alium servitorem.",
+    "btn_export_cluster": "Para et Deprome Exemplum Integrum (.tar.gz)",
+    "cluster_how_to_restore_title": "Quomodo in Alio Servitore Restituatur (Debian / Ubuntu / TrueNAS)",
+    "confirm_export_cluster": "Visne initium facere exempli integri omnium inceptorum, datorum ac constitutionum?",
+    "alert_cluster_backup_success": "Exemplum Integrum Fasciculi feliciter creatum est! Fasciculus: {filename} ({size})"
   }
 };
 
@@ -22976,12 +23249,94 @@
       switchSettingsTab('projects');
     }
 
+    
+    // ===================================================================
+    // EXPORTAÇÃO TOTAL DO CLUSTER & MIGRAÇÃO (DISASTER RECOVERY)
+    // ===================================================================
+    async function exportFullClusterBackup() {
+      const confirmed = await appConfirm({
+        title: t('wow_title_confirm'),
+        message: t('confirm_export_cluster', 'Deseja iniciar a criação do Backup Total de todos os projetos, bases de dados e configurações?'),
+        type: 'info',
+        confirmText: t('btn_confirm')
+      });
+      if (!confirmed) return;
+
+      const btn = document.getElementById('btn-cluster-export');
+      const btnText = document.getElementById('btn-cluster-export-text');
+      const btnIcon = document.getElementById('btn-cluster-export-icon');
+      const progress = document.getElementById('cluster-export-progress');
+      const statusLabel = document.getElementById('cluster-export-status-label');
+      const bar = document.getElementById('cluster-export-bar');
+      const percentage = document.getElementById('cluster-export-percentage');
+
+      btn.disabled = true;
+      btnText.textContent = t('btn_exporting_cluster', 'A gerar Backup Total...');
+      btnIcon.classList.add('animate-spin');
+      progress.classList.remove('hidden');
+
+      bar.style.width = '20%';
+      percentage.textContent = '20%';
+      statusLabel.textContent = 'A recolher definições e código do Deployment Center...';
+
+      try {
+        bar.style.width = '45%';
+        percentage.textContent = '45%';
+        statusLabel.textContent = 'A gerar dumps de bases de dados PostgreSQL de todos os projetos...';
+
+        const res = await fetch('/api/cluster/backup-full', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        bar.style.width = '85%';
+        percentage.textContent = '85%';
+        statusLabel.textContent = 'A compactar pacote universal (.tar.gz)...';
+
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'Falha ao gerar backup');
+
+        bar.style.width = '100%';
+        percentage.textContent = '100%';
+        statusLabel.textContent = `Concluído com sucesso! (${data.sizeFormatted})`;
+
+        // Disparar download direto
+        const a = document.createElement('a');
+        a.href = data.downloadUrl;
+        a.download = data.filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        await appAlert({
+          title: t('state_success', 'Sucesso'),
+          message: t('alert_cluster_backup_success', { filename: data.filename, size: data.sizeFormatted }),
+          type: 'success'
+        });
+      } catch (err) {
+        statusLabel.textContent = 'Erro na geração do backup.';
+        await appAlert({
+          title: t('wow_title_alert'),
+          message: 'Erro: ' + err.message,
+          type: 'danger'
+        });
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = t('btn_export_cluster', 'Criar & Descarregar Backup Total (.tar.gz)');
+        btnIcon.classList.remove('animate-spin');
+      }
+    }
+
     function switchSettingsTab(subTab) {
       document.getElementById('set-tab-btn-projects').className = subTab === 'projects' ? 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white' : 'px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800';
       document.getElementById('set-tab-btn-users').className = subTab === 'users' ? 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white' : 'px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800';
       document.getElementById('set-tab-btn-credentials').className = subTab === 'credentials' ? 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white flex items-center gap-1.5' : 'px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-1.5';
       document.getElementById('set-tab-btn-rules').className = subTab === 'rules' ? 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 shadow-sm' : 'px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-1.5';
       document.getElementById('set-tab-btn-skills').className = subTab === 'skills' ? 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-pink-600 text-white flex items-center gap-1.5 shadow-sm' : 'px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-1.5';
+      const clusterTab = document.getElementById('set-tab-btn-cluster');
+      if (clusterTab) clusterTab.className = subTab === 'cluster' ? 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white flex items-center gap-1.5 shadow-sm' : 'px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center gap-1.5';
+      const clusterContent = document.getElementById('set-content-cluster');
+      if (clusterContent) clusterContent.classList.toggle('hidden', subTab !== 'cluster');
       
       document.getElementById('set-content-projects').classList.toggle('hidden', subTab !== 'projects');
       document.getElementById('set-content-users').classList.toggle('hidden', subTab !== 'users');

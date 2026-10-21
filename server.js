@@ -4281,6 +4281,416 @@ app.get("/api/db/backups/download/:filename", requireAuth, (req, res) => {
   res.download(full, clean);
 });
 
+// ==============================================================================
+// GESTÃO DE BACKUP TOTAL DO CLUSTER & MIGRAÇÃO (DISASTER RECOVERY)
+// ==============================================================================
+
+function copyDirFiltered(src, dest, ignorePatterns = []) {
+  if (!fs.existsSync(src)) return;
+  fs.mkdirSync(dest, { recursive: true });
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    const relNorm = srcPath.replace(/\\/g, "/");
+    if (ignorePatterns.some((pattern) => relNorm.includes(pattern))) continue;
+
+    if (entry.isDirectory()) {
+      copyDirFiltered(srcPath, destPath, ignorePatterns);
+    } else if (entry.isFile()) {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
+function generateRestoreFullClusterScript(metadata) {
+  return `#!/usr/bin/env bash
+# ==============================================================================
+#  _   _       _                               _   ____             _               
+# | | | |_ __ (_)_   _____ _ __ ___  __ _     | | |  _ \\  ___ _ __ | | ___  _   _   
+# | | | | '_ \\| \\ \\ / / _ \\ '__/ __|/ _\` |    | | | | | |/ _ \\ '_ \\| |/ _ \\| | | |  
+# | |_| | | | | |\\ V /  __/ |  \\__ \\ (_| |    | | | |_| |  __/ |_) | | (_) | |_| |  
+#  \\___/|_| |_|_| \\_/ \\___|_|  |___/\\__,_|    |_| |____/ \\___| .__/|_|\\___/ \\__, |  
+#                                                            |_|            |___/   
+#
+#   🚀 UNIVERSAL DEPLOYMENT CENTER - RESTAURO & MIGRAÇÃO TOTAL DE CLUSTER
+#   Criado automaticamente em: ${metadata.timestamp}
+#   Total de Projetos: ${metadata.projects.length}
+#   Desenvolvido por David Ferreira (https://github.com/DavidFFerreira)
+# ==============================================================================
+set -eo pipefail
+
+RED='\\033[0;31m'
+GREEN='\\033[0;32m'
+YELLOW='\\033[1;33m'
+BLUE='\\033[0;34m'
+PURPLE='\\033[0;35m'
+CYAN='\\033[0;36m'
+BOLD='\\033[1m'
+NC='\\033[0m'
+
+SCRIPT_DIR="$(cd "$(dirname "\${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+echo -e "\${PURPLE}╔══════════════════════════════════════════════════════════════════════════════════╗\${NC}"
+echo -e "\${PURPLE}║\${BOLD}           🚀 UNIVERSAL DEPLOYMENT CENTER - RESTAURO DE CLUSTER           \${NC}\${PURPLE}║\${NC}"
+echo -e "\${PURPLE}╚══════════════════════════════════════════════════════════════════════════════════╝\${NC}"
+echo ""
+
+# 1. Verificação de Root
+if [[ $EUID -ne 0 ]]; then
+  echo -e "\${RED}❌ Erro:\${NC} Este script precisa de privilégios de root para orquestrar o Docker."
+  echo -e "Execute com: \${BOLD}sudo bash \$0\${NC}"
+  exit 1
+fi
+
+# 2. Deteção de IP e Opções
+AUTO_IP=\$(hostname -I 2>/dev/null | awk '{print \$1}' || echo "127.0.0.1")
+TARGET_IP="\${TARGET_IP:-\$AUTO_IP}"
+TARGET_STACKS_DIR="\${TARGET_STACKS_DIR:-/opt/stacks}"
+TARGET_DC_DIR="\${TARGET_DC_DIR:-/opt/deployment-center}"
+NON_INTERACTIVE="\${NON_INTERACTIVE:-false}"
+
+while [[ "\$#" -gt 0 ]]; do
+  case \$1 in
+    --ip) TARGET_IP="\$2"; shift ;;
+    --stacks-dir) TARGET_STACKS_DIR="\$2"; shift ;;
+    --dc-dir) TARGET_DC_DIR="\$2"; shift ;;
+    -y|--yes|--non-interactive) NON_INTERACTIVE=true ;;
+    *) echo -e "\${YELLOW}Aviso:\${NC} Opção desconhecida: \$1" ;;
+  esac
+  shift
+done
+
+if [ "\$NON_INTERACTIVE" != "true" ] && [ -t 0 ]; then
+  echo -e "\${CYAN}==> Configuração da Migração:\${NC}"
+  read -p "IP deste novo servidor [\$TARGET_IP]: " USER_IP
+  if [ -n "\$USER_IP" ]; then TARGET_IP="\$USER_IP"; fi
+  read -p "Diretório para stacks dos projetos [\$TARGET_STACKS_DIR]: " USER_STACKS
+  if [ -n "\$USER_STACKS" ]; then TARGET_STACKS_DIR="\$USER_STACKS"; fi
+  read -p "Diretório de instalação do Deployment Center [\$TARGET_DC_DIR]: " USER_DC
+  if [ -n "\$USER_DC" ]; then TARGET_DC_DIR="\$USER_DC"; fi
+  echo ""
+fi
+
+echo -e "  \${BLUE}ℹ\${NC}  IP do Servidor: \${BOLD}\$TARGET_IP\${NC}"
+echo -e "  \${BLUE}ℹ\${NC}  Diretório Stacks: \${BOLD}\$TARGET_STACKS_DIR\${NC}"
+echo -e "  \${BLUE}ℹ\${NC}  Diretório Deployment Center: \${BOLD}\$TARGET_DC_DIR\${NC}"
+echo ""
+
+# 3. Verificação / Instalação do Docker
+if ! command -v docker &>/dev/null; then
+  echo -e "\${CYAN}==> Docker não encontrado. A instalar Docker CE automaticamente...\${NC}"
+  curl -fsSL https://get.docker.com | sh
+  systemctl enable --now docker
+  echo -e "  \${GREEN}✔\${NC} Docker instalado com sucesso!"
+fi
+
+COMPOSE_CLI="docker compose"
+if ! docker compose version &>/dev/null; then
+  if command -v docker-compose &>/dev/null; then
+    COMPOSE_CLI="docker-compose"
+  else
+    echo -e "\${CYAN}==> A instalar plugin docker-compose...\${NC}"
+    apt-get update && apt-get install -y docker-compose-plugin || true
+  fi
+fi
+
+# Garantir rede bridge do Deployment Center
+docker network create deploy-center-network 2>/dev/null || true
+
+# 4. Restauro do Deployment Center
+echo -e "\${CYAN}==> A restaurar o Deployment Center...\${NC}"
+mkdir -p "\$TARGET_DC_DIR"
+if [ -d "\$SCRIPT_DIR/deployment-center" ]; then
+  cp -a "\$SCRIPT_DIR/deployment-center/." "\$TARGET_DC_DIR/"
+fi
+
+# Atualizar IP e diretório de apps em settings.json
+if [ -f "\$TARGET_DC_DIR/data/settings.json" ]; then
+  sed -i "s/\\"server_host_ip\\": *\\"[^\\"]*\\"/\\"server_host_ip\\": \\"\$TARGET_IP\\"/g" "\$TARGET_DC_DIR/data/settings.json" 2>/dev/null || true
+  sed -i "s/\\"server_apps_dir\\": *\\"[^\\"]*\\"/\\"server_apps_dir\\": \\"\${TARGET_STACKS_DIR//\\//\\\\/}\\"/g" "\$TARGET_DC_DIR/data/settings.json" 2>/dev/null || true
+fi
+
+chmod -R 777 "\$TARGET_DC_DIR/data" 2>/dev/null || true
+
+# Iniciar o container do Deployment Center
+echo -e "\${CYAN}==> A iniciar o contentor do Deployment Center...\${NC}"
+\$COMPOSE_CLI -f "\$TARGET_DC_DIR/docker-compose.yml" up -d --build 2>/dev/null || \$COMPOSE_CLI -f "\$TARGET_DC_DIR/docker-compose.yml" up -d
+echo -e "  \${GREEN}✔\${NC} Deployment Center ativo na porta 50000!"
+
+# 5. Restauro de Todos os Projetos
+mkdir -p "\$TARGET_STACKS_DIR"
+if [ -d "\$SCRIPT_DIR/projects" ]; then
+  for proj_dir in "\$SCRIPT_DIR/projects"/*; do
+    if [ -d "\$proj_dir" ]; then
+      proj_id=\$(basename "\$proj_dir")
+      dest_dir="\$TARGET_STACKS_DIR/\$proj_id"
+      echo -e "\${CYAN}==> A restaurar projeto [\$proj_id] em \$dest_dir...\${NC}"
+      mkdir -p "\$dest_dir"
+      
+      # Código
+      if [ -d "\$proj_dir/code" ]; then
+        cp -a "\$proj_dir/code/." "\$dest_dir/"
+      fi
+      # Docker Compose & Infra
+      if [ -f "\$proj_dir/docker-compose.yml" ]; then
+        cp -f "\$proj_dir/docker-compose.yml" "\$dest_dir/"
+      fi
+      if [ -f "\$proj_dir/kong.yml" ]; then
+        cp -f "\$proj_dir/kong.yml" "\$dest_dir/"
+      fi
+      # Variáveis de ambiente
+      for env_file in "\$proj_dir"/.env*; do
+        if [ -f "\$env_file" ]; then cp -f "\$env_file" "\$dest_dir/"; fi
+      done
+      # Storage
+      if [ -d "\$proj_dir/storage" ]; then
+        mkdir -p "\$dest_dir/data/storage"
+        cp -a "\$proj_dir/storage/." "\$dest_dir/data/storage/" 2>/dev/null || true
+      fi
+      chmod -R 777 "\$dest_dir" 2>/dev/null || true
+
+      # Iniciar stack do projeto
+      if [ -f "\$dest_dir/docker-compose.yml" ]; then
+        echo -e "  \${BLUE}🐳\${NC} A iniciar containers do projeto [\$proj_id]..."
+        \$COMPOSE_CLI -f "\$dest_dir/docker-compose.yml" up -d 2>/dev/null || true
+      fi
+
+      # Restauro de Bases de Dados PostgreSQL
+      if [ -d "\$proj_dir/database" ]; then
+        pg_container=""
+        if [ -f "\$proj_dir/project_metadata.json" ]; then
+          pg_container=\$(grep -o '"postgresContainer": *"[^"]*"' "\$proj_dir/project_metadata.json" | cut -d'"' -f4 || true)
+        fi
+        if [ -z "\$pg_container" ]; then
+          pg_container="\${proj_id}-postgres"
+        fi
+
+        echo -e "  \${BLUE}⏳\${NC} A aguardar disponibilidade do PostgreSQL (\$pg_container)..."
+        for i in {1..25}; do
+          if docker exec -i "\$pg_container" pg_isready -U postgres &>/dev/null; then
+            break
+          fi
+          sleep 1.5
+        done
+
+        if [ -f "\$proj_dir/database/dump_production.sql" ]; then
+          echo -e "  \${GREEN}📥\${NC} A restaurar base de dados de Produção no PostgreSQL..."
+          docker exec -i "\$pg_container" psql -U postgres -d postgres < "\$proj_dir/database/dump_production.sql" 2>/dev/null || true
+        fi
+        if [ -f "\$proj_dir/database/dump_staging.sql" ]; then
+          staging_pg="\${pg_container}-stg"
+          echo -e "  \${GREEN}📥\${NC} A restaurar base de dados de Staging no PostgreSQL..."
+          docker exec -i "\$staging_pg" psql -U postgres -d postgres < "\$proj_dir/database/dump_staging.sql" 2>/dev/null || true
+        fi
+      fi
+      echo -e "  \${GREEN}✔\${NC} Projeto [\$proj_id] restaurado e operacional!"
+    fi
+  done
+fi
+
+echo ""
+echo -e "\${GREEN}╔══════════════════════════════════════════════════════════════════════════════════╗\${NC}"
+echo -e "\${GREEN}║\${BOLD}        🎉 RESTAURO COMPLETO DO CLUSTER CONCLUÍDO COM SUCESSO!         \${NC}\${GREEN}║\${NC}"
+echo -e "\${GREEN}╠══════════════════════════════════════════════════════════════════════════════════╣\${NC}"
+echo -e "\${GREEN}║\${NC}  🌐 \${BOLD}Deployment Center:\${NC} \${CYAN}http://\$TARGET_IP:50000\${NC}                                    \${GREEN}║\${NC}"
+echo -e "\${GREEN}║\${NC}  📦 \${BOLD}Projetos Restaurados:\${NC} \${YELLOW}${metadata.projects.length} projeto(s)\${NC}                                            \${GREEN}║\${NC}"
+echo -e "\${GREEN}╚══════════════════════════════════════════════════════════════════════════════════╝\${NC}"
+echo ""
+`;
+}
+
+function generateClusterMigrationReadme(metadata) {
+  return `# 🚀 Universal Deployment Center — Backup Total & Migração de Cluster
+
+Este pacote é um **backup autocontido e autónomo** de toda a infraestrutura do Deployment Center e dos seus projetos associados.
+
+## 📋 Conteúdo do Pacote:
+- \`restore_full_cluster.sh\`: Script executável de restauro universal e automático para Linux (Debian / Ubuntu / TrueNAS).
+- \`cluster_metadata.json\`: Informações de versão, IP original e lista de projetos integrados.
+- \`deployment-center/\`: Código, configurações, utilizadores, chaves e ficheiros do Deployment Center.
+- \`projects/\`: Código-fonte, ficheiros \`.env\`, \`docker-compose.yml\`, bases de dados PostgreSQL (\`dump_production.sql\`) e storage de cada projeto.
+
+---
+
+## ⚡ Como Restaurar noutro Servidor (Passo a Passo)
+
+### 1. Copiar o ficheiro para o novo servidor:
+\`\`\`bash
+scp cluster_full_backup_*.tar.gz root@NOVO_IP:/tmp/
+\`\`\`
+
+### 2. Aceder ao novo servidor via SSH e extrair:
+\`\`\`bash
+ssh root@NOVO_IP
+cd /tmp
+tar -xzf cluster_full_backup_*.tar.gz
+cd cluster_backup_*
+\`\`\`
+
+### 3. Executar o script de restauro automático:
+\`\`\`bash
+sudo bash restore_full_cluster.sh
+\`\`\`
+
+O script irá:
+1. Verificar e instalar o Docker & Docker Compose caso ainda não existam.
+2. Perguntar o IP do novo servidor (ou detetar automaticamente).
+3. Restaurar e inicializar o contentor do Deployment Center.
+4. Restaurar todos os projetos em \`/opt/stacks\`.
+5. Inicializar todos os contentores de cada projeto.
+6. Restaurar automaticamente todos os dumps PostgreSQL e volumes de storage.
+
+---
+
+Desenvolvido por **David Ferreira** • [GitHub](https://github.com/DavidFFerreira)
+`;
+}
+
+app.post("/api/cluster/backup-full", requireAuth, async (req, res) => {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 16);
+  const clusterBackupId = `cluster_backup_${timestamp}`;
+  const tempClusterDir = path.join(os.tmpdir(), clusterBackupId);
+  const archiveFilename = `cluster_full_backup_${timestamp}.tar.gz`;
+  const archivePath = path.join(BACKUPS_DIR, archiveFilename);
+
+  try {
+    if (!fs.existsSync(BACKUPS_DIR)) fs.mkdirSync(BACKUPS_DIR, { recursive: true });
+    fs.mkdirSync(tempClusterDir, { recursive: true });
+    fs.mkdirSync(path.join(tempClusterDir, "deployment-center"), { recursive: true });
+    fs.mkdirSync(path.join(tempClusterDir, "projects"), { recursive: true });
+
+    const projects = getProjects();
+    const settings = getSettings();
+
+    // 1. Snapshot do Deployment Center (código e definições)
+    const dcDest = path.join(tempClusterDir, "deployment-center");
+    if (fs.existsSync(DATA_DIR)) {
+      copyDirFiltered(DATA_DIR, path.join(dcDest, "data"), ["backups"]);
+    }
+    ["docker-compose.yml", ".env", "package.json", "package-lock.json", "server.js", "index.html", "login.html", "api_docs.html", "manifest.json", "sw.js", "Dockerfile", "install.sh", "update.sh"].forEach((f) => {
+      const src = path.join(__dirname, f);
+      if (fs.existsSync(src)) fs.copyFileSync(src, path.join(dcDest, f));
+    });
+    if (fs.existsSync(path.join(__dirname, "lib"))) {
+      copyDirFiltered(path.join(__dirname, "lib"), path.join(dcDest, "lib"), []);
+    }
+
+    // 2. Snapshot de Cada Projeto (código, envs, stacks, dumps postgres, storage)
+    for (const project of projects) {
+      const projDest = path.join(tempClusterDir, "projects", project.id);
+      fs.mkdirSync(projDest, { recursive: true });
+      fs.mkdirSync(path.join(projDest, "database"), { recursive: true });
+
+      fs.writeFileSync(path.join(projDest, "project_metadata.json"), JSON.stringify(project, null, 2), "utf-8");
+
+      // Dump PostgreSQL de Produção
+      try {
+        const prodPg = project.postgresContainer || `${project.id}-postgres`;
+        const { stdout: sqlDump } = await execAsync(`docker exec -i ${prodPg} pg_dump -U postgres postgres`, { maxBuffer: 300 * 1024 * 1024, timeout: 60000 });
+        if (sqlDump && sqlDump.length > 50) {
+          fs.writeFileSync(path.join(projDest, "database", "dump_production.sql"), sqlDump, "utf-8");
+        }
+      } catch (e) {
+        fs.writeFileSync(path.join(projDest, "database", "dump_production_error.txt"), e.message, "utf-8");
+      }
+
+      // Dump PostgreSQL de Staging (se existir)
+      try {
+        const stgPg = `${project.postgresContainer || project.id + "-postgres"}-stg`;
+        const { stdout: sqlDumpStg } = await execAsync(`docker exec -i ${stgPg} pg_dump -U postgres postgres`, { maxBuffer: 300 * 1024 * 1024, timeout: 60000 });
+        if (sqlDumpStg && sqlDumpStg.length > 50) {
+          fs.writeFileSync(path.join(projDest, "database", "dump_staging.sql"), sqlDumpStg, "utf-8");
+        }
+      } catch (e) {}
+
+      // Código e Stacks do Projeto
+      if (project.appDir && fs.existsSync(project.appDir)) {
+        ["docker-compose.yml", "compose.yaml", "kong.yml", "ARCHITECTURE.md"].forEach((f) => {
+          const src = path.join(project.appDir, f);
+          if (fs.existsSync(src)) fs.copyFileSync(src, path.join(projDest, f));
+        });
+        try {
+          const dirEntries = fs.readdirSync(project.appDir);
+          dirEntries.filter(f => f.startsWith(".env")).forEach(f => {
+            fs.copyFileSync(path.join(project.appDir, f), path.join(projDest, f));
+          });
+        } catch (e) {}
+
+        copyDirFiltered(project.appDir, path.join(projDest, "code"), ["node_modules", ".output", "dist", ".git/objects", ".git/lfs", ".build_cache", "data/storage"]);
+
+        const storageDir = path.join(project.appDir, "data", "storage");
+        if (fs.existsSync(storageDir)) {
+          copyDirFiltered(storageDir, path.join(projDest, "storage"), []);
+        }
+      }
+    }
+
+    // 3. Metadados do Cluster
+    const clusterMetadata = {
+      timestamp: new Date().toISOString(),
+      dcCommit: CURRENT_DEPLOY_CENTER_COMMIT,
+      serverHostIp: settings.server_host_ip || "127.0.0.1",
+      serverAppsDir: settings.server_apps_dir || "/opt/stacks",
+      projectsCount: projects.length,
+      projects: projects.map(p => ({
+        id: p.id,
+        name: p.name,
+        appDir: p.appDir,
+        portPrefix: p.portPrefix,
+        postgresContainer: p.postgresContainer,
+        kongPort: p.kongPort,
+        studioPort: p.studioPort,
+        webPort: p.webPort
+      }))
+    };
+    fs.writeFileSync(path.join(tempClusterDir, "cluster_metadata.json"), JSON.stringify(clusterMetadata, null, 2), "utf-8");
+
+    // 4. Script de Restauro Universal e Manual
+    const restoreScript = generateRestoreFullClusterScript(clusterMetadata);
+    fs.writeFileSync(path.join(tempClusterDir, "restore_full_cluster.sh"), restoreScript, { encoding: "utf-8", mode: 0o755 });
+
+    const readme = generateClusterMigrationReadme(clusterMetadata);
+    fs.writeFileSync(path.join(tempClusterDir, "README_CLUSTER_MIGRATION.md"), readme, "utf-8");
+
+    // 5. Compactação em .tar.gz
+    await execAsync(`tar -czf "${archivePath}" -C "${tempClusterDir}" .`, { timeout: 300000 });
+
+    if (!fs.existsSync(archivePath)) {
+      throw new Error("Falha ao gerar o arquivo compactado do cluster (.tar.gz).");
+    }
+
+    const stats = fs.statSync(archivePath);
+    const sizeFormatted = stats.size > 1024 * 1024 ? `${(stats.size / 1024 / 1024).toFixed(2)} MB` : `${(stats.size / 1024).toFixed(1)} KB`;
+
+    res.json({
+      ok: true,
+      filename: archiveFilename,
+      sizeBytes: stats.size,
+      sizeFormatted,
+      projectsCount: projects.length,
+      downloadUrl: `/api/cluster/backup-full/download/${encodeURIComponent(archiveFilename)}`,
+      message: `Backup Total do Cluster criado com sucesso! (${sizeFormatted})`
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: "Erro ao gerar Backup Total do Cluster: " + err.message });
+  } finally {
+    try {
+      if (fs.existsSync(tempClusterDir)) fs.rmSync(tempClusterDir, { recursive: true, force: true });
+    } catch (e) {}
+  }
+});
+
+app.get("/api/cluster/backup-full/download/:filename", requireAuth, (req, res) => {
+  const { filename } = req.params;
+  const clean = filename.replace(/[^a-zA-Z0-9_\-\.]/g, "");
+  const full = path.join(BACKUPS_DIR, clean);
+  if (!fs.existsSync(full)) return res.status(404).send("Ficheiro de backup do cluster não encontrado.");
+  res.download(full, clean);
+});
+
+
+
 app.post("/api/db/restore", requireAuth, async (req, res) => {
   const { project_id, filename, sql_content, env } = req.body;
   const targetEnv = env || "production";
