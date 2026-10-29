@@ -27822,11 +27822,23 @@ document.getElementById('deploy-modal-date').textContent = `🕒 ${new Date(comm
             } catch (pe) {}
           }
         } else {
-          // Fallback caso receba JSON tradicional
-          const data = await res.json();
+          // Fallback caso receba JSON tradicional ou erro HTTP
+          const rawText = await res.text();
+          let data = null;
+          try {
+            data = JSON.parse(rawText);
+          } catch (_) {
+            data = {
+              ok: false,
+              error: `Erro HTTP ${res.status} (${res.statusText || 'Resposta Inválida'}): O servidor devolveu HTML em vez de JSON.`,
+              details: rawText.slice(0, 300)
+            };
+          }
           finalResult = data;
-          if (data.logs) {
+          if (data && data.logs) {
             appendTerminalLine(data.logs);
+          } else if (data && !data.ok && data.error) {
+            appendTerminalLine(`\n❌ [HTTP ${res.status}]: ${data.error}`);
           }
         }
 
